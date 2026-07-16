@@ -395,7 +395,8 @@ function vpFinanceCards(){
 async function init(){
   const { data } = await db.auth.getSession();
   session = data.session;
-  db.auth.onAuthStateChange((_e,s)=>{ const had=!!session; session=s; if(had!==!!s) render(); });
+  db.auth.onAuthStateChange((e,s)=>{ if(e==='PASSWORD_RECOVERY'){ session=s; showReset(); return; } const had=!!session; session=s; if(had!==!!s) render(); });
+  if(/type=recovery/.test(location.hash)){ showReset(); return; }
   render();
 }
 function render(){ session ? showApp() : showLogin(); }
@@ -412,6 +413,7 @@ function showLogin(){
         <button class="btn" type="submit">Log ind</button>
         <button class="btn ghost" type="button" id="signupbtn">Opret bruger</button>
       </div>
+      <div style="margin-top:10px"><button type="button" id="forgotbtn" style="padding:0;background:none;border:none;color:var(--gold);font-size:11.5px;cursor:pointer;text-decoration:underline;font-family:inherit">Glemt kodeord?</button></div>
     </form>
     <div class="err" id="autherr"></div>
     <p class="muted">Kun teamets e-mailadresser får adgang til data.</p></div>`;
@@ -429,6 +431,40 @@ function showLogin(){
     if(!c.email||!c.password) return msg('Udfyld e-mail + kodeord (min. 6 tegn), tryk så Opret.');
     const {error}=await db.auth.signUp(c);
     msg(error?error.message:'Bruger oprettet — bed Claude bekræfte den, og log ind.',!error);
+  });
+  document.getElementById('forgotbtn').addEventListener('click', async ()=>{
+    const c=creds();
+    if(!c.email) return msg('Skriv din e-mail i feltet ovenfor, tryk så «Glemt kodeord?».');
+    msg('Sender link…',true);
+    const {error}=await db.auth.resetPasswordForEmail(c.email, {redirectTo: location.origin+location.pathname});
+    msg(error?error.message:'Vi har sendt et link til '+c.email+'. Åbn mailen og vælg et nyt kodeord (tjek evt. spam-mappen).',!error);
+  });
+}
+function showReset(){
+  $('#sidebar').style.display='none';
+  app.innerHTML = `<div class="card" id="login">
+    <div class="center" style="margin-bottom:16px">
+      <div class="pf" style="letter-spacing:9px;font-size:21px;color:var(--forest);font-weight:500">MALDIVIA</div>
+      <div style="font-size:8.5px;letter-spacing:3.5px;color:var(--gold);text-transform:uppercase;margin-top:4px;font-weight:700">Vælg nyt kodeord</div></div>
+    <form id="resetform">
+      <label for="np">Nyt kodeord</label><input id="np" name="np" type="password" autocomplete="new-password" required minlength="6">
+      <label for="np2">Gentag nyt kodeord</label><input id="np2" name="np2" type="password" autocomplete="new-password" required minlength="6">
+      <div style="margin-top:15px" class="row"><button class="btn" type="submit">Gem nyt kodeord</button></div>
+    </form>
+    <div class="err" id="autherr"></div>
+    <p class="muted">Vælg et kodeord på mindst 6 tegn.</p></div>`;
+  const msg=(t,ok)=>{const e=$('#autherr');e.className=ok?'err ok':'err';e.textContent=t;};
+  document.getElementById('resetform').addEventListener('submit', async ev=>{
+    ev.preventDefault();
+    const p1=$('#np').value, p2=$('#np2').value;
+    if(p1.length<6) return msg('Kodeordet skal være mindst 6 tegn.');
+    if(p1!==p2) return msg('De to kodeord er ikke ens.');
+    msg('Gemmer…',true);
+    const {error}=await db.auth.updateUser({password:p1});
+    if(error) return msg(error.message);
+    msg('Kodeord opdateret — du er nu logget ind.',true);
+    history.replaceState(null,'',location.pathname);
+    render();
   });
 }
 async function showApp(){
