@@ -174,6 +174,51 @@ table.rep tfoot td{border-top:2px solid var(--line);font-weight:700;}
   table.rep{font-size:10px;width:100%;}
   .print-only{display:block!important;}
 }
+/* ═══ HENVENDELSER · pipeline-board ═══ */
+.board{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 12px;align-items:flex-start;}
+.col{flex:0 0 224px;background:#faf7f0;border:1px solid var(--line);border-radius:10px;padding:8px;min-height:80px;transition:background .12s,border-color .12s;}
+.col.drop{background:#f2ead6;border-color:var(--gold);}
+.col-h{display:flex;align-items:baseline;gap:6px;margin:2px 4px 8px;}
+.col-h .nm{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);font-weight:700;line-height:1.3;}
+.col-h .ct{margin-left:auto;font-size:9px;font-weight:700;color:var(--gold);background:#fff;border:1px solid var(--line);border-radius:20px;padding:1px 7px;}
+.col-h .sum{width:100%;font-size:9.5px;color:var(--mut);margin:1px 4px 0;font-variant-numeric:tabular-nums;}
+.lead-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-bottom:7px;cursor:pointer;box-shadow:0 1px 2px rgba(120,105,75,.05);border-left:3px solid var(--gold);}
+.lead-card:hover{border-color:var(--gold);box-shadow:0 3px 10px rgba(120,105,75,.12);}
+.lead-card.drag{opacity:.4;}
+.lead-card .nm{font-weight:600;color:var(--forest);font-size:12.5px;line-height:1.25;}
+.lead-card .meta{font-size:10.5px;color:var(--mut);margin-top:2px;line-height:1.4;}
+.lead-card .val{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink);}
+.lead-card .foot{display:flex;align-items:center;gap:6px;margin-top:5px;}
+.age{font-size:8.5px;font-weight:700;border-radius:4px;padding:1.5px 6px;letter-spacing:.5px;}
+.age.fresh{background:#e9f0e6;color:#4a6a3d;} .age.warm{background:#f6edcf;color:#8a6d1f;} .age.hot{background:#f3ddd7;color:#a4442e;}
+.owner-chip{font-size:8.5px;font-weight:700;letter-spacing:.5px;color:#fff;background:#a8a28c;border-radius:20px;padding:1.5px 7px;margin-left:auto;}
+.lead-lost{opacity:.7;} .lead-lost .lead-card{border-left-color:var(--bad);}
+.lead-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+.lead-form-grid .full{grid-column:1/-1;}
+dialog.lead-dlg{max-width:640px;}
+dialog.lead-dlg h3{font-family:'Playfair Display',serif;color:var(--forest);font-size:20px;font-weight:500;margin:0 0 2px;}
+.dlg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center;}
+.dlg-actions .spacer{margin-left:auto;}
+/* ── Brugere (v0.7 · roller & rettigheder) ── */
+.usr-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--card);}
+.usr-row.inactive{opacity:.55;}
+.usr-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.usr-head b{font-size:14px;color:var(--forest);}
+.usr-head .ini{font-size:10px;letter-spacing:1.5px;color:var(--gold);font-weight:700;}
+.usr-head select{margin-left:auto;font-size:12px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;font-family:inherit;}
+.usr-perms{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;}
+.permcell{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;border:1px solid var(--line);border-radius:20px;padding:3.5px 10px;cursor:pointer;background:#fff;user-select:none;}
+.permcell input{margin:0;accent-color:var(--forest);}
+.permcell.ovr{border-color:var(--gold);background:#fdf8ec;}
+.permcell.ovr::after{content:'undtagelse';font-size:8.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.usr-meta{margin-top:8px;font-size:11px;color:var(--mut);display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+.usr-meta a{color:var(--bad);}
+.rolecard{border:1px solid var(--line-2);border-radius:8px;padding:9px 12px;margin-bottom:8px;background:#fdfcf8;font-size:12px;}
+.rolecard b{color:var(--forest);}
+.rolecard .pl{margin-top:4px;display:flex;gap:5px;flex-wrap:wrap;}
+.rolecard .pl span{font-size:10px;border-radius:12px;padding:2px 8px;border:1px solid var(--line);}
+.rolecard .pl span.y{background:#eef3ec;color:var(--forest);border-color:#d6e0d2;}
+.rolecard .pl span.n{color:var(--mut);text-decoration:line-through;}
 </style>
 </head>
 <body>
@@ -181,10 +226,12 @@ table.rep tfoot td{border-top:2px solid var(--line);font-weight:700;}
   <div class="logo"><h1>MALDIVIA</h1><small>Travel Design · OS</small></div>
   <nav id="nav">
     <button data-v="dash" class="on">Dashboard</button>
+    <button data-v="leads">Henvendelser</button>
     <button data-v="sales">Salg</button>
     <button data-v="finance">Økonomi</button>
     <button data-v="marketing">Markedsføring</button>
     <button data-v="reports">Rapporter</button>
+    <button data-v="users" style="display:none">Brugere</button>
     <button data-v="new">＋ Ny rejse</button>
   </nav>
   <div class="foot" id="who"></div>
@@ -199,6 +246,14 @@ const $ = s => document.querySelector(s);
 const app = $('#app');
 const STATUS_LABELS = {bekraeftet:'Bekræftet', bb_sendt:'BB sendt', klar_til_afrejse:'Klar til afrejse', god_tur:'God tur', faerdig:'Færdig', canx:'Afbestilt', voided:'Void'};
 const FLOW = ['bekraeftet','bb_sendt','klar_til_afrejse','god_tur','faerdig'];
+// Henvendelses-pipeline — trin kortlagt fra Pipedrive "Leads - Pipeline" (16. jul 2026)
+const LEAD_STAGES = [
+  ['new_lead','Ny henvendelse'],['send_email','Send e-mail'],['make_offer','Lav tilbud'],
+  ['to_be_sent','Klar til afsendelse'],['offer_sent','Tilbud sendt + SMS'],['followed_up','Fulgt op'],
+  ['thinking','Tænker på det'],['negotiation','Flere tilbud / forhandling'],['confirmed','Vundet (bekræftet)']
+];
+const LEAD_STAGE_LABEL = Object.fromEntries(LEAD_STAGES);
+const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at';
 const EL_TYPES = {flight:'Fly', ticket:'Billet', hotel:'Hotel', transfer:'Transfer', other:'Andet', fee:'Gebyr', insurance:'Forsikring'};
 const SALES_TASKS = ['tjek_rejse','pre_departure','god_tur','hjemkomst','retrieval'];
 const FIN_TASKS = ['restbetaling','leverandoerbetaling','kreditvarsel','dok_sync'];
@@ -474,13 +529,36 @@ function changePassword(){
 async function showApp(){
   $('#sidebar').style.display='';
   const email = session.user.email;
-  const { data: tm } = await db.from('team_members').select('name, initials').eq('email', email).maybeSingle();
-  window.ME = tm?tm.initials:null; window.MYNAME = tm?tm.name.split(' ')[0]:email;
-  $('#who').innerHTML = (tm?tm.name:email) + '<br><a href="#" onclick="changePassword();return false">Skift kodeord</a> · <a href="#" onclick="db.auth.signOut();return false">Log ud</a>';
+  window.MYEMAIL = email;
+  const [tmr, rr] = await Promise.all([
+    db.from('team_members').select('email, name, initials, role, permission_overrides, active').eq('email', email).maybeSingle(),
+    db.from('roles').select('role_key, label, description, permissions, sort_order').order('sort_order')
+  ]);
+  const tm = tmr.data;
+  window.ROLES = rr.data || [];
+  if(!tm || tm.active===false){
+    window.ME=null; window.PERMS={};
+    document.querySelectorAll('#nav button').forEach(b=>b.style.display='none');
+    $('#who').innerHTML = email + '<br><a href="#" onclick="db.auth.signOut();return false">Log ud</a>';
+    app.innerHTML = '<div class="card"><h3>Ingen adgang</h3><p class="muted">Din bruger ('+email+') er ikke aktiv i systemet. Kontakt Wendie eller Rasmus.</p></div>';
+    return;
+  }
+  window.ME = tm.initials; window.MYNAME = tm.name.split(' ')[0];
+  const roleDef = window.ROLES.find(r=>r.role_key===tm.role);
+  // Effektive rettigheder = rolle-standarder + individuelle undtagelser (spejler public.my_permissions() i databasen)
+  window.PERMS = Object.assign({economy:false,finance:false,reports:true,leads:true,manage_users:false}, (roleDef&&roleDef.permissions)||{}, tm.permission_overrides||{});
+  applyNavPerms();
+  $('#who').innerHTML = tm.name + (roleDef?' <span class="muted">· '+roleDef.label+'</span>':'') + '<br><a href="#" onclick="changePassword();return false">Skift kodeord</a> · <a href="#" onclick="db.auth.signOut();return false">Log ud</a>';
   viewDash();
   if(window.__recovery){ window.__recovery=false; setTimeout(changePassword, 500); }
 }
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{navTo(b.dataset.v);({dash:viewDash,sales:viewSales,finance:viewFinance,marketing:viewMarketing,reports:viewReports,new:viewNew})[b.dataset.v]();});
+function hasPerm(p){ return !!(window.PERMS && window.PERMS[p]); }
+function applyNavPerms(){
+  const vis = {leads:hasPerm('leads'), finance:hasPerm('finance'), reports:hasPerm('reports'), users:hasPerm('manage_users')};
+  document.querySelectorAll('#nav button').forEach(b=>{ if(b.dataset.v in vis) b.style.display = vis[b.dataset.v]?'':'none'; });
+}
+function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>Ingen adgang</h3><p class="muted">Din brugerprofil har ikke adgang til denne side. En admin kan give adgang under Brugere.</p></div>'; }
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew})[b.dataset.v]();});
 function navTo(v){document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));}
 
 // ═══ FÆLLES ═══
@@ -525,7 +603,15 @@ async function viewDash(){
   const [trips, rk, rb, rd, re] = await Promise.all([
     fetchTrips(),
     db.from('tasks').select('*, trips(ref_no)').eq('status','aaben').order('due_date').then(r=>r.data||[]),
-    db.from('daily_briefing').select('*').order('briefing_date',{ascending:false}).limit(1).then(r=>r.data&&r.data[0]),
+    // Brief: fælles brief (for_email = null) er basen; en personlig række (for_email = mig)
+    // overlejrer mail-sektionen — så nyheder/puls er fælles, mens mails er brugerens egne
+    db.from('daily_briefing').select('*').or(`for_email.is.null,for_email.eq.${window.MYEMAIL}`).order('briefing_date',{ascending:false}).order('created_at',{ascending:false}).limit(6).then(r=>{
+      const rows=r.data||[]; const pers=rows.find(x=>x.for_email); const felles=rows.find(x=>!x.for_email);
+      if(!felles) return pers;
+      if(pers && pers.briefing_date>=felles.briefing_date)
+        return Object.assign({}, felles, {for_email:pers.for_email, mail_owner:pers.mail_owner||pers.for_email, mail_flag:pers.mail_flag||[]});
+      return felles;
+    }),
     db.from('documents').select('id',{count:'exact',head:true}),
     db.from('trip_elements').select('id,element_type,description,start_date,end_date,status,suppliers:supplier_id(name),trips!inner(id,ref_no,status,customers(last_name,first_name))').lte('start_date',t0).or(`end_date.gte.${t0},end_date.is.null`).then(r=>r.data||[]),
     vpLoadRecon()
@@ -572,7 +658,7 @@ async function viewDash(){
   const delta = n => n===0?'':`<span class="delta ${n>0?'up':'down'}">${n>0?'▲':'▼'}${Math.abs(n)}</span>`;
   // ── Morgenbrief-data (rene menupunkter) ──
   const briefDate = brief ? fmtD(brief.briefing_date) : new Date().toLocaleDateString('da-DK',{day:'numeric',month:'short'});
-  const isAdmin = ['WEN','RAS'].includes(window.ME);              // super-admins: Wendie + Rasmus
+  const isAdmin = hasPerm('economy');                             // indtjeningstal styres af rettigheden 'economy'
   const krFull = n => Math.round(n||0).toLocaleString('da-DK') + ' kr.';
   // Vigtige opgaver i dag (forfaldne/i dag), ekskl. restbetalinger som har egen sektion
   const briefTasks = rk.filter(k=>k.due_date&&k.due_date<=t0&&k.task_type!=='restbetaling')
@@ -584,7 +670,9 @@ async function viewDash(){
   const revToday = depToday.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0);
   const revRas = depToday.filter(t=>t.owner==='RAS').reduce((s,t)=>s+ +(t.package_sell_dkk||0),0);
   const revWen = depToday.filter(t=>t.owner==='WEN').reduce((s,t)=>s+ +(t.package_sell_dkk||0),0);
-  const mailF = (brief&&brief.mail_flag)||[];
+  // Mail-sektionen vises kun for den bruger, hvis postkasse briefen er bygget fra
+  const mailIsMine = brief && (brief.for_email ? brief.for_email===window.MYEMAIL : (brief.mail_owner||'wp@maldivia.no')===window.MYEMAIL);
+  const mailF = (mailIsMine && brief.mail_flag)||[];
   const moveF = (brief&&brief.movements)||[];
   const pulseF = (brief&&brief.pulse)||[];
   const briefRow = (txt,when,onclick)=>`<div class="brief-item${onclick?' click':''}"${onclick?` onclick="${onclick}"`:''}><span class="ic">→</span><span class="tx">${txt}</span>${when?`<span class="when">${when}</span>`:''}</div>`;
@@ -622,18 +710,20 @@ async function viewDash(){
     ${!brief && !briefTasks.length && !briefPays.length ? `<p class="brief-empty">Din brief lander automatisk kl. 6 hver morgen — der er ikke skrevet en endnu i dag.</p>` : (brief && !brief.top_line && !briefTasks.length && !briefPays.length && !mailF.length && !moveF.length && !pulseF.length ? `<p class="brief-empty">Roligt på kontoret i dag — ingen forfaldne opgaver, betalinger eller bevægelser.</p>` : '')}
   </div>
 
-  <div class="grid g6" style="margin-bottom:12px">
+  <div class="grid ${hasPerm('economy')?'g6':'g3'}" style="margin-bottom:12px">
     <div class="kpi">${delta(wkD)}<b>${depToday.length+depWeek.length}</b><span>afrejser 7 dage</span><i class="tip">?</i><span class="tipbox"><b>Afrejser 7 dage.</b> Hvor mange rejser der letter i dag og i løbet af de næste 7 dage. Den lille pil viser om det er flere (▲) eller færre (▼) end ugen før.</span></div>
     <div class="kpi"><b>${paxOut}</b><span>gæster ude nu</span><i class="tip">?</i><span class="tipbox"><b>Gæster ude nu.</b> Hvor mange gæster der er ude at rejse lige nu — de er taget afsted, men ikke kommet hjem endnu.</span></div>
+    ${hasPerm('economy')?`
     <div class="kpi"><b>${kr(mSum)}</b><span>salg afrejser md.</span><i class="tip">?</i><span class="tipbox"><b>Salg afrejser måned.</b> Hvor meget de rejser, der letter i denne måned, er solgt for tilsammen. Det tæller efter hvornår folk rejser — ikke hvornår de har booket eller betalt.</span></div>
     <div class="kpi"><b>${kr(ytdSum)}</b><span>omsætning ÅTD</span><i class="tip">?</i><span class="tipbox"><b>Omsætning år til dato.</b> Hvad vi har solgt for i år på de rejser, der allerede er lettet — fra 1. januar til i dag. Afbestilte rejser er ikke med. Det er salgsprisen, ikke det bogførte tal fra e-conomic.</span></div>
-    <div class="kpi"><b>${kr(pipeline)}</b><span>pipeline</span><i class="tip">?</i><span class="tipbox"><b>Pipeline.</b> Hvad vi allerede har solgt, men som endnu ikke er rejst — alle kommende rejser fra i dag og frem. Penge på vej ind.</span></div>
+    <div class="kpi"><b>${kr(pipeline)}</b><span>pipeline</span><i class="tip">?</i><span class="tipbox"><b>Pipeline.</b> Hvad vi allerede har solgt, men som endnu ikke er rejst — alle kommende rejser fra i dag og frem. Penge på vej ind.</span></div>`:''}
     <div class="kpi ${tasksDue.length?'warn':''}"><b>${tasksDue.length}</b><span>opgaver forfald</span><i class="tip">?</i><span class="tipbox"><b>Opgaver forfald.</b> Åbne opgaver hvis frist er i dag eller overskredet. Se kortet «Deadline-vagthund» nedenfor for hvem der har ansvaret.</span></div>
   </div>
 
   <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
     <div class="agent" onclick="viewSales()" style="cursor:pointer"><div class="nm">Deadline-vagthund</div><div class="st"><span class="dot ${tasksDue.length?'alarm':'ok'}"></span>${tasksDue.length?tasksDue.length+' til forfald':'Alt ajour'}</div><div class="info">${dueOwners.length?'Ansvar: '+dueOwners.join(', ')+' · ':''}${rk.filter(k=>k.due_date>t0&&k.due_date<=t7).length} opgaver næste 7 dage</div><i class="tip">?</i><span class="tipbox"><b>Deadline-vagthund.</b> Holder øje med opgaver der har en frist. Rød prik = noget er overskredet. «Ansvar» viser hvem der skal tage sig af de overskredne opgaver. Klik for at åbne opgavelisten.</span></div>
-    <div class="agent" onclick="viewFinance()" style="cursor:pointer"><div class="nm">Betalingsvagt · kun forfaldne</div><div class="st"><span class="dot ${payOverdue?'alarm':'ok'}"></span>${payOverdue?payOverdue+' betaling'+(payOverdue>1?'er':'')+' overskredet':'Alt betalt til tiden'}</div><div class="info">${custOverdue.length} fra kunder · ${vpOverdue.length} til leverandører${vpOverdue.length?' ('+kr(vpOverdueSum)+')':''}</div><i class="tip">?</i><span class="tipbox"><b>Betalingsvagt.</b> Viser kun betalinger der er overskredet: restbetalinger vi mangler <b>fra</b> kunder, og regninger vi skulle have betalt <b>til</b> leverandører. Beløbet i parentes er summen vi skylder leverandørerne. Klik for at åbne Økonomi.</span></div>
+    ${hasPerm('finance')?`<div class="agent" onclick="viewFinance()" style="cursor:pointer"><div class="nm">Betalingsvagt · kun forfaldne</div><div class="st"><span class="dot ${payOverdue?'alarm':'ok'}"></span>${payOverdue?payOverdue+' betaling'+(payOverdue>1?'er':'')+' overskredet':'Alt betalt til tiden'}</div><div class="info">${custOverdue.length} fra kunder · ${vpOverdue.length} til leverandører${vpOverdue.length?' ('+kr(vpOverdueSum)+')':''}</div><i class="tip">?</i><span class="tipbox"><b>Betalingsvagt.</b> Viser kun betalinger der er overskredet: restbetalinger vi mangler <b>fra</b> kunder, og regninger vi skulle have betalt <b>til</b> leverandører. Beløbet i parentes er summen vi skylder leverandørerne. Klik for at åbne Økonomi.</span></div>`
+    :`<div class="agent" onclick="viewSales()" style="cursor:pointer"><div class="nm">Betalingsvagt · kun forfaldne</div><div class="st"><span class="dot ${custOverdue.length?'alarm':'ok'}"></span>${custOverdue.length?custOverdue.length+' restbetaling'+(custOverdue.length>1?'er':'')+' overskredet':'Alt betalt til tiden'}</div><div class="info">${custOverdue.length} fra kunder</div><i class="tip">?</i><span class="tipbox"><b>Betalingsvagt.</b> Viser restbetalinger vi mangler <b>fra</b> kunder, som er overskredet. Klik for at åbne Salg.</span></div>`}
   </div>
 
   <div class="card" style="margin-bottom:12px">
@@ -716,6 +806,7 @@ async function viewSales(){
 
 // ═══ ØKONOMI ═══
 async function viewFinance(){
+  if(!hasPerm('finance')) return noAccess('finance');
   navTo('finance');
   app.innerHTML = '<div class="pagehead"><h2>Økonomi</h2></div><div class="card">Henter…</div>';
   const [trips, tasks] = await Promise.all([
@@ -893,9 +984,10 @@ async function viewMarketing(){
   const len = a => a.length?Math.round(a.reduce((s,t)=>s+(t.return_date?(new Date(t.return_date)-new Date(t.departure_date))/86400000:0),0)/a.length):0;
   app.innerHTML = `
   <div class="pagehead"><h2>Markedsføring</h2><span class="sub">mønstre & segmenter · ${y.length} rejser i 2026</span></div>
-  <div class="grid g6" style="margin-bottom:12px">
+  <div class="grid ${hasPerm('economy')?'g6':'g4'}" style="margin-bottom:12px">
+    ${hasPerm('economy')?`
     <div class="kpi"><b>${kr(sum(y,'package_sell_dkk')/Math.max(y.length,1))}</b><span>snit pr. rejse</span></div>
-    <div class="kpi"><b>${kr(sum(y,'package_sell_dkk')/Math.max(sum(y,'pax_count'),1))}</b><span>snit pr. pax</span></div>
+    <div class="kpi"><b>${kr(sum(y,'package_sell_dkk')/Math.max(sum(y,'pax_count'),1))}</b><span>snit pr. pax</span></div>`:''}
     <div class="kpi"><b>${avg(lt)} dage</b><span>booking → afrejse</span></div>
     <div class="kpi"><b>${len(y)} dage</b><span>gns. rejselængde</span></div>
     <div class="kpi"><b>${Object.keys(dest).length}</b><span>destinationer</span></div>
@@ -903,15 +995,15 @@ async function viewMarketing(){
   </div>
   <div class="grid g2">
     <div>
-      <div class="card"><h3>Destinationer — omsætning, margin & volumen</h3>
-        <table><tr><th>Destination</th><th></th><th class="r">Rejser</th><th class="r">Pax</th><th class="r">Omsætning</th><th class="r">DG %</th></tr>
+      <div class="card"><h3>Destinationer — ${hasPerm('economy')?'omsætning, margin & volumen':'volumen'}</h3>
+        <table><tr><th>Destination</th><th></th><th class="r">Rejser</th><th class="r">Pax</th>${hasPerm('economy')?'<th class="r">Omsætning</th><th class="r">DG %</th>':''}</tr>
         ${Object.entries(dest).sort((a,b)=>b[1].sell-a[1].sell).map(([k,d])=>`<tr><td><b>${k}</b></td>
           <td style="width:24%"><div class="bar"><i style="width:${100*d.sell/dmax}%"></i></div></td>
-          <td class="r">${d.n}</td><td class="r">${d.pax}</td><td class="r">${kr(d.sell)}</td><td class="r">${pct(d.db,d.sell)}</td></tr>`).join('')}</table></div>
+          <td class="r">${d.n}</td><td class="r">${d.pax}</td>${hasPerm('economy')?`<td class="r">${kr(d.sell)}</td><td class="r">${pct(d.db,d.sell)}</td>`:''}</tr>`).join('')}</table></div>
       <div class="card"><h3>Hvornår sælger vi? — salg pr. bookingmåned</h3>
         <table>${bmKeys.map(k=>`<tr><td style="width:62px">${MDR[+k.slice(5,7)-1]} ${k.slice(2,4)}</td>
           <td><div class="bar"><i class="forest" style="width:${100*bm[k].sell/bmMax}%"></i></div></td>
-          <td class="r" style="width:78px">${kr(bm[k].sell)}</td><td class="r muted" style="width:58px">${bm[k].n} salg</td></tr>`).join('')}</table>
+          ${hasPerm('economy')?`<td class="r" style="width:78px">${kr(bm[k].sell)}</td>`:''}<td class="r muted" style="width:58px">${bm[k].n} salg</td></tr>`).join('')}</table>
         <p class="muted" style="margin:8px 0 0">Kobles med UTM-kilder & kampagner, når pre-sale-data (R55) og Klaviyo kommer ind — så ses annonce → salg direkte.</p></div>
     </div>
     <div>
@@ -921,13 +1013,13 @@ async function viewMarketing(){
           <td class="r" style="width:50px">${a.length}</td><td class="r muted" style="width:80px">${pct(a.length,lt.length)}</td></tr>`).join('')}</table>
         <p class="mini" style="margin:8px 0 0">MN-snit: ${avg(lt.filter(x=>x.t.branch==='MN'))} dage · MD-snit: ${avg(lt.filter(x=>x.t.branch==='MD'))} dage → styrer, hvor tidligt kampagner for en rejseperiode skal starte.</p></div>
       <div class="card"><h3>Segmenter</h3>
-        <table><tr><th>Segment</th><th class="r">Rejser</th><th class="r">Andel</th><th class="r">Snit ordre</th><th class="r">DG %</th></tr>
+        <table><tr><th>Segment</th><th class="r">Rejser</th><th class="r">Andel</th>${hasPerm('economy')?'<th class="r">Snit ordre</th><th class="r">DG %</th>':''}</tr>
         ${seg.map(([l,a])=>`<tr><td>${l}</td><td class="r">${a.length}</td><td class="r">${pct(a.length,y.length)}</td>
-          <td class="r">${a.length?kr(sum(a,'package_sell_dkk')/a.length):'—'}</td><td class="r">${pct(sum(a,'comm_dkk'),sum(a,'package_sell_dkk'))}</td></tr>`).join('')}</table></div>
-      <div class="card"><h3>Største bookinger 2026</h3>
+          ${hasPerm('economy')?`<td class="r">${a.length?kr(sum(a,'package_sell_dkk')/a.length):'—'}</td><td class="r">${pct(sum(a,'comm_dkk'),sum(a,'package_sell_dkk'))}</td>`:''}</tr>`).join('')}</table></div>
+      ${hasPerm('economy')?`<div class="card"><h3>Største bookinger 2026</h3>
         ${top.map(t=>`<div class="list-item" onclick="viewTrip('${t.id}')"><span class="ic">◆</span>
           <span><b style="color:var(--forest)">${t.customers.last_name}</b> <span class="muted">${t.ref_no} · ${t.trip_destinations.map(d=>d.destination).join(' + ')}</span></span>
-          <span class="when">${kr(t.package_sell_dkk)}</span></div>`).join('')}</div>
+          <span class="when">${kr(t.package_sell_dkk)}</span></div>`).join('')}</div>`:''}
     </div>
   </div>`;
 }
@@ -1118,6 +1210,7 @@ function fmtCell(v,type){ if(v==null||v==='')return ''; if(type==='kr')return fm
 const rightAligned = type => type==='kr'||type==='kr0'||type==='pct'||type==='num';
 
 async function viewReports(){
+  if(!hasPerm('reports')) return noAccess('reports');
   navTo('reports');
   app.innerHTML = '<div class="pagehead"><h2>Rapporter</h2></div><div class="card">Henter rejsedata…</div>';
   window.REP_TRIPS = await fetchTrips();
@@ -1595,6 +1688,25 @@ async function viewNew(){
     <div class="err" id="nerr"></div></div>`;
   $('#n_cust').onchange=()=>$('#newcust').style.display=$('#n_cust').value==='__ny'?'':'none';
   $('#n_dep').onchange=calcPay;
+  // Forudfyld fra henvendelse (Vundet → opret rejse)
+  const L = window._leadToConvert;
+  if(L){
+    const isDK = /maldivia\.dk/i.test(L.title||'') || L.branch==='MD';
+    const nm = (L.contact_name||'').trim().split(/\s+/);
+    const ln = nm.length>1?nm.pop():(nm[0]||''); const fn = nm.join(' ');
+    $('#n_cust').value='__ny'; $('#newcust').style.display='';
+    $('#c_fn').value=fn; $('#c_ln').value=ln; $('#c_em').value=L.contact_email||''; $('#c_ph').value=L.contact_phone||'';
+    $('#c_co').value=isDK?'DK':'NO';
+    $('#n_branch').value=isDK?'MD':'MN'; $('#n_cur').value=isDK?'DKK':'NOK';
+    if(L.departure_date)$('#n_dep').value=L.departure_date;
+    if(L.return_date)$('#n_ret').value=L.return_date;
+    $('#n_dest').value=L.destination||'Maldiverne';
+    if(L.est_value)$('#n_price').value=L.est_value;
+    if(L.contact_name)$('#n_trav').value=L.contact_name;
+    calcPay();
+    const head=document.querySelector('.pagehead h2'); if(head){ head.insertAdjacentHTML('afterend',
+      `<span class="sub" style="flex-basis:100%">fra henvendelse: <b>${escH(L.contact_name||L.title)}</b> — når rejsen oprettes, markeres henvendelsen som vundet</span>`); }
+  }
 }
 function calcPay(){
   const dep=$('#n_dep').value, price=parseFloat($('#n_price').value);
@@ -1636,9 +1748,293 @@ async function saveTrip(){
       if(tve) return err('Rejsende: '+tve.message);
       await db.from('trip_travelers').insert({trip_id:trip.id,traveler_id:tv.id});
     }
+    await afterTripFromLead(trip.id);
     viewTrip(trip.id);
   }catch(e){err(e.message);}
 }
+
+// ═══ HENVENDELSER (leads / salgspipeline før booking) ═══
+const escH = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fval = n => (n||n===0) && n!=='' ? Math.round(n).toLocaleString('da-DK') : '—';
+function leadAge(created){ const d=Math.floor((Date.now()-new Date(created))/86400000); return {d, cls:d>=7?'hot':d>=3?'warm':'fresh'}; }
+async function fetchLeads(){ const {data}=await db.from('leads').select(LEAD_FIELDS).order('created_at',{ascending:false}); return data||[]; }
+
+async function viewLeads(){
+  if(!hasPerm('leads')) return noAccess('leads');
+  navTo('leads');
+  app.innerHTML = '<div class="pagehead"><h2>Henvendelser</h2></div><div class="card">Henter…</div>';
+  const leads = await fetchLeads();
+  window._leads = leads;
+  const open = leads.filter(l=>l.status==='open');
+  const lost = leads.filter(l=>l.status==='lost');
+  const won  = leads.filter(l=>l.status==='won');
+  const t30 = plusDays(-30);
+  const offerStages = ['make_offer','to_be_sent','offer_sent','followed_up','negotiation'];
+  const pipeVal = open.reduce((s,l)=>s+(+l.est_value||0),0);
+  app.innerHTML = `
+  <div class="pagehead"><h2>Henvendelser</h2><span class="sub">salgspipeline før booking — det Pipedrive gjorde</span>
+    <span style="margin-left:auto"><button class="btn gold" onclick="editLead()">＋ Ny henvendelse</button></span></div>
+  <div class="grid g4" style="margin-bottom:14px">
+    <div class="kpi"><b>${open.length}</b><span>åbne henvendelser</span></div>
+    <div class="kpi"><b>${open.filter(l=>offerStages.includes(l.stage)).length}</b><span>i tilbudsfasen</span></div>
+    <div class="kpi"><b>${won.filter(l=>(l.updated_at||'')>=t30).length}</b><span>vundet (30 dage)</span></div>
+    <div class="kpi"><b>${fval(pipeVal)}</b><span>estimeret pipeline (DKK)</span></div>
+  </div>
+  <div class="board" id="leadboard">
+    ${LEAD_STAGES.map(([key,label])=>{
+      const cards = open.filter(l=>l.stage===key).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+      const sum = cards.reduce((s,l)=>s+(+l.est_value||0),0);
+      return `<div class="col" data-stage="${key}" ondragover="leadDragOver(event)" ondragleave="leadDragLeave(event)" ondrop="leadDrop(event,'${key}')">
+        <div class="col-h"><span class="nm">${label}</span><span class="ct">${cards.length}</span>
+          ${sum?`<span class="sum">${fval(sum)} kr.</span>`:''}</div>
+        ${cards.map(leadCard).join('')||'<p class="muted" style="padding:4px 4px 8px">—</p>'}
+      </div>`;
+    }).join('')}
+  </div>
+  ${lost.length?`<div class="card lead-lost" style="margin-top:14px"><h3>Tabte henvendelser (${lost.length})</h3>
+    ${lost.map(l=>`<div class="list-item" onclick="editLead('${l.id}')"><span class="ic">✕</span>
+      <span><b style="color:var(--forest)">${escH(l.contact_name||l.title)}</b> <span class="muted">${escH(l.lost_reason||'—')}</span></span>
+      <span class="when">${fmtDY(l.created_at)}</span></div>`).join('')}</div>`:''}
+  <p class="muted" style="margin-top:10px">Træk et kort til et andet trin for at flytte det. Klik for at åbne og redigere. Trækkes til <b>Vundet</b> tilbydes du at oprette rejsen.</p>`;
+}
+function leadCard(l){
+  const a = leadAge(l.created_at);
+  return `<div class="lead-card" draggable="true" data-id="${l.id}" ondragstart="leadDragStart(event,'${l.id}')" ondragend="leadDragEnd(event)" onclick="editLead('${l.id}')">
+    <div class="nm">${escH(l.contact_name||l.title)}</div>
+    <div class="meta">${escH([l.destination, l.adults?l.adults+(l.kids?'+'+l.kids:'')+' pax':'', l.departure_date?fmtDY(l.departure_date):''].filter(Boolean).join(' · ')||'—')}</div>
+    <div class="foot"><span class="val">${l.est_value?fval(l.est_value)+' kr.':'—'}</span>
+      <span class="age ${a.cls}">${a.d}d</span>
+      ${l.owner?`<span class="owner-chip">${escH(l.owner)}</span>`:''}</div>
+  </div>`;
+}
+// drag & drop
+function leadDragStart(e,id){ window._dragLead=id; e.currentTarget.classList.add('drag'); e.dataTransfer.effectAllowed='move'; }
+function leadDragEnd(e){ e.currentTarget.classList.remove('drag'); }
+function leadDragOver(e){ e.preventDefault(); e.currentTarget.classList.add('drop'); }
+function leadDragLeave(e){ e.currentTarget.classList.remove('drop'); }
+async function leadDrop(e,stage){ e.preventDefault(); e.currentTarget.classList.remove('drop'); const id=window._dragLead; window._dragLead=null;
+  const l=(window._leads||[]).find(x=>x.id===id); if(!l||l.stage===stage) return;
+  if(stage==='confirmed'){ return convertLeadToTrip(l); }
+  const {error}=await db.from('leads').update({stage}).eq('id',id); if(error){alert(error.message);return;} viewLeads();
+}
+// opret / rediger
+function editLead(id){
+  const l = id ? (window._leads||[]).find(x=>x.id===id)||{} : {};
+  const v = k => l[k]==null?'':l[k];
+  const dlg = document.createElement('dialog'); dlg.className='lead-dlg';
+  const stageSel = LEAD_STAGES.map(([k,lab])=>`<option value="${k}" ${l.stage===k?'selected':''}>${lab}</option>`).join('');
+  dlg.innerHTML = `
+    <h3>${id?'Rediger henvendelse':'Ny henvendelse'}</h3>
+    <p class="muted" style="margin:0 0 6px">${id?'Oprettet '+fmtDY(l.created_at)+(l.source?' · '+escH(l.source):'')+(l.pipedrive_deal_id?' · Pipedrive #'+l.pipedrive_deal_id:''):'Manuelt oprettet henvendelse'}</p>
+    <div class="lead-form-grid">
+      <div class="full"><label>Titel</label><input id="l_title" value="${escH(v('title'))}" placeholder="fx Thomas Birch Maldivia.dk"></div>
+      <div><label>Kontaktnavn</label><input id="l_contact_name" value="${escH(v('contact_name'))}"></div>
+      <div><label>Trin</label><select id="l_stage">${stageSel}</select></div>
+      <div><label>E-mail</label><input id="l_contact_email" value="${escH(v('contact_email'))}"></div>
+      <div><label>Telefon</label><input id="l_contact_phone" value="${escH(v('contact_phone'))}"></div>
+      <div><label>Estimeret værdi</label><input id="l_est_value" type="number" step="1" value="${v('est_value')}"></div>
+      <div><label>Valuta</label><select id="l_currency"><option ${l.currency==='DKK'||!l.currency?'selected':''}>DKK</option><option ${l.currency==='NOK'?'selected':''}>NOK</option><option ${l.currency==='EUR'?'selected':''}>EUR</option></select></div>
+      <div><label>Destination</label><input id="l_destination" value="${escH(v('destination')||'Maldiverne')}"></div>
+      <div><label>Afgangslufthavn</label><input id="l_departure_airport" value="${escH(v('departure_airport'))}"></div>
+      <div><label>Voksne</label><input id="l_adults" type="number" value="${v('adults')}"></div>
+      <div><label>Børn</label><input id="l_kids" type="number" value="${v('kids')}"></div>
+      <div><label>Alder på børn</label><input id="l_child_ages" value="${escH(v('child_ages'))}" placeholder="fx 8, 11"></div>
+      <div><label>Max. budget</label><input id="l_max_budget" type="number" value="${v('max_budget')}"></div>
+      <div><label>Afrejse (ønsket)</label><input id="l_departure_date" type="date" value="${v('departure_date')}"></div>
+      <div><label>Hjemkomst (ønsket)</label><input id="l_return_date" type="date" value="${v('return_date')}"></div>
+      <div><label>Nætter</label><input id="l_nights" type="number" value="${v('nights')}"></div>
+      <div><label>Villaer/værelser</label><input id="l_villas" type="number" value="${v('villas')}"></div>
+      <div><label>Hvordan kontaktes?</label><input id="l_contact_pref" value="${escH(v('contact_pref'))}"></div>
+      <div><label>Ansvarlig</label><input id="l_owner" value="${escH(v('owner')||window.ME||'')}"></div>
+      <div class="full"><label>Rejseønsker</label><textarea id="l_travel_wishes" rows="2">${escH(v('travel_wishes'))}</textarea></div>
+      <div class="full"><label>Ønsker / interne noter</label><textarea id="l_wishes" rows="2">${escH(v('wishes'))}</textarea></div>
+      <div><label>Hvor hørt om os?</label><input id="l_heard_about_us" value="${escH(v('heard_about_us'))}"></div>
+      <div><label>Kilde</label><input id="l_source" value="${escH(v('source')||'manuel')}"></div>
+    </div>
+    <div class="err" id="l_err" style="color:var(--bad);font-size:12px;margin-top:8px"></div>
+    <div class="dlg-actions">
+      <button class="btn" onclick="saveLead('${id||''}')">Gem</button>
+      ${l.status!=='won'?`<button class="btn gold" onclick="convertLeadFromDlg('${id||''}')">Vundet → opret rejse</button>`:`<span class="pill">✓ Vundet${l.converted_trip_id?` · <a href="#" onclick="closeLeadDlg();viewTrip('${l.converted_trip_id}');return false">åbn rejse</a>`:''}</span>`}
+      ${id&&l.status==='open'?`<button class="btn ghost" onclick="markLeadLost('${id}')">Marker tabt</button>`:''}
+      ${id?`<button class="btn danger spacer" onclick="deleteLead('${id}')">Slet</button>`:'<span class="spacer"></span>'}
+      <button class="btn ghost" onclick="closeLeadDlg()">Luk</button>
+    </div>`;
+  document.body.appendChild(dlg); window._leadDlg=dlg; dlg.showModal();
+  dlg.addEventListener('click',e=>{ if(e.target===dlg) closeLeadDlg(); });
+}
+function closeLeadDlg(){ if(window._leadDlg){ window._leadDlg.close(); window._leadDlg.remove(); window._leadDlg=null; } }
+function leadFormData(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value:'';};
+  const num=id=>{const x=g(id);return x===''?null:(+x);};
+  return { title:g('l_title')||g('l_contact_name')||'Henvendelse', stage:g('l_stage'),
+    contact_name:g('l_contact_name')||null, contact_email:g('l_contact_email')||null, contact_phone:g('l_contact_phone')||null,
+    est_value:num('l_est_value'), currency:g('l_currency')||'DKK', destination:g('l_destination')||null,
+    departure_airport:g('l_departure_airport')||null, adults:num('l_adults'), kids:num('l_kids'), child_ages:g('l_child_ages')||null,
+    max_budget:num('l_max_budget'), departure_date:g('l_departure_date')||null, return_date:g('l_return_date')||null,
+    nights:num('l_nights'), villas:num('l_villas'), contact_pref:g('l_contact_pref')||null, owner:g('l_owner')||null,
+    travel_wishes:g('l_travel_wishes')||null, wishes:g('l_wishes')||null, heard_about_us:g('l_heard_about_us')||null, source:g('l_source')||null };
+}
+async function saveLead(id){
+  const rec = leadFormData();
+  const {error} = id ? await db.from('leads').update(rec).eq('id',id) : await db.from('leads').insert(rec);
+  if(error){ const e=document.getElementById('l_err'); if(e)e.textContent=error.message; return; }
+  closeLeadDlg(); viewLeads();
+}
+async function markLeadLost(id){
+  const reason = prompt('Årsag til tabt henvendelse?'); if(reason===null) return;
+  const {error}=await db.from('leads').update({status:'lost',lost_reason:reason||null}).eq('id',id);
+  if(error){alert(error.message);return;} closeLeadDlg(); viewLeads();
+}
+async function deleteLead(id){
+  if(!confirm('Slet denne henvendelse permanent?')) return;
+  const {error}=await db.from('leads').delete().eq('id',id);
+  if(error){alert(error.message);return;} closeLeadDlg(); viewLeads();
+}
+async function convertLeadFromDlg(id){
+  if(id){ await saveLeadSilently(id); const l=(window._leads||[]).find(x=>x.id===id); if(l) return convertLeadToTrip({...l, ...leadFormData()}); }
+  // ny, ugemt henvendelse: gem først
+  const rec = leadFormData();
+  const {data,error}=await db.from('leads').insert(rec).select(LEAD_FIELDS).single();
+  if(error){ const e=document.getElementById('l_err'); if(e)e.textContent=error.message; return; }
+  convertLeadToTrip(data);
+}
+async function saveLeadSilently(id){ const rec=leadFormData(); await db.from('leads').update(rec).eq('id',id); }
+// Vundet → opret rejse: sender henvendelsen videre til det eksisterende "Ny rejse"-flow
+function convertLeadToTrip(l){
+  closeLeadDlg();
+  window._leadToConvert = l;
+  viewNew();
+}
+async function afterTripFromLead(tripId){
+  const l = window._leadToConvert; if(!l||!l.id){ window._leadToConvert=null; return; }
+  await db.from('leads').update({status:'won',stage:'confirmed',converted_trip_id:tripId}).eq('id',l.id);
+  window._leadToConvert=null;
+}
+
+// ═══ BRUGERE — roller & rettigheder (kun manage_users) ═══════════════════
+// Effektive rettigheder = rolle-standard (roles.permissions) + individuelle
+// undtagelser (team_members.permission_overrides). Databasen håndhæver det
+// samme via public.my_permissions()/has_perm() og RLS på team_members/roles.
+const PERM_DEFS = [
+  ['economy','Indtjening & økonomital','Omsætning, pipeline, ÅTD, "omdannet indtægt" og pengetal under Markedsføring'],
+  ['finance','Økonomi-fanen','Leverandørbetalinger, bankafstemning og flyfakturaer'],
+  ['reports','Rapporter','Perioderapporter og nøgletal — indeholder økonomital'],
+  ['leads','Henvendelser','Lead-modulet (indbakken fra Pipedrive-afløseren)'],
+  ['manage_users','Brugeradmin','Kan oprette brugere og ændre roller & rettigheder']
+];
+function effPerms(u){
+  const r=(window.ROLES||[]).find(x=>x.role_key===u.role);
+  return Object.assign({}, (r&&r.permissions)||{}, u.permission_overrides||{});
+}
+async function viewUsers(){
+  if(!hasPerm('manage_users')) return noAccess('users');
+  navTo('users');
+  app.innerHTML = '<div class="pagehead"><h2>Brugere</h2></div><div class="card">Henter…</div>';
+  const { data: users, error } = await db.from('team_members').select('*').order('name');
+  if(error){ app.innerHTML = '<div class="card"><p class="muted">Kunne ikke hente brugere: '+error.message+'</p></div>'; return; }
+  window._USERS = users||[];
+  const rows = window._USERS.map(u=>{
+    const eff = effPerms(u), isMe = u.email===window.MYEMAIL;
+    const roleOpts = (window.ROLES||[]).map(r=>`<option value="${r.role_key}" ${u.role===r.role_key?'selected':''}>${r.label}</option>`).join('');
+    const cells = PERM_DEFS.map(([k,lbl,desc])=>{
+      const ovr = u.permission_overrides && (k in u.permission_overrides);
+      const lock = isMe && k==='manage_users'; // du kan ikke fjerne din egen admin-adgang
+      return `<label class="permcell${ovr?' ovr':''}" title="${desc}"><input type="checkbox" ${eff[k]?'checked':''} ${lock?'disabled':''} onchange="usrTogglePerm('${u.email}','${k}',this.checked)">${lbl}</label>`;
+    }).join('');
+    return `<div class="usr-row${u.active===false?' inactive':''}">
+      <div class="usr-head"><b>${u.name}</b><span class="ini">${u.initials}</span><span class="muted">${u.email}</span>
+        <select onchange="usrSetRole('${u.email}',this.value)" ${isMe?'disabled title="Du kan ikke ændre din egen rolle"':''}>${roleOpts}</select></div>
+      <div class="usr-perms">${cells}</div>
+      <div class="usr-meta">
+        ${u.permission_overrides&&Object.keys(u.permission_overrides).length?`<a href="#" style="color:var(--gold)" onclick="usrClearOverrides('${u.email}');return false">Nulstil til rollens standard</a>`:'<span>Følger rollens standard</span>'}
+        ${isMe?'<span>· det er dig</span>':`· <a href="#" style="color:var(--forest)" onclick="usrLogin('${u.email}');return false">Opret/nulstil login</a> · <a href="#" onclick="usrToggleActive('${u.email}',${u.active===false});return false">${u.active===false?'Genaktivér bruger':'Deaktivér bruger'}</a>`}
+      </div></div>`;
+  }).join('');
+  const roleCards = (window.ROLES||[]).map(r=>`<div class="rolecard"><b>${r.label}</b> <span class="muted">— ${r.description||''}</span>
+    <div class="pl">${PERM_DEFS.map(([k,lbl])=>`<span class="${(r.permissions||{})[k]?'y':'n'}">${lbl}</span>`).join('')}</div></div>`).join('');
+  app.innerHTML = `
+  <div class="pagehead"><h2>Brugere</h2><span class="sub">roller & rettigheder · ændringer gælder fra næste login/genindlæsning</span></div>
+  <div class="grid g2">
+    <div>
+      <div class="card"><h3>Teamet <span class="r muted">${window._USERS.length} brugere</span></h3>${rows}</div>
+      <div class="card"><h3>Tilføj bruger</h3>
+        <div class="grid g4" style="gap:8px">
+          <div><label>Navn</label><input id="nu_name" placeholder="Fornavn Efternavn"></div>
+          <div><label>E-mail</label><input id="nu_email" placeholder="xx@maldivia.dk"></div>
+          <div><label>Initialer</label><input id="nu_ini" placeholder="ABC" maxlength="4" style="text-transform:uppercase"></div>
+          <div><label>Rolle</label><select id="nu_role">${(window.ROLES||[]).map(r=>`<option value="${r.role_key}">${r.label}</option>`).join('')}</select></div>
+        </div>
+        <div class="dlg-actions"><button class="btn" onclick="usrAdd()">Opret bruger</button><span id="nu_err" class="muted"></span></div>
+        <p class="mini muted" style="margin:10px 0 0">Når du opretter en bruger, oprettes deres login automatisk, og du får vist et <b>engangskodeord</b> — giv det til brugeren, som selv skifter det under «Skift kodeord» efter første login. «Opret/nulstil login» på en eksisterende bruger gør det samme (nyt engangskodeord).</p></div>
+    </div>
+    <div>
+      <div class="card"><h3>Rollernes standard-rettigheder</h3>${roleCards}
+        <p class="mini muted" style="margin:8px 0 0">En bruger følger sin rolles standard. Krydser du noget af/på direkte på brugeren, gemmes det som en individuel <b>undtagelse</b> (gylden ring), der vinder over rollen.</p></div>
+      <div class="card"><h3>Morgenbrief pr. bruger</h3>
+        <p class="mini" style="line-height:1.6">Briefens fælles dele (nyheder, opgaver, firmapuls) vises for alle. <b>Mail-sektionen</b> vises kun for den bruger, hvis postkasse den er læst fra — lige nu Wendies. Rasmus og Emilie kobler deres egen Outlook på via en planlagt opgave i deres egen Claude, som hver morgen skriver en personlig række (for_email = deres e-mail) i daily_briefing — se guiden «Personlig morgenbrief — opsætning» i projektmappen.</p></div>
+    </div>
+  </div>`;
+}
+async function usrTogglePerm(email,k,val){
+  const u=(window._USERS||[]).find(x=>x.email===email); if(!u) return;
+  const r=(window.ROLES||[]).find(x=>x.role_key===u.role);
+  const def=!!(((r&&r.permissions)||{})[k]);
+  const ovr=Object.assign({},u.permission_overrides||{});
+  if(val===def) delete ovr[k]; else ovr[k]=val;
+  const {error}=await db.from('team_members').update({permission_overrides:ovr}).eq('email',email);
+  if(error) alertUsr(error); else viewUsers();
+}
+async function usrSetRole(email,role){
+  const {error}=await db.from('team_members').update({role}).eq('email',email);
+  if(error) alertUsr(error); else viewUsers();
+}
+async function usrClearOverrides(email){
+  const {error}=await db.from('team_members').update({permission_overrides:{}}).eq('email',email);
+  if(error) alertUsr(error); else viewUsers();
+}
+async function usrToggleActive(email,makeActive){
+  if(email===window.MYEMAIL) return;
+  const {error}=await db.from('team_members').update({active:!!makeActive}).eq('email',email);
+  if(error) alertUsr(error); else viewUsers();
+}
+async function usrAdd(){
+  const name=$('#nu_name').value.trim(), email=$('#nu_email').value.trim().toLowerCase(), ini=$('#nu_ini').value.trim().toUpperCase(), role=$('#nu_role').value;
+  const err=$('#nu_err');
+  if(!name||!email.includes('@')||ini.length<2){ err.textContent='Udfyld navn, gyldig e-mail og initialer.'; return; }
+  const {error}=await db.from('team_members').insert({name,email,initials:ini,role,permission_overrides:{},active:true});
+  if(error){ err.textContent=error.message; return; }
+  await usrLogin(email);   // opret login med det samme og vis engangskodeordet
+  viewUsers();
+}
+// Engangskodeord: læsbart men tilfældigt (fx Mal-K7RC-P2WX)
+function genPw(){
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r=new Uint8Array(8);
+  crypto.getRandomValues(r);
+  const s=[...r].map(x=>A[x%A.length]).join('');
+  return 'Mal-'+s.slice(0,4)+'-'+s.slice(4);
+}
+async function usrLogin(email){
+  const pw = genPw();
+  const {data:{session:s}} = await db.auth.getSession();
+  if(!s){ alertUsr({message:'Du er ikke logget ind.'}); return; }
+  let j;
+  try{
+    const r = await fetch(SB_URL+'/functions/v1/opret-login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token},
+      body:JSON.stringify({email, password:pw})
+    });
+    j = await r.json();
+  }catch(e){ alertUsr({message:'Kunne ikke nå opret-login: '+e.message}); return; }
+  if(!j || !j.ok){ alertUsr({message:(j&&j.error)||'Ukendt fejl fra opret-login'}); return; }
+  window._LASTPW = {email, pw, action:j.action};
+  app.insertAdjacentHTML('afterbegin',
+    `<div class="card" style="border-color:var(--gold)"><h3>Login ${j.action} for ${email}</h3>
+     <p style="margin:0 0 6px">Engangskodeord: <b style="font-size:16px;letter-spacing:1px">${pw}</b></p>
+     <p class="mini muted" style="margin:0">Giv det til brugeren ad en sikker kanal (ikke mail). De logger ind med det og skifter selv kodeord under «Skift kodeord». Kodeordet vises kun her, én gang.</p></div>`);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function alertUsr(error){ app.insertAdjacentHTML('afterbegin','<div class="card" style="border-color:var(--bad)"><p style="color:var(--bad);margin:0">Kunne ikke gemme: '+error.message+'</p></div>'); }
 
 init();
 </script>
