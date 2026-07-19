@@ -173,6 +173,34 @@ a{color:var(--gold);}
 .fold-up>summary::-webkit-details-marker{display:none;}
 .fold-up>summary::before{content:'▸ ';}
 .fold-up[open]>summary::before{content:'▾ ';}
+/* ── v0.9: nationalitet + live + omsætnings-panel ── */
+.natsub{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);font-weight:700;margin:9px 0 2px;}
+.natsub:first-of-type{margin-top:3px;}
+.livedot{color:#5b7a54;font-size:9.5px;font-weight:700;letter-spacing:1px;margin-left:10px;white-space:nowrap;}
+.rev-card{position:relative;}
+.rev-hero{display:flex;align-items:center;gap:20px;margin:10px 0 2px;flex-wrap:wrap;}
+.rev-figs{flex:0 0 auto;}
+.rev-big{font-family:'Playfair Display',serif;font-size:27px;color:var(--forest);font-weight:600;font-variant-numeric:tabular-nums;display:block;line-height:1.05;}
+.rev-figs>div>span{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;}
+.rev-of{font-size:12px;color:var(--mut);margin-top:5px;}
+.rev-of b{color:var(--forest);}
+.rev-hero .meter{flex:1;min-width:170px;}
+.meter .track{height:9px;border-radius:6px;background:#ece6d8;overflow:hidden;}
+.meter.big .track{height:13px;}
+.meter .fill{display:block;height:100%;background:#5b7a54;border-radius:6px;}
+.revgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0 4px;}
+.rev-m-h{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);font-weight:700;margin:0 0 5px;}
+.rev-m-v{font-size:11.5px;color:var(--mut);margin:5px 0 0;}
+.rev-m-v b{color:var(--forest);font-variant-numeric:tabular-nums;}
+.rev-q-h{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);font-weight:700;margin:12px 0 7px;}
+.rev-qs{display:flex;flex-direction:column;gap:8px;}
+.qrow{display:flex;align-items:center;gap:11px;font-size:12px;}
+.qlab{flex:0 0 60px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:5px;}
+.qnow{font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;border:1px solid var(--gold);border-radius:4px;padding:1px 4px;}
+.qbar{flex:1;height:12px;border-radius:6px;background:#f0ebdd;position:relative;overflow:hidden;}
+.qbar .qtot{position:absolute;left:0;top:0;height:100%;background:#e3d5b0;border-radius:6px;}
+.qbar .qreal{position:absolute;left:0;top:0;height:100%;background:#5b7a54;border-radius:6px;}
+.qval{flex:0 0 auto;min-width:108px;text-align:right;font-variant-numeric:tabular-nums;color:var(--forest);font-weight:600;}
 /* ── Rapporter ── */
 .rep-layout{display:grid;grid-template-columns:212px 1fr;gap:16px;align-items:start;}
 .rep-menu{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;position:sticky;top:16px;}
@@ -569,6 +597,7 @@ async function showApp(){
   applyNavPerms();
   $('#who').innerHTML = tm.name + (roleDef?' <span class="muted">· '+roleDef.label+'</span>':'') + '<br><a href="#" onclick="changePassword();return false">Skift kodeord</a> · <a href="#" onclick="db.auth.signOut();return false">Log ud</a>';
   viewDash();
+  setupRealtime();
   if(window.__recovery){ window.__recovery=false; setTimeout(changePassword, 500); }
 }
 function hasPerm(p){ return !!(window.PERMS && window.PERMS[p]); }
@@ -578,7 +607,26 @@ function applyNavPerms(){
 }
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>Ingen adgang</h3><p class="muted">Din brugerprofil har ikke adgang til denne side. En admin kan give adgang under Brugere.</p></div>'; }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew})[b.dataset.v]();});
-function navTo(v){document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));}
+function navTo(v){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));}
+// ── v0.9: live auto-opdatering via Supabase Realtime ──
+window.__view='dash';
+let __rtChan=null,__rtTimer=null,__dashStale=false;
+function scheduleDashRefresh(){
+  if(window.__view!=='dash')return;
+  if(document.visibilityState!=='visible'){__dashStale=true;return;}
+  clearTimeout(__rtTimer); __rtTimer=setTimeout(()=>{ if(window.__view==='dash')viewDash(); },1200);
+}
+function setupRealtime(){
+  if(__rtChan)return;
+  try{
+    __rtChan=db.channel('dash-live')
+      .on('postgres_changes',{event:'*',schema:'public',table:'tasks'},scheduleDashRefresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'trips'},scheduleDashRefresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'trip_elements'},scheduleDashRefresh)
+      .subscribe();
+    document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&window.__view==='dash'&&__dashStale){__dashStale=false;viewDash();} });
+  }catch(e){ console.warn('realtime setup fejlede',e); }
+}
 
 // ═══ FÆLLES ═══
 async function fetchTrips(){
@@ -632,7 +680,7 @@ async function viewDash(){
       return felles;
     }),
     db.from('documents').select('id',{count:'exact',head:true}),
-    db.from('trip_elements').select('id,element_type,description,details,start_date,end_date,status,suppliers:supplier_id(name),trips!inner(id,ref_no,status,customers(last_name,first_name))').lte('start_date',t0).or(`end_date.gte.${t0},end_date.is.null`).then(r=>r.data||[]),
+    db.from('trip_elements').select('id,element_type,description,details,start_date,end_date,status,suppliers:supplier_id(name),trips!inner(id,ref_no,status,pax_count,customers(last_name,first_name),trip_destinations(destination))').lte('start_date',t0).or(`end_date.gte.${t0},end_date.is.null`).then(r=>r.data||[]),
     vpLoadRecon()
   ]);
   const brief = rb;
@@ -723,11 +771,32 @@ async function viewDash(){
   // Påmindelser: restbetalinger der forfalder inden for 7 dage (mind kunden mindst en uge før)
   const payReminders = restTasks.filter(k=>k.due_date&&k.due_date>t0&&k.due_date<=t7).sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||''));
   const hotelMeta = r => { const d=r.details||{}; return [d.room, d.rooms?(d.rooms+' vær.'):'', d.board].filter(Boolean).join(' · '); };
+  // ── v0.9: nationalitet (branch) + live omsætning ──
+  const NAT_DEFS=[{k:'no',l:'Norsk',cur:'NOK'},{k:'dk',l:'Dansk',cur:'DKK'},{k:'it',l:'Italiensk',cur:'EUR'}];
+  const natKey = t => { const c=(t.customer_currency||'').toUpperCase(); const d=NAT_DEFS.find(x=>x.cur===c); return d?d.k:'xx'; };
+  const natLabel = k => (NAT_DEFS.find(x=>x.k===k)||{l:'Øvrig'}).l;
+  const depRow = t => `<div class="list-item" onclick="viewTrip('${t.id}')"><span class="ic">◆</span>
+    <span><b style="color:var(--forest)">${t.customers.last_name}, ${t.customers.first_name}</b> <span class="muted">${t.ref_no} · ${t.trip_destinations.map(d=>d.destination).join(' + ')} · ${t.pax_count} pax</span></span>
+    <span class="when">${fmtD(t.departure_date)} → ${fmtD(t.return_date)}</span></div>`;
+  const groupNat = (list,rowFn) => ['no','dk','it','xx'].map(k=>{ const rows=list.filter(t=>natKey(t)===k); if(!rows.length) return '';
+    return `<p class="natsub">${natLabel(k)} · ${rows.length}</p>`+rows.map(rowFn).join(''); }).join('');
+  // Omsætning 2026 — solgt vs. omdannet til faktisk indtægt (afrejst)
+  const YEAR='2026';
+  const qOf = d => Math.floor((+d.slice(5,7)-1)/3)+1;
+  const sumSell = arr => arr.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0);
+  const yTrips = act.filter(t=>t.departure_date>=YEAR+'-01-01'&&t.departure_date<=YEAR+'-12-31');
+  const qAgg = [1,2,3,4].map(q=>{ const ts=yTrips.filter(t=>qOf(t.departure_date)===q); return {q,total:sumSell(ts),real:sumSell(ts.filter(t=>t.departure_date<=t0))}; });
+  const yTotal=sumSell(yTrips), yReal=sumSell(yTrips.filter(t=>t.departure_date<=t0));
+  const curQ=qOf(t0), cq=qAgg.find(x=>x.q===curQ)||{total:0,real:0};
+  const moTr=act.filter(t=>t.departure_date.slice(0,7)===t0.slice(0,7));
+  const moTotal=sumSell(moTr), moReal=sumSell(moTr.filter(t=>t.departure_date<=t0));
+  const qMax=Math.max(1,...qAgg.map(x=>x.total));
+  const pctI=(a,b)=> b?Math.round(100*a/b):0;
 
   app.innerHTML = `
   <div class="pagehead"><h2>${greet}, <i style="color:var(--gold)">${window.MYNAME}</i>.</h2>
   <span class="sub">${new Date().toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'})}</span>
-  <span class="sub" style="margin-left:auto">${depToday.length?depToday.length+' afrejser i dag':'ingen afrejser i dag'} · ${paxOut} gæster ude · ${tasksDue.length?tasksDue.length+' opgaver til forfald':'alt ajour'}</span></div>
+  <span class="sub" style="margin-left:auto">${depToday.length?depToday.length+' afrejser i dag':'ingen afrejser i dag'} · ${paxOut} gæster ude · ${tasksDue.length?tasksDue.length+' opgaver til forfald':'alt ajour'} <span class="livedot" title="Opdaterer automatisk">● live</span></span></div>
 
   <div class="card" style="margin-bottom:12px">
     <h3>Morgenbrief <span class="r muted">pr. ${briefDate}</span></h3>
@@ -736,10 +805,6 @@ async function viewDash(){
     ${briefSec('Vigtige opgaver i dag', briefTasks.length, briefTasks.slice(0,CAP).map(k=>briefRow(
       `${k.title}${k.trips?` <span class="muted">${k.trips.ref_no}</span>`:''}`, overdueWhen(k), k.trip_id?`viewTrip('${k.trip_id}')`:''
     )).concat(briefTasks.length>CAP?[`<p class="brief-more">+ ${briefTasks.length-CAP} flere under Salg/Økonomi</p>`]:[]))}
-
-    ${briefSec('Mails der venter på svar', mailF.length, mailF.slice(0,CAP).map(m=>briefRow(
-      `<b>${m.from||''}</b> — ${m.subject||''}${m.why?`<br><span class="muted">${m.why}</span>`:''}`, '', ''
-    )))}
 
     ${briefSec('Kundebevægelser i dag', 0, moveF.map(m=>briefRow(m,'','')))}
 
@@ -751,9 +816,26 @@ async function viewDash(){
     ${!brief && !briefTasks.length && !briefPays.length ? `<p class="brief-empty">Din brief lander automatisk kl. 6 hver morgen — der er ikke skrevet en endnu i dag.</p>` : (brief && !brief.top_line && !briefTasks.length && !briefPays.length && !mailF.length && !moveF.length && !pulseF.length ? `<p class="brief-empty">Roligt på kontoret i dag — ingen forfaldne opgaver, betalinger eller bevægelser.</p>` : '')}
   </div>
 
-  ${hasPerm('economy')?`<div class="grid g2" style="margin-bottom:12px">
-    <div class="kpi"><b>${kr(mSum)}</b><span>afrejser denne måned (salgsværdi)</span><i class="tip">?</i><span class="tipbox"><b>Afrejser denne måned.</b> Den samlede salgsværdi (kundens pakkepris) af alle rejser der har <b>afrejse</b> i denne kalendermåned — uanset hvornår de blev booket eller betalt. Viser hvor meget "rejst omsætning" måneden leverer.</span></div>
-    <div class="kpi"><b>${kr(ytdSum)}</b><span>omsætning år til dato</span><i class="tip">?</i><span class="tipbox"><b>Omsætning år til dato.</b> Hvad vi har solgt for i år på de rejser, der allerede er lettet — fra 1. januar til i dag. Afbestilte rejser er ikke med. Det er salgsprisen, ikke det bogførte tal fra e-conomic.</span></div>
+  ${hasPerm('economy')?`<div class="card rev-card" style="margin-bottom:12px">
+    <h3>Omsætning 2026 — omdannet til faktisk indtægt</h3>
+    <div class="rev-hero">
+      <div class="rev-figs"><div><b class="rev-big">${kr(yReal)}</b><span>omdannet til indtægt i år (afrejst)</span></div>
+        <div class="rev-of">af <b>${kr(yTotal)}</b> solgt for 2026 · <b>${pctI(yReal,yTotal)}%</b></div></div>
+      <div class="meter big"><div class="track"><i class="fill" style="width:${pctI(yReal,yTotal)}%"></i></div></div>
+    </div>
+    <div class="revgrid">
+      <div><p class="rev-m-h">Denne måned</p><div class="meter"><div class="track"><i class="fill" style="width:${pctI(moReal,moTotal)}%"></i></div></div>
+        <p class="rev-m-v"><b>${kr(moReal)}</b> af ${kr(moTotal)} · ${pctI(moReal,moTotal)}% omdannet</p></div>
+      <div><p class="rev-m-h">Dette kvartal (Q${curQ})</p><div class="meter"><div class="track"><i class="fill" style="width:${pctI(cq.real,cq.total)}%"></i></div></div>
+        <p class="rev-m-v"><b>${kr(cq.real)}</b> af ${kr(cq.total)} · ${pctI(cq.real,cq.total)}% omdannet</p></div>
+    </div>
+    <p class="rev-q-h">Solgt pr. kvartal 2026 <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">— grøn = omdannet (afrejst), lys = endnu ikke rejst</span></p>
+    <div class="rev-qs">
+      ${qAgg.map(x=>`<div class="qrow"><span class="qlab">Q${x.q}${x.q===curQ?' <span class="qnow">nu</span>':''}</span>
+        <span class="qbar"><i class="qtot" style="width:${Math.round(100*x.total/qMax)}%"></i><i class="qreal" style="width:${Math.round(100*x.real/qMax)}%"></i></span>
+        <span class="qval">${kr(x.total)} <span class="muted">· ${pctI(x.real,x.total)}%</span></span></div>`).join('')}
+    </div>
+    <i class="tip">?</i><span class="tipbox"><b>Omdannet til faktisk indtægt.</b> En rejses salgsværdi bliver til indtægt når kunden er rejst (afrejsedato passeret). «Omdannet» = allerede afrejst; «solgt» = alle rejser med afrejse i perioden, også dem der endnu ikke er rejst. Kvartalerne viser hvornår årets omsætning periodisk lander.</span>
   </div>`:''}
 
   <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
@@ -788,7 +870,7 @@ async function viewDash(){
     ${inUse.length ? `<div class="inuse">`+inUse.map(g=>{const shared=g.tripIds.length>1;
       return `<div class="inuse-row${shared?' shared':''}">
         <div class="il"><span class="eltag t-${g.type}">${EL_TAG[g.type]||g.type}</span> <b>${g.label}</b>${shared?`<span class="sharedbadge">delt · ${g.tripIds.length} kunder</span>`:''}</div>
-        <div class="ir">${g.rows.map(r=>{const meta=g.type==='hotel'?hotelMeta(r):'';return `<a class="cust" href="#" onclick="viewTrip('${r.trips.id}');return false">${r.trips.customers.last_name}, ${r.trips.customers.first_name} <span class="muted">${r.trips.ref_no} · ${fmtD(r.start_date)}${r.end_date?'–'+fmtD(r.end_date):''}</span>${meta?`<span class="elmeta">${meta}</span>`:''}</a>`;}).join('')}</div>
+        <div class="ir">${g.rows.map(r=>{const meta=g.type==='hotel'?hotelMeta(r):'';return `<a class="cust" href="#" onclick="viewTrip('${r.trips.id}');return false">${r.trips.customers.last_name}, ${r.trips.customers.first_name} <span class="muted">${r.trips.ref_no} · ${(r.trips.trip_destinations||[]).map(d=>d.destination).join(' + ')} · ${r.trips.pax_count} pax · ${fmtD(r.start_date)}${r.end_date?'–'+fmtD(r.end_date):''}</span>${meta?`<span class="elmeta">${meta}</span>`:''}</a>`;}).join('')}</div>
       </div>`;}).join('')+`</div>` : '<p class="muted">Ingen hoteller, fly eller transfers i brug i dag.</p>'}
   </div>
 
@@ -801,15 +883,15 @@ async function viewDash(){
       </div>
       <div class="card"><h3>Afrejser</h3>
         <p class="subhead">Rejser i dag${depToday.length?` · ${depToday.length}`:''}</p>
-        ${depToday.map(tripRow).join('')||'<p class="muted">Ingen afrejser i dag.</p>'}
+        ${depToday.length?groupNat(depToday,depRow):'<p class="muted">Ingen afrejser i dag.</p>'}
         <p class="subhead">Kommende afrejser · næste 7 dage${depWeek.length?` · ${depWeek.length}`:''}</p>
-        ${depWeek.map(tripRow).join('')||'<p class="muted">Ingen de næste 7 dage.</p>'}
+        ${depWeek.length?groupNat(depWeek,depRow):'<p class="muted">Ingen de næste 7 dage.</p>'}
       </div>
       <div class="card"><h3>På vej hjem</h3>
         <p class="subhead">Hjem i dag${homeToday.length?` · ${homeToday.length}`:''}</p>
-        ${homeToday.map(homeRow).join('')||'<p class="muted">Ingen hjemrejser i dag.</p>'}
+        ${homeToday.length?groupNat(homeToday,homeRow):'<p class="muted">Ingen hjemrejser i dag.</p>'}
         <p class="subhead">Hjem i morgen${homeTomorrow.length?` · ${homeTomorrow.length}`:''}</p>
-        ${homeTomorrow.map(homeRow).join('')||'<p class="muted">Ingen hjemrejser i morgen.</p>'}
+        ${homeTomorrow.length?groupNat(homeTomorrow,homeRow):'<p class="muted">Ingen hjemrejser i morgen.</p>'}
       </div>
     </div>
     <div>
