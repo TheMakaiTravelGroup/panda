@@ -149,6 +149,30 @@ a{color:var(--gold);}
 .vpsel.vp-aaben{border-color:var(--line);color:var(--mut);} 
 .vpsel.vp-betalt_mangler_afstemning{border-color:var(--gold);color:#8a6d2f;background:#fffdf6;font-weight:600;}
 .vpsel.vp-afstemt{border-color:var(--ok);color:var(--ok);background:#f4f9f5;font-weight:600;}
+/* ── v0.8 dashboard-oprydning ── */
+.subhead{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--mut);font-weight:700;margin:14px 0 5px;padding-bottom:3px;border-bottom:1px solid var(--line-2);}
+.card>.subhead:first-of-type{margin-top:4px;}
+.elmeta{display:block;font-size:10.5px;color:var(--sea);margin-top:1px;}
+.flymeta{display:inline-block;font-size:11px;color:var(--blue);font-weight:600;margin-top:1px;}
+.agent.agentfold{padding:0;overflow:hidden;}
+.agentfold>summary{list-style:none;cursor:pointer;padding:11px 14px 25px;position:relative;}
+.agentfold>summary::-webkit-details-marker{display:none;}
+.agentfold>summary::after{content:'▸ fold ud';position:absolute;left:14px;bottom:8px;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.agentfold[open]>summary::after{content:'▾ fold ind';}
+.agentfold>summary:hover::after{text-decoration:underline;}
+.agentfold .foldbody{padding:9px 14px 12px;border-top:1px solid var(--line-2);background:#fdfbf6;}
+.foldgrp{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);font-weight:700;margin:9px 0 3px;}
+.foldgrp:first-child{margin-top:0;}
+.foldrow{display:flex;gap:9px;padding:5px 2px;border-bottom:1px solid var(--line-2);align-items:baseline;font-size:12px;line-height:1.4;}
+.foldrow:last-child{border-bottom:none;}
+.foldrow .tx{flex:1;}
+.foldrow .amt{margin-left:auto;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px;font-size:11px;}
+.foldlink{margin:9px 0 0;font-size:11px;}
+.fold-up{margin-top:10px;border-top:1px solid var(--line-2);padding-top:7px;}
+.fold-up>summary{list-style:none;cursor:pointer;font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);font-weight:700;padding:3px 0;}
+.fold-up>summary::-webkit-details-marker{display:none;}
+.fold-up>summary::before{content:'▸ ';}
+.fold-up[open]>summary::before{content:'▾ ';}
 /* ── Rapporter ── */
 .rep-layout{display:grid;grid-template-columns:212px 1fr;gap:16px;align-items:start;}
 .rep-menu{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;position:sticky;top:16px;}
@@ -608,7 +632,7 @@ async function viewDash(){
       return felles;
     }),
     db.from('documents').select('id',{count:'exact',head:true}),
-    db.from('trip_elements').select('id,element_type,description,start_date,end_date,status,suppliers:supplier_id(name),trips!inner(id,ref_no,status,customers(last_name,first_name))').lte('start_date',t0).or(`end_date.gte.${t0},end_date.is.null`).then(r=>r.data||[]),
+    db.from('trip_elements').select('id,element_type,description,details,start_date,end_date,status,suppliers:supplier_id(name),trips!inner(id,ref_no,status,customers(last_name,first_name))').lte('start_date',t0).or(`end_date.gte.${t0},end_date.is.null`).then(r=>r.data||[]),
     vpLoadRecon()
   ]);
   const brief = rb;
@@ -674,6 +698,32 @@ async function viewDash(){
   const briefSec = (label,n,rows)=> rows.length ? `<div class="brief-sec"><p class="brief-sec-h">${label}${n?`<span class="n">${n}</span>`:''}</p>${rows.join('')}</div>` : '';
   const overdueWhen = k => `<span class="${k.due_date<t0?'overdue':''}">${fmtD(k.due_date)}</span>`;
   const CAP=5;
+
+  // ── v0.8 dashboard-oprydning ──
+  const daysUntil = d => Math.round((new Date(d)-new Date(t0))/86400000);
+  // Hjemrejser delt i dag/i morgen
+  const homeToday = homeSoon.filter(t=>t.return_date===t0);
+  const homeTomorrow = homeSoon.filter(t=>t.return_date===t1);
+  // Returfly (flyselskab + klasse) til hjemrejse-boksen — hentes kun for de relevante rejser
+  const homeIds = [...new Set([...homeToday,...homeTomorrow].map(t=>t.id))];
+  let flightsByTrip = {};
+  if(homeIds.length){
+    const fe = await db.from('trip_elements').select('trip_id,details,start_date').eq('element_type','flight').in('trip_id',homeIds).then(r=>r.data||[]);
+    // Returflyet = flyelementet med den seneste afgangsdato
+    fe.forEach(e=>{ const c=flightsByTrip[e.trip_id]; if(!c || (e.start_date||'')>(c.start_date||'')) flightsByTrip[e.trip_id]=e; });
+  }
+  const flyLabel = t => { const f=flightsByTrip[t.id], fd=(f&&f.details)||{}; return [fd.airline,fd.class].filter(Boolean).join(' · '); };
+  const homeRow = t => { const fly=flyLabel(t);
+    return `<div class="list-item" onclick="viewTrip('${t.id}')"><span class="ic">◆</span>
+    <span><b style="color:var(--forest)">${t.customers.last_name}, ${t.customers.first_name}</b> <span class="muted">${t.ref_no} · ${t.trip_destinations.map(d=>d.destination).join(' + ')} · ${t.pax_count} pax</span>${fly?`<br><span class="flymeta">✈ ${fly}</span>`:''}</span>
+    <span class="when">hjem ${fmtD(t.return_date)}</span></div>`; };
+  // Dagens opgaver: kun forfaldne manuelle opgaver + påmindelser om kommende restbetalinger + foldbar kommende-liste
+  const dueTasksList = rk.filter(k=>k.due_date&&k.due_date<=t0&&k.task_type!=='restbetaling').sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||''));
+  const upcomingTasksList = rk.filter(k=>k.due_date&&k.due_date>t0&&k.task_type!=='restbetaling').sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||''));
+  // Påmindelser: restbetalinger der forfalder inden for 7 dage (mind kunden mindst en uge før)
+  const payReminders = restTasks.filter(k=>k.due_date&&k.due_date>t0&&k.due_date<=t7).sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||''));
+  const hotelMeta = r => { const d=r.details||{}; return [d.room, d.rooms?(d.rooms+' vær.'):'', d.board].filter(Boolean).join(' · '); };
+
   app.innerHTML = `
   <div class="pagehead"><h2>${greet}, <i style="color:var(--gold)">${window.MYNAME}</i>.</h2>
   <span class="sub">${new Date().toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'})}</span>
@@ -686,10 +736,6 @@ async function viewDash(){
     ${briefSec('Vigtige opgaver i dag', briefTasks.length, briefTasks.slice(0,CAP).map(k=>briefRow(
       `${k.title}${k.trips?` <span class="muted">${k.trips.ref_no}</span>`:''}`, overdueWhen(k), k.trip_id?`viewTrip('${k.trip_id}')`:''
     )).concat(briefTasks.length>CAP?[`<p class="brief-more">+ ${briefTasks.length-CAP} flere under Salg/Økonomi</p>`]:[]))}
-
-    ${briefSec('Betalinger til forfald', briefPays.length, briefPays.slice(0,CAP).map(k=>briefRow(
-      `${k.title}${k.trips?` <span class="muted">${k.trips.ref_no}</span>`:''}`, overdueWhen(k), k.trip_id?`viewTrip('${k.trip_id}')`:''
-    )).concat(briefPays.length>CAP?[`<p class="brief-more">+ ${briefPays.length-CAP} flere under Økonomi</p>`]:[]))}
 
     ${briefSec('Mails der venter på svar', mailF.length, mailF.slice(0,CAP).map(m=>briefRow(
       `<b>${m.from||''}</b> — ${m.subject||''}${m.why?`<br><span class="muted">${m.why}</span>`:''}`, '', ''
@@ -705,20 +751,36 @@ async function viewDash(){
     ${!brief && !briefTasks.length && !briefPays.length ? `<p class="brief-empty">Din brief lander automatisk kl. 6 hver morgen — der er ikke skrevet en endnu i dag.</p>` : (brief && !brief.top_line && !briefTasks.length && !briefPays.length && !mailF.length && !moveF.length && !pulseF.length ? `<p class="brief-empty">Roligt på kontoret i dag — ingen forfaldne opgaver, betalinger eller bevægelser.</p>` : '')}
   </div>
 
-  <div class="grid ${hasPerm('economy')?'g6':'g3'}" style="margin-bottom:12px">
-    <div class="kpi">${delta(wkD)}<b>${depToday.length+depWeek.length}</b><span>afrejser 7 dage</span><i class="tip">?</i><span class="tipbox"><b>Afrejser 7 dage.</b> Hvor mange rejser der letter i dag og i løbet af de næste 7 dage. Den lille pil viser om det er flere (▲) eller færre (▼) end ugen før.</span></div>
-    <div class="kpi"><b>${paxOut}</b><span>gæster ude nu</span><i class="tip">?</i><span class="tipbox"><b>Gæster ude nu.</b> Hvor mange gæster der er ude at rejse lige nu — de er taget afsted, men ikke kommet hjem endnu.</span></div>
-    ${hasPerm('economy')?`
-    <div class="kpi"><b>${kr(mSum)}</b><span>salg afrejser md.</span><i class="tip">?</i><span class="tipbox"><b>Salg afrejser måned.</b> Hvor meget de rejser, der letter i denne måned, er solgt for tilsammen. Det tæller efter hvornår folk rejser — ikke hvornår de har booket eller betalt.</span></div>
-    <div class="kpi"><b>${kr(ytdSum)}</b><span>omsætning ÅTD</span><i class="tip">?</i><span class="tipbox"><b>Omsætning år til dato.</b> Hvad vi har solgt for i år på de rejser, der allerede er lettet — fra 1. januar til i dag. Afbestilte rejser er ikke med. Det er salgsprisen, ikke det bogførte tal fra e-conomic.</span></div>
-    <div class="kpi"><b>${kr(pipeline)}</b><span>pipeline</span><i class="tip">?</i><span class="tipbox"><b>Pipeline.</b> Hvad vi allerede har solgt, men som endnu ikke er rejst — alle kommende rejser fra i dag og frem. Penge på vej ind.</span></div>`:''}
-    <div class="kpi ${tasksDue.length?'warn':''}"><b>${tasksDue.length}</b><span>opgaver forfald</span><i class="tip">?</i><span class="tipbox"><b>Opgaver forfald.</b> Åbne opgaver hvis frist er i dag eller overskredet. Se kortet «Deadline-vagthund» nedenfor for hvem der har ansvaret.</span></div>
-  </div>
+  ${hasPerm('economy')?`<div class="grid g2" style="margin-bottom:12px">
+    <div class="kpi"><b>${kr(mSum)}</b><span>afrejser denne måned (salgsværdi)</span><i class="tip">?</i><span class="tipbox"><b>Afrejser denne måned.</b> Den samlede salgsværdi (kundens pakkepris) af alle rejser der har <b>afrejse</b> i denne kalendermåned — uanset hvornår de blev booket eller betalt. Viser hvor meget "rejst omsætning" måneden leverer.</span></div>
+    <div class="kpi"><b>${kr(ytdSum)}</b><span>omsætning år til dato</span><i class="tip">?</i><span class="tipbox"><b>Omsætning år til dato.</b> Hvad vi har solgt for i år på de rejser, der allerede er lettet — fra 1. januar til i dag. Afbestilte rejser er ikke med. Det er salgsprisen, ikke det bogførte tal fra e-conomic.</span></div>
+  </div>`:''}
 
   <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
-    <div class="agent" onclick="viewSales()" style="cursor:pointer"><div class="nm">Deadline-vagthund</div><div class="st"><span class="dot ${tasksDue.length?'alarm':'ok'}"></span>${tasksDue.length?tasksDue.length+' til forfald':'Alt ajour'}</div><div class="info">${dueOwners.length?'Ansvar: '+dueOwners.join(', ')+' · ':''}${rk.filter(k=>k.due_date>t0&&k.due_date<=t7).length} opgaver næste 7 dage</div><i class="tip">?</i><span class="tipbox"><b>Deadline-vagthund.</b> Holder øje med opgaver der har en frist. Rød prik = noget er overskredet. «Ansvar» viser hvem der skal tage sig af de overskredne opgaver. Klik for at åbne opgavelisten.</span></div>
-    ${hasPerm('finance')?`<div class="agent" onclick="viewFinance()" style="cursor:pointer"><div class="nm">Betalingsvagt · kun forfaldne</div><div class="st"><span class="dot ${payOverdue?'alarm':'ok'}"></span>${payOverdue?payOverdue+' betaling'+(payOverdue>1?'er':'')+' overskredet':'Alt betalt til tiden'}</div><div class="info">${custOverdue.length} fra kunder · ${vpOverdue.length} til leverandører${vpOverdue.length?' ('+kr(vpOverdueSum)+')':''}</div><i class="tip">?</i><span class="tipbox"><b>Betalingsvagt.</b> Viser kun betalinger der er overskredet: restbetalinger vi mangler <b>fra</b> kunder, og regninger vi skulle have betalt <b>til</b> leverandører. Beløbet i parentes er summen vi skylder leverandørerne. Klik for at åbne Økonomi.</span></div>`
-    :`<div class="agent" onclick="viewSales()" style="cursor:pointer"><div class="nm">Betalingsvagt · kun forfaldne</div><div class="st"><span class="dot ${custOverdue.length?'alarm':'ok'}"></span>${custOverdue.length?custOverdue.length+' restbetaling'+(custOverdue.length>1?'er':'')+' overskredet':'Alt betalt til tiden'}</div><div class="info">${custOverdue.length} fra kunder</div><i class="tip">?</i><span class="tipbox"><b>Betalingsvagt.</b> Viser restbetalinger vi mangler <b>fra</b> kunder, som er overskredet. Klik for at åbne Salg.</span></div>`}
+    <details class="agent agentfold">
+      <summary><div class="nm">Deadline-vagthund</div><div class="st"><span class="dot ${tasksDue.length?'alarm':'ok'}"></span>${tasksDue.length?tasksDue.length+' til forfald':'Alt ajour'}</div><div class="info">${dueOwners.length?'Ansvar: '+dueOwners.join(', ')+' · ':''}${rk.filter(k=>k.due_date>t0&&k.due_date<=t7).length} opgaver næste 7 dage</div><i class="tip">?</i><span class="tipbox"><b>Deadline-vagthund.</b> Holder øje med opgaver der har en frist. Rød prik = noget er overskredet. «Ansvar» viser hvem der skal tage sig af de overskredne opgaver. Fold ud for at se og hakke dem af.</span></summary>
+      <div class="foldbody">
+        ${tasksDue.length? tasksDue.map(k=>taskLine(k,'viewDash')).join('') : '<p class="muted" style="margin:2px 0 6px">Ingen forfaldne opgaver — alt ajour.</p>'}
+        <p class="foldlink"><a href="#" onclick="viewSales();return false">Åbn fuld opgaveliste →</a></p>
+      </div>
+    </details>
+    ${hasPerm('finance')?`<details class="agent agentfold">
+      <summary><div class="nm">Betalingsvagt · kun forfaldne</div><div class="st"><span class="dot ${payOverdue?'alarm':'ok'}"></span>${payOverdue?payOverdue+' betaling'+(payOverdue>1?'er':'')+' overskredet':'Alt betalt til tiden'}</div><div class="info">${custOverdue.length} fra kunder · ${vpOverdue.length} til leverandører${vpOverdue.length?' ('+kr(vpOverdueSum)+')':''}</div><i class="tip">?</i><span class="tipbox"><b>Betalingsvagt.</b> Viser kun betalinger der er overskredet: restbetalinger vi mangler <b>fra</b> kunder, og regninger vi skulle have betalt <b>til</b> leverandører. Fold ud for at se dem delt op.</span></summary>
+      <div class="foldbody">
+        <p class="foldgrp">Fra kunder · restbetalinger${custOverdue.length?' ('+custOverdue.length+')':''}</p>
+        ${custOverdue.length? custOverdue.map(k=>`<div class="foldrow"><span class="tx"${k.trip_id?` onclick="viewTrip('${k.trip_id}')" style="cursor:pointer"`:''}>${k.title}${k.trips?` <span class="muted">${k.trips.ref_no}</span>`:''}</span><span class="amt overdue">${fmtD(k.due_date)}</span></div>`).join('') : '<p class="muted" style="margin:2px 0">Ingen forfaldne restbetalinger fra kunder.</p>'}
+        <p class="foldgrp">Til leverandører${vpOverdue.length?' ('+vpOverdue.length+')':''}</p>
+        ${vpOverdue.length? [...vpOverdue].sort((a,b)=>(a.due||'').localeCompare(b.due||'')).map(p=>`<div class="foldrow"><span class="tx">${p.vendor||'—'} <span class="muted">MN${p.folder||''} · ${p.pax||''}</span></span><span class="amt overdue">${kr(Math.abs(p.dkk||0))} · ${fmtD(p.due)}</span></div>`).join('') : '<p class="muted" style="margin:2px 0">Ingen forfaldne leverandørbetalinger.</p>'}
+        <p class="foldlink"><a href="#" onclick="viewFinance();return false">Åbn Økonomi →</a></p>
+      </div>
+    </details>`
+    :`<details class="agent agentfold">
+      <summary><div class="nm">Betalingsvagt · kun forfaldne</div><div class="st"><span class="dot ${custOverdue.length?'alarm':'ok'}"></span>${custOverdue.length?custOverdue.length+' restbetaling'+(custOverdue.length>1?'er':'')+' overskredet':'Alt betalt til tiden'}</div><div class="info">${custOverdue.length} fra kunder</div><i class="tip">?</i><span class="tipbox"><b>Betalingsvagt.</b> Viser restbetalinger vi mangler <b>fra</b> kunder, som er overskredet. Fold ud for at se dem.</span></summary>
+      <div class="foldbody">
+        <p class="foldgrp">Fra kunder · restbetalinger${custOverdue.length?' ('+custOverdue.length+')':''}</p>
+        ${custOverdue.length? custOverdue.map(k=>`<div class="foldrow"><span class="tx"${k.trip_id?` onclick="viewTrip('${k.trip_id}')" style="cursor:pointer"`:''}>${k.title}${k.trips?` <span class="muted">${k.trips.ref_no}</span>`:''}</span><span class="amt overdue">${fmtD(k.due_date)}</span></div>`).join('') : '<p class="muted" style="margin:2px 0">Ingen forfaldne restbetalinger fra kunder.</p>'}
+      </div>
+    </details>`}
   </div>
 
   <div class="card" style="margin-bottom:12px">
@@ -726,7 +788,7 @@ async function viewDash(){
     ${inUse.length ? `<div class="inuse">`+inUse.map(g=>{const shared=g.tripIds.length>1;
       return `<div class="inuse-row${shared?' shared':''}">
         <div class="il"><span class="eltag t-${g.type}">${EL_TAG[g.type]||g.type}</span> <b>${g.label}</b>${shared?`<span class="sharedbadge">delt · ${g.tripIds.length} kunder</span>`:''}</div>
-        <div class="ir">${g.rows.map(r=>`<a class="cust" href="#" onclick="viewTrip('${r.trips.id}');return false">${r.trips.customers.last_name}, ${r.trips.customers.first_name} <span class="muted">${r.trips.ref_no} · ${fmtD(r.start_date)}${r.end_date?'–'+fmtD(r.end_date):''}</span></a>`).join('')}</div>
+        <div class="ir">${g.rows.map(r=>{const meta=g.type==='hotel'?hotelMeta(r):'';return `<a class="cust" href="#" onclick="viewTrip('${r.trips.id}');return false">${r.trips.customers.last_name}, ${r.trips.customers.first_name} <span class="muted">${r.trips.ref_no} · ${fmtD(r.start_date)}${r.end_date?'–'+fmtD(r.end_date):''}</span>${meta?`<span class="elmeta">${meta}</span>`:''}</a>`;}).join('')}</div>
       </div>`;}).join('')+`</div>` : '<p class="muted">Ingen hoteller, fly eller transfers i brug i dag.</p>'}
   </div>
 
@@ -737,14 +799,28 @@ async function viewDash(){
           <span style="flex:1"><a class="hl" href="${n.url}" target="_blank" rel="noopener">${n.headline}</a>
           <p>${n.summary}</p><span class="src">${n.source} ↗</span></span></div>`).join('')}</div>`:'<p class="muted">Ingen briefing i dag.</p>'}
       </div>
-      <div class="card"><h3>Afrejser — i dag & denne uge</h3>${[...depToday,...depWeek].map(tripRow).join('')||'<p class="muted">Ingen.</p>'}</div>
-      <div class="card"><h3>Ude at rejse nu</h3>${outNow.map(tripRow).join('')||'<p class="muted">Ingen.</p>'}</div>
-      <div class="card"><h3>På vej hjem — i dag & i morgen</h3>${homeSoon.map(tripRow).join('')||'<p class="muted">Ingen.</p>'}</div>
+      <div class="card"><h3>Afrejser</h3>
+        <p class="subhead">Rejser i dag${depToday.length?` · ${depToday.length}`:''}</p>
+        ${depToday.map(tripRow).join('')||'<p class="muted">Ingen afrejser i dag.</p>'}
+        <p class="subhead">Kommende afrejser · næste 7 dage${depWeek.length?` · ${depWeek.length}`:''}</p>
+        ${depWeek.map(tripRow).join('')||'<p class="muted">Ingen de næste 7 dage.</p>'}
+      </div>
+      <div class="card"><h3>På vej hjem</h3>
+        <p class="subhead">Hjem i dag${homeToday.length?` · ${homeToday.length}`:''}</p>
+        ${homeToday.map(homeRow).join('')||'<p class="muted">Ingen hjemrejser i dag.</p>'}
+        <p class="subhead">Hjem i morgen${homeTomorrow.length?` · ${homeTomorrow.length}`:''}</p>
+        ${homeTomorrow.map(homeRow).join('')||'<p class="muted">Ingen hjemrejser i morgen.</p>'}
+      </div>
     </div>
     <div>
       <div class="card"><h3>Dagens opgaver <span class="r"><a href="#" onclick="viewSales();return false">salg</a> · <a href="#" onclick="viewFinance();return false">økonomi</a></span></h3>
-        ${rk.slice(0,12).map(k=>taskLine(k,'viewDash')).join('')||'<p class="muted">Alt er ajour.</p>'}
-        ${rk.length>12?`<p class="muted center" style="margin:6px 0 0">+ ${rk.length-12} flere under Salg/Økonomi</p>`:''}
+        <p class="subhead">Til forfald i dag${dueTasksList.length?` · ${dueTasksList.length}`:''}</p>
+        ${dueTasksList.map(k=>taskLine(k,'viewDash')).join('')||'<p class="muted">Ingen opgaver til forfald i dag.</p>'}
+        ${payReminders.length?`<p class="subhead">Påmindelser · mind kunden om restbetaling</p>
+        ${payReminders.map(k=>{const d=daysUntil(k.due_date);return `<div class="brief-item click" ${k.trip_id?`onclick="viewTrip('${k.trip_id}')"`:''}><span class="ic">✉</span><span class="tx">Mind kunden om restbetaling${k.trips?` <span class="muted">${k.trips.ref_no}</span>`:''} — forfalder ${fmtD(k.due_date)}</span><span class="when">om ${d} dg.</span></div>`;}).join('')}`:''}
+        ${upcomingTasksList.length?`<details class="fold-up"><summary>Kommende opgaver · ${upcomingTasksList.length}</summary>
+        ${upcomingTasksList.slice(0,10).map(k=>taskLine(k,'viewDash')).join('')}
+        ${upcomingTasksList.length>10?`<p class="muted center" style="margin:6px 0 0">+ ${upcomingTasksList.length-10} flere under Salg/Økonomi</p>`:''}</details>`:''}
       </div>
     </div>
   </div>`;
