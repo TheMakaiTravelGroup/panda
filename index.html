@@ -1992,10 +1992,10 @@ function editLead(id){
     </div>
     <div class="err" id="l_err" style="color:var(--bad);font-size:12px;margin-top:8px"></div>
     <div class="dlg-actions">
-      <button class="btn" style="background:#A37C5A" onclick="saveLead('${id||''}')">Gem</button>
-      ${l.status!=='won'?`<button class="btn gold" style="background:#2A3D32" onclick="convertLeadFromDlg('${id||''}')">Vundet → opret rejse</button>`:`<span class="pill">✓ Vundet${l.converted_trip_id?` · <a href="#" onclick="closeLeadDlg();viewTrip('${l.converted_trip_id}');return false">åbn rejse</a>`:''}</span>`}
-      ${id&&l.status==='open'?`<button class="btn ghost" style="background:#c0392b;color:#fff;border-color:#c0392b" onclick="markLeadLost('${id}')">Marker tabt</button>`:''}
-      ${id?`<button class="btn danger spacer" style="background:#111" onclick="deleteLead('${id}')">Slet</button>`:'<span class="spacer"></span>'}
+      <button class="btn" style="background:#A37C5A" onclick="saveLead('${id||''}')">SAVE</button>
+      ${l.status!=='won'?`<button class="btn gold" style="background:#2A3D32" onclick="convertLeadFromDlg('${id||''}')">WON</button>`:`<span class="pill">✓ WON${l.converted_trip_id?` · <a href="#" onclick="closeLeadDlg();viewTrip('${l.converted_trip_id}');return false">åbn rejse</a>`:''}</span>`}
+      ${id&&l.status==='open'?`<button class="btn ghost" style="background:#c0392b;color:#fff;border-color:#c0392b" onclick="markLeadLost('${id}')">LOST</button>`:''}
+      ${id?`<button class="btn danger spacer" style="background:#111" onclick="deleteLead('${id}')">DELETE</button>`:'<span class="spacer"></span>'}
       <button class="btn ghost" onclick="closeLeadDlg()">Luk</button>
     </div>`;
   document.body.appendChild(dlg); window._leadDlg=dlg; dlg.showModal();
