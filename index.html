@@ -1986,7 +1986,6 @@ function editLead(id){
       <div><label>Hvordan kontaktes?</label><input id="l_contact_pref" value="${escH(v('contact_pref'))}"></div>
       <div><label>Ansvarlig</label><input id="l_owner" value="${escH(v('owner')||window.ME||'')}"></div>
       <div class="full"><label>Highlights</label><textarea id="l_highlights" rows="2">${escH(v('highlights'))}</textarea></div>
-      <div class="full"><label>Rejseønsker</label><textarea id="l_travel_wishes" rows="2">${escH(v('travel_wishes'))}</textarea></div>
       <div class="full"><label>Ønsker / interne noter</label><textarea id="l_wishes" rows="2">${escH(v('wishes'))}</textarea></div>
       <div><label>Hvor hørt om os?</label><input id="l_heard_about_us" value="${escH(v('heard_about_us'))}"></div>
       <div><label>Kilde</label><input id="l_source" value="${escH(v('source')||'manuel')}"></div>
@@ -2012,7 +2011,7 @@ function leadFormData(){
     departure_airport:g('l_departure_airport')||null, adults:num('l_adults'), kids:num('l_kids'), child_ages:g('l_child_ages')||null,
     departure_date:g('l_departure_date')||null, return_date:g('l_return_date')||null,
     nights:num('l_nights'), villas:num('l_villas'), contact_pref:g('l_contact_pref')||null, owner:g('l_owner')||null,
-    travel_wishes:g('l_travel_wishes')||null, wishes:g('l_wishes')||null, highlights:g('l_highlights')||null, heard_about_us:g('l_heard_about_us')||null, source:g('l_source')||null };
+    wishes:g('l_wishes')||null, highlights:g('l_highlights')||null, heard_about_us:g('l_heard_about_us')||null, source:g('l_source')||null };
 }
 async function saveLead(id){
   const rec = leadFormData();
