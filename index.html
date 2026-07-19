@@ -1972,14 +1972,13 @@ function editLead(id){
       <div><label>Trin</label><select id="l_stage">${stageSel}</select></div>
       <div><label>E-mail</label><input id="l_contact_email" value="${escH(v('contact_email'))}"></div>
       <div><label>Telefon</label><input id="l_contact_phone" value="${escH(v('contact_phone'))}"></div>
-      <div><label>Estimeret værdi</label><input id="l_est_value" type="number" step="1" value="${v('est_value')}"></div>
+      <div><label>Budget</label><input id="l_est_value" type="number" step="1" value="${v('est_value')}"></div>
       <div><label>Valuta</label><select id="l_currency"><option ${l.currency==='DKK'||!l.currency?'selected':''}>DKK</option><option ${l.currency==='NOK'?'selected':''}>NOK</option><option ${l.currency==='EUR'?'selected':''}>EUR</option></select></div>
       <div><label>Destination</label><input id="l_destination" value="${escH(v('destination')||'Maldiverne')}"></div>
       <div><label>Afgangslufthavn</label><input id="l_departure_airport" value="${escH(v('departure_airport'))}"></div>
       <div><label>Voksne</label><input id="l_adults" type="number" value="${v('adults')}"></div>
       <div><label>Børn</label><input id="l_kids" type="number" value="${v('kids')}"></div>
       <div><label>Alder på børn</label><input id="l_child_ages" value="${escH(v('child_ages'))}" placeholder="fx 8, 11"></div>
-      <div><label>Max. budget</label><input id="l_max_budget" type="number" value="${v('max_budget')}"></div>
       <div><label>Afrejse (ønsket)</label><input id="l_departure_date" type="date" value="${v('departure_date')}"></div>
       <div><label>Hjemkomst (ønsket)</label><input id="l_return_date" type="date" value="${v('return_date')}"></div>
       <div><label>Nætter</label><input id="l_nights" type="number" value="${v('nights')}"></div>
@@ -2010,7 +2009,7 @@ function leadFormData(){
     contact_name:g('l_contact_name')||null, contact_email:g('l_contact_email')||null, contact_phone:g('l_contact_phone')||null,
     est_value:num('l_est_value'), currency:g('l_currency')||'DKK', destination:g('l_destination')||null,
     departure_airport:g('l_departure_airport')||null, adults:num('l_adults'), kids:num('l_kids'), child_ages:g('l_child_ages')||null,
-    max_budget:num('l_max_budget'), departure_date:g('l_departure_date')||null, return_date:g('l_return_date')||null,
+    departure_date:g('l_departure_date')||null, return_date:g('l_return_date')||null,
     nights:num('l_nights'), villas:num('l_villas'), contact_pref:g('l_contact_pref')||null, owner:g('l_owner')||null,
     travel_wishes:g('l_travel_wishes')||null, wishes:g('l_wishes')||null, heard_about_us:g('l_heard_about_us')||null, source:g('l_source')||null };
 }
