@@ -178,29 +178,22 @@ a{color:var(--gold);}
 .natsub:first-of-type{margin-top:3px;}
 .livedot{color:#5b7a54;font-size:9.5px;font-weight:700;letter-spacing:1px;margin-left:10px;white-space:nowrap;}
 .rev-card{position:relative;}
-.rev-hero{display:flex;align-items:center;gap:20px;margin:10px 0 2px;flex-wrap:wrap;}
-.rev-figs{flex:0 0 auto;}
-.rev-big{font-family:'Playfair Display',serif;font-size:27px;color:var(--forest);font-weight:600;font-variant-numeric:tabular-nums;display:block;line-height:1.05;}
-.rev-figs>div>span{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;}
-.rev-of{font-size:12px;color:var(--mut);margin-top:5px;}
-.rev-of b{color:var(--forest);}
-.rev-hero .meter{flex:1;min-width:170px;}
-.meter .track{height:9px;border-radius:6px;background:#ece6d8;overflow:hidden;}
-.meter.big .track{height:13px;}
-.meter .fill{display:block;height:100%;background:#5b7a54;border-radius:6px;}
-.revgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0 4px;}
-.rev-m-h{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);font-weight:700;margin:0 0 5px;}
-.rev-m-v{font-size:11.5px;color:var(--mut);margin:5px 0 0;}
-.rev-m-v b{color:var(--forest);font-variant-numeric:tabular-nums;}
-.rev-q-h{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);font-weight:700;margin:12px 0 7px;}
-.rev-qs{display:flex;flex-direction:column;gap:8px;}
-.qrow{display:flex;align-items:center;gap:11px;font-size:12px;}
-.qlab{flex:0 0 60px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:5px;}
+.rev-lead{font-size:12.5px;margin:9px 0 2px;color:var(--forest);line-height:1.5;}
+.rev-lead b{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--forest);font-variant-numeric:tabular-nums;}
+.rev-h{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);font-weight:700;margin:17px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.rev-leg{font-size:9px;letter-spacing:0;text-transform:none;font-weight:400;color:var(--mut);display:inline-flex;align-items:center;gap:4px;}
+.rev-leg .sw{width:10px;height:10px;border-radius:3px;display:inline-block;}
+.rev-leg .sw-real{background:#5b7a54;}
+.rev-leg .sw-rest{background:#e3d5b0;margin-left:8px;}
+.rev-rows{display:flex;flex-direction:column;gap:9px;}
+.rev-row{display:grid;grid-template-columns:108px 1fr auto;align-items:center;gap:13px;font-size:12px;}
+.rev-row .rl{color:var(--ink);font-weight:600;display:flex;align-items:center;gap:6px;}
+.rev-row .rb{position:relative;height:14px;border-radius:7px;background:#f2eee1;overflow:hidden;}
+.rev-row .rb-tot{position:absolute;left:0;top:0;height:100%;background:#e3d5b0;border-radius:7px;}
+.rev-row .rb-real{position:absolute;left:0;top:0;height:100%;background:#5b7a54;border-radius:7px;}
+.rev-row .rv{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--mut);text-align:right;}
+.rev-row .rv b{color:var(--forest);margin-left:5px;}
 .qnow{font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;border:1px solid var(--gold);border-radius:4px;padding:1px 4px;}
-.qbar{flex:1;height:12px;border-radius:6px;background:#f0ebdd;position:relative;overflow:hidden;}
-.qbar .qtot{position:absolute;left:0;top:0;height:100%;background:#e3d5b0;border-radius:6px;}
-.qbar .qreal{position:absolute;left:0;top:0;height:100%;background:#5b7a54;border-radius:6px;}
-.qval{flex:0 0 auto;min-width:108px;text-align:right;font-variant-numeric:tabular-nums;color:var(--forest);font-weight:600;}
 /* ── Rapporter ── */
 .rep-layout{display:grid;grid-template-columns:212px 1fr;gap:16px;align-items:start;}
 .rep-menu{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;position:sticky;top:16px;}
@@ -817,25 +810,17 @@ async function viewDash(){
   </div>
 
   ${hasPerm('economy')?`<div class="card rev-card" style="margin-bottom:12px">
-    <h3>Omsætning 2026 — omdannet til faktisk indtægt</h3>
-    <div class="rev-hero">
-      <div class="rev-figs"><div><b class="rev-big">${kr(yReal)}</b><span>omdannet til indtægt i år (afrejst)</span></div>
-        <div class="rev-of">af <b>${kr(yTotal)}</b> solgt for 2026 · <b>${pctI(yReal,yTotal)}%</b></div></div>
-      <div class="meter big"><div class="track"><i class="fill" style="width:${pctI(yReal,yTotal)}%"></i></div></div>
+    <h3>Omsætning 2026</h3>
+    <p class="rev-lead"><b>${kr(yReal)}</b> omdannet til faktisk indtægt <span class="muted">— af ${kr(yTotal)} solgt · ${pctI(yReal,yTotal)}% af året realiseret</span></p>
+    <p class="rev-h">Omdannet til indtægt <span class="rev-leg"><i class="sw sw-real"></i>omdannet<i class="sw sw-rest"></i>endnu ikke rejst</span></p>
+    <div class="rev-rows">
+      ${[['Denne måned',moReal,moTotal],['Dette kvartal',cq.real,cq.total],['Hele 2026',yReal,yTotal]].map(row=>`<div class="rev-row"><span class="rl">${row[0]}</span><span class="rb"><i class="rb-tot" style="width:100%"></i><i class="rb-real" style="width:${pctI(row[1],row[2])}%"></i></span><span class="rv">${kr(row[1])} / ${kr(row[2])}<b>${pctI(row[1],row[2])}%</b></span></div>`).join('')}
     </div>
-    <div class="revgrid">
-      <div><p class="rev-m-h">Denne måned</p><div class="meter"><div class="track"><i class="fill" style="width:${pctI(moReal,moTotal)}%"></i></div></div>
-        <p class="rev-m-v"><b>${kr(moReal)}</b> af ${kr(moTotal)} · ${pctI(moReal,moTotal)}% omdannet</p></div>
-      <div><p class="rev-m-h">Dette kvartal (Q${curQ})</p><div class="meter"><div class="track"><i class="fill" style="width:${pctI(cq.real,cq.total)}%"></i></div></div>
-        <p class="rev-m-v"><b>${kr(cq.real)}</b> af ${kr(cq.total)} · ${pctI(cq.real,cq.total)}% omdannet</p></div>
+    <p class="rev-h">Fordelt på kvartaler <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">— hvornår årets omsætning lander</span></p>
+    <div class="rev-rows">
+      ${qAgg.map(x=>`<div class="rev-row"><span class="rl">Q${x.q}${x.q===curQ?' <span class="qnow">nu</span>':''}</span><span class="rb"><i class="rb-tot" style="width:${Math.round(100*x.total/qMax)}%"></i><i class="rb-real" style="width:${Math.round(100*x.real/qMax)}%"></i></span><span class="rv">${kr(x.total)}<b>${pctI(x.real,x.total)}%</b></span></div>`).join('')}
     </div>
-    <p class="rev-q-h">Solgt pr. kvartal 2026 <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">— grøn = omdannet (afrejst), lys = endnu ikke rejst</span></p>
-    <div class="rev-qs">
-      ${qAgg.map(x=>`<div class="qrow"><span class="qlab">Q${x.q}${x.q===curQ?' <span class="qnow">nu</span>':''}</span>
-        <span class="qbar"><i class="qtot" style="width:${Math.round(100*x.total/qMax)}%"></i><i class="qreal" style="width:${Math.round(100*x.real/qMax)}%"></i></span>
-        <span class="qval">${kr(x.total)} <span class="muted">· ${pctI(x.real,x.total)}%</span></span></div>`).join('')}
-    </div>
-    <i class="tip">?</i><span class="tipbox"><b>Omdannet til faktisk indtægt.</b> En rejses salgsværdi bliver til indtægt når kunden er rejst (afrejsedato passeret). «Omdannet» = allerede afrejst; «solgt» = alle rejser med afrejse i perioden, også dem der endnu ikke er rejst. Kvartalerne viser hvornår årets omsætning periodisk lander.</span>
+    <i class="tip">?</i><span class="tipbox"><b>Omdannet til faktisk indtægt.</b> En rejses salgsværdi bliver til indtægt når kunden er rejst (afrejsedato passeret). Grøn = allerede afrejst; lys = solgt men endnu ikke rejst. «Fordelt på kvartaler» viser hvornår årets omsætning periodisk lander.</span>
   </div>`:''}
 
   <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
