@@ -244,6 +244,84 @@ dialog.lead-dlg{max-width:640px;}
 dialog.lead-dlg h3{font-family:'Playfair Display',serif;color:var(--forest);font-size:20px;font-weight:500;margin:0 0 2px;}
 .dlg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center;}
 .dlg-actions .spacer{margin-left:auto;}
+/* ── henvendelses-kort: chips, branche, dublet ── */
+.lead-card .card-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px;}
+.lead-card .dchip{font-size:9.5px;font-weight:600;color:var(--forest);background:#eef3ec;border:1px solid #d6e0d2;border-radius:20px;padding:0 7px;}
+.lead-card .brch{font-size:8px;font-weight:700;letter-spacing:.4px;background:#eef1f4;color:#5a7089;border:1px solid #d9e0e8;border-radius:4px;padding:1px 5px;}
+.lead-card .dot-dub{width:7px;height:7px;border-radius:50%;background:var(--bad);display:inline-block;margin-left:4px;}
+/* ═══ henvendelses-detalje (Pipedrive-inspireret) ═══ */
+dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+.ld .saved{font-size:11.5px;color:#1f9d57;font-weight:700;opacity:0;transition:opacity .2s;}
+.ld .saved.show{opacity:1;}
+.ld .ld-hd{display:flex;align-items:center;gap:12px;padding:18px 24px 10px;}
+.ld .ld-title{flex:1;min-width:0;font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--forest);border:0;background:transparent;padding:2px 4px;border-radius:6px;}
+.ld .ld-title:focus{outline:none;background:#faf7f0;}
+.ld .ld-actions{display:flex;gap:7px;flex:0 0 auto;}
+.ld .b{font:inherit;font-size:12.5px;font-weight:600;border:1px solid transparent;border-radius:8px;padding:7px 13px;cursor:pointer;}
+.ld .b.won{background:#1f9d57;color:#fff;} .ld .b.lost{background:#d23b3b;color:#fff;}
+.ld .b.ghost{background:#fff;color:var(--ink);border-color:var(--line);}
+.ld .b.dark{background:#2A3D32;color:#fff;} .ld .b.sand{background:#A37C5A;color:#fff;}
+.ld .b[disabled]{opacity:.5;cursor:default;}
+.ld .pill{font-size:12px;color:#1f9d57;font-weight:700;align-self:center;}
+.ld .ld-meta{display:flex;align-items:center;gap:12px;padding:0 24px 16px;flex-wrap:wrap;}
+.ld .ld-meta .item{display:flex;align-items:center;gap:6px;height:32px;}
+.ld .ld-meta .lbl{font-size:9px;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);font-weight:700;white-space:nowrap;}
+.ld .ld-meta select{height:32px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:0 26px 0 9px;font-weight:600;color:var(--forest);font-size:12px;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2398937f' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer;}
+.ld .ld-meta .rot{background:#d23b3b;color:#fff;font-size:10px;font-weight:700;letter-spacing:.3px;border-radius:7px;padding:0 10px;height:32px;display:flex;align-items:center;white-space:nowrap;}
+.ld .ld-meta .rot.calm{background:#e7efe8;color:#3f6a49;}
+.ld .ld-meta .divider{width:1px;height:18px;background:var(--line);}
+.ld .ld-stage{padding:0 24px 16px;}
+.ld .sbar{display:flex;gap:3px;overflow-x:auto;padding-bottom:3px;}
+.ld .sseg{flex:1 1 0;min-width:80px;min-height:52px;background:#eee7da;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:6px 15px;text-align:center;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%,10px 50%);}
+.ld .sseg:first-child{clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%);border-radius:7px 0 0 7px;padding-left:11px;}
+.ld .sseg:last-child{clip-path:polygon(0 0,100% 0,100% 100%,0 100%,10px 50%);border-radius:0 7px 7px 0;padding-right:11px;}
+.ld .sseg .d{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;}
+.ld .sseg .l{font-size:8px;font-weight:700;letter-spacing:.2px;text-transform:uppercase;margin-top:4px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.ld .sseg.done{background:#cfe0cb;} .ld .sseg.done .d,.ld .sseg.done .l{color:#3f6a49;}
+.ld .sseg.cur{background:#1f9d57;} .ld .sseg.cur .d,.ld .sseg.cur .l{color:#fff;}
+.ld .sseg.todo .d{color:var(--mut);} .ld .sseg.todo .l{color:#b7b1a0;}
+.ld .smeta{display:flex;justify-content:space-between;margin-top:7px;font-size:11px;color:var(--mut);}
+.ld .smeta b{color:var(--forest);}
+.ld .ld-body{padding:10px 24px 12px;max-height:62vh;overflow:auto;border-top:1px solid var(--line-2);}
+.ld .dublet2{background:#fbeee9;border:1px solid #e8c6bb;border-left:3px solid var(--bad);border-radius:0 8px 8px 0;padding:8px 11px;font-size:12px;color:#8a3a25;margin:12px 0 0;}
+.ld .dublet2 b{color:var(--bad);}
+.ld .sh{font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--gold);font-weight:700;margin:18px 0 9px;}
+.ld .notesbox{background:#fdfcf8;border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+.ld .addn{display:flex;gap:8px;align-items:flex-start;}
+.ld .addn textarea{flex:1;min-width:0;font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:#fff;resize:vertical;}
+.ld .addn .b{align-self:stretch;white-space:nowrap;}
+.ld .nlist{list-style:none;margin:11px 0 0;padding:11px 0 0;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:9px;}
+.ld .nlist .n .h{font-size:11px;color:var(--mut);} .ld .nlist .n .h b{color:var(--forest);font-size:12px;}
+.ld .nlist .n .h a{margin-left:6px;color:var(--mut);text-decoration:none;} .ld .nlist .n .h a:hover{color:var(--bad);}
+.ld .nlist .n .t{font-size:12px;color:var(--ink);margin-top:2px;}
+.ld .wish2{background:#f6f2ea;border-left:3px solid var(--sea);border-radius:0 10px 10px 0;padding:10px 13px;font-size:12.5px;line-height:1.6;white-space:pre-wrap;cursor:pointer;}
+.ld .wish2.clip{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.ld .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:700px){.ld .grid3{grid-template-columns:1fr;}}
+.ld .fbox{background:#fdfcf8;border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+.ld .fbox h5{margin:0 0 11px;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.ld .fld{margin-bottom:12px;} .ld .fld:last-child{margin-bottom:0;}
+.ld .fld .k{font-size:10.5px;color:var(--mut);font-weight:600;margin-bottom:4px;}
+.ld .fld input,.ld .fld select{width:100%;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:#fff;color:var(--ink);}
+.ld .fld input:focus,.ld .fld select:focus{outline:none;border-color:var(--gold);}
+.ld .chips2{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.ld .chip2{font-size:10.5px;font-weight:600;color:var(--forest);background:#eef3ec;border:1px solid #d6e0d2;border-radius:20px;padding:1px 8px;}
+.ld .stripe2{display:flex;gap:9px;flex-wrap:wrap;margin:0 0 11px;}
+.ld .st{flex:1 1 150px;background:#f6f2ea;border:1px solid var(--line);border-radius:10px;padding:9px 12px;}
+.ld .st .n{font-family:'Playfair Display',serif;font-size:20px;color:var(--forest);line-height:1;}
+.ld .st .l{font-size:10px;color:var(--mut);margin-top:3px;}
+.ld .tl2{list-style:none;margin:0;padding:0 0 6px;position:relative;}
+.ld .tl2:before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--line);}
+.ld .e{position:relative;padding:0 0 11px 28px;}
+.ld .e .dot{position:absolute;left:2px;top:1px;width:14px;height:14px;border-radius:50%;border:2px solid #fff;background:#c9c2af;}
+.ld .e.tp .dot{background:var(--sea);}
+.ld .e .h{font-size:12px;} .ld .e .h b{color:var(--forest);}
+.ld .e .tag{font-size:8.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-left:6px;}
+.ld .e .tag.tp{background:#e3efec;color:#3c7269;} .ld .e .tag.int{background:#efeadd;color:#8a7f5f;}
+.ld .e .w{font-size:10.5px;color:var(--mut);margin-top:1px;}
+.ld .e .t{font-size:12px;color:var(--ink);margin-top:3px;}
+.ld .ld-foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 18px;background:#faf7f0;border-top:1px solid var(--line);}
+.ld .ld-foot .spacer{margin-left:auto;}
 /* ── Brugere (v0.7 · roller & rettigheder) ── */
 .usr-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--card);}
 .usr-row.inactive{opacity:.55;}
@@ -298,7 +376,7 @@ const LEAD_STAGES = [
   ['thinking','Tænker på det'],['negotiation','Flere tilbud / forhandling'],['confirmed','Vundet (bekræftet)']
 ];
 const LEAD_STAGE_LABEL = Object.fromEntries(LEAD_STAGES);
-const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at';
+const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel';
 const EL_TYPES = {flight:'Fly', ticket:'Billet', hotel:'Hotel', transfer:'Transfer', other:'Andet', fee:'Gebyr', insurance:'Forsikring'};
 const SALES_TASKS = ['tjek_rejse','pre_departure','god_tur','hjemkomst','retrieval'];
 const FIN_TASKS = ['restbetaling','leverandoerbetaling','kreditvarsel','dok_sync'];
@@ -1897,6 +1975,17 @@ async function saveTrip(){
 const escH = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fval = n => (n||n===0) && n!=='' ? Math.round(n).toLocaleString('da-DK') : '—';
 function leadAge(created){ const d=Math.floor((Date.now()-new Date(created))/86400000); return {d, cls:d>=7?'hot':d>=3?'warm':'fresh'}; }
+function destList(s){ return (s||'').split(/\s*[,;]\s*/).map(x=>x.trim()).filter(Boolean); }
+function destChipsHtml(s){ const a=destList(s); return a.map(x=>`<span class="chip2">${escH(x)}</span>`).join(''); }
+function daysSince(ts){ return ts? Math.max(0,Math.floor((Date.now()-new Date(ts))/86400000)) : null; }
+function ageCls(d){ return d>=7?'hot':d>=3?'warm':'fresh'; }
+function dagOrd(d){ return d==null?'—':(d===0?'i dag':d===1?'1 dag':d+' dage'); }
+function fmtDT(ts){ if(!ts) return '—'; return new Date(ts).toLocaleString('da-DK',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+const BRANCH_LABEL={MN:'Maldivia NO',NO:'Maldivia NO',MD:'Maldivia DK',IT:'Maldivia IT',HQ:'HQ'};
+const STAGE_SHORT={new_lead:'Ny',send_email:'Send e-mail',make_offer:'Lav tilbud',to_be_sent:'Klar',offer_sent:'Tilbud sendt',followed_up:'Fulgt op',thinking:'Tænker',negotiation:'Forhandling',confirmed:'Vundet'};
+const BRANCH_OPTS=[['NO','Maldivia NO'],['MD','Maldivia DK'],['IT','Maldivia IT']];
+const ACT_LABEL={system:'System',internt_notat:'Internt notat',opkald:'Opkald til kunde',besked:'Besked til kunde',email_ind:'E-mail fra kunde',email_ud:'E-mail til kunde'};
+function TEAM_OPTS(cur){ const t=window._TEAM||[]; let o=t.map(([ini,nm])=>`<option value="${escH(ini)}" ${cur===ini?'selected':''}>${escH(nm)}</option>`).join(''); if(cur && !t.some(x=>x[0]===cur)) o=`<option value="${escH(cur)}" selected>${escH(cur)}</option>`+o; if(!cur) o='<option value="">—</option>'+o; return o; }
 async function fetchLeads(){ const {data}=await db.from('leads').select(LEAD_FIELDS).order('created_at',{ascending:false}); return data||[]; }
 
 async function viewLeads(){
@@ -1905,6 +1994,18 @@ async function viewLeads(){
   app.innerHTML = '<div class="pagehead"><h2>Henvendelser</h2></div><div class="card">Henter…</div>';
   const leads = await fetchLeads();
   window._leads = leads;
+  // dublet-info, seneste trinskift og team til kortene
+  try{
+    const [dubR, actR, teamR] = await Promise.all([
+      db.from('v_lead_dubletter').select('lead_id,andre_henvendelser,kendte_kunder'),
+      db.from('lead_activities').select('lead_id,occurred_at').eq('type','system').not('stage','is',null).order('occurred_at',{ascending:false}),
+      db.from('team_members').select('name,initials,active')
+    ]);
+    const dmap={}; (dubR.data||[]).forEach(d=>{ if((d.andre_henvendelser||0)>0||(d.kendte_kunder||0)>0) dmap[d.lead_id]=d; });
+    const smap={}; (actR.data||[]).forEach(a=>{ if(!smap[a.lead_id]) smap[a.lead_id]=a.occurred_at; });
+    leads.forEach(l=>{ l._dublet=dmap[l.id]||null; l._stageSince=smap[l.id]||l.created_at; });
+    window._TEAM=(teamR.data||[]).filter(u=>u.active!==false && !/test|maka/i.test((u.initials||'')+(u.name||''))).map(u=>[u.initials,(u.name||'').split(' ')[0]||u.initials]);
+  }catch(e){}
   const open = leads.filter(l=>l.status==='open');
   const lost = leads.filter(l=>l.status==='lost');
   const won  = leads.filter(l=>l.status==='won');
@@ -1938,12 +2039,16 @@ async function viewLeads(){
   <p class="muted" style="margin-top:10px">Træk et kort til et andet trin for at flytte det. Klik for at åbne og redigere. Trækkes til <b>Vundet</b> tilbydes du at oprette rejsen.</p>`;
 }
 function leadCard(l){
-  const a = leadAge(l.created_at);
+  const since=l._stageSince||l.created_at; const d=daysSince(since);
+  const dests=destList(l.destination).slice(0,3);
+  const sub=[ l.adults?l.adults+(l.kids?'+'+l.kids:'')+' pax':'', l.departure_date?fmtDY(l.departure_date):'' ].filter(Boolean).join(' · ');
   return `<div class="lead-card" draggable="true" data-id="${l.id}" ondragstart="leadDragStart(event,'${l.id}')" ondragend="leadDragEnd(event)" onclick="editLead('${l.id}')">
-    <div class="nm">${escH(l.contact_name||l.title)}</div>
-    <div class="meta">${escH([l.destination, l.adults?l.adults+(l.kids?'+'+l.kids:'')+' pax':'', l.departure_date?fmtDY(l.departure_date):''].filter(Boolean).join(' · ')||'—')}</div>
+    <div class="nm">${escH(l.contact_name||l.title)}${l._dublet?'<span class="dot-dub" title="Mulig dublet"></span>':''}</div>
+    ${dests.length?`<div class="card-chips">${dests.map(x=>`<span class="dchip">${escH(x)}</span>`).join('')}</div>`:''}
+    ${sub?`<div class="meta">${escH(sub)}</div>`:''}
     <div class="foot"><span class="val">${l.est_value?fval(l.est_value)+' kr.':'—'}</span>
-      <span class="age ${a.cls}">${a.d}d</span>
+      <span class="age ${ageCls(d||0)}" title="${dagOrd(d)} på dette trin">${d==null?'—':d+'d'}</span>
+      ${l.branch?`<span class="brch">${escH(BRANCH_LABEL[l.branch]||l.branch)}</span>`:''}
       ${l.owner?`<span class="owner-chip">${escH(l.owner)}</span>`:''}</div>
   </div>`;
 }
@@ -1957,55 +2062,189 @@ async function leadDrop(e,stage){ e.preventDefault(); e.currentTarget.classList.
   if(stage==='confirmed'){ return convertLeadToTrip(l); }
   const {error}=await db.from('leads').update({stage}).eq('id',id); if(error){alert(error.message);return;} viewLeads();
 }
-// opret / rediger
+// opret / rediger — Pipedrive-inspireret detaljevisning
 function editLead(id){
   const l = id ? (window._leads||[]).find(x=>x.id===id)||{} : {};
+  window._curLeadId = id||null;
   const v = k => l[k]==null?'':l[k];
-  const dlg = document.createElement('dialog'); dlg.className='lead-dlg';
-  const stageSel = LEAD_STAGES.map(([k,lab])=>`<option value="${k}" ${l.stage===k?'selected':''}>${lab}</option>`).join('');
+  const dlg = document.createElement('dialog'); dlg.className='lead-dlg ld';
+  const branchOpts=BRANCH_OPTS.map(([k,lab])=>`<option value="${k}" ${l.branch===k?'selected':''}>${lab}</option>`).join('');
+  const ownerVal=escH(v('owner')||window.ME||'');
   dlg.innerHTML = `
-    <h3>${id?'Rediger henvendelse':'Ny henvendelse'}</h3>
-    <p class="muted" style="margin:0 0 6px">${id?'Oprettet '+fmtDY(l.created_at)+(l.source?' · '+escH(l.source):'')+(l.pipedrive_deal_id?' · Pipedrive #'+l.pipedrive_deal_id:''):'Manuelt oprettet henvendelse'}</p>
-    <div class="lead-form-grid">
-      <div class="full"><label>Titel</label><input id="l_title" value="${escH(v('title'))}" placeholder="fx Thomas Birch Maldivia.dk"></div>
-      <div><label>Kontaktnavn</label><input id="l_contact_name" value="${escH(v('contact_name'))}"></div>
-      <div><label>Trin</label><select id="l_stage">${stageSel}</select></div>
-      <div><label>E-mail</label><input id="l_contact_email" value="${escH(v('contact_email'))}"></div>
-      <div><label>Telefon</label><input id="l_contact_phone" value="${escH(v('contact_phone'))}"></div>
-      <div><label>Budget</label><input id="l_est_value" type="number" step="1" value="${v('est_value')}"></div>
-      <div><label>Valuta</label><select id="l_currency"><option ${l.currency==='DKK'||!l.currency?'selected':''}>DKK</option><option ${l.currency==='NOK'?'selected':''}>NOK</option><option ${l.currency==='EUR'?'selected':''}>EUR</option></select></div>
-      <div><label>Destination</label><input id="l_destination" value="${escH(v('destination')||'Maldiverne')}"></div>
-      <div><label>Afgangslufthavn</label><input id="l_departure_airport" value="${escH(v('departure_airport'))}"></div>
-      <div><label>Voksne</label><input id="l_adults" type="number" value="${v('adults')}"></div>
-      <div><label>Børn</label><input id="l_kids" type="number" value="${v('kids')}"></div>
-      <div><label>Alder på børn</label><input id="l_child_ages" value="${escH(v('child_ages'))}" placeholder="fx 8, 11"></div>
-      <div><label>Afrejse (ønsket)</label><input id="l_departure_date" type="date" value="${v('departure_date')}"></div>
-      <div><label>Hjemkomst (ønsket)</label><input id="l_return_date" type="date" value="${v('return_date')}"></div>
-      <div><label>Nætter</label><input id="l_nights" type="number" value="${v('nights')}"></div>
-      <div><label>Villaer/værelser</label><input id="l_villas" type="number" value="${v('villas')}"></div>
-      <div><label>Hvordan kontaktes?</label><input id="l_contact_pref" value="${escH(v('contact_pref'))}"></div>
-      <div><label>Ansvarlig</label><input id="l_owner" value="${escH(v('owner')||window.ME||'')}"></div>
-      <div class="full"><label>Highlights</label><textarea id="l_highlights" rows="2">${escH(v('highlights'))}</textarea></div>
-      <div class="full"><label>Ønsker / interne noter</label><textarea id="l_wishes" rows="2">${escH(v('wishes'))}</textarea></div>
-      <div><label>Hvor hørt om os?</label><input id="l_heard_about_us" value="${escH(v('heard_about_us'))}"></div>
-      <div><label>Kilde</label><input id="l_source" value="${escH(v('source')||'manuel')}"></div>
+    <div class="ld-hd">
+      <input class="ld-title" id="l_title" value="${escH(v('title')||v('contact_name'))}" placeholder="Titel">
+      <div class="ld-actions">
+        ${l.status==='won'?`<span class="pill">✓ Vundet</span>`:`<button class="b won" onclick="convertLeadFromDlg('${id||''}')">Solgt</button>`}
+        ${id&&l.status==='open'?`<button class="b lost" onclick="markLeadLost('${id}')">Tabt</button>`:''}
+      </div>
     </div>
-    <div class="err" id="l_err" style="color:var(--bad);font-size:12px;margin-top:8px"></div>
-    <div class="dlg-actions">
-      <button class="btn" style="background:#A37C5A" onclick="saveLead('${id||''}')">SAVE</button>
-      ${l.status!=='won'?`<button class="btn gold" style="background:#2A3D32" onclick="convertLeadFromDlg('${id||''}')">WON</button>`:`<span class="pill">✓ WON${l.converted_trip_id?` · <a href="#" onclick="closeLeadDlg();viewTrip('${l.converted_trip_id}');return false">åbn rejse</a>`:''}</span>`}
-      ${id&&l.status==='open'?`<button class="btn ghost" style="background:#c0392b;color:#fff;border-color:#c0392b" onclick="markLeadLost('${id}')">LOST</button>`:''}
-      ${id?`<button class="btn danger spacer" style="background:#111" onclick="deleteLead('${id}')">DELETE</button>`:'<span class="spacer"></span>'}
-      <button class="btn ghost" onclick="closeLeadDlg()">Luk</button>
+    <div class="ld-meta">
+      <span class="rot calm" id="l_rot">—</span>
+      <span class="divider"></span>
+      <div class="item"><span class="lbl">Ansvarlig</span>
+        <select id="l_owner_sel" onchange="document.getElementById('l_owner').value=this.value">${TEAM_OPTS(ownerVal)}</select>
+        <input type="hidden" id="l_owner" value="${ownerVal}"></div>
+      <span class="divider"></span>
+      <div class="item"><span class="lbl">Branche</span><select id="l_branch">${branchOpts}</select></div>
+    </div>
+    <div class="ld-stage"><div class="sbar" id="l_stagebar"></div><div class="smeta" id="l_smeta"></div></div>
+    <div class="ld-body">
+      <div id="l_dublet"></div>
+      <div class="sh">Interne noter</div>
+      <div class="notesbox">
+        <div class="addn"><textarea id="l_newnote" rows="2" placeholder="Skriv en intern note…"></textarea>
+          <button class="b dark" ${id?'':'disabled'} onclick="addLeadNote('${id||''}')">Gem notat</button></div>
+        <ul class="nlist" id="l_notes">${id?'<li class="muted" style="font-size:11.5px;color:var(--mut)">Henter…</li>':'<li class="muted" style="font-size:11.5px;color:var(--mut)">Gem henvendelsen først for at tilføje noter.</li>'}</ul>
+      </div>
+      <div class="sh">Kundens ønsker</div>
+      <div class="wish2 clip" onclick="this.classList.toggle('clip')">${v('wishes')?escH(v('wishes')):'<span style=\'color:#c3bdac\'>Ingen tekst indsendt</span>'}</div>
+      <textarea id="l_wishes" style="display:none">${escH(v('wishes'))}</textarea>
+      <div class="sh">Detaljer</div>
+      <div class="grid3">
+        <div class="fbox"><h5>Rejsen</h5>
+          <div class="fld"><div class="k">Destination(er)</div><input id="l_destination" value="${escH(v('destination'))}" oninput="ldDestPrev()"><div class="chips2" id="l_destprev">${destChipsHtml(v('destination'))}</div></div>
+          <div class="fld"><div class="k">Afrejsedato</div><input id="l_departure_date" type="date" value="${v('departure_date')}"></div>
+          <div class="fld"><div class="k">Hjemrejsedato</div><input id="l_return_date" type="date" value="${v('return_date')}"></div>
+          <div class="fld"><div class="k">Afgangslufthavn</div><input id="l_departure_airport" value="${escH(v('departure_airport'))}"></div>
+          <div class="fld"><div class="k">Nætter</div><input id="l_nights" type="number" value="${v('nights')}"></div>
+          <div class="fld"><div class="k">Villaer/værelser</div><input id="l_villas" type="number" value="${v('villas')}"></div>
+        </div>
+        <div class="fbox"><h5>Rejsende og budget</h5>
+          <div class="fld"><div class="k">Voksne</div><input id="l_adults" type="number" value="${v('adults')}"></div>
+          <div class="fld"><div class="k">Børn</div><input id="l_kids" type="number" value="${v('kids')}"></div>
+          <div class="fld"><div class="k">Alder på børn</div><input id="l_child_ages" value="${escH(v('child_ages'))}" placeholder="fx 8, 11"></div>
+          <div class="fld"><div class="k">Budget</div><input id="l_est_value" type="number" value="${v('est_value')}"></div>
+          <div class="fld"><div class="k">Valuta</div><select id="l_currency"><option ${l.currency==='DKK'||!l.currency?'selected':''}>DKK</option><option ${l.currency==='NOK'?'selected':''}>NOK</option><option ${l.currency==='EUR'?'selected':''}>EUR</option></select></div>
+        </div>
+        <div class="fbox"><h5>Kontakt og kilde</h5>
+          <div class="fld"><div class="k">Kontaktnavn</div><input id="l_contact_name" value="${escH(v('contact_name'))}"></div>
+          <div class="fld"><div class="k">E-mail</div><input id="l_contact_email" value="${escH(v('contact_email'))}"></div>
+          <div class="fld"><div class="k">Telefon</div><input id="l_contact_phone" value="${escH(v('contact_phone'))}"></div>
+          <div class="fld"><div class="k">Hvordan kontaktes?</div><input id="l_contact_pref" value="${escH(v('contact_pref'))}"></div>
+          <div class="fld"><div class="k">Hvor har du hørt om os?</div><input id="l_heard_about_us" value="${escH(v('heard_about_us'))}"></div>
+          <div class="fld"><div class="k">Kanal / kilde</div><input id="l_source" value="${escH(v('source'))}"></div>
+        </div>
+      </div>
+      <div class="sh">Historik</div>
+      <div class="stripe2" id="l_stats"></div>
+      <ul class="tl2" id="l_hist">${id?'':'<li style="font-size:11.5px;color:var(--mut)">—</li>'}</ul>
+      <input type="hidden" id="l_stage" value="${escH(l.stage||'new_lead')}">
+      <input type="hidden" id="l_highlights" value="${escH(v('highlights'))}">
+      <div class="err" id="l_err" style="color:var(--bad);font-size:12px;margin-top:8px"></div>
+    </div>
+    <div class="ld-foot">
+      <span style="font-size:11px;color:var(--mut)">Ændringer gemmes automatisk</span>
+      <span class="saved" id="l_saved">Gemt ✓</span>
+      ${l.status==='won'&&l.converted_trip_id?`<button class="b ghost" onclick="closeLeadDlg();viewTrip('${l.converted_trip_id}')">Åbn rejse</button>`:''}
+      ${id?`<button class="b ghost" style="background:#111;color:#fff;border-color:#111" onclick="deleteLead('${id}')">Slet</button>`:''}
+      <button class="b ghost spacer" onclick="closeLeadDlg()">Luk</button>
     </div>`;
   document.body.appendChild(dlg); window._leadDlg=dlg; dlg.showModal();
   dlg.addEventListener('click',e=>{ if(e.target===dlg) closeLeadDlg(); });
+  dlg.addEventListener('change',e=>{ if(e.target.matches('input,select,textarea') && e.target.id!=='l_newnote') autoSaveLead(); });
+  renderStageBar(l, []);
+  renderDublet(l);
+  if(id) refreshLeadActs(id, l);
 }
-function closeLeadDlg(){ if(window._leadDlg){ window._leadDlg.close(); window._leadDlg.remove(); window._leadDlg=null; } }
+function ldDestPrev(){ const el=document.getElementById('l_destination'), p=document.getElementById('l_destprev'); if(el&&p) p.innerHTML=destChipsHtml(el.value); }
+function renderDublet(l){ const box=document.getElementById('l_dublet'); if(!box) return;
+  if(!l._dublet){ box.innerHTML=''; return; }
+  const parts=[]; if(l._dublet.andre_henvendelser>0) parts.push(l._dublet.andre_henvendelser+' anden henvendelse med samme e-mail'); if(l._dublet.kendte_kunder>0) parts.push('kendt kunde i systemet');
+  box.innerHTML=`<div class="dublet2">⚠ <b>Mulig dublet:</b> ${escH(parts.join(' · '))}. Tjek om den skal kobles sammen.</div>`;
+}
+function stageDurations(l, acts){
+  const tl=[{stage:l.stage&&acts.length?null:(l.stage||'new_lead'), at:null}]; // placeholder
+  // byg tidslinje: start i new_lead ved created_at, dernæst hvert trinskift
+  const seq=[{stage:'new_lead', at:new Date(l.created_at||Date.now()).getTime()}];
+  acts.filter(a=>a.type==='system'&&a.stage).forEach(a=>seq.push({stage:a.stage, at:new Date(a.occurred_at).getTime()}));
+  seq.sort((a,b)=>a.at-b.at);
+  const dur={}; const now=Date.now();
+  for(let i=0;i<seq.length;i++){ const end=i+1<seq.length?seq[i+1].at:now; dur[seq[i].stage]=(dur[seq[i].stage]||0)+Math.max(0,end-seq[i].at); }
+  const current=seq.length?seq[seq.length-1].stage:(l.stage||'new_lead');
+  const enteredCurrentAt=seq.length?seq[seq.length-1].at:new Date(l.created_at||Date.now()).getTime();
+  return {dur, current, enteredCurrentAt};
+}
+function renderStageBar(l, acts){
+  const bar=document.getElementById('l_stagebar'); if(!bar) return;
+  const {dur,current,enteredCurrentAt}=stageDurations(l, acts);
+  const curIdx=Math.max(0, LEAD_STAGES.findIndex(s=>s[0]===current));
+  bar.innerHTML=LEAD_STAGES.map(([key,label],i)=>{
+    const days=Math.floor((dur[key]||0)/86400000);
+    const cls=i===curIdx?'cur':(i<curIdx?'done':'todo');
+    return `<div class="sseg ${cls}" title="${escH(label)} — ${dagOrd(days)}" onclick="setLeadStage('${l.id||''}',${i})"><span class="d">${days}d</span><span class="l">${escH(STAGE_SHORT[key]||label)}</span></div>`;
+  }).join('');
+  const total=daysSince(l.created_at); const rott=daysSince(enteredCurrentAt);
+  const sm=document.getElementById('l_smeta'); if(sm) sm.innerHTML=`<span>Klik et trin for at flytte henvendelsen</span><span><b>${dagOrd(total)}</b> i alt · <b>${dagOrd(rott)}</b> på nuværende trin</span>`;
+  const rotEl=document.getElementById('l_rot'); if(rotEl){ rotEl.textContent='Rådner: '+dagOrd(rott); rotEl.className='rot'+((rott||0)<3?' calm':''); }
+}
+async function refreshLeadActs(id, l){
+  l = l || (window._leads||[]).find(x=>x.id===id) || {id};
+  const {data:acts}=await db.from('lead_activities').select('id,type,is_touchpoint,body,actor,stage,occurred_at').eq('lead_id',id).order('occurred_at',{ascending:true});
+  const A=acts||[]; window._curActs=A;
+  renderStageBar(l, A);
+  // interne noter (kun internt_notat), nyeste øverst
+  const notes=A.filter(a=>a.type==='internt_notat').sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
+  const nb=document.getElementById('l_notes');
+  if(nb) nb.innerHTML = notes.length?notes.map(n=>`<li class="n"><div class="h"><b>${escH(n.actor||'—')}</b> · ${fmtDT(n.occurred_at)}<a href="#" title="Slet" onclick="delLeadAct('${n.id}','${id}');return false">✕</a></div><div class="t">${escH(n.body||'').replace(/\n/g,'<br>')}</div></li>`).join('')
+    : '<li class="muted" style="font-size:11.5px;color:var(--mut)">Ingen interne noter endnu.</li>';
+  // historik: alt undtagen interne noter, nyeste øverst
+  const hist=A.filter(a=>a.type!=='internt_notat').sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
+  const hb=document.getElementById('l_hist');
+  if(hb) hb.innerHTML = hist.length?hist.map(a=>{
+      const label=a.type==='system'?(a.stage?'Flyttet til «'+escH(LEAD_STAGE_LABEL[a.stage]||a.stage)+'»':escH(a.body||'System')):escH(ACT_LABEL[a.type]||a.type);
+      const showBody=a.type!=='system'&&a.body;
+      return `<li class="e ${a.is_touchpoint?'tp':''}"><span class="dot"></span><div class="h"><b>${label}</b>${a.is_touchpoint?'<span class="tag tp">Berøringspunkt</span>':'<span class="tag int">Internt</span>'}</div><div class="w">${fmtDT(a.occurred_at)} · ${escH(a.actor||'')}</div>${showBody?`<div class="t">${escH(a.body).replace(/\n/g,'<br>')}</div>`:''}</li>`;
+    }).join('') : '<li style="font-size:11.5px;color:var(--mut)">Ingen hændelser endnu.</li>';
+  // stats
+  const tp=A.filter(a=>a.is_touchpoint).length;
+  const sb=document.getElementById('l_stats');
+  if(sb) sb.innerHTML=`<div class="st"><div class="n">${tp}</div><div class="l">berøringspunkter med kunden</div></div>
+    <div class="st"><div class="n">${dagOrd(daysSince(l.created_at))}</div><div class="l">siden modtaget</div></div>
+    <div class="st"><div class="n">${l.next_action_date?fmtDY(l.next_action_date):'—'}</div><div class="l">næste opfølgning</div></div>`;
+}
+async function addLeadNote(id){
+  if(!id) return; const ta=document.getElementById('l_newnote'); if(!ta) return; const body=(ta.value||'').trim(); if(!body) return;
+  const {error}=await db.from('lead_activities').insert({lead_id:id, type:'internt_notat', is_touchpoint:false, actor:(window.MYNAME||window.ME||null), body, occurred_at:new Date().toISOString()});
+  if(error){ alert(error.message); return; } ta.value=''; refreshLeadActs(id);
+}
+async function delLeadAct(actId,id){ if(!confirm('Slet denne note?')) return; const {error}=await db.from('lead_activities').delete().eq('id',actId); if(error){alert(error.message);return;} refreshLeadActs(id); }
+async function setLeadStage(id, idx){
+  const [key]=LEAD_STAGES[idx];
+  const hid=document.getElementById('l_stage'); if(hid) hid.value=key;
+  if(!id){ const l0={id:'',stage:key,created_at:new Date().toISOString()}; renderStageBar(l0,[]); return; }
+  if(key==='confirmed'){ const l=(window._leads||[]).find(x=>x.id===id); if(l) return convertLeadToTrip({...l, ...leadFormData()}); }
+  const {error}=await db.from('leads').update({stage:key}).eq('id',id);
+  if(error){ alert(error.message); return; }
+  window._leadDirty=true;
+  const l=(window._leads||[]).find(x=>x.id===id); if(l) l.stage=key;
+  refreshLeadActs(id, l);
+}
+function closeLeadDlg(){ if(window._leadDlg){ window._leadDlg.close(); window._leadDlg.remove(); window._leadDlg=null; } if(window._leadDirty){ window._leadDirty=false; viewLeads(); } }
+function showLeadErr(error){ const e=document.getElementById('l_err'); if(e) e.textContent=(error&&error.message)||''; }
+function flashSaved(){ const s=document.getElementById('l_saved'); if(!s) return; s.classList.add('show'); clearTimeout(window._savedT); window._savedT=setTimeout(()=>s.classList.remove('show'),1400); }
+// Auto-gem: kaldes når man forlader et felt — intet "Gem" at huske på
+async function autoSaveLead(){
+  const rec=leadFormData();
+  if(window._curLeadId){
+    const {error}=await db.from('leads').update(rec).eq('id',window._curLeadId);
+    if(error){ showLeadErr(error); return; }
+    showLeadErr({message:''}); window._leadDirty=true;
+    const l=(window._leads||[]).find(x=>x.id===window._curLeadId); if(l) Object.assign(l,rec);
+    flashSaved();
+  } else {
+    // ny henvendelse: opret først når der er reelt indhold
+    if(!(rec.contact_name||rec.contact_email||rec.destination||(rec.title&&rec.title!=='Henvendelse'))) return;
+    const {data,error}=await db.from('leads').insert(rec).select(LEAD_FIELDS).single();
+    if(error){ showLeadErr(error); return; }
+    (window._leads=window._leads||[]).unshift(data); window._leadDirty=true;
+    if(window._leadDlg){ window._leadDlg.close(); window._leadDlg.remove(); window._leadDlg=null; }
+    editLead(data.id); flashSaved();
+  }
+}
 function leadFormData(){
   const g=id=>{const el=document.getElementById(id);return el?el.value:'';};
   const num=id=>{const x=g(id);return x===''?null:(+x);};
-  return { title:g('l_title')||g('l_contact_name')||'Henvendelse', stage:g('l_stage'),
+  return { title:g('l_title')||g('l_contact_name')||'Henvendelse', stage:g('l_stage'), branch:g('l_branch')||null,
     contact_name:g('l_contact_name')||null, contact_email:g('l_contact_email')||null, contact_phone:g('l_contact_phone')||null,
     est_value:num('l_est_value'), currency:g('l_currency')||'DKK', destination:g('l_destination')||null,
     departure_airport:g('l_departure_airport')||null, adults:num('l_adults'), kids:num('l_kids'), child_ages:g('l_child_ages')||null,
