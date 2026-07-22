@@ -249,6 +249,9 @@ dialog.lead-dlg h3{font-family:'Playfair Display',serif;color:var(--forest);font
 .lead-card .dchip{font-size:9.5px;font-weight:600;color:var(--forest);background:#eef3ec;border:1px solid #d6e0d2;border-radius:20px;padding:0 7px;}
 .lead-card .brch{font-size:8px;font-weight:700;letter-spacing:.4px;background:#eef1f4;color:#5a7089;border:1px solid #d9e0e8;border-radius:4px;padding:1px 5px;}
 .lead-card .dot-dub{width:7px;height:7px;border-radius:50%;background:var(--bad);display:inline-block;margin-left:4px;}
+.lead-card .tri-chip{font-size:8.5px;font-weight:700;border-radius:4px;padding:1px 6px;margin-top:3px;display:inline-block;}
+.lead-card .tri-chip.good{background:#e9f0e6;color:#4a6a3d;}
+.lead-card .tri-chip.miss{background:#f6edcf;color:#8a6d1f;}
 /* ═══ henvendelses-detalje (Pipedrive-inspireret) ═══ */
 dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
 .ld .saved{font-size:11.5px;color:#1f9d57;font-weight:700;opacity:0;transition:opacity .2s;}
@@ -285,6 +288,11 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .ld .ld-body{padding:10px 24px 12px;max-height:62vh;overflow:auto;border-top:1px solid var(--line-2);}
 .ld .dublet2{background:#fbeee9;border:1px solid #e8c6bb;border-left:3px solid var(--bad);border-radius:0 8px 8px 0;padding:8px 11px;font-size:12px;color:#8a3a25;margin:12px 0 0;}
 .ld .dublet2 b{color:var(--bad);}
+.ld .triage{background:#f6f2ea;border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-top:2px;}
+.ld .tr-row{display:flex;gap:10px;font-size:12px;padding:3px 0;border-bottom:1px solid var(--line-2);}
+.ld .tr-row:last-child{border-bottom:0;}
+.ld .tr-k{flex:0 0 108px;color:var(--mut);font-weight:600;}
+.ld .tr-v{flex:1;color:var(--ink);}
 .ld .sh{font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--gold);font-weight:700;margin:18px 0 9px;}
 .ld .notesbox{background:#fdfcf8;border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
 .ld .addn{display:flex;gap:8px;align-items:flex-start;}
@@ -1981,6 +1989,71 @@ function daysSince(ts){ return ts? Math.max(0,Math.floor((Date.now()-new Date(ts
 function ageCls(d){ return d>=7?'hot':d>=3?'warm':'fresh'; }
 function dagOrd(d){ return d==null?'—':(d===0?'i dag':d===1?'1 dag':d+' dage'); }
 function fmtDT(ts){ if(!ts) return '—'; return new Date(ts).toLocaleString('da-DK',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+// ═══ TRIAGE (trin 1: data-drevet klassifikation — uden hotel/fly/pris) ═══
+function tnum(x){ return (x===null||x===undefined||x==='')?null:(+x); }
+function parseBudgetFromText(t){
+  if(!t) return null;
+  const re=/((?:\d{1,3}[.\s]){1,3}\d{3}|\d{4,7})/g; let m, best=null, bestPP=false;
+  while((m=re.exec(t))){
+    const val=parseInt(m[1].replace(/[.\s]/g,''),10);
+    if(isNaN(val)||val<5000||val>3000000) continue;
+    const around=t.slice(Math.max(0,m.index-16), Math.min(t.length, re.lastIndex+20));
+    if(!/kr|nok|dkk|kroner|budget|budsjett|maks|,-|per|pr\.?\s*person|pr\.?\s*pers/i.test(around)) continue;
+    const pp=/pr\.?\s*person|per\s*person|per\s*pers|pr\s*pers|\/\s*person|\bpp\b|per hode/i.test(around);
+    if(best==null || (pp&&!bestPP) || (pp===bestPP && val>best)){ best=val; bestPP=pp; }
+  }
+  return best==null?null:{amount:best, perPerson:bestPP};
+}
+function luxLevel(t){
+  if(!t) return 'standard';
+  if(/ultra|privat\s*pool|pool\s*villa|overwater|vandvilla|water\s*villa|eksklusiv|verdensklasse|5\s*\*\s*\*|ultimat/i.test(t)) return 'ultra';
+  if(/luksus|luksuri|5\s*stjerner|5\s*\*|all\s*inclusive|romantisk|honeymoon|bryllup|premium/i.test(t)) return 'premium';
+  return 'standard';
+}
+function triage(l){
+  const pax=(tnum(l.adults)||0)+(tnum(l.kids)||0) || (tnum(l.adults)||0);
+  const text=((l.wishes||'')+' '+(l.travel_wishes||'')+' '+(l.highlights||'')).toLowerCase();
+  const pb=parseBudgetFromText(text);
+  let perPerson=null,total=null,src=null;
+  if(tnum(l.max_budget)!=null){ perPerson=+l.max_budget; src='felt: budget pr. person'; }
+  else if(pb){ if(pb.perPerson){perPerson=pb.amount;} else {total=pb.amount;} src='læst i fritekst'; }
+  else if(tnum(l.est_value)!=null){ total=+l.est_value; src='felt: budget (samlet)'; }
+  if(perPerson==null && total!=null && pax>0) perPerson=Math.round(total/pax);
+  if(total==null && perPerson!=null && pax>0) total=perPerson*pax;
+  const tier = perPerson==null?null:(perPerson<20000?'low':perPerson<40000?'mid':'good');
+  const lux=luxLevel(text);
+  const kids=tnum(l.kids)||0;
+  const musts=[
+    ['navn', !!l.contact_name],
+    ['e-mail/telefon', !!(l.contact_email||l.contact_phone)],
+    ['afrejselufthavn', !!l.departure_airport],
+    ['datoer', !!(l.earliest_departure||l.departure_date)],
+    ['nætter', tnum(l.nights)!=null],
+    ['rejsende', tnum(l.adults)!=null],
+    ['børnealdre', !(kids>0) || !!l.child_ages],
+    ['destination', destList(l.destination).length>0],
+    ['budget', perPerson!=null||total!=null],
+  ];
+  const missing=musts.filter(m=>!m[1]).map(m=>m[0]);
+  const completeness=Math.round(100*(musts.length-missing.length)/musts.length);
+  let score=0;
+  score += tier==='good'?40:tier==='mid'?25:tier==='low'?10:0;
+  score += Math.round(completeness*0.2);
+  score += lux==='ultra'?20:lux==='premium'?14:8;
+  const nn=tnum(l.nights)||0; score += nn>=7?10:nn>=4?6:nn>=1?3:0;
+  return {perPerson,total,tier,lux,pax,missing,complete:missing.length===0,completeness,score,src};
+}
+function renderTriage(l){
+  const box=document.getElementById('l_triage'); if(!box) return;
+  const tr=triage(l);
+  const tierLbl={low:'Lavt (0–20.000)',mid:'Mellem (20–40.000)',good:'Højt (40.000+)'};
+  const luxLbl={ultra:'Ultra-luksus',premium:'Premium',standard:'Standard'};
+  box.innerHTML=
+    `<div class="tr-row"><span class="tr-k">Status</span><span class="tr-v">${tr.complete?'<b style="color:#1f9d57">Klar til triage</b>':'<b style="color:#a4442e">Mangler info</b> — '+escH(tr.missing.join(', '))} <span style="color:var(--mut)">(${tr.completeness}% udfyldt)</span></span></div>`+
+    `<div class="tr-row"><span class="tr-k">Budget</span><span class="tr-v">${tr.total!=null?krFmt(tr.total)+' samlet':'—'}${tr.perPerson!=null?' · '+krFmt(tr.perPerson)+' pr. person':''}${tr.tier?' · '+tierLbl[tr.tier]:''}${tr.src?` <span style="color:var(--mut)">(${escH(tr.src)})</span>`:''}</span></div>`+
+    `<div class="tr-row"><span class="tr-k">Ønsket niveau</span><span class="tr-v">${luxLbl[tr.lux]}</span></div>`+
+    `<div class="tr-row"><span class="tr-k">Lead-score</span><span class="tr-v"><b>${tr.score}</b> / 100 <span style="color:var(--mut)">foreløbig — hotelforslag, fly og prismatch lægges til i næste trin</span></span></div>`;
+}
 const BRANCH_LABEL={MN:'Maldivia NO',NO:'Maldivia NO',MD:'Maldivia DK',IT:'Maldivia IT',HQ:'HQ'};
 const STAGE_SHORT={new_lead:'Ny',send_email:'Send e-mail',make_offer:'Lav tilbud',to_be_sent:'Klar',offer_sent:'Tilbud sendt',followed_up:'Fulgt op',thinking:'Tænker',negotiation:'Forhandling',confirmed:'Vundet'};
 const ROT_DAYS=4; // henvendelsen "rådner" når den har ligget stille på et trin i mere end så mange dage
@@ -2085,10 +2158,12 @@ function leadCard(l){
   const since=l._stageSince||l.created_at; const d=daysSince(since);
   const dests=destList(l.destination).slice(0,3);
   const sub=[ l.adults?l.adults+(l.kids?'+'+l.kids:'')+' pax':'', l.departure_date?fmtDY(l.departure_date):'' ].filter(Boolean).join(' · ');
+  const tr=triage(l);
   return `<div class="lead-card" draggable="true" data-id="${l.id}" ondragstart="leadDragStart(event,'${l.id}')" ondragend="leadDragEnd(event)" onclick="editLead('${l.id}')">
     <div class="nm">${escH(l.contact_name||l.title)}${l._dublet?'<span class="dot-dub" title="Mulig dublet"></span>':''}</div>
     ${dests.length?`<div class="card-chips">${dests.map(x=>`<span class="dchip">${escH(x)}</span>`).join('')}</div>`:''}
     ${sub?`<div class="meta">${escH(sub)}</div>`:''}
+    <div>${tr.complete?`<span class="tri-chip good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri-chip miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}</div>
     <div class="foot"><span class="val">${l.est_value?fval(l.est_value)+' kr.':'—'}</span>
       <span class="age ${ageCls(d||0)}" title="${dagOrd(d)} på dette trin">${d==null?'—':d+'d'}</span>
       ${l.branch?`<span class="brch">${escH(BRANCH_LABEL[l.branch]||l.branch)}</span>`:''}
@@ -2132,6 +2207,8 @@ function editLead(id){
     <div class="ld-stage"><div class="sbar" id="l_stagebar"></div><div class="smeta" id="l_smeta"></div></div>
     <div class="ld-body">
       <div id="l_dublet"></div>
+      <div class="sh">Triage</div>
+      <div class="triage" id="l_triage"></div>
       <div class="sh">Interne noter</div>
       <div class="notesbox">
         <div class="addn"><textarea id="l_newnote" rows="2" placeholder="Skriv en intern note…"></textarea>
@@ -2194,6 +2271,7 @@ function editLead(id){
     if(t.hasAttribute('data-ci')) return; autoSaveLead(); });
   renderStageBar(l, []);
   renderDublet(l);
+  renderTriage(l);
   leadFieldsInit();
   if(id) refreshLeadActs(id, l);
 }
