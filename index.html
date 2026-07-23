@@ -311,7 +311,22 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .ld .morebtn{background:none;border:0;color:var(--sea);font-weight:700;font-size:11.5px;cursor:pointer;padding:5px 0 0;}
 .ld .offerbox input{width:100%;font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:#fff;color:var(--ink);}
 .ld .offerbox input:focus{outline:none;border-color:var(--gold);}
-.ld .offer-link{display:inline-block;margin-top:7px;font-size:12.5px;font-weight:700;color:#1f9d57;text-decoration:none;background:#e9f0e6;border:1px solid #cfe0cb;border-radius:8px;padding:6px 12px;}
+.ld .offer-link{display:inline-block;font-size:12px;font-weight:700;color:#1f9d57;text-decoration:none;background:#e9f0e6;border:1px solid #cfe0cb;border-radius:8px;padding:5px 11px;}
+.ld .off-counter{font-size:12px;color:var(--forest);background:#f2ede2;border:1px solid var(--line);border-radius:8px;padding:7px 11px;margin-bottom:8px;}
+.ld .off-counter b{font-variant-numeric:tabular-nums;}
+.ld .off-row{background:#fdfcf8;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-bottom:7px;}
+.ld .off-h{display:flex;align-items:center;gap:7px;font-size:12.5px;}
+.ld .off-h b{color:var(--forest);}
+.ld .off-tag{font-size:8.5px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;border-radius:4px;padding:1px 6px;}
+.ld .off-tag.rev{background:#f6edcf;color:#8a6d1f;} .ld .off-tag.kombi{background:#e3efec;color:#3c7269;}
+.ld .off-del{margin-left:auto;color:var(--mut);text-decoration:none;} .ld .off-del:hover{color:var(--bad);}
+.ld .off-foot{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:5px;}
+.ld .off-sms{font-size:11.5px;color:var(--ink);display:inline-flex;align-items:center;gap:5px;}
+.ld .offer-add{border:1px dashed var(--line);border-radius:9px;padding:10px 11px;margin-top:4px;background:#fff;}
+.ld .oa-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:7px;} .ld .oa-row:last-child{margin-bottom:0;}
+.ld .offer-add select,.ld .offer-add input{font:inherit;font-size:12px;border:1px solid var(--line);border-radius:7px;padding:6px 8px;background:#fff;color:var(--ink);}
+.ld .offer-add #l_oa_url{flex:1;min-width:180px;}
+.ld .offer-add label{font-size:11.5px;display:inline-flex;align-items:center;gap:5px;color:var(--ink);}
 .ld .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 @media(max-width:700px){.ld .grid3{grid-template-columns:1fr;}}
 .ld .fbox{background:#fdfcf8;border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
@@ -2110,11 +2125,65 @@ function leadFieldsInit(){ renderDestChips(); renderChildAges(); ldOfferPrev();
   // fold-ud kun hvis ønske-teksten fylder mere end de 6 viste linjer
   const wv=document.getElementById('l_wishview'), wm=document.getElementById('l_wishmore');
   if(wv && wm){ wm.style.display = (wv.scrollHeight > wv.clientHeight + 2) ? '' : 'none'; } }
-function ldOfferPrev(){ const el=document.getElementById('l_offer_url'), box=document.getElementById('l_offer_link'); if(!el||!box) return;
-  const u=(el.value||'').trim();
-  if(!u){ box.innerHTML='<span style="font-size:11.5px;color:var(--mut)">Intet tilbudslink endnu — indsæt linket til kundens tilbud her.</span>'; return; }
-  const href=/^https?:\/\//i.test(u)?u:'https://'+u;
-  box.innerHTML=`<a href="${escH(href)}" target="_blank" rel="noopener" class="offer-link">Åbn tilbud →</a>`; }
+function ldOfferPrev(){ /* erstattet af tilbudsliste (refreshLeadOffers) */ }
+// ── Tilbud pr. henvendelse (lead_offers + linjer) ──
+function offHref(u){ return /^https?:\/\//i.test(u)?u:'https://'+u; }
+async function refreshLeadOffers(id){
+  const box=document.getElementById('l_offers'); if(!box) return;
+  const {data,error}=await db.from('lead_offers').select('id,is_revision,sms_sent,offer_url,sent_at,note,created_at,lead_offer_lines(id,destination,hotel_count)').eq('lead_id',id).order('created_at',{ascending:true});
+  if(error){ box.innerHTML='<p class="mini" style="color:var(--bad)">Kunne ikke hente tilbud: '+escH(error.message)+'</p>'; return; }
+  const rows=data||[]; window._curOffers=rows;
+  let totHotels=0, revs=0, sms=0;
+  rows.forEach(o=>{ (o.lead_offer_lines||[]).forEach(l=>totHotels+=(+l.hotel_count||0)); if(o.is_revision)revs++; if(o.sms_sent)sms++; });
+  const counter=`<div class="off-counter"><b>${rows.length}</b> tilbud · <b>${totHotels}</b> hotelforslag · <b>${revs}</b> revideret · SMS sendt <b>${sms}/${rows.length}</b></div>`;
+  const list=rows.map((o,i)=>{
+    const lines=o.lead_offer_lines||[]; const kombi=lines.length>1;
+    const chips=lines.map(l=>`<span class="chip2">${escH(l.destination)}${l.hotel_count!=null?' × '+l.hotel_count:''}</span>`).join('');
+    return `<div class="off-row">
+      <div class="off-h"><b>Tilbud ${i+1}</b>${o.is_revision?'<span class="off-tag rev">Revideret</span>':''}${kombi?'<span class="off-tag kombi">Kombirejse</span>':''}
+        <a href="#" class="off-del" onclick="delLeadOffer('${o.id}','${id}');return false" title="Slet tilbud">✕</a></div>
+      ${chips?`<div class="chips2" style="margin:5px 0">${chips}</div>`:''}
+      <div class="off-foot">
+        ${o.offer_url?`<a href="${escH(offHref(o.offer_url))}" target="_blank" rel="noopener" class="offer-link">Åbn tilbud →</a>`:'<span style="color:var(--mut);font-size:11.5px">intet link</span>'}
+        <label class="off-sms"><input type="checkbox" ${o.sms_sent?'checked':''} onchange="toggleOfferSms('${o.id}','${id}',this.checked)"> SMS sendt</label>
+        ${o.sent_at?`<span style="color:var(--mut);font-size:11px">${fmtDY(o.sent_at)}</span>`:''}
+      </div></div>`;
+  }).join('');
+  box.innerHTML = counter + (list||'<p class="muted" style="font-size:11.5px;margin:6px 0">Ingen tilbud registreret endnu.</p>') + offerAddForm(id);
+  offRenderDraft();
+}
+function offerAddForm(id){ return `<div class="offer-add">
+    <div class="oa-lines" id="l_oa_lines"></div>
+    <div class="oa-row">
+      <select id="l_oa_dest"><option value="">Vælg destination…</option>${DEST_OPTS.map(d=>`<option>${escH(d)}</option>`).join('')}</select>
+      <input id="l_oa_hotels" type="number" min="0" placeholder="antal hoteller">
+      <button type="button" class="b ghost" onclick="offAddLine()">+ tilføj destination</button>
+    </div>
+    <div class="oa-row">
+      <input type="text" id="l_oa_url" placeholder="Link til tilbud (reisetilbud.maldivia.no/…)">
+      <input type="date" id="l_oa_date">
+    </div>
+    <div class="oa-row">
+      <label><input type="checkbox" id="l_oa_sms"> SMS sendt</label>
+      <label><input type="checkbox" id="l_oa_rev"> Revidering af tidligere tilbud</label>
+      <button type="button" class="b dark" onclick="saveLeadOffer('${id}')">Gem tilbud</button>
+    </div>
+  </div>`; }
+function offAddLine(){ const d=document.getElementById('l_oa_dest'), h=document.getElementById('l_oa_hotels'); if(!d) return; const dest=(d.value||'').trim(); if(!dest) return;
+  window._offDraft=window._offDraft||[]; window._offDraft.push({destination:dest, hotel_count:h.value===''?null:(+h.value)}); d.value=''; h.value=''; offRenderDraft(); }
+function offRemoveLine(i){ (window._offDraft||[]).splice(i,1); offRenderDraft(); }
+function offRenderDraft(){ const box=document.getElementById('l_oa_lines'); if(!box) return; const arr=window._offDraft||[];
+  box.innerHTML = arr.length?('<div class="chips2" style="margin-bottom:7px">'+arr.map((l,i)=>`<span class="chip2">${escH(l.destination)}${l.hotel_count!=null?' × '+l.hotel_count:''} <a href="#" onclick="offRemoveLine(${i});return false" style="color:var(--mut);text-decoration:none;font-weight:700">×</a></span>`).join('')+'</div>'):''; }
+async function saveLeadOffer(id){
+  const url=(document.getElementById('l_oa_url').value||'').trim(); const arr=window._offDraft||[];
+  if(!arr.length && !url) return;
+  const {data:off,error}=await db.from('lead_offers').insert({lead_id:id, seq:(window._curOffers||[]).length+1, is_revision:document.getElementById('l_oa_rev').checked, sms_sent:document.getElementById('l_oa_sms').checked, offer_url:url||null, sent_at:document.getElementById('l_oa_date').value||null}).select('id').single();
+  if(error){ alert(error.message); return; }
+  if(arr.length){ const {error:e2}=await db.from('lead_offer_lines').insert(arr.map(l=>({offer_id:off.id, destination:l.destination, hotel_count:l.hotel_count}))); if(e2) alert(e2.message); }
+  window._offDraft=[]; window._leadDirty=true; refreshLeadOffers(id);
+}
+async function delLeadOffer(offId,id){ if(!confirm('Slet dette tilbud?')) return; const {error}=await db.from('lead_offers').delete().eq('id',offId); if(error){alert(error.message);return;} window._leadDirty=true; refreshLeadOffers(id); }
+async function toggleOfferSms(offId,id,val){ const {error}=await db.from('lead_offers').update({sms_sent:val}).eq('id',offId); if(error){alert(error.message);return;} window._leadDirty=true; refreshLeadOffers(id); }
 const BRANCH_OPTS=[['NO','Maldivia NO'],['MD','Maldivia DK'],['IT','Maldivia IT']];
 const ACT_LABEL={system:'System',internt_notat:'Internt notat',opkald:'Opkald til kunde',besked:'Besked til kunde',email_ind:'E-mail fra kunde',email_ud:'E-mail til kunde'};
 function TEAM_OPTS(cur){ const t=window._TEAM||[]; let o=t.map(([ini,nm])=>`<option value="${escH(ini)}" ${cur===ini?'selected':''}>${escH(nm)}</option>`).join(''); if(cur && !t.some(x=>x[0]===cur)) o=`<option value="${escH(cur)}" selected>${escH(cur)}</option>`+o; if(!cur) o='<option value="">—</option>'+o; return o; }
@@ -2238,10 +2307,7 @@ function editLead(id){
     <div class="ld-body">
       <div id="l_dublet"></div>
       <div class="sh">Tilbud til kunden</div>
-      <div class="offerbox">
-        <input id="l_offer_url" value="${escH(v('offer_url'))}" placeholder="Link til tilbud (fx reisetilbud.maldivia.no/…)" oninput="ldOfferPrev()">
-        <div id="l_offer_link"></div>
-      </div>
+      <div id="l_offers">${id?'<p class="muted" style="font-size:11.5px;margin:0">Henter…</p>':'<p class="muted" style="font-size:11.5px;margin:0">Gem henvendelsen først for at tilføje tilbud.</p>'}</div>
       <div class="sh">Triage</div>
       <div class="triage" id="l_triage"></div>
       <div class="sh">Interne noter</div>
@@ -2304,12 +2370,13 @@ function editLead(id){
   dlg.addEventListener('click',e=>{ if(e.target===dlg) closeLeadDlg(); });
   dlg.addEventListener('change',e=>{ const t=e.target; if(!t.matches('input,select,textarea')) return;
     if(['l_newnote','l_dest_pick','l_dest_other','l_airport_pick','l_airport_other'].includes(t.id)) return;
-    if(t.hasAttribute('data-ci')) return; autoSaveLead(); });
+    if(t.hasAttribute('data-ci') || t.closest('#l_offers')) return; autoSaveLead(); });
   renderStageBar(l, []);
   renderDublet(l);
   renderTriage(l);
   leadFieldsInit();
-  if(id) refreshLeadActs(id, l);
+  window._offDraft=[];
+  if(id){ refreshLeadActs(id, l); refreshLeadOffers(id); }
 }
 function ldDestPrev(){ const el=document.getElementById('l_destination'), p=document.getElementById('l_destprev'); if(el&&p) p.innerHTML=destChipsHtml(el.value); }
 function renderDublet(l){ const box=document.getElementById('l_dublet'); if(!box) return;
@@ -2414,7 +2481,7 @@ function leadFormData(){
     departure_airport:g('l_departure_airport')||null, adults:num('l_adults'), kids:num('l_kids'), child_ages:g('l_child_ages')||null,
     departure_date:g('l_departure_date')||null, return_date:g('l_return_date')||null,
     nights:num('l_nights'), villas:num('l_villas'), owner:g('l_owner')||null,
-    wishes:g('l_wishes')||null, highlights:g('l_highlights')||null, heard_about_us:g('l_heard_about_us')||null, source:g('l_source')||null, offer_url:g('l_offer_url')||null };
+    wishes:g('l_wishes')||null, highlights:g('l_highlights')||null, heard_about_us:g('l_heard_about_us')||null, source:g('l_source')||null };
 }
 async function saveLead(id){
   const rec = leadFormData();
