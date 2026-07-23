@@ -303,7 +303,11 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .ld .nlist .n .h a{margin-left:6px;color:var(--mut);text-decoration:none;} .ld .nlist .n .h a:hover{color:var(--bad);}
 .ld .nlist .n .t{font-size:12px;color:var(--ink);margin-top:2px;}
 .ld .wish2{background:#f6f2ea;border-left:3px solid var(--sea);border-radius:0 10px 10px 0;padding:10px 13px;font-size:12.5px;line-height:1.6;white-space:pre-wrap;cursor:pointer;}
-.ld .wish2.clip{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.ld .wish2.clip{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;}
+.leadfilter{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 12px;}
+.leadfilter .lf-lbl{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);font-weight:700;margin-right:2px;}
+.lf{font:inherit;font-size:11.5px;font-weight:600;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;cursor:pointer;}
+.lf.on{background:var(--forest);color:#fff;border-color:var(--forest);}
 .ld .morebtn{background:none;border:0;color:var(--sea);font-weight:700;font-size:11.5px;cursor:pointer;padding:5px 0 0;}
 .ld .offerbox input{width:100%;font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:#fff;color:var(--ink);}
 .ld .offerbox input:focus{outline:none;border-color:var(--gold);}
@@ -2102,7 +2106,10 @@ function krFmt(n){ return (n==null||n==='')?'':Number(n).toLocaleString('da-DK')
 // opsætning af de dynamiske felter når dialogen åbnes
 function leadFieldsInit(){ renderDestChips(); renderChildAges(); ldOfferPrev();
   const ap=document.getElementById('l_airport_pick'), other=document.getElementById('l_airport_other');
-  if(ap && other && ap.value==='__other__'){ other.style.display='block'; other.value=(document.getElementById('l_departure_airport')||{}).value||''; } }
+  if(ap && other && ap.value==='__other__'){ other.style.display='block'; other.value=(document.getElementById('l_departure_airport')||{}).value||''; }
+  // fold-ud kun hvis ønske-teksten fylder mere end de 6 viste linjer
+  const wv=document.getElementById('l_wishview'), wm=document.getElementById('l_wishmore');
+  if(wv && wm){ wm.style.display = (wv.scrollHeight > wv.clientHeight + 2) ? '' : 'none'; } }
 function ldOfferPrev(){ const el=document.getElementById('l_offer_url'), box=document.getElementById('l_offer_link'); if(!el||!box) return;
   const u=(el.value||'').trim();
   if(!u){ box.innerHTML='<span style="font-size:11.5px;color:var(--mut)">Intet tilbudslink endnu — indsæt linket til kundens tilbud her.</span>'; return; }
@@ -2131,15 +2138,29 @@ async function viewLeads(){
     leads.forEach(l=>{ l._dublet=dmap[l.id]||null; l._stageSince=smap[l.id]||l.created_at; });
     window._TEAM=(teamR.data||[]).filter(u=>u.active!==false && !/test|maka/i.test((u.initials||'')+(u.name||''))).map(u=>[u.initials,(u.name||'').split(' ')[0]||u.initials]);
   }catch(e){}
-  const open = leads.filter(l=>l.status==='open');
-  const lost = leads.filter(l=>l.status==='lost');
+  leadBoardRender();
+}
+function setLeadFilter(k,v){ window._leadFilter=Object.assign({branch:'',owner:''},window._leadFilter); window._leadFilter[k]=v; leadBoardRender(); }
+function leadBoardRender(){
+  const leads=window._leads||[];
+  const f=Object.assign({branch:'',owner:''}, window._leadFilter);
+  const match=l=> (!f.branch||l.branch===f.branch) && (!f.owner||l.owner===f.owner);
+  const open = leads.filter(l=>l.status==='open' && match(l));
+  const lost = leads.filter(l=>l.status==='lost' && match(l));
   const won  = leads.filter(l=>l.status==='won');
   const t30 = plusDays(-30);
   const offerStages = ['make_offer','to_be_sent','offer_sent','followed_up','negotiation'];
   const pipeVal = open.reduce((s,l)=>s+(+l.est_value||0),0);
+  const bbtn=(k,v,lab)=>`<button class="lf ${(f[k]||'')===v?'on':''}" onclick="setLeadFilter('${k}','${v}')">${lab}</button>`;
   app.innerHTML = `
-  <div class="pagehead"><h2>Henvendelser</h2><span class="sub">salgspipeline før booking — det Pipedrive gjorde</span>
+  <div class="pagehead"><h2>Henvendelser</h2><span class="sub">salgspipeline før booking</span>
     <span style="margin-left:auto"><button class="btn gold" onclick="editLead()">＋ Ny henvendelse</button></span></div>
+  <div class="leadfilter">
+    <span class="lf-lbl">Branche</span>
+    ${bbtn('branch','','Alle')}${bbtn('branch','NO','Maldivia NO')}${bbtn('branch','MD','Maldivia DK')}
+    <span class="lf-lbl" style="margin-left:10px">Ansvarlig</span>
+    ${bbtn('owner','','Alle')}${(window._TEAM||[]).map(([ini,nm])=>bbtn('owner',escH(ini),escH(nm))).join('')}
+  </div>
   <div class="grid g4" style="margin-bottom:14px">
     <div class="kpi"><b>${open.length}</b><span>åbne henvendelser</span></div>
     <div class="kpi"><b>${open.filter(l=>offerStages.includes(l.stage)).length}</b><span>i tilbudsfasen</span></div>
@@ -2161,7 +2182,7 @@ async function viewLeads(){
     ${lost.map(l=>`<div class="list-item" onclick="editLead('${l.id}')"><span class="ic">✕</span>
       <span><b style="color:var(--forest)">${escH(l.contact_name||l.title)}</b> <span class="muted">${escH(l.lost_reason||'—')}</span></span>
       <span class="when">${fmtDY(l.created_at)}</span></div>`).join('')}</div>`:''}
-  <p class="muted" style="margin-top:10px">Træk et kort til et andet trin for at flytte det. Klik for at åbne og redigere. Trækkes til <b>Vundet</b> tilbydes du at oprette rejsen.</p>`;
+  <p class="muted" style="margin-top:10px">Filtrér på branche og ansvarlig ovenfor. Træk et kort til et andet trin for at flytte det, eller klik for at åbne.</p>`;
 }
 function leadCard(l){
   const since=l._stageSince||l.created_at; const d=daysSince(since);
