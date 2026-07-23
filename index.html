@@ -304,6 +304,10 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .ld .nlist .n .t{font-size:12px;color:var(--ink);margin-top:2px;}
 .ld .wish2{background:#f6f2ea;border-left:3px solid var(--sea);border-radius:0 10px 10px 0;padding:10px 13px;font-size:12.5px;line-height:1.6;white-space:pre-wrap;cursor:pointer;}
 .ld .wish2.clip{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.ld .morebtn{background:none;border:0;color:var(--sea);font-weight:700;font-size:11.5px;cursor:pointer;padding:5px 0 0;}
+.ld .offerbox input{width:100%;font:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:#fff;color:var(--ink);}
+.ld .offerbox input:focus{outline:none;border-color:var(--gold);}
+.ld .offer-link{display:inline-block;margin-top:7px;font-size:12.5px;font-weight:700;color:#1f9d57;text-decoration:none;background:#e9f0e6;border:1px solid #cfe0cb;border-radius:8px;padding:6px 12px;}
 .ld .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 @media(max-width:700px){.ld .grid3{grid-template-columns:1fr;}}
 .ld .fbox{background:#fdfcf8;border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
@@ -384,7 +388,7 @@ const LEAD_STAGES = [
   ['thinking','Tænker på det'],['negotiation','Flere tilbud / forhandling'],['confirmed','Vundet (bekræftet)']
 ];
 const LEAD_STAGE_LABEL = Object.fromEntries(LEAD_STAGES);
-const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel';
+const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url';
 const EL_TYPES = {flight:'Fly', ticket:'Billet', hotel:'Hotel', transfer:'Transfer', other:'Andet', fee:'Gebyr', insurance:'Forsikring'};
 const SALES_TASKS = ['tjek_rejse','pre_departure','god_tur','hjemkomst','retrieval'];
 const FIN_TASKS = ['restbetaling','leverandoerbetaling','kreditvarsel','dok_sync'];
@@ -2096,9 +2100,14 @@ function parseKr(s){ if(s==null) return null; const d=String(s).replace(/[^\d]/g
 function fmtBudget(){ const el=document.getElementById('l_est_value'); if(!el) return; const n=parseKr(el.value); el.value=(n==null?'':n.toLocaleString('da-DK')); autoSaveLead(); }
 function krFmt(n){ return (n==null||n==='')?'':Number(n).toLocaleString('da-DK'); }
 // opsætning af de dynamiske felter når dialogen åbnes
-function leadFieldsInit(){ renderDestChips(); renderChildAges();
+function leadFieldsInit(){ renderDestChips(); renderChildAges(); ldOfferPrev();
   const ap=document.getElementById('l_airport_pick'), other=document.getElementById('l_airport_other');
   if(ap && other && ap.value==='__other__'){ other.style.display='block'; other.value=(document.getElementById('l_departure_airport')||{}).value||''; } }
+function ldOfferPrev(){ const el=document.getElementById('l_offer_url'), box=document.getElementById('l_offer_link'); if(!el||!box) return;
+  const u=(el.value||'').trim();
+  if(!u){ box.innerHTML='<span style="font-size:11.5px;color:var(--mut)">Intet tilbudslink endnu — indsæt linket til kundens tilbud her.</span>'; return; }
+  const href=/^https?:\/\//i.test(u)?u:'https://'+u;
+  box.innerHTML=`<a href="${escH(href)}" target="_blank" rel="noopener" class="offer-link">Åbn tilbud →</a>`; }
 const BRANCH_OPTS=[['NO','Maldivia NO'],['MD','Maldivia DK'],['IT','Maldivia IT']];
 const ACT_LABEL={system:'System',internt_notat:'Internt notat',opkald:'Opkald til kunde',besked:'Besked til kunde',email_ind:'E-mail fra kunde',email_ud:'E-mail til kunde'};
 function TEAM_OPTS(cur){ const t=window._TEAM||[]; let o=t.map(([ini,nm])=>`<option value="${escH(ini)}" ${cur===ini?'selected':''}>${escH(nm)}</option>`).join(''); if(cur && !t.some(x=>x[0]===cur)) o=`<option value="${escH(cur)}" selected>${escH(cur)}</option>`+o; if(!cur) o='<option value="">—</option>'+o; return o; }
@@ -2207,6 +2216,11 @@ function editLead(id){
     <div class="ld-stage"><div class="sbar" id="l_stagebar"></div><div class="smeta" id="l_smeta"></div></div>
     <div class="ld-body">
       <div id="l_dublet"></div>
+      <div class="sh">Tilbud til kunden</div>
+      <div class="offerbox">
+        <input id="l_offer_url" value="${escH(v('offer_url'))}" placeholder="Link til tilbud (fx reisetilbud.maldivia.no/…)" oninput="ldOfferPrev()">
+        <div id="l_offer_link"></div>
+      </div>
       <div class="sh">Triage</div>
       <div class="triage" id="l_triage"></div>
       <div class="sh">Interne noter</div>
@@ -2216,7 +2230,8 @@ function editLead(id){
         <ul class="nlist" id="l_notes">${id?'<li class="muted" style="font-size:11.5px;color:var(--mut)">Henter…</li>':'<li class="muted" style="font-size:11.5px;color:var(--mut)">Gem henvendelsen først for at tilføje noter.</li>'}</ul>
       </div>
       <div class="sh">Kundens ønsker</div>
-      <div class="wish2 clip" onclick="this.classList.toggle('clip')">${v('wishes')?escH(v('wishes')):'<span style=\'color:#c3bdac\'>Ingen tekst indsendt</span>'}</div>
+      <div class="wish2 clip" id="l_wishview">${v('wishes')?escH(v('wishes')):'<span style=\'color:#c3bdac\'>Ingen tekst indsendt</span>'}</div>
+      ${v('wishes')?`<button type="button" class="morebtn" id="l_wishmore" onclick="var w=document.getElementById('l_wishview');w.classList.toggle('clip');this.textContent=w.classList.contains('clip')?'Vis mere':'Vis mindre';">Vis mere</button>`:''}
       <textarea id="l_wishes" style="display:none">${escH(v('wishes'))}</textarea>
       <div class="sh">Detaljer</div>
       <div class="grid3">
@@ -2378,7 +2393,7 @@ function leadFormData(){
     departure_airport:g('l_departure_airport')||null, adults:num('l_adults'), kids:num('l_kids'), child_ages:g('l_child_ages')||null,
     departure_date:g('l_departure_date')||null, return_date:g('l_return_date')||null,
     nights:num('l_nights'), villas:num('l_villas'), owner:g('l_owner')||null,
-    wishes:g('l_wishes')||null, highlights:g('l_highlights')||null, heard_about_us:g('l_heard_about_us')||null, source:g('l_source')||null };
+    wishes:g('l_wishes')||null, highlights:g('l_highlights')||null, heard_about_us:g('l_heard_about_us')||null, source:g('l_source')||null, offer_url:g('l_offer_url')||null };
 }
 async function saveLead(id){
   const rec = leadFormData();
