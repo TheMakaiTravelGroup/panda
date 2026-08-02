@@ -738,8 +738,17 @@ function setupRealtime(){
 
 // ═══ FÆLLES ═══
 async function fetchTrips(){
-  const { data } = await db.from('trips').select('id, ref_no, branch, status, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, customers(first_name,last_name), trip_destinations(destination)').not('status','in','("voided")');
-  return data || [];
+  /* v0.9.3: paginering — Supabase returnerer max 1000 rækker pr. kald, og efter
+     Dolphin-importen af historiske rejser er der langt flere. */
+  const COLS='id, ref_no, branch, status, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, customers(first_name,last_name), trip_destinations(destination)';
+  let all=[], from=0;
+  while(true){
+    const { data } = await db.from('trips').select(COLS).not('status','in','("voided")').order('departure_date').range(from, from+999);
+    all = all.concat(data||[]);
+    if(!data || data.length<1000) break;
+    from += 1000;
+  }
+  return all;
 }
 const active = t => !['canx','voided'].includes(t.status);
 const tripRow = t => `<div class="list-item" onclick="viewTrip('${t.id}')"><span class="ic">◆</span>
@@ -1023,27 +1032,55 @@ async function viewSales(){
   app.innerHTML = `
   <div class="pagehead"><h2>Salg</h2><span class="sub">rejser & processen efter salg</span>
     <span style="margin-left:auto"><button class="btn gold" onclick="viewNew()">＋ Ny rejse</button></span></div>
-  <div class="grid g4" style="margin-bottom:12px">
-    <div class="kpi"><b>${trips.filter(active).length}</b><span>rejser 2026→</span></div>
-    <div class="kpi"><b>${trips.filter(t=>active(t)&&t.departure_date>=t0).length}</b><span>kommende afrejser</span></div>
-    <div class="kpi"><b>${trips.filter(t=>t.status==='god_tur').length}</b><span>ude nu</span></div>
-    <div class="kpi ${tasks.filter(k=>k.due_date<=t0).length?'warn':''}"><b>${tasks.length}</b><span>salgsopgaver åbne</span></div>
-  </div>
+  <div class="grid g4" style="margin-bottom:12px" id="salgkpi"></div>
   <div class="grid g2">
     <div class="card"><h3>Alle rejser <span class="seg" id="statusseg">
       <button data-f="upcoming" class="on">Kommende</button><button data-f="all">Alle</button><button data-f="done">Gennemført</button><button data-f="canx">Afbestilt</button></span></h3>
+      <div class="seg" id="yearseg" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px"></div>
       <input id="q" placeholder="Søg navn eller ref.nr. …" style="max-width:300px;margin-bottom:8px">
       <div id="triplist"></div></div>
     <div class="card"><h3>Salgsopgaver — tjek, pre-departure, god tur, hjemkomst</h3>
       ${tasks.map(k=>taskLine(k,'viewSales')).join('')||'<p class="muted">Ingen åbne salgsopgaver.</p>'}</div>
   </div>`;
-  let f='upcoming';
+  let f='upcoming', yr='up';   /* v0.9.3: yr = 'up' (kommende) eller et årstal — inddeler listen pr. afrejseår */
+  const curYear = t0.slice(0,4);
+  const years = [...new Set(trips.map(t=>t.departure_date.slice(0,4)))].sort().reverse();
+  const drawYears = () => {
+    $('#yearseg').innerHTML = `<button data-y="up" class="${yr==='up'?'on':''}">Kommende</button>`+
+      years.map(y=>`<button data-y="${y}" class="${yr===y?'on':''}">${y} · ${trips.filter(t=>t.departure_date.slice(0,4)===y).length}</button>`).join('');
+    document.querySelectorAll('#yearseg button').forEach(b=>b.onclick=()=>{
+      yr=b.dataset.y;
+      /* Kommende-status giver ingen mening for et historisk år — skift automatisk scope */
+      if(yr==='up'){ f='upcoming'; } else if(f==='upcoming'){ f='all'; }
+      document.querySelectorAll('#statusseg button').forEach(x=>x.classList.toggle('on',x.dataset.f===f));
+      drawYears(); drawKpis(); draw();
+    });
+  };
+  const kr = n => Math.round(n).toLocaleString('da-DK');
+  const drawKpis = () => {
+    if(yr==='up'){
+      $('#salgkpi').innerHTML = `
+      <div class="kpi"><b>${trips.filter(t=>active(t)&&t.departure_date>=curYear+'-01-01').length}</b><span>rejser ${curYear}→</span></div>
+      <div class="kpi"><b>${trips.filter(t=>active(t)&&t.departure_date>=t0).length}</b><span>kommende afrejser</span></div>
+      <div class="kpi"><b>${trips.filter(t=>t.status==='god_tur').length}</b><span>ude nu</span></div>
+      <div class="kpi ${tasks.filter(k=>k.due_date<=t0).length?'warn':''}"><b>${tasks.length}</b><span>salgsopgaver åbne</span></div>`;
+    } else {
+      const yt = trips.filter(t=>t.departure_date.slice(0,4)===yr);
+      $('#salgkpi').innerHTML = `
+      <div class="kpi"><b>${yt.filter(active).length}</b><span>rejser ${yr}</span></div>
+      <div class="kpi"><b>${kr(yt.filter(active).reduce((s,t)=>s+ +(t.package_sell_dkk||0),0))}</b><span>omsætning DKK ${yr}</span></div>
+      <div class="kpi"><b>${yt.filter(t=>t.status==='faerdig').length}</b><span>gennemført</span></div>
+      <div class="kpi"><b>${yt.filter(t=>t.status==='canx').length}</b><span>afbestilt</span></div>`;
+    }
+  };
   const draw = () => {
     const q = ($('#q').value||'').toLowerCase();
     let rows = window._trips.filter(t =>
       f==='all' ? true :
       f==='upcoming' ? (active(t)&&t.departure_date>=t0) :
       f==='done' ? t.status==='faerdig' : t.status==='canx');
+    /* søgning går på tværs af ALLE år; ellers begrænses til valgt år */
+    if(!q && yr!=='up') rows = rows.filter(t=>t.departure_date.slice(0,4)===yr);
     rows = rows.filter(t=>!q||(t.ref_no+' '+t.customers.first_name+' '+t.customers.last_name).toLowerCase().includes(q));
     rows.sort((a,b)=>a.departure_date.localeCompare(b.departure_date));
     $('#triplist').innerHTML = `<table><tr><th>Ref</th><th>Kunde</th><th>Destination</th><th>Afrejse</th><th class="r">Pax</th><th class="r">Salg DKK</th><th>Status</th></tr>`+
@@ -1054,9 +1091,11 @@ async function viewSales(){
         <td class="r">${t.package_sell_dkk?Math.round(t.package_sell_dkk).toLocaleString('da-DK'):'—'}</td>
         <td><span class="badge ${t.status}">${STATUS_LABELS[t.status]}</span></td></tr>`).join('')+'</table>'+(rows.length?'':'<p class="muted">Ingen rejser matcher.</p>');
   };
-  document.querySelectorAll('#statusseg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#statusseg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');f=b.dataset.f;draw();});
+  document.querySelectorAll('#statusseg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#statusseg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');f=b.dataset.f;
+    if(f==='upcoming'&&yr!=='up'){yr='up';drawYears();drawKpis();}
+    draw();});
   $('#q').oninput = draw;
-  draw();
+  drawYears(); drawKpis(); draw();
 }
 
 // ═══ ØKONOMI ═══
