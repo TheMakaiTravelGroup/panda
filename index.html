@@ -1036,36 +1036,38 @@ async function viewSales(){
   <div class="grid g2">
     <div class="card"><h3>Alle rejser <span class="seg" id="statusseg">
       <button data-f="upcoming" class="on">Kommende</button><button data-f="all">Alle</button><button data-f="done">Gennemført</button><button data-f="canx">Afbestilt</button></span></h3>
-      <div class="seg" id="yearseg" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px"></div>
-      <input id="q" placeholder="Søg navn eller ref.nr. …" style="max-width:300px;margin-bottom:8px">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <select id="yearsel" title="Afrejseår"></select>
+        <input id="q" placeholder="Søg navn eller ref.nr. …" style="max-width:300px">
+      </div>
       <div id="triplist"></div></div>
     <div class="card"><h3>Salgsopgaver — tjek, pre-departure, god tur, hjemkomst</h3>
       ${tasks.map(k=>taskLine(k,'viewSales')).join('')||'<p class="muted">Ingen åbne salgsopgaver.</p>'}</div>
   </div>`;
-  let f='upcoming', yr='up';   /* v0.9.3: yr = 'up' (kommende) eller et årstal — inddeler listen pr. afrejseår */
+  /* v0.9.4: afrejseår vælges i dropdown; indeværende år er standard */
   const curYear = t0.slice(0,4);
   const years = [...new Set(trips.map(t=>t.departure_date.slice(0,4)))].sort().reverse();
+  let f='upcoming', yr = years.includes(curYear) ? curYear : (years[0]||curYear);
   const drawYears = () => {
-    $('#yearseg').innerHTML = `<button data-y="up" class="${yr==='up'?'on':''}">Kommende</button>`+
-      years.map(y=>`<button data-y="${y}" class="${yr===y?'on':''}">${y} · ${trips.filter(t=>t.departure_date.slice(0,4)===y).length}</button>`).join('');
-    document.querySelectorAll('#yearseg button').forEach(b=>b.onclick=()=>{
-      yr=b.dataset.y;
+    $('#yearsel').innerHTML = years.map(y=>`<option value="${y}" ${y===yr?'selected':''}>${y}</option>`).join('');
+    $('#yearsel').onchange = () => {
+      yr = $('#yearsel').value;
       /* Kommende-status giver ingen mening for et historisk år — skift automatisk scope */
-      if(yr==='up'){ f='upcoming'; } else if(f==='upcoming'){ f='all'; }
-      document.querySelectorAll('#statusseg button').forEach(x=>x.classList.toggle('on',x.dataset.f===f));
-      drawYears(); drawKpis(); draw();
-    });
+      if(yr<curYear && f==='upcoming'){ f='all';
+        document.querySelectorAll('#statusseg button').forEach(x=>x.classList.toggle('on',x.dataset.f===f)); }
+      drawKpis(); draw();
+    };
   };
   const kr = n => Math.round(n).toLocaleString('da-DK');
   const drawKpis = () => {
-    if(yr==='up'){
+    const yt = trips.filter(t=>t.departure_date.slice(0,4)===yr);
+    if(yr===curYear){
       $('#salgkpi').innerHTML = `
-      <div class="kpi"><b>${trips.filter(t=>active(t)&&t.departure_date>=curYear+'-01-01').length}</b><span>rejser ${curYear}→</span></div>
+      <div class="kpi"><b>${yt.filter(active).length}</b><span>rejser ${yr}</span></div>
       <div class="kpi"><b>${trips.filter(t=>active(t)&&t.departure_date>=t0).length}</b><span>kommende afrejser</span></div>
       <div class="kpi"><b>${trips.filter(t=>t.status==='god_tur').length}</b><span>ude nu</span></div>
       <div class="kpi ${tasks.filter(k=>k.due_date<=t0).length?'warn':''}"><b>${tasks.length}</b><span>salgsopgaver åbne</span></div>`;
     } else {
-      const yt = trips.filter(t=>t.departure_date.slice(0,4)===yr);
       $('#salgkpi').innerHTML = `
       <div class="kpi"><b>${yt.filter(active).length}</b><span>rejser ${yr}</span></div>
       <div class="kpi"><b>${kr(yt.filter(active).reduce((s,t)=>s+ +(t.package_sell_dkk||0),0))}</b><span>omsætning DKK ${yr}</span></div>
@@ -1080,7 +1082,7 @@ async function viewSales(){
       f==='upcoming' ? (active(t)&&t.departure_date>=t0) :
       f==='done' ? t.status==='faerdig' : t.status==='canx');
     /* søgning går på tværs af ALLE år; ellers begrænses til valgt år */
-    if(!q && yr!=='up') rows = rows.filter(t=>t.departure_date.slice(0,4)===yr);
+    if(!q) rows = rows.filter(t=>t.departure_date.slice(0,4)===yr);
     rows = rows.filter(t=>!q||(t.ref_no+' '+t.customers.first_name+' '+t.customers.last_name).toLowerCase().includes(q));
     rows.sort((a,b)=>a.departure_date.localeCompare(b.departure_date));
     $('#triplist').innerHTML = `<table><tr><th>Ref</th><th>Kunde</th><th>Destination</th><th>Afrejse</th><th class="r">Pax</th><th class="r">Salg DKK</th><th>Status</th></tr>`+
@@ -1092,7 +1094,7 @@ async function viewSales(){
         <td><span class="badge ${t.status}">${STATUS_LABELS[t.status]}</span></td></tr>`).join('')+'</table>'+(rows.length?'':'<p class="muted">Ingen rejser matcher.</p>');
   };
   document.querySelectorAll('#statusseg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#statusseg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');f=b.dataset.f;
-    if(f==='upcoming'&&yr!=='up'){yr='up';drawYears();drawKpis();}
+    if(f==='upcoming'&&yr<curYear){yr=curYear;drawYears();drawKpis();}
     draw();});
   $('#q').oninput = draw;
   drawYears(); drawKpis(); draw();
