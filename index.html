@@ -1478,21 +1478,49 @@ const REPORTS = [
      if(!REP_STATE.hotel){
        const m={};
        els.forEach(e=>{const k=e.hotel;(m[k]=m[k]||{n:0,rn:0,pax:0,buy:0});m[k].n++;m[k].rn+=e.rn;m[k].pax+=e.pax;m[k].buy+=e.buy;});
-       const rows=Object.entries(m).sort((a,b)=>b[1].buy-a[1].buy).slice(0,30).map(([k,v])=>({hotel:k,bookinger:v.n,rn:v.rn,pax:v.pax,buy:v.buy,pr:v.rn?v.buy/v.rn:0}));
+       window.REP_HOTELNAMES=[];
+       const rows=Object.entries(m).sort((a,b)=>b[1].buy-a[1].buy).slice(0,30).map(([k,v],i)=>{
+         REP_HOTELNAMES[i]=k;
+         return {hotel:k,bookinger:v.n,rn:v.rn,pax:v.pax,buy:v.buy,pr:v.rn?v.buy/v.rn:0,_click:'repHotelPick('+i+')'};});
        return {columns:[['hotel','Hotel','text'],['bookinger','Bookinger','num'],['rn','Room nights','num'],['pax','Gæster','num'],['buy','Indkøb DKK','kr'],['pr','Ø pr. room night','kr']].map(colObj),
-         rows, meta:'Top 30 efter indkøb i perioden. Vælg et hotel for villatype-statistik. Annullerede elementer er udeladt.'};
+         rows, meta:'Top 30 efter indkøb i perioden. Klik på et hotel for detaljer. Annullerede elementer er udeladt.'};
      }
      const hh=els.filter(e=>e.hotel===REP_STATE.hotel);
+     const T={}; trips.forEach(t=>T[t.id]=t);
+     const dk=n=>Math.round(n).toLocaleString('da-DK');
+     /* Hovedtabel: samlet overblik pr. afrejseår + I alt */
+     const yr={}; hh.forEach(e=>{const y=e.start.slice(0,4);(yr[y]=yr[y]||{n:0,rn:0,pax:0,buy:0});const x=yr[y];x.n++;x.rn+=e.rn;x.pax+=e.pax;x.buy+=e.buy;});
+     const rows=Object.keys(yr).sort().map(y=>({aar:y,bookinger:yr[y].n,rn:yr[y].rn,pax:yr[y].pax,buy:yr[y].buy,pr:yr[y].rn?yr[y].buy/yr[y].rn:0}));
+     const tot=hh.reduce((s,e)=>({n:s.n+1,rn:s.rn+e.rn,pax:s.pax+e.pax,buy:s.buy+e.buy}),{n:0,rn:0,pax:0,buy:0});
+     /* Villatype-fordeling */
      const m={};
      hh.forEach(e=>{const k=(e.room||'?')+'|'+(e.board||'?');(m[k]=m[k]||{room:e.room||'?',board:e.board||'?',n:0,rn:0,pax:0,buy:0,sidste:''});
        const x=m[k];x.n++;x.rn+=e.rn;x.pax+=e.pax;x.buy+=e.buy;if(e.start>x.sidste)x.sidste=e.start;});
-     const rows=Object.values(m).sort((a,b)=>b.n-a.n||b.buy-a.buy).map(v=>({room:v.room,board:v.board,bookinger:v.n,rn:v.rn,pax:v.pax,buy:v.buy,pr:v.rn?v.buy/v.rn:0,sidste:v.sidste}));
-     const tot=hh.reduce((s,e)=>({n:s.n+1,rn:s.rn+e.rn,pax:s.pax+e.pax,buy:s.buy+e.buy}),{n:0,rn:0,pax:0,buy:0});
-     const yr={}; hh.forEach(e=>{const y=e.start.slice(0,4);(yr[y]=yr[y]||{n:0,buy:0});yr[y].n++;yr[y].buy+=e.buy;});
-     const yrTxt=Object.keys(yr).sort().map(y=>y+': '+yr[y].n+' bookinger / '+Math.round(yr[y].buy).toLocaleString('da-DK')+' kr.').join(' · ');
-     return {columns:[['room','Villakode','text'],['board','Board','text'],['bookinger','Bookinger','num'],['rn','Room nights','num'],['pax','Gæster','num'],['buy','Indkøb DKK','kr'],['pr','Ø pr. room night','kr'],['sidste','Seneste ophold','date']].map(colObj),
-       rows, footer:{room:'I alt',board:'',bookinger:tot.n,rn:tot.rn,pax:tot.pax,buy:tot.buy,pr:tot.rn?tot.buy/tot.rn:null},
-       meta:'Pr. år — '+(yrTxt||'ingen bookinger i perioden')+'. Villakoder for importerede rejser er Dolphins rå koder.'};
+     const vtRows=Object.values(m).sort((a,b)=>b.n-a.n||b.buy-a.buy).map(v=>`<tr><td>${v.room}</td><td>${v.board}</td><td class="num">${v.n}</td><td class="num">${v.rn}</td><td class="num">${v.pax}</td><td class="num">${dk(v.buy)}</td><td class="num">${v.rn?dk(v.buy/v.rn):'—'}</td><td>${fmtDY(v.sidste)}</td></tr>`).join('');
+     /* Bookingliste */
+     const bookRows=hh.slice().sort((a,b)=>b.start.localeCompare(a.start)).map(e=>{
+       const t=T[e.trip_id]||{};
+       const kunde=t.customers?(t.customers.last_name+', '+t.customers.first_name):'—';
+       return `<tr class="click" onclick="viewTrip('${e.trip_id}')">
+         <td>${fmtDY(e.start)} → ${fmtDY(e.end)}</td><td><b>${t.ref_no||'—'}</b></td><td>${kunde}</td>
+         <td>${e.room||'—'}</td><td>${e.board||'—'}</td>
+         <td class="num">${e.rn||'—'}</td><td class="num">${e.pax||'—'}</td>
+         <td class="num">${e.cur?dk(e.curamt)+' '+e.cur:'—'}</td>
+         <td class="num">${dk(e.buy)}</td>
+         <td><span class="badge ${t.status||''}">${STATUS_LABELS[t.status]||t.status||''}</span></td></tr>`;
+     }).join('');
+     const extra=`<div class="card" style="margin-top:12px">
+       <h3>Villatyper — ${REP_STATE.hotel}</h3>
+       <div style="overflow-x:auto"><table class="rep"><thead><tr><th>Villakode</th><th>Board</th><th class="num">Bookinger</th><th class="num">Room nights</th><th class="num">Gæster</th><th class="num">Indkøb DKK</th><th class="num">Ø pr. room night</th><th>Seneste ophold</th></tr></thead>
+       <tbody>${vtRows||'<tr><td colspan="8" class="muted" style="padding:14px;text-align:center">Ingen bookinger i perioden.</td></tr>'}</tbody></table></div></div>
+     <div class="card" style="margin-top:12px">
+       <h3>Alle bookinger — ${REP_STATE.hotel} <span class="r"><button class="btn ghost" onclick="repHotelPick(-1)">← Alle hoteller</button></span></h3>
+       <div style="overflow-x:auto"><table class="rep"><thead><tr><th>Ophold</th><th>Ref</th><th>Kunde</th><th>Villakode</th><th>Board</th><th class="num">Room nights</th><th class="num">Gæster</th><th class="num">Leverandørbeløb</th><th class="num">Indkøb DKK</th><th>Status</th></tr></thead>
+       <tbody>${bookRows||'<tr><td colspan="10" class="muted" style="padding:14px;text-align:center">Ingen bookinger i perioden.</td></tr>'}</tbody></table></div>
+       <p class="muted" style="font-size:11px;margin:8px 0 0">Leverandørbeløb vises hvor original valuta kendes (nye bookinger + betalinger afstemt i systemet). Dolphin-importen indeholder kun DKK.</p></div>`;
+     return {columns:[['aar','Afrejseår','text'],['bookinger','Bookinger','num'],['rn','Room nights','num'],['pax','Gæster','num'],['buy','Indkøb DKK','kr'],['pr','Ø pr. room night','kr']].map(colObj),
+       rows, footer:{aar:'I alt',bookinger:tot.n,rn:tot.rn,pax:tot.pax,buy:tot.buy,pr:tot.rn?tot.buy/tot.rn:null},
+       meta:REP_STATE.hotel+' — samlet overblik pr. afrejseår. Villakoder for importerede rejser er Dolphins rå koder.', extra};
    }},
   {id:'destinationer', name:'Destinationer', period:true, periodLabel:'Afrejse i perioden',
    build:(trips,{from,to})=>{
@@ -1572,7 +1600,7 @@ function drawReports(){
   </div>`;
   renderReport();
 }
-function selectReport(id){ REP_STATE.id=id;
+function selectReport(id){ REP_STATE.id=id; REP_STATE.sort=null;
   if(id==='hotelstat' && !REP_STATE._hotelInit){ REP_STATE._hotelInit=1; REP_STATE.from='2018-01-01'; REP_STATE.to='2027-12-31'; }
   drawReports(); }
 /* v0.9.6: hotelelementer til Hotelstatistik — hentes én gang, pagineret */
@@ -1580,12 +1608,12 @@ async function loadHotelElems(){
   if(window.__elemsLoading) return; window.__elemsLoading=true;
   let all=[], from=0;
   while(true){
-    const {data}=await db.from('trip_elements').select('trip_id,start_date,status,buy_amount_dkk,details,suppliers:supplier_id(name)').eq('element_type','hotel').order('start_date').range(from,from+999);
+    const {data}=await db.from('trip_elements').select('trip_id,start_date,end_date,status,buy_amount_dkk,buy_currency,buy_amount,details,suppliers:supplier_id(name)').eq('element_type','hotel').order('start_date').range(from,from+999);
     all=all.concat(data||[]); if(!data||data.length<1000) break; from+=1000;
   }
   const T={}; (window.REP_TRIPS||[]).forEach(t=>T[t.id]=t);
-  window.REP_ELEMS=all.map(e=>({hotel:(e.suppliers&&e.suppliers.name)||'(ukendt)', start:e.start_date||'', status:e.status,
-    buy:+e.buy_amount_dkk||0, rn:+((e.details||{}).room_nights)||0,
+  window.REP_ELEMS=all.map(e=>({hotel:(e.suppliers&&e.suppliers.name)||'(ukendt)', start:e.start_date||'', end:e.end_date||'', trip_id:e.trip_id, status:e.status,
+    buy:+e.buy_amount_dkk||0, cur:(e.buy_currency&&e.buy_currency.trim()!=='DKK')?e.buy_currency.trim():'', curamt:+e.buy_amount||0, rn:+((e.details||{}).room_nights)||0,
     pax:+((e.details||{}).pax)||(T[e.trip_id]?+T[e.trip_id].pax_count||0:0),
     room:(e.details||{}).room||'', board:(e.details||{}).board||''}));
   window.__elemsLoading=false;
@@ -1597,6 +1625,14 @@ function setPeriod(from,to){ REP_STATE.from=from; REP_STATE.to=to; renderReport(
 function renderReport(){
   const rep = findReport(REP_STATE.id); if(!rep) return;
   const res = rep.build(window.REP_TRIPS||[], {from:REP_STATE.from, to:REP_STATE.to});
+  if(REP_STATE.sort && res.rows.length){
+    const {key,dir}=REP_STATE.sort;
+    const col=(res.columns.find(c=>c.key===key)||{});
+    const isNum=['num','kr','kr0','pct'].includes(col.type);
+    res.rows.sort((a,b)=>{ const x=a[key], y=b[key];
+      if(isNum) return dir*(((+x)||0)-((+y)||0));
+      return dir*String(x??'').localeCompare(String(y??''),'da'); });
+  }
   REP_STATE.last = {rep, res};
   const periodUI = rep.period ? `
     <div><label>Fra</label><input type="date" id="rep_from" value="${REP_STATE.from}" onchange="onPeriodChange()"></div>
@@ -1609,8 +1645,9 @@ function renderReport(){
       <option value="2025-01-01|2025-12-31">Hele 2025</option>
     </select></div>` : '';
   const cols = res.columns;
-  const th = cols.map(c=>`<th class="${rightAligned(c.type)?'num':''}">${c.label}</th>`).join('');
-  const body = res.rows.length ? res.rows.map(r=>`<tr>${cols.map(c=>`<td class="${rightAligned(c.type)?'num':''}">${fmtCell(r[c.key],c.type)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${cols.length}" class="muted" style="padding:18px;text-align:center">Ingen rækker i det valgte interval.</td></tr>`;
+  const srt=REP_STATE.sort||{};
+  const th = cols.map(c=>`<th class="${rightAligned(c.type)?'num':''}" style="cursor:pointer" title="Sortér" onclick="repSort('${c.key}')">${c.label}${srt.key===c.key?(srt.dir>0?' ▲':' ▼'):''}</th>`).join('');
+  const body = res.rows.length ? res.rows.map(r=>`<tr${r._click?` class="click" onclick="${r._click}"`:''}>${cols.map(c=>`<td class="${rightAligned(c.type)?'num':''}">${fmtCell(r[c.key],c.type)}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${cols.length}" class="muted" style="padding:18px;text-align:center">Ingen rækker i det valgte interval.</td></tr>`;
   const foot = res.footer ? `<tfoot><tr>${cols.map(c=>`<td class="${rightAligned(c.type)?'num':''}">${res.footer[c.key]!=null?fmtCell(res.footer[c.key],c.type):''}</td>`).join('')}</tr></tfoot>` : '';
   const periodTxt = rep.period ? `${(rep.periodLabel||'Periode')}: ${fmtDY(REP_STATE.from)} – ${fmtDY(REP_STATE.to)}` : '';
   $('#repmain').innerHTML = `
@@ -1630,8 +1667,10 @@ function renderReport(){
       ${periodTxt||res.meta?`<div class="rep-meta">${[periodTxt,res.meta].filter(Boolean).join(' · ')}</div>`:''}
       <div style="overflow-x:auto"><table class="rep"><thead><tr>${th}</tr></thead><tbody>${body}</tbody>${foot}</table></div>
     </div>
-    ${res.detail?detailCard(res.detail):''}`;
+    ${res.detail?detailCard(res.detail):''}${res.extra||''}`;
 }
+function repHotelPick(i){ REP_STATE.hotel = i<0 ? '' : (window.REP_HOTELNAMES||[])[i]||''; REP_STATE.sort=null; renderReport(); }
+function repSort(key){ const s=REP_STATE.sort; REP_STATE.sort = (s&&s.key===key) ? {key, dir:-s.dir} : {key, dir:1}; renderReport(); }
 function detailCard(detail){
   const grp={}; detail.forEach(d=>{(grp[d.land]=grp[d.land]||[]).push(d);});
   const flag=d=>d.udg===0?' title="Ingen leverandøromkostning registreret" style="color:#b45309"':(d.ind<d.udg?' title="Indtægt < udgift (depositum/negativ margin?)" style="color:#b45309"':'');
