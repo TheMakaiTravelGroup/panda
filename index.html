@@ -389,6 +389,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
     <button data-v="leads">Henvendelser</button>
     <button data-v="sales">Salg</button>
     <button data-v="finance">Økonomi</button>
+    <button data-v="tasks">Opgaver</button>
     <button data-v="marketing">Markedsføring</button>
     <button data-v="reports">Rapporter</button>
     <button data-v="users" style="display:none">Brugere</button>
@@ -714,7 +715,7 @@ function applyNavPerms(){
   document.querySelectorAll('#nav button').forEach(b=>{ if(b.dataset.v in vis) b.style.display = vis[b.dataset.v]?'':'none'; });
 }
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>Ingen adgang</h3><p class="muted">Din brugerprofil har ikke adgang til denne side. En admin kan give adgang under Brugere.</p></div>'; }
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew})[b.dataset.v]();});
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew})[b.dataset.v]();});
 function navTo(v){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));}
 // ── v0.9: live auto-opdatering via Supabase Realtime ──
 window.__view='dash';
@@ -1023,27 +1024,20 @@ async function viewDash(){
 async function viewSales(){
   navTo('sales');
   app.innerHTML = '<div class="pagehead"><h2>Salg</h2></div><div class="card">Henter…</div>';
-  const [trips, tasks] = await Promise.all([
-    fetchTrips(),
-    db.from('tasks').select('*, trips(ref_no)').eq('status','aaben').in('task_type',SALES_TASKS).order('due_date').then(r=>r.data||[])
-  ]);
+  const trips = await fetchTrips();   /* v0.9.5: opgaver bor nu på egen side */
   window._trips = trips;
   const t0 = today();
   app.innerHTML = `
   <div class="pagehead"><h2>Salg</h2><span class="sub">rejser & processen efter salg</span>
     <span style="margin-left:auto"><button class="btn gold" onclick="viewNew()">＋ Ny rejse</button></span></div>
-  <div class="grid g4" style="margin-bottom:12px" id="salgkpi"></div>
-  <div class="grid g2">
-    <div class="card"><h3>Alle rejser <span class="seg" id="statusseg">
+  <div class="grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:12px" id="salgkpi"></div>
+  <div class="card"><h3>Alle rejser <span class="seg" id="statusseg">
       <button data-f="upcoming" class="on">Kommende</button><button data-f="all">Alle</button><button data-f="done">Gennemført</button><button data-f="canx">Afbestilt</button></span></h3>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
         <select id="yearsel" title="Afrejseår"></select>
         <input id="q" placeholder="Søg navn eller ref.nr. …" style="max-width:300px">
       </div>
-      <div id="triplist"></div></div>
-    <div class="card"><h3>Salgsopgaver — tjek, pre-departure, god tur, hjemkomst</h3>
-      ${tasks.map(k=>taskLine(k,'viewSales')).join('')||'<p class="muted">Ingen åbne salgsopgaver.</p>'}</div>
-  </div>`;
+      <div id="triplist"></div></div>`;
   /* v0.9.4: afrejseår vælges i dropdown; indeværende år er standard */
   const curYear = t0.slice(0,4);
   const years = [...new Set(trips.map(t=>t.departure_date.slice(0,4)))].sort().reverse();
@@ -1061,19 +1055,16 @@ async function viewSales(){
   const kr = n => Math.round(n).toLocaleString('da-DK');
   const drawKpis = () => {
     const yt = trips.filter(t=>t.departure_date.slice(0,4)===yr);
-    if(yr===curYear){
-      $('#salgkpi').innerHTML = `
-      <div class="kpi"><b>${yt.filter(active).length}</b><span>rejser ${yr}</span></div>
+    const ya = yt.filter(active);
+    const base = `
+      <div class="kpi"><b>${ya.length}</b><span>rejser ${yr}</span></div>
+      <div class="kpi"><b>${kr(ya.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0))}</b><span>omsætning DKK ${yr}</span></div>
+      <div class="kpi"><b>${kr(ya.reduce((s,t)=>s+ +(t.pax_count||0),0))}</b><span>pax ${yr}</span></div>`;
+    $('#salgkpi').innerHTML = base + (yr===curYear ? `
       <div class="kpi"><b>${trips.filter(t=>active(t)&&t.departure_date>=t0).length}</b><span>kommende afrejser</span></div>
-      <div class="kpi"><b>${trips.filter(t=>t.status==='god_tur').length}</b><span>ude nu</span></div>
-      <div class="kpi ${tasks.filter(k=>k.due_date<=t0).length?'warn':''}"><b>${tasks.length}</b><span>salgsopgaver åbne</span></div>`;
-    } else {
-      $('#salgkpi').innerHTML = `
-      <div class="kpi"><b>${yt.filter(active).length}</b><span>rejser ${yr}</span></div>
-      <div class="kpi"><b>${kr(yt.filter(active).reduce((s,t)=>s+ +(t.package_sell_dkk||0),0))}</b><span>omsætning DKK ${yr}</span></div>
+      <div class="kpi"><b>${trips.filter(t=>t.status==='god_tur').length}</b><span>ude nu</span></div>` : `
       <div class="kpi"><b>${yt.filter(t=>t.status==='faerdig').length}</b><span>gennemført</span></div>
-      <div class="kpi"><b>${yt.filter(t=>t.status==='canx').length}</b><span>afbestilt</span></div>`;
-    }
+      <div class="kpi"><b>${yt.filter(t=>t.status==='canx').length}</b><span>afbestilt</span></div>`);
   };
   const draw = () => {
     const q = ($('#q').value||'').toLowerCase();
@@ -1098,6 +1089,33 @@ async function viewSales(){
     draw();});
   $('#q').oninput = draw;
   drawYears(); drawKpis(); draw();
+}
+
+// ═══ OPGAVER (v0.9.5: samlet opgaveside) ═══
+const TASK_TYPE_LABELS = {tjek_rejse:'Tjek rejse', pre_departure:'Pre-departure', god_tur:'God tur', hjemkomst:'Hjemkomst', retrieval:'Retrieval', restbetaling:'Restbetaling', leverandoerbetaling:'Leverandørbetaling', kreditvarsel:'Kreditvarsel', dok_sync:'Dokument-sync'};
+async function viewTasks(){
+  navTo('tasks');
+  app.innerHTML = '<div class="pagehead"><h2>Opgaver</h2></div><div class="card">Henter…</div>';
+  const tasks = await db.from('tasks').select('*, trips(ref_no)').eq('status','aaben').order('due_date').then(r=>r.data||[]);
+  const t0 = today();
+  const due = tasks.filter(k=>k.due_date && k.due_date<=t0);
+  const salg = tasks.filter(k=>SALES_TASKS.includes(k.task_type));
+  const oko = tasks.filter(k=>FIN_TASKS.includes(k.task_type));
+  const types = [...new Set(tasks.map(k=>k.task_type))];
+  app.innerHTML = `
+  <div class="pagehead"><h2>Opgaver</h2><span class="sub">alle åbne opgaver — salg, økonomi & drift</span></div>
+  <div class="grid g4" style="margin-bottom:12px">
+    <div class="kpi ${due.length?'warn':''}"><b>${due.length}</b><span>til forfald</span></div>
+    <div class="kpi"><b>${salg.length}</b><span>salgsopgaver</span></div>
+    <div class="kpi"><b>${oko.length}</b><span>økonomiopgaver</span></div>
+    <div class="kpi"><b>${tasks.length}</b><span>åbne i alt</span></div>
+  </div>
+  ${due.length?`<div class="card" style="margin-bottom:12px"><h3 style="color:var(--bad)">Til forfald</h3>${due.map(k=>taskLine(k,'viewTasks')).join('')}</div>`:''}
+  <div class="grid g2">
+    ${types.map(ty=>{const rows=tasks.filter(k=>k.task_type===ty && !(k.due_date&&k.due_date<=t0));
+      return rows.length?`<div class="card"><h3>${TASK_TYPE_LABELS[ty]||ty} <span class="r muted">${rows.length}</span></h3>${rows.map(k=>taskLine(k,'viewTasks')).join('')}</div>`:'';}).join('')
+    || (due.length?'':'<div class="card"><p class="muted">Ingen åbne opgaver — alt ajour.</p></div>')}
+  </div>`;
 }
 
 // ═══ ØKONOMI ═══
