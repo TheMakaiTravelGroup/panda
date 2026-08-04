@@ -2144,70 +2144,6 @@ async function viewTrip(id){
         :`<p class="muted">${tx('sum.nopax')}</p>`}
     </div>
   </div>`;})()}
-  <div class="card"><h3>${tx('prog.title')}</h3>
-    ${(()=>{
-      const ICON={flight:'✈',ticket:'✈',hotel:'⌂',transfer:'⇢',other:'✦',fee:'✦',insurance:'✦'};
-      const aktive=(els||[]).filter(e=>e.status!=='cx');
-      if(!aktive.length) return `<p class="muted">${tx('prog.none')}</p>`;
-      /* Ens ydelser samme dag er som regel én ydelse pr. rejsende — vis dem som én linje med antal */
-      const nøgle=e=>[e.element_type,e.start_date,e.end_date,(e.suppliers&&e.suppliers.name)||e.description,
-                      (e.details||{}).room,(e.details||{}).rute,(e.details||{}).board].join('|');
-      const grupper=new Map();
-      aktive.slice().sort((a,b)=>(a.start_date||'9999').localeCompare(b.start_date||'9999'))
-        .forEach(e=>{ const k=nøgle(e); const g=grupper.get(k);
-          if(g){ g.n++; g.sum+= +(e.buy_amount_dkk||0); g.ids.push(e.id); }
-          else grupper.set(k,{e, n:1, sum:+(e.buy_amount_dkk||0), ids:[e.id]}); });
-      let dag='';
-      return [...grupper.values()].map(({e,n,sum,ids})=>{
-        const d=e.details||{};
-        const naetter = e.element_type==='hotel'&&e.start_date&&e.end_date
-          ? Math.round((new Date(e.end_date)-new Date(e.start_date))/86400000) : null;
-        let titel, linje2='';
-        if(e.element_type==='flight'||e.element_type==='ticket'){
-          const rute=d.rute||d.route||[d.from,d.to].filter(Boolean).join(' → ');
-          titel = rute ? rute.replace(/\s*-\s*/g,' → ') : tx('el.flight');
-          linje2=[d.flyselskab||d.airline, d.class, d.pnr?'PNR '+d.pnr:''].filter(Boolean).join(' · ');
-        } else if(e.element_type==='hotel'){
-          titel=(e.suppliers&&e.suppliers.name)||e.description;
-          linje2=[d.room_navn||d.room, d.board, d.rooms>1?d.rooms+' vær.':''].filter(Boolean).join(' · ');
-        } else {
-          titel=d.produkt||e.description;
-          linje2=(e.suppliers&&e.suppliers.name)||'';
-        }
-        const dato = e.element_type==='hotel'&&naetter
-          ? `${fmtDY(e.start_date)} → ${fmtDY(e.end_date)} · ${naetter} ${tx('sum.nights')}`
-          : fmtDY(e.start_date);
-        const nyDag = e.start_date!==dag ? (dag=e.start_date, true) : false;
-        const skjul=new Set(['produkt','rute','route','from','to','flyselskab','airline','class','pnr','room','room_navn',
-          'board','rooms','source','dolphin_status','financial_vendor','buy_dkk_foer_regulering',
-          'buy_dkk_foer_afbestilling','reguleret','afbestilt_note','dato_mangler_i_rapport','datofejl_rettet']);
-        const detaljer=Object.entries(d).filter(([k,v])=>!skjul.has(k)&&v!==''&&v!==null&&v!==false)
-          .map(([k,v])=>`<span class="dt"><span class="muted">${DETAIL_LABELS[k]||k}</span> ${v}</span>`).join('');
-        return `${nyDag?`<div class="pgday">${fmtDY(e.start_date)}</div>`:''}
-        <details class="pgrow">
-          <summary>
-            <span class="pgicon">${ICON[e.element_type]||'✦'}</span>
-            <span class="pgmain">
-              <span class="pgtitle">${titel}${n>1?`<span class="pgqty">×${n}</span>`:''}</span>
-              ${linje2?`<span class="pgsub">${linje2}</span>`:''}
-            </span>
-            <span class="pgright">
-              <span class="pgamt">${sum?fmtDkkR(sum):'<span class="muted">inkl.</span>'}</span>
-              ${e.element_type==='hotel'&&naetter?`<span class="pgnights">${naetter} ${tx('sum.nights')}</span>`:''}
-            </span>
-          </summary>
-          <div class="pgbody">
-            <div class="pgmeta">${dato}
-              ${e.buy_currency&&e.buy_currency!=='DKK'&&e.buy_amount?` · ${fmtFX(e.buy_amount,e.buy_currency)} × ${Number(e.buy_fx_rate||0).toLocaleString('da-DK',{minimumFractionDigits:4})}`:''}
-              ${e.vendor_due_date?` · <b style="color:var(--gold)">${tx('prog.paydue')} ${fmtDY(e.vendor_due_date)}</b>`:''}</div>
-            ${detaljer?`<div class="pgdet">${detaljer}</div>`:''}
-            <button class="btn ghost" style="padding:2px 9px;font-size:10px;margin-top:7px" onclick="editEl('${id}','${ids[0]}')">${tx('prog.edit')}</button>
-          </div>
-        </details>`;}).join('');
-    })()}
-    <button class="btn ghost" style="margin-top:12px" onclick="showElForm('${id}')">${tx('prog.add')}</button>
-  </div>
-
   <div class="card"><h3>Økonomi på rejsen</h3>
     ${(()=>{
       const sell=+t.package_sell_dkk||0, buy=+t.buy_dkk||0, db=+t.comm_dkk||0, pax=+t.pax_count||0;
@@ -2312,6 +2248,85 @@ async function viewTrip(id){
       ${diff!==0?`<div style="font-size:11px;color:var(--bad);margin-top:8px">⚠ Kontrol: salg − køb − DB = ${fmtDkkR(diff)} — afvigelse, tjek hovedtal.</div>`:''}`;
     })()}
   </div>
+
+  <div class="card"><h3>${tx('prog.title')}</h3>
+    ${(()=>{
+      const ICON={flight:'✈',ticket:'✈',hotel:'⌂',transfer:'⇢',other:'✦',fee:'✦',insurance:'✦'};
+      const aktive=(els||[]).filter(e=>e.status!=='cx');
+      if(!aktive.length) return `<p class="muted">${tx('prog.none')}</p>`;
+      /* Ens ydelser samme dag er som regel én ydelse pr. rejsende — vis dem som én linje med antal */
+      const nøgle=e=>[e.element_type,e.start_date,e.end_date,(e.suppliers&&e.suppliers.name)||e.description,
+                      (e.details||{}).room,(e.details||{}).rute,(e.details||{}).board].join('|');
+      /* Inden for samme dag følger vi rejsens gang: transfer bringer gæsten TIL hotellet,
+         så transfer står før en indtjekning. Fly på hjemrejsedagen kommer sidst. */
+      const hotelStart = aktive.filter(e=>e.element_type==='hotel'&&e.start_date)
+                               .map(e=>e.start_date).sort();
+      const foersteHotel = hotelStart[0] || t.departure_date;
+      const rang = e => {
+        if(e.element_type==='flight'||e.element_type==='ticket')
+          return (e.start_date||'') <= foersteHotel ? 1 : 6;   // udrejse først, hjemrejse sidst
+        if(e.element_type==='transfer') return 3;              // altid mellem fly og hotel
+        if(e.element_type==='hotel')    return 4;              // indtjekning efter transferen
+        return 5;
+      };
+      const grupper=new Map();
+      aktive.slice().sort((a,b)=>
+          (a.start_date||'9999').localeCompare(b.start_date||'9999') || (rang(a)-rang(b)))
+        .forEach(e=>{ const k=nøgle(e); const g=grupper.get(k);
+          if(g){ g.n++; g.sum+= +(e.buy_amount_dkk||0); g.ids.push(e.id); }
+          else grupper.set(k,{e, n:1, sum:+(e.buy_amount_dkk||0), ids:[e.id]}); });
+      let dag='';
+      return [...grupper.values()].map(({e,n,sum,ids})=>{
+        const d=e.details||{};
+        const naetter = e.element_type==='hotel'&&e.start_date&&e.end_date
+          ? Math.round((new Date(e.end_date)-new Date(e.start_date))/86400000) : null;
+        let titel, linje2='';
+        if(e.element_type==='flight'||e.element_type==='ticket'){
+          const rute=d.rute||d.route||[d.from,d.to].filter(Boolean).join(' → ');
+          titel = rute ? rute.replace(/\s*-\s*/g,' → ') : tx('el.flight');
+          linje2=[d.flyselskab||d.airline, d.class, d.pnr?'PNR '+d.pnr:''].filter(Boolean).join(' · ');
+        } else if(e.element_type==='hotel'){
+          titel=(e.suppliers&&e.suppliers.name)||e.description;
+          linje2=[d.room_navn||d.room, d.board, d.rooms>1?d.rooms+' vær.':''].filter(Boolean).join(' · ');
+        } else {
+          titel=d.produkt||e.description;
+          linje2=(e.suppliers&&e.suppliers.name)||'';
+        }
+        const dato = e.element_type==='hotel'&&naetter
+          ? `${fmtDY(e.start_date)} → ${fmtDY(e.end_date)} · ${naetter} ${tx('sum.nights')}`
+          : fmtDY(e.start_date);
+        const nyDag = e.start_date!==dag ? (dag=e.start_date, true) : false;
+        const skjul=new Set(['produkt','rute','route','from','to','flyselskab','airline','class','pnr','room','room_navn',
+          'board','rooms','source','dolphin_status','financial_vendor','buy_dkk_foer_regulering',
+          'buy_dkk_foer_afbestilling','reguleret','afbestilt_note','dato_mangler_i_rapport','datofejl_rettet']);
+        const detaljer=Object.entries(d).filter(([k,v])=>!skjul.has(k)&&v!==''&&v!==null&&v!==false)
+          .map(([k,v])=>`<span class="dt"><span class="muted">${DETAIL_LABELS[k]||k}</span> ${v}</span>`).join('');
+        return `${nyDag?`<div class="pgday">${fmtDY(e.start_date)}</div>`:''}
+        <details class="pgrow">
+          <summary>
+            <span class="pgicon">${ICON[e.element_type]||'✦'}</span>
+            <span class="pgmain">
+              <span class="pgtitle">${titel}${n>1?`<span class="pgqty">×${n}</span>`:''}</span>
+              ${linje2?`<span class="pgsub">${linje2}</span>`:''}
+            </span>
+            <span class="pgright">
+              <span class="pgamt">${sum?fmtDkkR(sum):'<span class="muted">inkl.</span>'}</span>
+              ${e.element_type==='hotel'&&naetter?`<span class="pgnights">${naetter} ${tx('sum.nights')}</span>`:''}
+            </span>
+          </summary>
+          <div class="pgbody">
+            <div class="pgmeta">${dato}
+              ${e.buy_currency&&e.buy_currency!=='DKK'&&e.buy_amount?` · ${fmtFX(e.buy_amount,e.buy_currency)} × ${Number(e.buy_fx_rate||0).toLocaleString('da-DK',{minimumFractionDigits:4})}`:''}
+              ${e.vendor_due_date?` · <b style="color:var(--gold)">${tx('prog.paydue')} ${fmtDY(e.vendor_due_date)}</b>`:''}</div>
+            ${detaljer?`<div class="pgdet">${detaljer}</div>`:''}
+            <button class="btn ghost" style="padding:2px 9px;font-size:10px;margin-top:7px" onclick="editEl('${id}','${ids[0]}')">${tx('prog.edit')}</button>
+          </div>
+        </details>`;}).join('');
+    })()}
+    <button class="btn ghost" style="margin-top:12px" onclick="showElForm('${id}')">${tx('prog.add')}</button>
+  </div>
+
+
   <div class="card"><h3>${tx('sup.title')}</h3>
     ${(()=>{const ps=VENDOR_PAYMENTS.filter(p=>p.folder===String(t.ref_no).replace(/^[A-Za-z]+/,'')||p.branch+p.folder===t.ref_no); if(!ps.length) return '<p class="muted">Ingen leverandørbetalinger i rapporten for denne rejse.</p>';
       return `<table><tr><th>Forfald</th><th>Leverandør</th><th class="r">Beløb</th><th class="r">DKK</th></tr>`+ps.sort((a,b)=>(a.due||'').localeCompare(b.due||'')).map(p=>`<tr><td class="${p.dkk>0&&p.due<=today()?'overdue':''}" style="white-space:nowrap">${fmtDY(p.due)}</td><td><b>${vpName(p.vendor)}</b> <span class="mini">${p.product||''}</span></td><td class="r" style="font-weight:600;color:${p.dkk<0?'var(--ok)':'inherit'}">${fmtFX(p.vendorAmt,p.cur)}${p.dkk<0?' (kredit)':''}</td><td class="r mini">${fmtDkkR(p.dkk)}</td></tr>`).join('')+`</table>`;})()}
