@@ -534,7 +534,10 @@ const I18N = {
   'pay.partial': ['Delbetaling','Delbetaling','Part payment'],
   'pay.final':   ['Restbetaling','Restbetaling','Final payment'],
   'pay.receipt': ['Kvittering','Kvittering','Receipt'],
-  'pay.soon':    ['Kvitteringer kan sendes herfra, når dokumentmodulet er klar.','Kvitteringer kan sendes herfra når dokumentmodulet er klart.','Receipts can be sent from here once the document module is ready.']
+  'pay.soon':    ['Kvitteringer kan sendes herfra, når dokumentmodulet er klar.','Kvitteringer kan sendes herfra når dokumentmodulet er klart.','Receipts can be sent from here once the document module is ready.'],
+  'pay.cust_amt':['Kunden betalte','Kunden betalte','Customer paid'],
+  'pay.rate':    ['Kurs','Kurs','Rate'],
+  'pay.avgrate': ['snitkurs','snittkurs','avg rate']
 };
 const LANG_IDX = {da:0, no:1, en:2};
 function t(key, fallback){
@@ -1994,6 +1997,8 @@ async function viewTrip(id){
         const sumInd = ind.reduce((s,p)=>s+ +(p.amount_dkk||0),0);
         const sumUd  = ud.reduce((s,p)=>s+Math.abs(+p.amount_dkk||0),0);
         const netto  = sumInd - sumUd;
+        const custCur = (PAYS.find(p=>p.customer_currency && p.customer_currency!=='DKK')||{}).customer_currency;
+        const sumCust = custCur ? PAYS.reduce((s,p)=> s + (p.customer_currency===custCur ? +(p.customer_amount||0) : 0), 0) : 0;
         const rest   = (+t.package_sell_dkk||0) - netto;
         const METOD = {kort:'Kort', bankoverfoersel:'Bankoverførsel', kontant:'Kontant',
                        gavekort:'Gavekort', ombooking:'Ombooking', check:'Check'};
@@ -2011,13 +2016,22 @@ async function viewTrip(id){
         <div class="kpi ${rest>1?'warn':''}"><b>${Math.abs(rest)<=1?'✓':fmtDkkR(rest)}</b><span>${Math.abs(rest)<=1?tx('pay.settled'):tx('pay.rest')}</span></div>
         <div class="kpi"><b>${ind.length}</b><span>${tx('pay.in').toLowerCase()}${ind.length===1?'':'er'}</span></div>
       </div>
-      <table style="margin-bottom:6px"><tr><th>${tx('pay.date')}</th><th>${tx('pay.what')}</th><th>${tx('pay.method')}</th><th>${tx('pay.payer')}</th><th class="r">${tx('pay.amount')}</th></tr>
+      <table style="margin-bottom:6px"><tr><th>${tx('pay.date')}</th><th>${tx('pay.what')}</th><th>${tx('pay.method')}</th><th>${tx('pay.payer')}</th><th class="r">${tx('pay.cust_amt')}</th><th class="r">${tx('pay.rate')}</th><th class="r">${tx('pay.amount')}</th></tr>
         ${rows.map(p=>{ if(p.direction==='ind') idx++; const inn=p.direction==='ind';
+          const ca=Math.abs(+p.customer_amount||0), da=Math.abs(+p.amount_dkk||0);
+          const foreign = p.customer_currency && p.customer_currency!=='DKK' && ca>0;
+          /* Kursen beregnes af de faktiske tal: betalt DKK divideret med kundens beløb i egen valuta. */
+          const kurs = foreign ? da/ca : null;
           return `<tr><td>${fmtDY(p.settled_at||p.payment_date)}</td>
-          <td>${inn?hvad(p,idx,ind):tx('pay.out')}${p.customer_amount&&p.customer_currency&&p.customer_currency!=='DKK'?` <span class="mini muted">${fmtFX(p.customer_amount,p.customer_currency)}</span>`:''}</td>
+          <td>${inn?hvad(p,idx,ind):tx('pay.out')}</td>
           <td>${metod(p)}</td><td class="mini">${p.payer_name||'—'}</td>
-          <td class="r" style="${inn?'':'color:var(--bad)'}">${inn?'':'-'}${fmtDkkR(Math.abs(+p.amount_dkk||0))}</td></tr>`;}).join('')}
-        <tr style="border-top:2px solid var(--line);font-weight:700"><td>${tx('pay.paid')}</td><td></td><td></td><td></td><td class="r">${fmtDkkR(netto)}</td></tr>
+          <td class="r">${foreign?`${inn?'':'-'}${fmtFX(ca,p.customer_currency)}`:'<span class="muted">—</span>'}</td>
+          <td class="r mini">${kurs?kurs.toLocaleString('da-DK',{minimumFractionDigits:4,maximumFractionDigits:4}):'<span class="muted">—</span>'}</td>
+          <td class="r" style="${inn?'':'color:var(--bad)'}">${inn?'':'-'}${fmtDkkR(da)}</td></tr>`;}).join('')}
+        <tr style="border-top:2px solid var(--line);font-weight:700"><td>${tx('pay.paid')}</td><td></td><td></td><td></td>
+          <td class="r">${sumCust?fmtFX(sumCust,custCur):''}</td>
+          <td class="r mini">${sumCust?`${(netto/sumCust).toLocaleString('da-DK',{minimumFractionDigits:4,maximumFractionDigits:4})} <span class="muted">${tx('pay.avgrate')}</span>`:''}</td>
+          <td class="r">${fmtDkkR(netto)}</td></tr>
       </table>
       <div class="mini muted" style="margin-bottom:14px"><i>${tx('pay.soon')}</i></div>`
       :`<p class="muted" style="margin-bottom:14px">${tx('pay.none')}</p>`}`;})()}
