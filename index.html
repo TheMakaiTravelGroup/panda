@@ -516,7 +516,25 @@ const I18N = {
   'tasks.week':   ['Denne uge','Denne uken','This week'],
   'tasks.nothing_due':['Ingen opgaver til forfald — alt ajour.','Ingen oppgaver til forfall — alt ajour.','Nothing due — all clear.'],
   'tasks.by_type':['Opgaver pr. type','Oppgaver pr. type','Tasks by type'],
-  'tasks.openshort':['åbne','åpne','open']
+  'tasks.openshort':['åbne','åpne','open'],
+  'pay.title':   ['Kundens betalinger','Kundens betalinger','Customer payments'],
+  'pay.none':    ['Ingen betalinger registreret på rejsen endnu.','Ingen betalinger registrert på reisen ennå.','No payments registered on this trip yet.'],
+  'pay.date':    ['Dato','Dato','Date'],
+  'pay.what':    ['Hvad','Hva','What'],
+  'pay.method':  ['Betalingsmåde','Betalingsmåte','Method'],
+  'pay.payer':   ['Betaler','Betaler','Paid by'],
+  'pay.amount':  ['Beløb DKK','Beløp DKK','Amount DKK'],
+  'pay.in':      ['Indbetaling','Innbetaling','Payment in'],
+  'pay.out':     ['Udbetaling','Utbetaling','Refund out'],
+  'pay.paid':    ['Betalt i alt','Betalt totalt','Paid in total'],
+  'pay.refunded':['Refunderet','Refundert','Refunded'],
+  'pay.rest':    ['Restbeløb','Restbeløp','Outstanding'],
+  'pay.settled': ['fuldt betalt','fullt betalt','fully paid'],
+  'pay.deposit': ['Depositum','Depositum','Deposit'],
+  'pay.partial': ['Delbetaling','Delbetaling','Part payment'],
+  'pay.final':   ['Restbetaling','Restbetaling','Final payment'],
+  'pay.receipt': ['Kvittering','Kvittering','Receipt'],
+  'pay.soon':    ['Kvitteringer kan sendes herfra, når dokumentmodulet er klar.','Kvitteringer kan sendes herfra når dokumentmodulet er klart.','Receipts can be sent from here once the document module is ready.']
 };
 const LANG_IDX = {da:0, no:1, en:2};
 function t(key, fallback){
@@ -525,6 +543,8 @@ function t(key, fallback){
   return e[LANG_IDX[LANG]] || e[0];
 }
 function setLang(l){ localStorage.setItem('panda_lang', l); location.reload(); }
+/* Alias: inde i viewTrip hedder rejsen 't', så brug tx() til oversættelse der. */
+const tx = t;
 const STATUS_LABELS = new Proxy({}, { get:(o,k)=> t('st.'+String(k), String(k)) });
 const FLOW = ['bekraeftet','bb_sendt','klar_til_afrejse','god_tur','faerdig'];
 // Henvendelses-pipeline — trin kortlagt fra Pipedrive "Leads - Pipeline" (16. jul 2026)
@@ -1902,20 +1922,22 @@ async function viewTrip(id){
   navTo('sales');
   app.innerHTML = '<div class="card">Henter rejsen…</div>';
   const fail=(hvor,e)=>{app.innerHTML=`<div class="card"><b style="color:var(--bad)">Fejl (${hvor}):</b> ${e.message}<br><br><button class="btn ghost" onclick="viewSales()">← Til Salg</button></div>`;};
-  const [r1,r2,r3,r4,r5,r6,r7] = await Promise.all([
+  const [r1,r2,r3,r4,r5,r6,r7,r8] = await Promise.all([
     db.from('trips').select('*, customers(first_name,last_name,email,phone)').eq('id',id).single(),
     db.from('trip_destinations').select('destination').eq('trip_id',id).order('seq'),
     db.from('trip_travelers').select('travelers(full_name,date_of_birth)').eq('trip_id',id),
     db.from('trip_elements').select('*, suppliers:supplier_id(name)').eq('trip_id',id).order('start_date'),
     db.from('tasks').select('*').eq('trip_id',id).order('due_date'),
     db.from('suppliers').select('id,name').order('name'),
-    db.from('flight_invoices').select('*, flight_invoice_lines(*)').eq('trip_id',id).order('invoice_date',{ascending:true})
+    db.from('flight_invoices').select('*, flight_invoice_lines(*)').eq('trip_id',id).order('invoice_date',{ascending:true}),
+    db.from('payments').select('*').eq('trip_id',id).order('settled_at',{ascending:true})
   ]);
   if(r1.error) return fail('rejse', r1.error);
   if(r4.error) return fail('elementer', r4.error);
   const t=r1.data; t.trip_destinations=r2.data||[]; t.trip_travelers=r3.data||[];
   const els=r4.data; window.ELS=els||[]; const tasks=r5.data||[]; window.SUPS=r6.data||[]; window.TRIP=t;
   const FINV = (r7&&r7.data)?r7.data:[];
+  const PAYS = (r8&&r8.data)?r8.data:[];
   const nexts = FLOW[FLOW.indexOf(t.status)+1];
   app.innerHTML = `
   <div class="pagehead"><h2>${t.ref_no}</h2><span class="sub">${t.customers.last_name}, ${t.customers.first_name}</span>
@@ -1966,6 +1988,39 @@ async function viewTrip(id){
         ${showResid?row('Fly + øvrigt','ikke specificeret — afregnet via Billetkontoret', residSell>1?residSell:0, residBuy>1?residBuy:0):''}
         <tr style="border-top:2px solid var(--line);font-weight:700"><td>I alt</td><td></td><td class="r">${fmtDkkR(sell)}</td><td class="r">${fmtDkkR(buy)}</td><td class="r">${fmtDkkR(db)}</td><td class="r">${pct(db,sell)}</td></tr>
       </table>
+      ${(()=>{ /* v0.10.3: kundens betalinger — hvornår, hvad, hvordan og hvor meget */
+        const ind = PAYS.filter(p=>p.direction==='ind');
+        const ud  = PAYS.filter(p=>p.direction==='ud');
+        const sumInd = ind.reduce((s,p)=>s+ +(p.amount_dkk||0),0);
+        const sumUd  = ud.reduce((s,p)=>s+Math.abs(+p.amount_dkk||0),0);
+        const netto  = sumInd - sumUd;
+        const rest   = (+t.package_sell_dkk||0) - netto;
+        const METOD = {kort:'Kort', bankoverfoersel:'Bankoverførsel', kontant:'Kontant',
+                       gavekort:'Gavekort', ombooking:'Ombooking', check:'Check'};
+        const metod = p => (METOD[p.method]||p.method||'—') + (p.card_type?' · '+p.card_type:'');
+        /* Hvad betalingen dækker: første = depositum, sidste = restbetaling, midt = delbetaling */
+        const hvad = (p,i,arr) => p.direction==='ud' ? tx('pay.out')
+          : (arr.length===1 ? tx('pay.paid') : i===0 ? tx('pay.deposit')
+             : i===arr.length-1 && rest<=1 ? tx('pay.final') : tx('pay.partial'));
+        const rows = PAYS.slice().sort((a,b)=>(a.settled_at||a.payment_date||'').localeCompare(b.settled_at||b.payment_date||''));
+        let idx=-1;
+        return `<div style="margin:16px 0 5px;font-weight:600;color:var(--ink);font-size:12px">${tx('pay.title')}</div>
+      ${PAYS.length?`<div class="grid g4" style="margin-bottom:8px">
+        <div class="kpi"><b>${fmtDkkR(sumInd)}</b><span>${tx('pay.paid')}</span></div>
+        <div class="kpi"><b>${sumUd?fmtDkkR(sumUd):'—'}</b><span>${tx('pay.refunded')}</span></div>
+        <div class="kpi ${rest>1?'warn':''}"><b>${Math.abs(rest)<=1?'✓':fmtDkkR(rest)}</b><span>${Math.abs(rest)<=1?tx('pay.settled'):tx('pay.rest')}</span></div>
+        <div class="kpi"><b>${ind.length}</b><span>${tx('pay.in').toLowerCase()}${ind.length===1?'':'er'}</span></div>
+      </div>
+      <table style="margin-bottom:6px"><tr><th>${tx('pay.date')}</th><th>${tx('pay.what')}</th><th>${tx('pay.method')}</th><th>${tx('pay.payer')}</th><th class="r">${tx('pay.amount')}</th></tr>
+        ${rows.map(p=>{ if(p.direction==='ind') idx++; const inn=p.direction==='ind';
+          return `<tr><td>${fmtDY(p.settled_at||p.payment_date)}</td>
+          <td>${inn?hvad(p,idx,ind):tx('pay.out')}${p.customer_amount&&p.customer_currency&&p.customer_currency!=='DKK'?` <span class="mini muted">${fmtFX(p.customer_amount,p.customer_currency)}</span>`:''}</td>
+          <td>${metod(p)}</td><td class="mini">${p.payer_name||'—'}</td>
+          <td class="r" style="${inn?'':'color:var(--bad)'}">${inn?'':'-'}${fmtDkkR(Math.abs(+p.amount_dkk||0))}</td></tr>`;}).join('')}
+        <tr style="border-top:2px solid var(--line);font-weight:700"><td>${tx('pay.paid')}</td><td></td><td></td><td></td><td class="r">${fmtDkkR(netto)}</td></tr>
+      </table>
+      <div class="mini muted" style="margin-bottom:14px"><i>${tx('pay.soon')}</i></div>`
+      :`<p class="muted" style="margin-bottom:14px">${tx('pay.none')}</p>`}`;})()}
       ${(()=>{const net=FINV.reduce((s,fi)=>s+(fi.doc_type==='creditnote'?-1:1)*Math.abs(+fi.total_dkk||0),0);
         return `<div style="margin:0 0 5px;font-weight:600;color:var(--ink);font-size:12px">Fakturaer på rejsen — Billetkontoret</div>
       ${FINV.length?`<div class="finvbox">
