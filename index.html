@@ -31,6 +31,15 @@ main{flex:1;padding:26px 32px;max-width:1280px;}
 .card h3{font-size:9.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--mut);margin:0 0 12px;font-weight:700;display:flex;align-items:baseline;gap:8px;}
 .card h3 .r{margin-left:auto;font-weight:500;letter-spacing:0;text-transform:none;font-size:11px;}
 .grid{display:grid;gap:12px;}
+  .taskgrp{border-top:1px solid var(--line);padding:2px 0}
+  .taskgrp:first-of-type{border-top:none}
+  .taskgrp>summary{cursor:pointer;padding:9px 2px;display:flex;align-items:center;gap:10px;list-style:none;font-size:14px}
+  .taskgrp>summary::-webkit-details-marker{display:none}
+  .taskgrp>summary::before{content:'▸';color:var(--gold);font-size:11px;transition:transform .15s}
+  .taskgrp[open]>summary::before{transform:rotate(90deg)}
+  .taskgrp>summary .muted{margin-left:auto;font-size:12px}
+  .taskgrp .badge-due{background:#f7e7e2;color:#a4432f;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+  .taskgrp-body{padding:2px 0 8px 18px}
 .g2{grid-template-columns:1.55fr 1fr;} .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(4,1fr);} .g6{grid-template-columns:repeat(6,1fr);}
 @media(max-width:1000px){.g2,.g3,.g4,.g6{grid-template-columns:repeat(2,1fr);}}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;position:relative;}
@@ -501,7 +510,13 @@ const I18N = {
   'tasks.fin':  ['økonomiopgaver','økonomioppgaver','finance tasks'],
   'tasks.open': ['åbne i alt','åpne totalt','open in total'],
   'tasks.none': ['Ingen åbne opgaver — alt ajour.','Ingen åpne oppgaver — alt ajour.','No open tasks — all clear.'],
-  'tasks.duehd':['Til forfald','Til forfall','Due now']
+  'tasks.duehd':['Til forfald','Til forfall','Due now'],
+  'tasks.overdue':['Overskredet','Oversittet','Overdue'],
+  'tasks.today':  ['I dag','I dag','Today'],
+  'tasks.week':   ['Denne uge','Denne uken','This week'],
+  'tasks.nothing_due':['Ingen opgaver til forfald — alt ajour.','Ingen oppgaver til forfall — alt ajour.','Nothing due — all clear.'],
+  'tasks.by_type':['Opgaver pr. type','Oppgaver pr. type','Tasks by type'],
+  'tasks.openshort':['åbne','åpne','open']
 };
 const LANG_IDX = {da:0, no:1, en:2};
 function t(key, fallback){
@@ -1223,25 +1238,54 @@ const TASK_TYPE_LABELS = new Proxy({}, { get:(o,k)=> t('tt.'+String(k), String(k
 async function viewTasks(){
   navTo('tasks');
   app.innerHTML = '<div class="pagehead"><h2>'+t('tasks.title')+'</h2></div><div class="card">'+t('g.loading')+'</div>';
-  const tasks = await db.from('tasks').select('*, trips(ref_no)').eq('status','aaben').order('due_date').then(r=>r.data||[]);
-  const t0 = today();
-  const due = tasks.filter(k=>k.due_date && k.due_date<=t0);
+  const tasks = await db.from('tasks').select('*, trips(ref_no, departure_date, status)').eq('status','aaben').order('due_date').then(r=>r.data||[]);
+  const t0 = today(), t7 = plusDays(7);
+  const overdue = tasks.filter(k=>k.due_date && k.due_date < t0);
+  const todayT  = tasks.filter(k=>k.due_date === t0);
+  const week    = tasks.filter(k=>k.due_date && k.due_date > t0 && k.due_date <= t7);
+  const dueNow  = overdue.concat(todayT);
   const salg = tasks.filter(k=>SALES_TASKS.includes(k.task_type));
-  const oko = tasks.filter(k=>FIN_TASKS.includes(k.task_type));
-  const types = [...new Set(tasks.map(k=>k.task_type))];
+  const oko  = tasks.filter(k=>FIN_TASKS.includes(k.task_type));
+
+  /* Foldbar sektion pr. opgavetype. Kun typer med forfaldne opgaver er åbne fra start,
+     så siden viser det man skal handle på nu — resten ligger klar et klik væk. */
+  const typeBlock = (ty) => {
+    const rows = tasks.filter(k=>k.task_type===ty);
+    if(!rows.length) return '';
+    const nDue = rows.filter(k=>k.due_date && k.due_date<=t0).length;
+    const sorted = rows.slice().sort((a,b)=>(a.due_date||'9999').localeCompare(b.due_date||'9999'));
+    return `<details class="taskgrp" ${nDue?'open':''}>
+      <summary><b>${TASK_TYPE_LABELS[ty]||ty}</b>
+        ${nDue?`<span class="badge-due">${nDue} ${t('tasks.due')}</span>`:''}
+        <span class="muted">${rows.length} ${t('tasks.openshort')}</span></summary>
+      <div class="taskgrp-body">${sorted.map(k=>taskLine(k,'viewTasks')).join('')}</div>
+    </details>`;
+  };
+  const types = [...new Set(tasks.map(k=>k.task_type))]
+    .sort((a,b)=> tasks.filter(k=>k.task_type===b && k.due_date && k.due_date<=t0).length
+                - tasks.filter(k=>k.task_type===a && k.due_date && k.due_date<=t0).length);
+
   app.innerHTML = `
   <div class="pagehead"><h2>${t('tasks.title')}</h2><span class="sub">${t('tasks.sub')}</span></div>
-  <div class="grid g4" style="margin-bottom:12px">
-    <div class="kpi ${due.length?'warn':''}"><b>${due.length}</b><span>${t('tasks.due')}</span></div>
+  <div class="grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:12px">
+    <div class="kpi ${overdue.length?'warn':''}"><b>${overdue.length}</b><span>${t('tasks.overdue')}</span></div>
+    <div class="kpi ${todayT.length?'warn':''}"><b>${todayT.length}</b><span>${t('tasks.today')}</span></div>
+    <div class="kpi"><b>${week.length}</b><span>${t('tasks.week')}</span></div>
     <div class="kpi"><b>${salg.length}</b><span>${t('tasks.sales')}</span></div>
     <div class="kpi"><b>${oko.length}</b><span>${t('tasks.fin')}</span></div>
-    <div class="kpi"><b>${tasks.length}</b><span>${t('tasks.open')}</span></div>
   </div>
-  ${due.length?`<div class="card" style="margin-bottom:12px"><h3 style="color:var(--bad)">${t('tasks.duehd')}</h3>${due.map(k=>taskLine(k,'viewTasks')).join('')}</div>`:''}
-  <div class="grid g2">
-    ${types.map(ty=>{const rows=tasks.filter(k=>k.task_type===ty && !(k.due_date&&k.due_date<=t0));
-      return rows.length?`<div class="card"><h3>${TASK_TYPE_LABELS[ty]||ty} <span class="r muted">${rows.length}</span></h3>${rows.map(k=>taskLine(k,'viewTasks')).join('')}</div>`:'';}).join('')
-    || (due.length?'':'<div class="card"><p class="muted">'+t('tasks.none')+'</p></div>')}
+
+  <div class="card" style="margin-bottom:12px">
+    <h3>${t('tasks.duehd')} ${dueNow.length?`<span class="r" style="color:var(--bad)">${dueNow.length}</span>`:''}</h3>
+    ${dueNow.length
+      ? (overdue.length?`<p class="subhead" style="color:var(--bad)">${t('tasks.overdue')} · ${overdue.length}</p>`+overdue.map(k=>taskLine(k,'viewTasks')).join(''):'')
+        +(todayT.length?`<p class="subhead">${t('tasks.today')} · ${todayT.length}</p>`+todayT.map(k=>taskLine(k,'viewTasks')).join(''):'')
+      : `<p class="muted">${t('tasks.nothing_due')}</p>`}
+  </div>
+
+  <div class="card">
+    <h3>${t('tasks.by_type')} <span class="r muted">${tasks.length} ${t('tasks.openshort')}</span></h3>
+    ${types.length ? types.map(typeBlock).join('') : `<p class="muted">${t('tasks.none')}</p>`}
   </div>`;
 }
 
