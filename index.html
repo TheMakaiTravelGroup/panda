@@ -919,7 +919,10 @@ async function viewDash(){
   const depWeek = act.filter(t=>t.departure_date>t0&&t.departure_date<=t7);
   const depPrev = act.filter(t=>t.departure_date>=tm7&&t.departure_date<t0);
   const outNow = act.filter(t=>t.departure_date<=t0&&(t.return_date||t.departure_date)>=t0&&t.status!=='faerdig');
-  const homeSoon = act.filter(t=>t.return_date&&t.return_date>=t0&&t.return_date<=t1&&t.departure_date<=t0);
+  /* v0.10.1: vinduet udvides til +2 dage, fordi hjemrejsen kan starte dagen før hjemkomsten
+     (fx udtjekning + seaplane i dag, landing hjemme i morgen). */
+  const t2 = plusDays(2);
+  const homeSoon = act.filter(t=>t.return_date&&t.return_date>=t0&&t.return_date<=t2&&t.departure_date<=t0);
   const tasksDue = rk.filter(k=>k.due_date&&k.due_date<=t0);
   const restTasks = rk.filter(k=>k.task_type==='restbetaling');
   // Betalingsvagt: kun overskredne betalinger — kunder + leverandører
@@ -979,22 +982,33 @@ async function viewDash(){
 
   // ── v0.8 dashboard-oprydning ──
   const daysUntil = d => Math.round((new Date(d)-new Date(t0))/86400000);
-  // Hjemrejser delt i dag/i morgen
-  const homeToday = homeSoon.filter(t=>t.return_date===t0);
-  const homeTomorrow = homeSoon.filter(t=>t.return_date===t1);
-  // Returfly (flyselskab + klasse) til hjemrejse-boksen — hentes kun for de relevante rejser
-  const homeIds = [...new Set([...homeToday,...homeTomorrow].map(t=>t.id))];
-  let flightsByTrip = {};
+  /* v0.10.1: «rejser hjem» = dagen gæsterne forlader destinationen (sidste udtjekning
+     eller sidste transfer). «lander hjemme» = rejsens returdato. På langdistancerejser
+     er det to forskellige dage, og det er afrejsedagen teamet skal handle på. */
+  const homeIds = [...new Set(homeSoon.map(t=>t.id))];
+  let flightsByTrip = {}, lastServiceDay = {};
   if(homeIds.length){
-    const fe = await db.from('trip_elements').select('trip_id,details,start_date').eq('element_type','flight').in('trip_id',homeIds).then(r=>r.data||[]);
-    // Returflyet = flyelementet med den seneste afgangsdato
-    fe.forEach(e=>{ const c=flightsByTrip[e.trip_id]; if(!c || (e.start_date||'')>(c.start_date||'')) flightsByTrip[e.trip_id]=e; });
+    const fe = await db.from('trip_elements').select('trip_id,element_type,details,start_date,end_date').in('trip_id',homeIds).then(r=>r.data||[]);
+    fe.forEach(e=>{
+      if(e.element_type==='flight'){
+        const c=flightsByTrip[e.trip_id]; if(!c || (e.start_date||'')>(c.start_date||'')) flightsByTrip[e.trip_id]=e;
+      }
+      // seneste dato hvor gæsten stadig er på destinationen
+      if(e.element_type==='hotel' || e.element_type==='transfer'){
+        const d = e.end_date || e.start_date; if(!d) return;
+        if(!lastServiceDay[e.trip_id] || d>lastServiceDay[e.trip_id]) lastServiceDay[e.trip_id]=d;
+      }
+    });
   }
+  const leaveDay = t => lastServiceDay[t.id] || t.return_date;
+  const homeToday    = homeSoon.filter(t=>leaveDay(t)===t0);                       // forlader destinationen i dag
+  const homeTomorrow = homeSoon.filter(t=>leaveDay(t)===t1);                       // forlader destinationen i morgen
+  const landedToday  = homeSoon.filter(t=>t.return_date===t0 && leaveDay(t)!==t0); // lander hjemme i dag, rejste i går
   const flyLabel = t => { const f=flightsByTrip[t.id], fd=(f&&f.details)||{}; return [fd.airline,fd.class].filter(Boolean).join(' · '); };
   const homeRow = t => { const fly=flyLabel(t);
     return `<div class="list-item" onclick="viewTrip('${t.id}')"><span class="ic">◆</span>
     <span><b style="color:var(--forest)">${t.customers.last_name}, ${t.customers.first_name}</b> <span class="muted">${t.ref_no} · ${t.trip_destinations.map(d=>d.destination).join(' + ')} · ${t.pax_count} pax</span>${fly?`<br><span class="flymeta">✈ ${fly}</span>`:''}</span>
-    <span class="when">hjem ${fmtD(t.return_date)}</span></div>`; };
+    <span class="when">${leaveDay(t)!==t.return_date?`ud ${fmtD(leaveDay(t))} → hjemme ${fmtD(t.return_date)}`:`hjem ${fmtD(t.return_date)}`}</span></div>`; };
   // Dagens opgaver: kun forfaldne manuelle opgaver + påmindelser om kommende restbetalinger + foldbar kommende-liste
   const dueTasksList = rk.filter(k=>k.due_date&&k.due_date<=t0&&k.task_type!=='restbetaling').sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||''));
   const upcomingTasksList = rk.filter(k=>k.due_date&&k.due_date>t0&&k.task_type!=='restbetaling').sort((a,b)=>(a.due_date||'').localeCompare(b.due_date||''));
@@ -1104,10 +1118,11 @@ async function viewDash(){
   </div>
 
   <div class="card" style="margin-bottom:12px"><h3>På vej hjem</h3>
-    <p class="subhead">Hjem i dag${homeToday.length?` · ${homeToday.length}`:''}</p>
-    ${homeToday.length?groupNat(homeToday,homeRow):'<p class="muted">Ingen hjemrejser i dag.</p>'}
-    <p class="subhead">Hjem i morgen${homeTomorrow.length?` · ${homeTomorrow.length}`:''}</p>
-    ${homeTomorrow.length?groupNat(homeTomorrow,homeRow):'<p class="muted">Ingen hjemrejser i morgen.</p>'}
+    <p class="subhead">Rejser hjem i dag${homeToday.length?` · ${homeToday.length}`:''}</p>
+    ${homeToday.length?groupNat(homeToday,homeRow):'<p class="muted">Ingen der rejser hjem i dag.</p>'}
+    ${landedToday.length?`<p class="subhead">Lander hjemme i dag · ${landedToday.length}</p>${groupNat(landedToday,homeRow)}`:''}
+    <p class="subhead">Rejser hjem i morgen${homeTomorrow.length?` · ${homeTomorrow.length}`:''}</p>
+    ${homeTomorrow.length?groupNat(homeTomorrow,homeRow):'<p class="muted">Ingen der rejser hjem i morgen.</p>'}
   </div>
 
   <div class="grid g2">
