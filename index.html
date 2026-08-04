@@ -385,15 +385,15 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 <aside id="sidebar" style="display:none">
   <div class="logo"><h1>MALDIVIA</h1><small>Travel Design · OS</small></div>
   <nav id="nav">
-    <button data-v="dash" class="on">Dashboard</button>
-    <button data-v="leads">Henvendelser</button>
-    <button data-v="sales">Salg</button>
-    <button data-v="finance">Økonomi</button>
-    <button data-v="tasks">Opgaver</button>
-    <button data-v="marketing">Markedsføring</button>
-    <button data-v="reports">Rapporter</button>
-    <button data-v="users" style="display:none">Brugere</button>
-    <button data-v="new">＋ Ny rejse</button>
+    <button data-v="dash" class="on" data-i18n="nav.dash">Dashboard</button>
+    <button data-v="leads" data-i18n="nav.leads">Henvendelser</button>
+    <button data-v="sales" data-i18n="nav.sales">Salg</button>
+    <button data-v="finance" data-i18n="nav.finance">Økonomi</button>
+    <button data-v="tasks" data-i18n="nav.tasks">Opgaver</button>
+    <button data-v="marketing" data-i18n="nav.marketing">Markedsføring</button>
+    <button data-v="reports" data-i18n="nav.reports">Rapporter</button>
+    <button data-v="users" style="display:none" data-i18n="nav.users">Brugere</button>
+    <button data-v="new" data-i18n="nav.new">＋ Ny rejse</button>
   </nav>
   <div class="foot" id="who"></div>
 </aside>
@@ -405,17 +405,118 @@ const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 const $ = s => document.querySelector(s);
 const app = $('#app');
-const STATUS_LABELS = {bekraeftet:'Bekræftet', bb_sendt:'BB sendt', klar_til_afrejse:'Klar til afrejse', god_tur:'God tur', faerdig:'Færdig', canx:'Afbestilt', voided:'Void'};
+/* ═══ v0.10: sprog (da / no / en) ═══
+   Nøgler er stabile; kun teksten oversættes. Databaseværdier (status-koder,
+   opgavetyper osv.) ændres ALDRIG — kun det brugeren læser. */
+const LANGS = [['da','Dansk'],['no','Norsk'],['en','English']];
+let LANG = (localStorage.getItem('panda_lang') || 'da');
+if(!LANGS.some(l=>l[0]===LANG)) LANG='da';
+const I18N = {
+  // navigation
+  'nav.dash':       ['Dashboard','Dashboard','Dashboard'],
+  'nav.leads':      ['Henvendelser','Henvendelser','Enquiries'],
+  'nav.sales':      ['Salg','Salg','Sales'],
+  'nav.finance':    ['Økonomi','Økonomi','Finance'],
+  'nav.tasks':      ['Opgaver','Oppgaver','Tasks'],
+  'nav.marketing':  ['Markedsføring','Markedsføring','Marketing'],
+  'nav.reports':    ['Rapporter','Rapporter','Reports'],
+  'nav.users':      ['Brugere','Brukere','Users'],
+  'nav.new':        ['＋ Ny rejse','＋ Ny reise','＋ New trip'],
+  // rejsestatus
+  'st.bekraeftet':      ['Bekræftet','Bekreftet','Confirmed'],
+  'st.bb_sendt':        ['BB sendt','BB sendt','Confirmation sent'],
+  'st.klar_til_afrejse':['Klar til afrejse','Klar til avreise','Ready to travel'],
+  'st.god_tur':         ['God tur','God tur','Travelling now'],
+  'st.faerdig':         ['Færdig','Ferdig','Completed'],
+  'st.canx':            ['Afbestilt','Avbestilt','Cancelled'],
+  'st.voided':          ['Void','Void','Void'],
+  // ydelsestyper
+  'el.flight':   ['Fly','Fly','Flight'],
+  'el.ticket':   ['Billet','Billett','Ticket'],
+  'el.hotel':    ['Hotel','Hotell','Hotel'],
+  'el.transfer': ['Transfer','Transfer','Transfer'],
+  'el.other':    ['Andet','Annet','Other'],
+  'el.fee':      ['Gebyr','Gebyr','Fee'],
+  'el.insurance':['Forsikring','Forsikring','Insurance'],
+  // opgavetyper
+  'tt.tjek_rejse':        ['Tjek rejse','Sjekk reise','Check trip'],
+  'tt.pre_departure':     ['Pre-departure','Pre-departure','Pre-departure'],
+  'tt.god_tur':           ['God tur','God tur','Bon voyage'],
+  'tt.hjemkomst':         ['Hjemkomst','Hjemkomst','Welcome home'],
+  'tt.retrieval':         ['Retrieval','Retrieval','Retrieval'],
+  'tt.restbetaling':      ['Restbetaling','Restbetaling','Final payment'],
+  'tt.leverandoerbetaling':['Leverandørbetaling','Leverandørbetaling','Supplier payment'],
+  'tt.kreditvarsel':      ['Kreditvarsel','Kredittvarsel','Credit alert'],
+  'tt.dok_sync':          ['Dokument-sync','Dokument-synk','Document sync'],
+  // henvendelses-trin
+  'ls.new_lead':    ['Ny henvendelse','Ny henvendelse','New enquiry'],
+  'ls.send_email':  ['Send e-mail','Send e-post','Send email'],
+  'ls.make_offer':  ['Lav tilbud','Lag tilbud','Build quote'],
+  'ls.to_be_sent':  ['Klar til afsendelse','Klar til sending','Ready to send'],
+  'ls.offer_sent':  ['Tilbud sendt + SMS','Tilbud sendt + SMS','Quote sent + SMS'],
+  'ls.followed_up': ['Fulgt op','Fulgt opp','Followed up'],
+  'ls.thinking':    ['Tænker på det','Tenker på det','Considering'],
+  'ls.negotiation': ['Flere tilbud / forhandling','Flere tilbud / forhandling','More quotes / negotiating'],
+  'ls.confirmed':   ['Vundet (bekræftet)','Vunnet (bekreftet)','Won (confirmed)'],
+  // generelt
+  'g.logout':    ['Log ud','Logg ut','Log out'],
+  'g.changepw':  ['Skift kodeord','Bytt passord','Change password'],
+  'g.language':  ['Sprog','Språk','Language'],
+  'g.loading':   ['Henter…','Henter…','Loading…'],
+  'g.noaccess':  ['Ingen adgang','Ingen tilgang','No access'],
+  'g.noaccess_txt':['Din brugerprofil har ikke adgang til denne side. En admin kan give adgang under Brugere.',
+                    'Brukerprofilen din har ikke tilgang til denne siden. En admin kan gi tilgang under Brukere.',
+                    'Your user profile does not have access to this page. An admin can grant access under Users.'],
+  'g.search_trip':['Søg navn eller ref.nr. …','Søk navn eller ref.nr. …','Search name or reference…'],
+  // Salg
+  'sales.title':   ['Salg','Salg','Sales'],
+  'sales.sub':     ['rejser & processen efter salg','reiser & prosessen etter salg','trips & the after-sales process'],
+  'sales.all':     ['Alle rejser','Alle reiser','All trips'],
+  'sales.upcoming':['Kommende','Kommende','Upcoming'],
+  'sales.every':   ['Alle','Alle','All'],
+  'sales.done':    ['Gennemført','Gjennomført','Completed'],
+  'sales.canx':    ['Afbestilt','Avbestilt','Cancelled'],
+  'sales.trips':   ['rejser','reiser','trips'],
+  'sales.revenue': ['omsætning DKK','omsetning DKK','revenue DKK'],
+  'sales.pax':     ['pax','pax','guests'],
+  'sales.dep':     ['kommende afrejser','kommende avreiser','upcoming departures'],
+  'sales.out':     ['ude nu','ute nå','travelling now'],
+  'sales.compl':   ['gennemført','gjennomført','completed'],
+  'sales.canc':    ['afbestilt','avbestilt','cancelled'],
+  'sales.nomatch': ['Ingen rejser matcher.','Ingen reiser matcher.','No trips match.'],
+  'sales.year':    ['Afrejseår','Avreiseår','Departure year'],
+  // tabelhoveder
+  'th.ref':   ['Ref','Ref','Ref'],
+  'th.cust':  ['Kunde','Kunde','Customer'],
+  'th.dest':  ['Destination','Destinasjon','Destination'],
+  'th.dep':   ['Afrejse','Avreise','Departure'],
+  'th.pax':   ['Pax','Pax','Guests'],
+  'th.sell':  ['Salg DKK','Salg DKK','Sales DKK'],
+  'th.status':['Status','Status','Status'],
+  // Opgaver
+  'tasks.title':['Opgaver','Oppgaver','Tasks'],
+  'tasks.sub':  ['alle åbne opgaver — salg, økonomi & drift','alle åpne oppgaver — salg, økonomi & drift','all open tasks — sales, finance & operations'],
+  'tasks.due':  ['til forfald','til forfall','due now'],
+  'tasks.sales':['salgsopgaver','salgsoppgaver','sales tasks'],
+  'tasks.fin':  ['økonomiopgaver','økonomioppgaver','finance tasks'],
+  'tasks.open': ['åbne i alt','åpne totalt','open in total'],
+  'tasks.none': ['Ingen åbne opgaver — alt ajour.','Ingen åpne oppgaver — alt ajour.','No open tasks — all clear.'],
+  'tasks.duehd':['Til forfald','Til forfall','Due now']
+};
+const LANG_IDX = {da:0, no:1, en:2};
+function t(key, fallback){
+  const e = I18N[key];
+  if(!e) return fallback!==undefined ? fallback : key;
+  return e[LANG_IDX[LANG]] || e[0];
+}
+function setLang(l){ localStorage.setItem('panda_lang', l); location.reload(); }
+const STATUS_LABELS = new Proxy({}, { get:(o,k)=> t('st.'+String(k), String(k)) });
 const FLOW = ['bekraeftet','bb_sendt','klar_til_afrejse','god_tur','faerdig'];
 // Henvendelses-pipeline — trin kortlagt fra Pipedrive "Leads - Pipeline" (16. jul 2026)
-const LEAD_STAGES = [
-  ['new_lead','Ny henvendelse'],['send_email','Send e-mail'],['make_offer','Lav tilbud'],
-  ['to_be_sent','Klar til afsendelse'],['offer_sent','Tilbud sendt + SMS'],['followed_up','Fulgt op'],
-  ['thinking','Tænker på det'],['negotiation','Flere tilbud / forhandling'],['confirmed','Vundet (bekræftet)']
-];
+const LEAD_STAGES = ['new_lead','send_email','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation','confirmed'].map(k=>[k, t('ls.'+k)]);
 const LEAD_STAGE_LABEL = Object.fromEntries(LEAD_STAGES);
 const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url';
-const EL_TYPES = {flight:'Fly', ticket:'Billet', hotel:'Hotel', transfer:'Transfer', other:'Andet', fee:'Gebyr', insurance:'Forsikring'};
+const EL_TYPES = new Proxy({}, { get:(o,k)=> t('el.'+String(k), String(k)) });
 const SALES_TASKS = ['tjek_rejse','pre_departure','god_tur','hjemkomst','retrieval'];
 const FIN_TASKS = ['restbetaling','leverandoerbetaling','kreditvarsel','dok_sync'];
 const FIELD_DEFS = {
@@ -695,7 +796,7 @@ async function showApp(){
   if(!tm || tm.active===false){
     window.ME=null; window.PERMS={};
     document.querySelectorAll('#nav button').forEach(b=>b.style.display='none');
-    $('#who').innerHTML = email + '<br><a href="#" onclick="db.auth.signOut();return false">Log ud</a>';
+    $('#who').innerHTML = email + '<br><a href="#" onclick="db.auth.signOut();return false">'+t('g.logout')+'</a>' + langPicker();
     app.innerHTML = '<div class="card"><h3>Ingen adgang</h3><p class="muted">Din bruger ('+email+') er ikke aktiv i systemet. Kontakt Wendie eller Rasmus.</p></div>';
     return;
   }
@@ -704,7 +805,8 @@ async function showApp(){
   // Effektive rettigheder = rolle-standarder + individuelle undtagelser (spejler public.my_permissions() i databasen)
   window.PERMS = Object.assign({economy:false,finance:false,reports:true,leads:true,manage_users:false}, (roleDef&&roleDef.permissions)||{}, tm.permission_overrides||{});
   applyNavPerms();
-  $('#who').innerHTML = tm.name + (roleDef?' <span class="muted">· '+roleDef.label+'</span>':'') + '<br><a href="#" onclick="changePassword();return false">Skift kodeord</a> · <a href="#" onclick="db.auth.signOut();return false">Log ud</a>';
+  $('#who').innerHTML = tm.name + (roleDef?' <span class="muted">· '+roleDef.label+'</span>':'') + '<br><a href="#" onclick="changePassword();return false">'+t('g.changepw')+'</a> · <a href="#" onclick="db.auth.signOut();return false">'+t('g.logout')+'</a>' + langPicker();
+  applyI18n();
   viewDash();
   setupRealtime();
   if(window.__recovery){ window.__recovery=false; setTimeout(changePassword, 500); }
@@ -714,9 +816,19 @@ function applyNavPerms(){
   const vis = {leads:hasPerm('leads'), finance:hasPerm('finance'), reports:hasPerm('reports'), users:hasPerm('manage_users')};
   document.querySelectorAll('#nav button').forEach(b=>{ if(b.dataset.v in vis) b.style.display = vis[b.dataset.v]?'':'none'; });
 }
-function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>Ingen adgang</h3><p class="muted">Din brugerprofil har ikke adgang til denne side. En admin kan give adgang under Brugere.</p></div>'; }
+function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>'+t('g.noaccess')+'</h3><p class="muted">'+t('g.noaccess_txt')+'</p></div>'; }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew})[b.dataset.v]();});
 function navTo(v){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));}
+/* v0.10: oversæt statiske elementer og tegn sprogvælgeren */
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n, el.textContent); });
+  document.documentElement.lang = LANG;
+}
+function langPicker(){
+  return '<div class="langpick" style="margin-top:10px;font-size:11px">'+
+    LANGS.map(([c,n])=>`<a href="#" onclick="setLang('${c}');return false" style="${c===LANG?'font-weight:700;text-decoration:none':'opacity:.65'}">${n}</a>`).join(' · ')+
+    '</div>';
+}
 // ── v0.9: live auto-opdatering via Supabase Realtime ──
 window.__view='dash';
 let __rtChan=null,__rtTimer=null,__dashStale=false;
@@ -1023,19 +1135,19 @@ async function viewDash(){
 // ═══ SALG ═══
 async function viewSales(){
   navTo('sales');
-  app.innerHTML = '<div class="pagehead"><h2>Salg</h2></div><div class="card">Henter…</div>';
+  app.innerHTML = '<div class="pagehead"><h2>'+t('sales.title')+'</h2></div><div class="card">'+t('g.loading')+'</div>';
   const trips = await fetchTrips();   /* v0.9.5: opgaver bor nu på egen side */
   window._trips = trips;
   const t0 = today();
   app.innerHTML = `
-  <div class="pagehead"><h2>Salg</h2><span class="sub">rejser & processen efter salg</span>
-    <span style="margin-left:auto"><button class="btn gold" onclick="viewNew()">＋ Ny rejse</button></span></div>
+  <div class="pagehead"><h2>${t('sales.title')}</h2><span class="sub">${t('sales.sub')}</span>
+    <span style="margin-left:auto"><button class="btn gold" onclick="viewNew()">${t('nav.new')}</button></span></div>
   <div class="grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:12px" id="salgkpi"></div>
-  <div class="card"><h3>Alle rejser <span class="seg" id="statusseg">
-      <button data-f="upcoming" class="on">Kommende</button><button data-f="all">Alle</button><button data-f="done">Gennemført</button><button data-f="canx">Afbestilt</button></span></h3>
+  <div class="card"><h3>${t('sales.all')} <span class="seg" id="statusseg">
+      <button data-f="upcoming" class="on">${t('sales.upcoming')}</button><button data-f="all">${t('sales.every')}</button><button data-f="done">${t('sales.done')}</button><button data-f="canx">${t('sales.canx')}</button></span></h3>
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-        <select id="yearsel" title="Afrejseår"></select>
-        <input id="q" placeholder="Søg navn eller ref.nr. …" style="max-width:300px">
+        <select id="yearsel" title="${t('sales.year')}"></select>
+        <input id="q" placeholder="${t('g.search_trip')}" style="max-width:300px">
       </div>
       <div id="triplist"></div></div>`;
   /* v0.9.4: afrejseår vælges i dropdown; indeværende år er standard */
@@ -1057,14 +1169,14 @@ async function viewSales(){
     const yt = trips.filter(t=>t.departure_date.slice(0,4)===yr);
     const ya = yt.filter(active);
     const base = `
-      <div class="kpi"><b>${ya.length}</b><span>rejser ${yr}</span></div>
-      <div class="kpi"><b>${kr(ya.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0))}</b><span>omsætning DKK ${yr}</span></div>
-      <div class="kpi"><b>${kr(ya.reduce((s,t)=>s+ +(t.pax_count||0),0))}</b><span>pax ${yr}</span></div>`;
+      <div class="kpi"><b>${ya.length}</b><span>${t('sales.trips')} ${yr}</span></div>
+      <div class="kpi"><b>${kr(ya.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0))}</b><span>${t('sales.revenue')} ${yr}</span></div>
+      <div class="kpi"><b>${kr(ya.reduce((s,t)=>s+ +(t.pax_count||0),0))}</b><span>${t('sales.pax')} ${yr}</span></div>`;
     $('#salgkpi').innerHTML = base + (yr===curYear ? `
-      <div class="kpi"><b>${trips.filter(t=>active(t)&&t.departure_date>=t0).length}</b><span>kommende afrejser</span></div>
-      <div class="kpi"><b>${trips.filter(t=>t.status==='god_tur').length}</b><span>ude nu</span></div>` : `
-      <div class="kpi"><b>${yt.filter(t=>t.status==='faerdig').length}</b><span>gennemført</span></div>
-      <div class="kpi"><b>${yt.filter(t=>t.status==='canx').length}</b><span>afbestilt</span></div>`);
+      <div class="kpi"><b>${trips.filter(t=>active(t)&&t.departure_date>=t0).length}</b><span>${t('sales.dep')}</span></div>
+      <div class="kpi"><b>${trips.filter(t=>t.status==='god_tur').length}</b><span>${t('sales.out')}</span></div>` : `
+      <div class="kpi"><b>${yt.filter(t=>t.status==='faerdig').length}</b><span>${t('sales.compl')}</span></div>
+      <div class="kpi"><b>${yt.filter(t=>t.status==='canx').length}</b><span>${t('sales.canc')}</span></div>`);
   };
   const draw = () => {
     const q = ($('#q').value||'').toLowerCase();
@@ -1076,13 +1188,13 @@ async function viewSales(){
     if(!q) rows = rows.filter(t=>t.departure_date.slice(0,4)===yr);
     rows = rows.filter(t=>!q||(t.ref_no+' '+t.customers.first_name+' '+t.customers.last_name).toLowerCase().includes(q));
     rows.sort((a,b)=>a.departure_date.localeCompare(b.departure_date));
-    $('#triplist').innerHTML = `<table><tr><th>Ref</th><th>Kunde</th><th>Destination</th><th>Afrejse</th><th class="r">Pax</th><th class="r">Salg DKK</th><th>Status</th></tr>`+
+    $('#triplist').innerHTML = `<table><tr><th>${t('th.ref')}</th><th>${t('th.cust')}</th><th>${t('th.dest')}</th><th>${t('th.dep')}</th><th class="r">${t('th.pax')}</th><th class="r">${t('th.sell')}</th><th>${t('th.status')}</th></tr>`+
       rows.map(t=>`<tr class="click" onclick="viewTrip('${t.id}')"><td><b>${t.ref_no}</b></td>
         <td>${t.customers.last_name}, ${t.customers.first_name}</td>
         <td>${t.trip_destinations.map(d=>d.destination).join(' + ')}</td>
         <td>${fmtDY(t.departure_date)}</td><td class="r">${t.pax_count}</td>
         <td class="r">${t.package_sell_dkk?Math.round(t.package_sell_dkk).toLocaleString('da-DK'):'—'}</td>
-        <td><span class="badge ${t.status}">${STATUS_LABELS[t.status]}</span></td></tr>`).join('')+'</table>'+(rows.length?'':'<p class="muted">Ingen rejser matcher.</p>');
+        <td><span class="badge ${t.status}">${STATUS_LABELS[t.status]}</span></td></tr>`).join('')+'</table>'+(rows.length?'':'<p class="muted">'+t('sales.nomatch')+'</p>');
   };
   document.querySelectorAll('#statusseg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#statusseg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');f=b.dataset.f;
     if(f==='upcoming'&&yr<curYear){yr=curYear;drawYears();drawKpis();}
@@ -1092,10 +1204,10 @@ async function viewSales(){
 }
 
 // ═══ OPGAVER (v0.9.5: samlet opgaveside) ═══
-const TASK_TYPE_LABELS = {tjek_rejse:'Tjek rejse', pre_departure:'Pre-departure', god_tur:'God tur', hjemkomst:'Hjemkomst', retrieval:'Retrieval', restbetaling:'Restbetaling', leverandoerbetaling:'Leverandørbetaling', kreditvarsel:'Kreditvarsel', dok_sync:'Dokument-sync'};
+const TASK_TYPE_LABELS = new Proxy({}, { get:(o,k)=> t('tt.'+String(k), String(k)) });
 async function viewTasks(){
   navTo('tasks');
-  app.innerHTML = '<div class="pagehead"><h2>Opgaver</h2></div><div class="card">Henter…</div>';
+  app.innerHTML = '<div class="pagehead"><h2>'+t('tasks.title')+'</h2></div><div class="card">'+t('g.loading')+'</div>';
   const tasks = await db.from('tasks').select('*, trips(ref_no)').eq('status','aaben').order('due_date').then(r=>r.data||[]);
   const t0 = today();
   const due = tasks.filter(k=>k.due_date && k.due_date<=t0);
@@ -1103,18 +1215,18 @@ async function viewTasks(){
   const oko = tasks.filter(k=>FIN_TASKS.includes(k.task_type));
   const types = [...new Set(tasks.map(k=>k.task_type))];
   app.innerHTML = `
-  <div class="pagehead"><h2>Opgaver</h2><span class="sub">alle åbne opgaver — salg, økonomi & drift</span></div>
+  <div class="pagehead"><h2>${t('tasks.title')}</h2><span class="sub">${t('tasks.sub')}</span></div>
   <div class="grid g4" style="margin-bottom:12px">
-    <div class="kpi ${due.length?'warn':''}"><b>${due.length}</b><span>til forfald</span></div>
-    <div class="kpi"><b>${salg.length}</b><span>salgsopgaver</span></div>
-    <div class="kpi"><b>${oko.length}</b><span>økonomiopgaver</span></div>
-    <div class="kpi"><b>${tasks.length}</b><span>åbne i alt</span></div>
+    <div class="kpi ${due.length?'warn':''}"><b>${due.length}</b><span>${t('tasks.due')}</span></div>
+    <div class="kpi"><b>${salg.length}</b><span>${t('tasks.sales')}</span></div>
+    <div class="kpi"><b>${oko.length}</b><span>${t('tasks.fin')}</span></div>
+    <div class="kpi"><b>${tasks.length}</b><span>${t('tasks.open')}</span></div>
   </div>
-  ${due.length?`<div class="card" style="margin-bottom:12px"><h3 style="color:var(--bad)">Til forfald</h3>${due.map(k=>taskLine(k,'viewTasks')).join('')}</div>`:''}
+  ${due.length?`<div class="card" style="margin-bottom:12px"><h3 style="color:var(--bad)">${t('tasks.duehd')}</h3>${due.map(k=>taskLine(k,'viewTasks')).join('')}</div>`:''}
   <div class="grid g2">
     ${types.map(ty=>{const rows=tasks.filter(k=>k.task_type===ty && !(k.due_date&&k.due_date<=t0));
       return rows.length?`<div class="card"><h3>${TASK_TYPE_LABELS[ty]||ty} <span class="r muted">${rows.length}</span></h3>${rows.map(k=>taskLine(k,'viewTasks')).join('')}</div>`:'';}).join('')
-    || (due.length?'':'<div class="card"><p class="muted">Ingen åbne opgaver — alt ajour.</p></div>')}
+    || (due.length?'':'<div class="card"><p class="muted">'+t('tasks.none')+'</p></div>')}
   </div>`;
 }
 
