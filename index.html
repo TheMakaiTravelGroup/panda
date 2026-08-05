@@ -1020,7 +1020,7 @@ function setupRealtime(){
 async function fetchTrips(){
   /* v0.9.3: paginering — Supabase returnerer max 1000 rækker pr. kald, og efter
      Dolphin-importen af historiske rejser er der langt flere. */
-  const COLS='id, ref_no, branch, status, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, customers(first_name,last_name), trip_destinations(destination)';
+  const COLS='id, ref_no, branch, status, customer_id, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, customers(first_name,last_name), trip_destinations(destination)';
   let all=[], from=0;
   while(true){
     const { data } = await db.from('trips').select(COLS).not('status','in','("voided")').order('departure_date').range(from, from+999);
@@ -1666,7 +1666,7 @@ async function viewMarketing(){
 // {columns:[{key,label,type}], rows:[{...}], footer?:{...}} — samme format kan
 // senere fyldes af en fri rapportbygger, og genbruger eksportørerne nedenfor.
 // type: 'text' | 'num' (heltal) | 'kr' (DKK, 2 dec) | 'pct' | 'date'
-const REP_STATE = {id:null, from:'2026-01-01', to:'2026-12-31', last:null, uhtBranch:'ALL'};
+const REP_STATE = {id:null, from:'2026-01-01', to:'2026-12-31', last:null, uhtBranch:'ALL', genMode:'rejser'};
 const activeRep = t => !['canx','voided'].includes(t.status);
 const inRange = (d,f,t) => d && d>=f && d<=t;
 const nRejser = a => a.length;
@@ -1686,7 +1686,12 @@ const UHT_LANDNAVN = {MV:'Maldiverne',MU:'Mauritius',OM:'Oman',AE:'Forenede Arab
 const UHT_TJENESTEKODE = '203.1'; // Rejserelaterede tjenester (logi, konferencer mv.)
 const uhtLand = dest => UHT_LAND[dest] || '';
 
-const REPORTS = [
+/* v0.9.7: REP_ALL = flad pulje af rapportdefinitioner. Menustrukturen (REPORTS)
+   sammensættes NEDENFOR ud fra id'er i REP_MENU. Tilføjer du en ny rapport:
+   læg definitionen i REP_ALL og skriv id'et ind i REP_MENU. Glemmer du REP_MENU,
+   havner rapporten automatisk under "Øvrige rapporter" — så intet forsvinder,
+   når flere arbejder i filen samtidig. */
+const REP_ALL = [
  {group:'Myndighedsindberetning', items:[
   {id:'uht_virk', name:'Udenrigshandel med tjenester (Virk)', period:true, periodLabel:'Afrejse i perioden',
    controls:()=>`<div><label>Omfang</label><select onchange="REP_STATE.uhtBranch=this.value;renderReport()">
@@ -1893,7 +1898,141 @@ const REPORTS = [
        rows, footer:{folder:'I alt ('+rows.length+')',dkk:rows.reduce((s,r)=>s+r.dkk,0)}};
    }},
  ]},
+ {group:'Kundestatistik', items:[
+  /* v0.9.7 (R75): Gengangere & loyalitet — hvor stor del af kunderne har rejst
+     med os mere end én gang, og hvor meget vejer de?
+     Definition besluttet af Wendie 05.08.2026:
+       · "rejst med os" = alle AKTIVE bookinger (annullerede/voidede tælles ikke),
+         inkl. endnu ikke afrejste rejser.
+       · Standardperiode = hele historikken; perioden kan justeres.
+       · Kundeidentitet = customers.id. NB: Dolphin-importen har matchet kunder på
+         NAVN alene (1.199 af 1.200 kunderows har ingen e-mail), så et par der
+         bookede i hver sit navn tælles som to engangskunder. Tallet er derfor et
+         konservativt GULV. */
+  {id:'gengangere', name:'Gengangere & loyalitet', period:true, periodLabel:'Periode',
+   controls:()=>{
+     const m=REP_STATE.genMode||'rejser';
+     return `<div><label>Periodens betydning</label><select onchange="REP_STATE.genMode=this.value;REP_STATE.sort=null;renderReport()">
+       <option value="rejser"${m==='rejser'?' selected':''}>Kun rejser i perioden tælles</option>
+       <option value="seneste"${m==='seneste'?' selected':''}>Kunder m. seneste rejse i perioden (hele historikken tælles)</option>
+     </select></div>`;
+   },
+   build:(trips,{from,to})=>{
+     const mode=REP_STATE.genMode||'rejser';
+     const eco=hasPerm('economy');
+     const dk=n=>Math.round(+n||0).toLocaleString('da-DK');
+     const sumf=(a,f)=>a.reduce((s,t)=>s+(+t[f]||0),0);
+
+     /* 1) gruppér aktive rejser pr. kunde */
+     const K={};
+     trips.filter(t=>activeRep(t)&&t.departure_date).forEach(t=>{
+       const key=t.customer_id||('navn:'+kName(t));
+       (K[key]=K[key]||{navn:kName(t),ts:[]}).ts.push(t);
+     });
+     const byDep=(a,b)=>(a.departure_date||'').localeCompare(b.departure_date||'');
+
+     /* 2) periodeafgrænsning — to tolkninger, valgfri i toolbaren */
+     let kunder=[];
+     Object.entries(K).forEach(([key,v])=>{
+       const all=v.ts.slice().sort(byDep);
+       const tal = mode==='seneste' ? all : all.filter(t=>inRange(t.departure_date,from,to));
+       if(!tal.length) return;
+       if(mode==='seneste' && !inRange(all[all.length-1].departure_date,from,to)) return;
+       const n=tal.length, f=tal[0].departure_date, l=tal[n-1].departure_date;
+       kunder.push({key,navn:v.navn,n,
+         branch:[...new Set(tal.map(t=>t.branch).filter(Boolean))].join('/'),
+         pax:sumf(tal,'pax_count'), oms:sumf(tal,'package_sell_dkk'), db:sumf(tal,'comm_dkk'),
+         foerste:f, seneste:l, sidsteId:tal[n-1].id,
+         aar: n>1 ? ((new Date(l)-new Date(f))/864e5)/365.25/(n-1) : null,
+         dest:[...new Set(tal.flatMap(t=>(t.trip_destinations||[]).map(d=>d.destination)))].join(', ')});
+     });
+
+     const kTot=kunder.length, rTot=kunder.reduce((s,k)=>s+k.n,0), oTot=kunder.reduce((s,k)=>s+k.oms,0);
+     const gen=kunder.filter(k=>k.n>1).sort((a,b)=>b.n-a.n||b.oms-a.oms);
+     const gN=gen.length, gR=gen.reduce((s,k)=>s+k.n,0), gO=gen.reduce((s,k)=>s+k.oms,0), gDB=gen.reduce((s,k)=>s+k.db,0);
+     const p=(a,b)=>b?100*a/b:0;
+
+     /* 3) hovedtabel — fordeling på antal rejser pr. kunde */
+     const buk={};
+     kunder.forEach(k=>{(buk[k.n]=buk[k.n]||{kunder:0,rejser:0,oms:0,db:0});
+       const x=buk[k.n];x.kunder++;x.rejser+=k.n;x.oms+=k.oms;x.db+=k.db;});
+     const rows=Object.keys(buk).map(Number).sort((a,b)=>a-b).map(n=>{const x=buk[n];
+       return {grp:n===1?'1 rejse (engangskunde)':n+' rejser',ant:n,kunder:x.kunder,andelk:p(x.kunder,kTot),
+         rejser:x.rejser,andelr:p(x.rejser,rTot),oms:x.oms,andelo:p(x.oms,oTot),db:x.db};});
+     const cols=[['grp','Antal rejser pr. kunde','text'],['kunder','Kunder','num'],['andelk','Andel af kunder','pct'],
+       ['rejser','Rejser','num'],['andelr','Andel af rejser','pct'],['oms','Omsætning DKK','kr0'],['andelo','Andel af oms.','pct']];
+     if(eco) cols.push(['db','Dækningsbidrag DKK','kr0']);
+
+     /* 4) nøgletalskort */
+     const snitAar=gen.filter(k=>k.aar!=null);
+     const snitAarV=snitAar.length?snitAar.reduce((s,k)=>s+k.aar,0)/snitAar.length:null;
+     const nk=[
+       ['Kunder i alt',dk(kTot)],
+       ['<b>Gengangere (2+ rejser)</b>','<b>'+dk(gN)+'</b>'],
+       ['<b>Andel gengangere</b>','<b>'+fmtPct(p(gN,kTot))+'</b>'],
+       ['Rejser i alt',dk(rTot)],
+       ['Rejser lavet af gengangere',dk(gR)+' <span class="muted">('+fmtPct(p(gR,rTot))+')</span>'],
+       ['Omsætning i alt',dk(oTot)+' kr.'],
+       ['Omsætning fra gengangere',dk(gO)+' kr. <span class="muted">('+fmtPct(p(gO,oTot))+')</span>'],
+       ['Snit antal rejser pr. genganger',gN?(Math.round(10*gR/gN)/10).toLocaleString('da-DK'):'—'],
+       ['Snit år mellem rejser',snitAarV!=null?(Math.round(10*snitAarV)/10).toLocaleString('da-DK')+' år':'—'],
+       ['Flest rejser hos én kunde',gN?dk(gen[0].n)+' <span class="muted">('+gen[0].navn+')</span>':'—'],
+     ];
+     if(eco) nk.push(['Dækningsbidrag fra gengangere',dk(gDB)+' kr.']);
+
+     /* 5) genganger-liste */
+     const gRows=gen.map(k=>`<tr class="click" onclick="viewTrip('${k.sidsteId}')">
+       <td><b>${k.navn}</b></td><td>${k.branch||'—'}</td><td class="num">${k.n}</td><td class="num">${k.pax||'—'}</td>
+       <td>${fmtDY(k.foerste)}</td><td>${fmtDY(k.seneste)}</td>
+       <td class="num">${k.aar!=null?(Math.round(10*k.aar)/10).toLocaleString('da-DK'):'—'}</td>
+       <td class="num">${dk(k.oms)}</td>${eco?`<td class="num">${dk(k.db)}</td>`:''}
+       <td class="mini">${k.dest||'—'}</td></tr>`).join('');
+
+     const extra=`
+     <div class="card" style="margin-top:12px">
+       <h3 style="margin-top:0">Nøgletal</h3>
+       <table class="rep"><tbody>${nk.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join('')}</tbody></table>
+       <p class="muted" style="font-size:11px;margin:10px 0 0"><b>Forbehold:</b> kundeidentiteten fra Dolphin-importen hviler på navn alene
+       (1.199 af 1.200 kunderows har ingen e-mail). Et par, hvor bookingen står i hans navn den ene gang og hendes den anden,
+       tælles som to engangskunder — tallet er derfor et konservativt gulv. Annullerede og voidede rejser tælles ikke med.</p>
+     </div>
+     <div class="card" style="margin-top:12px">
+       <h3 style="margin-top:0">Gengangere — kunde for kunde <span class="r mini">${gN} kunder</span></h3>
+       <div class="rep-meta">Klik en linje for at åbne kundens seneste rejse. Sorteret efter antal rejser.</div>
+       <div style="overflow-x:auto"><table class="rep"><thead><tr><th>Kunde</th><th>Branch</th><th class="num">Rejser</th><th class="num">Pax i alt</th>
+         <th>Første rejse</th><th>Seneste rejse</th><th class="num">Ø år mellem</th><th class="num">Omsætning DKK</th>${eco?'<th class="num">DB DKK</th>':''}<th>Destinationer</th></tr></thead>
+       <tbody>${gRows||`<tr><td colspan="${eco?10:9}" class="muted" style="padding:14px;text-align:center">Ingen gengangere i det valgte interval.</td></tr>`}</tbody></table></div>
+     </div>`;
+
+     return {columns:cols.map(colObj), rows,
+       footer:{grp:'I alt',kunder:kTot,andelk:100,rejser:rTot,andelr:100,oms:oTot,andelo:100,db:kunder.reduce((s,k)=>s+k.db,0)},
+       meta:`${dk(gN)} af ${dk(kTot)} kunder (${fmtPct(p(gN,kTot))}) har rejst med os mere end én gang. De står for ${dk(gR)} af ${dk(rTot)} rejser (${fmtPct(p(gR,rTot))}) og ${dk(gO)} kr. af ${dk(oTot)} kr. (${fmtPct(p(gO,oTot))}). `+
+         (mode==='seneste'?'Kunder hvis seneste rejse ligger i perioden — hele deres rejsehistorik tælles.':'Kun rejser med afrejse i perioden tælles.'),
+       extra};
+   }},
+ ]},
 ];
+
+/* Menustruktur. Rækkefølgen her = rækkefølgen i venstremenuen.
+   Rapporter i REP_ALL der IKKE er nævnt her, samles automatisk i "Øvrige rapporter". */
+const REP_MENU = [
+ ['Bookingstatistik',      ['solgte','afrejser','leadtime','destinationer','segmenter']],
+ ['Kundestatistik',        ['gengangere','bedste_kunder']],
+ ['Leverandørstatistik',   ['hotelstat','lev_forfald','lev_pr_leverandoer','lev_kreditter']],
+ ['Økonomi',               ['oms_maaned','oms_branch','bogf_grundlag','afbestillinger']],
+ ['Myndighedsindberetning',['uht_virk']],
+];
+const REPORTS = (()=>{
+  const m={}; REP_ALL.forEach(g=>g.items.forEach(it=>m[it.id]=it));
+  const brugt=new Set();
+  const out=REP_MENU.map(([group,ids])=>{
+    const items=ids.map(id=>{ if(m[id]) brugt.add(id); return m[id]; }).filter(Boolean);
+    return {group, items};
+  }).filter(g=>g.items.length);
+  const rest=Object.keys(m).filter(id=>!brugt.has(id)).map(id=>m[id]);
+  if(rest.length) out.push({group:'Øvrige rapporter', items:rest});
+  return out;
+})();
 function colObj(a){return {key:a[0],label:a[1],type:a[2]};}
 function kName(t){return t.customers?(t.customers.last_name+', '+t.customers.first_name):'—';}
 function findReport(id){for(const g of REPORTS)for(const it of g.items)if(it.id===id)return it;return null;}
@@ -1925,6 +2064,8 @@ function drawReports(){
 }
 function selectReport(id){ REP_STATE.id=id; REP_STATE.sort=null;
   if(id==='hotelstat' && !REP_STATE._hotelInit){ REP_STATE._hotelInit=1; REP_STATE.from='2018-01-01'; REP_STATE.to='2027-12-31'; }
+  /* v0.9.7: loyalitet er kumulativ — start altid på hele historikken (kan justeres bagefter) */
+  if(id==='gengangere' && !REP_STATE._genInit){ REP_STATE._genInit=1; REP_STATE.from='2018-01-01'; REP_STATE.to='2027-12-31'; }
   drawReports(); }
 /* v0.9.6: hotelelementer til Hotelstatistik — hentes én gang, pagineret */
 async function loadHotelElems(){
@@ -1962,6 +2103,7 @@ function renderReport(){
     <div><label>Til</label><input type="date" id="rep_to" value="${REP_STATE.to}" onchange="onPeriodChange()"></div>
     <div><label>Hurtigvalg</label><select onchange="if(this.value)setPeriod(this.value.split('|')[0],this.value.split('|')[1])">
       <option value="">…</option>
+      <option value="2018-01-01|2027-12-31">Hele historikken</option>
       <option value="2026-01-01|2026-12-31">Hele 2026</option>
       <option value="2026-01-01|2026-03-31">Q1 2026</option><option value="2026-04-01|2026-06-30">Q2 2026</option>
       <option value="2026-07-01|2026-09-30">Q3 2026</option><option value="2026-10-01|2026-12-31">Q4 2026</option>
