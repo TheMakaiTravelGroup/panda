@@ -61,6 +61,22 @@ main{flex:1;padding:26px 32px;max-width:1280px;}
   table.paxtbl th{text-align:left;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);padding:4px 6px 6px 0;font-weight:700}
   table.paxtbl td{padding:6px 6px 6px 0;border-top:1px solid var(--line)}
   table.paxtbl tr.hasbday td{background:#f4f8f4}
+  table.paxtbl tr.paxrow{cursor:pointer}
+  table.paxtbl tr.paxrow:hover td{background:#f7f6f2}
+  table.paxtbl tr.hasbday:hover td{background:#eef5ee}
+  .paxcar{color:var(--gold);font-size:10px;width:14px;padding-right:8px !important;user-select:none;text-align:center}
+  .paxmarks{text-align:right;white-space:nowrap}
+  .paxchip{display:inline-block;font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;font-weight:700;
+    padding:2px 6px;border-radius:20px;margin-left:4px;background:#eceae2;color:var(--mut);vertical-align:middle}
+  .paxchip.warn{background:#fbeee0;color:#9a5b12}
+  table.paxtbl tr.paxdetrow>td{border-top:none;padding:0 0 14px}
+  .paxpanel{background:#faf9f5;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-top:2px}
+  .paxpanel .paxgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:0 26px}
+  .paxpanel .kv{align-items:baseline;min-width:0}
+  .paxpanel .kv>span:first-child{flex:0 0 130px}
+  .paxpanel .kv>*:not(:first-child){min-width:0;overflow-wrap:anywhere}
+  .paxpanel .paxwide{grid-column:1/-1}
+  .paxpanel .paxacts{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
   .histcard>summary{cursor:pointer;list-style:none}
   .histcard>summary::-webkit-details-marker{display:none}
   .histcard>summary::after{content:' ▾';color:var(--gold)}
@@ -642,10 +658,24 @@ const I18N = {
   'sum.age':     ['Alder','Alder','Age'],
   'sum.type':    ['Type','Type','Type'],
   'sum.adult':   ['Voksen','Voksen','Adult'],
+  'sum.youth':   ['Ungdom','Ungdom','Youth'],
   'sum.child':   ['Barn','Barn','Child'],
   'sum.infant':  ['Spædbarn','Spedbarn','Infant'],
   'sum.lead':    ['hovedrejsende','hovedreisende','lead'],
   'sum.nopax':   ['Ingen rejsende registreret endnu.','Ingen reisende registrert ennå.','No travellers registered yet.'],
+  'pax.allergy': ['Allergier & kost','Allergier & kost','Allergies & diet'],
+  'pax.prefs':   ['Præferencer / ønsker','Preferanser / ønsker','Preferences'],
+  'pax.tshirt':  ['T-shirt-størrelse','T-skjortestørrelse','T-shirt size'],
+  'pax.nat':     ['Nationalitet','Nasjonalitet','Nationality'],
+  'pax.gender':  ['Køn','Kjønn','Gender'],
+  'pax.passport':['Pasnummer','Passnummer','Passport no.'],
+  'pax.pexp':    ['Pas udløber','Passet utløper','Passport expiry'],
+  'pax.pnote':   ['Note om personen','Note om personen','Note on person'],
+  'pax.tnote':   ['Note kun denne rejse','Note kun denne reisen','Note this trip only'],
+  'pax.add':     ['+ Tilføj rejsende','+ Legg til reisende','+ Add traveller'],
+  'pax.edit':    ['Redigér','Rediger','Edit'],
+  'pax.remove':  ['Fjern fra rejsen','Fjern fra reisen','Remove from trip'],
+  'pax.show':    ['Vis','Vis','Show'],
   'hist.title':  ['Historik','Historikk','History'],
   'hist.none':   ['Ingen ændringer registreret.','Ingen endringer registrert.','No changes recorded.'],
   'hist.created':['oprettede','opprettet','created'],
@@ -2207,7 +2237,7 @@ async function viewTrip(id){
   const [r1,r2,r3,r4,r5,r6,r7,r8,r9] = await Promise.all([
     db.from('trips').select('*, customers(first_name,last_name,email,phone)').eq('id',id).single(),
     db.from('trip_destinations').select('destination').eq('trip_id',id).order('seq'),
-    db.from('trip_travelers').select('travelers(id,full_name,date_of_birth,title,is_lead,nationality)').eq('trip_id',id),
+    db.from('trip_travelers').select('id,note,travelers(id,full_name,date_of_birth,title,gender,is_lead,nationality,email,phone,allergies,preferences,tshirt_size,note,passport_expiry,has_passport)').eq('trip_id',id),
     db.from('trip_elements').select('*, suppliers:supplier_id(name)').eq('trip_id',id).order('start_date'),
     db.from('tasks').select('*').eq('trip_id',id).order('due_date'),
     db.from('suppliers').select('id,name').order('name'),
@@ -2244,14 +2274,21 @@ async function viewTrip(id){
     const alderVed = (dob,paa)=>{ if(!dob) return null; const d=new Date(dob), r=new Date(paa);
       let a=r.getFullYear()-d.getFullYear(); const m=r.getMonth()-d.getMonth();
       if(m<0||(m===0&&r.getDate()<d.getDate())) a--; return a; };
-    const rejsende = t.trip_travelers.map(x=>x.travelers).filter(Boolean);
+    const rejsende = t.trip_travelers.map(x=>x.travelers?Object.assign({},x.travelers,{_ttid:x.id,_tnote:x.note}):null).filter(Boolean);
     const medAlder = rejsende.map(p=>({...p, alder: alderVed(p.date_of_birth, dep)}));
-    const born  = medAlder.filter(p=>p.alder!==null && p.alder<12).length;
-    const spaed = medAlder.filter(p=>p.alder!==null && p.alder<2).length;
-    const voksne= medAlder.filter(p=>p.alder===null || p.alder>=12).length;
+    window.PAX = medAlder;
+    /* Aldersgrupper: 0-1 spædbarn · 2-11 barn · 12-17 ungdom · 18+ voksen (alder på afrejsedagen) */
+    const grp = {spaed:0, barn:0, ungdom:0, voksen:0};
+    medAlder.forEach(p=>{ const a=p.alder;
+      if(a===null||a>=18) grp.voksen++; else if(a>=12) grp.ungdom++; else if(a>=2) grp.barn++; else grp.spaed++; });
+    const gdele=[];
+    if(grp.voksen) gdele.push(`${grp.voksen} ${grp.voksen===1?'voksen':'voksne'}`);
+    if(grp.ungdom) gdele.push(`${grp.ungdom} ungdom`);
+    if(grp.barn)   gdele.push(`${grp.barn} ${grp.barn===1?'barn':'børn'}`);
+    if(grp.spaed)  gdele.push(`${grp.spaed} ${grp.spaed===1?'spædbarn':'spædbørn'}`);
     const paxTxt = rejsende.length
-      ? `${t.pax_count} pax <span class="muted">(${voksne} voksne${born-spaed>0?`, ${born-spaed} barn`:''}${spaed?`, ${spaed} spædbarn`:''})</span>`
-      : `${t.pax_count} pax`;
+      ? `${rejsende.length} pax <span class="muted">(${gdele.join(', ')})</span>`
+      : `${t.pax_count} pax <span class="muted">(ingen rejsende registreret)</span>`;
     /* Fødselsdage under rejsen */
     const fdag = medAlder.filter(p=>{ if(!p.date_of_birth||!dep||!ret) return false;
       const d=new Date(p.date_of_birth); const start=new Date(dep), slut=new Date(ret);
@@ -2275,7 +2312,6 @@ async function viewTrip(id){
     ${fdag.length?`<div class="occ bday">🎂 ${fdag.map(p=>`<b>${p.full_name}</b> ${tx('sum.turns')} ${p._bliver} ${tx('sum.years')} ${fmtDY(p._fdag)}`).join(' · ')}</div>`:''}
   </div>
 
-  <div class="grid g2">
     <div class="card">
       <h3>${tx('sum.contact')}</h3>
       <div class="kv"><span>${tx('sum.name')}</span><b>${t.customers.first_name} ${t.customers.last_name}</b></div>
@@ -2288,18 +2324,21 @@ async function viewTrip(id){
     </div>
 
     <div class="card">
-      <h3>${tx('sum.travellers')} <span class="r muted">${rejsende.length||t.pax_count}</span></h3>
-      ${medAlder.length?`<table class="paxtbl"><tr><th>${tx('sum.name')}</th><th>${tx('sum.title')}</th><th>${tx('sum.dob')}</th><th class="r">${tx('sum.age')}</th><th>${tx('sum.type')}</th></tr>
-        ${medAlder.map(p=>`<tr${p._fdag?' class="hasbday"':''}>
+      <h3>${tx('sum.travellers')} <span class="r muted">${medAlder.length}</span></h3>
+      ${medAlder.length?`<table class="paxtbl"><tr><th style="width:16px"></th><th>${tx('sum.name')}</th><th>${tx('sum.title')}</th><th>${tx('sum.dob')}</th><th class="r">${tx('sum.age')}</th><th>${tx('sum.type')}</th><th>Detaljer</th></tr>
+        ${medAlder.map(p=>`<tr class="paxrow${p._fdag?' hasbday':''}" onclick="paxToggle('${p.id}')">
+          <td class="paxcar" id="paxcar_${p.id}">▸</td>
           <td><b>${p.full_name}</b>${p.is_lead?` <span class="mini muted">${tx('sum.lead')}</span>`:''}${p._fdag?' 🎂':''}</td>
           <td>${p.title||'<span class="muted">—</span>'}</td>
           <td>${p.date_of_birth?fmtDY(p.date_of_birth):'<span class="muted">—</span>'}</td>
           <td class="r">${p.alder!==null?p.alder:'—'}</td>
-          <td>${p.alder===null?'<span class="muted">—</span>':p.alder<2?tx('sum.infant'):p.alder<12?tx('sum.child'):tx('sum.adult')}</td>
-        </tr>`).join('')}</table>`
+          <td>${paxTypeTxt(p.alder)}</td>
+          <td class="paxmarks">${paxChips(p)}</td>
+        </tr>
+        <tr class="paxdetrow" id="paxdet_${p.id}" hidden><td></td><td colspan="6">${paxPanel(p, t.id)}</td></tr>`).join('')}</table>`
         :`<p class="muted">${tx('sum.nopax')}</p>`}
-    </div>
-  </div>`;})()}
+      <div style="margin-top:12px"><button class="btn ghost" onclick="paxDlg('${t.id}',null)">${tx('pax.add')}</button></div>
+    </div>`;})()}
   <div class="card"><h3>Økonomi på rejsen</h3>
     ${(()=>{
       const sell=+t.package_sell_dkk||0, buy=+t.buy_dkk||0, db=+t.comm_dkk||0, pax=+t.pax_count||0;
@@ -2524,7 +2563,7 @@ async function viewTrip(id){
 
   ${(()=>{ /* ── Historik: hvem gjorde hvad, hvornår ── */
     const WHAT={trips:tx('hist.trip'), trip_elements:tx('hist.element'), payments:tx('hist.payment'),
-                tasks:tx('hist.task'), travelers:tx('hist.trav')};
+                tasks:tx('hist.task'), travelers:tx('hist.trav'), trip_travelers:tx('hist.trav')};
     const ACT={INSERT:tx('hist.created'), UPDATE:tx('hist.updated'), DELETE:tx('hist.deleted')};
     /* Slå ændringer på samme dag, af samme person, på samme tabel sammen — ellers drukner listen */
     const grupper=[];
@@ -2542,7 +2581,8 @@ async function viewTrip(id){
         <span class="hwhat">${ACT[g.act]||g.act} ${WHAT[g.tbl]||g.tbl}${g.n>1?` <span class="muted">×${g.n}</span>`:''}</span></div>`).join('')}</div>`
         :`<p class="muted">${tx('hist.none')}</p>`}
     </details>`;})()}
-  <dialog id="eldlg"></dialog>`;
+  <dialog id="eldlg"></dialog>
+  <dialog id="paxdlg"></dialog>`;
 }
 async function setStatus(id,s){ await db.from('trips').update({status:s}).eq('id',id); viewTrip(id); }
 async function setStatusSel(id,s){
@@ -2747,6 +2787,128 @@ async function saveEl(tripId, existingId){
   const {error}=await q;
   if(error){$('#elerr').textContent=error.message;return;}
   $('#eldlg').close(); viewTrip(tripId);
+}
+
+// ═══ REJSENDE PÅ REJSEN — detaljer, tilføj, redigér, fjern ═══
+const TSHIRTS=[['XS','XS'],['S','S'],['M','M'],['L','L'],['XL','XL'],['XXL','XXL'],['3XL','3XL'],
+  ['K98','Barn 98 (2-3 år)'],['K110','Barn 110 (4-5 år)'],['K122','Barn 122 (6-7 år)'],
+  ['K134','Barn 134 (8-9 år)'],['K146','Barn 146 (10-11 år)'],['K158','Barn 158 (12-13 år)']];
+function tshirtTxt(v){ const f=TSHIRTS.find(x=>x[0]===v); return f?f[1]:(v||''); }
+function paxEsc(s){ return String(s==null||s===false?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+/* Aldersgrupper på afrejsedagen: 0-1 spædbarn · 2-11 barn · 12-17 ungdom · 18+ voksen */
+function paxTypeTxt(a){ return (a===null||a===undefined)?'<span class="muted">—</span>'
+  : a<2?tx('sum.infant') : a<12?tx('sum.child') : a<18?tx('sum.youth') : tx('sum.adult'); }
+function paxChips(p){
+  const c=[];
+  if(p.allergies)   c.push(`<span class="paxchip warn" title="${paxEsc(p.allergies)}">Allergi</span>`);
+  if(p.tshirt_size) c.push(`<span class="paxchip">T-shirt ${paxEsc(String(p.tshirt_size).replace(/^K/,''))}</span>`);
+  if(p.preferences) c.push(`<span class="paxchip">Ønsker</span>`);
+  if(p.has_passport)c.push(`<span class="paxchip">Pas</span>`);
+  if(p.note||p._tnote) c.push(`<span class="paxchip">Note</span>`);
+  return c.join('')||'<span class="mini muted">—</span>';
+}
+function paxPanel(p, tripId){
+  const v=x=>x?paxEsc(x):'<span class="muted">—</span>';
+  const KOEN={M:'Mand',F:'Kvinde'};
+  return `<div class="paxpanel"><div class="paxgrid">
+    <div class="kv"><span>${tx('sum.email')}</span>${p.email?`<a href="mailto:${paxEsc(p.email)}">${paxEsc(p.email)}</a>`:'<span class="muted">—</span>'}</div>
+    <div class="kv"><span>${tx('sum.phone')}</span>${p.phone?`<a href="tel:${paxEsc(p.phone)}">${paxEsc(p.phone)}</a>`:'<span class="muted">—</span>'}</div>
+    <div class="kv"><span>${tx('pax.nat')}</span>${v(p.nationality&&String(p.nationality).trim())}</div>
+    <div class="kv"><span>${tx('pax.gender')}</span>${v(KOEN[p.gender]||p.gender)}</div>
+    <div class="kv"><span>${tx('pax.tshirt')}</span>${p.tshirt_size?`<b>${paxEsc(tshirtTxt(p.tshirt_size))}</b>`:'<span class="muted">—</span>'}</div>
+    <div class="kv"><span>${tx('pax.pexp')}</span>${p.passport_expiry?fmtDY(p.passport_expiry):'<span class="muted">—</span>'}</div>
+    <div class="kv"><span>${tx('pax.passport')}</span><span id="paxpp_${p.id}">${p.has_passport
+      ?`<a href="#" onclick="paxShowPassport('${p.id}');return false">${tx('pax.show')}</a>`:'<span class="muted">—</span>'}</span></div>
+    <div class="kv paxwide"><span>${tx('pax.allergy')}</span>${p.allergies?`<b style="color:#9a5b12">${paxEsc(p.allergies)}</b>`:'<span class="muted">—</span>'}</div>
+    <div class="kv paxwide"><span>${tx('pax.prefs')}</span>${v(p.preferences)}</div>
+    <div class="kv paxwide"><span>${tx('pax.pnote')}</span>${v(p.note)}</div>
+    <div class="kv paxwide"><span>${tx('pax.tnote')}</span>${v(p._tnote)}</div>
+    </div><div class="paxacts">
+      <button class="btn ghost" onclick="paxDlg('${tripId}','${p.id}')">${tx('pax.edit')}</button>
+      <button class="btn ghost" style="color:var(--bad)" onclick="paxRemove('${tripId}','${p.id}')">${tx('pax.remove')}</button>
+    </div></div>`;
+}
+function paxToggle(id){
+  const r=document.getElementById('paxdet_'+id); if(!r) return;
+  r.hidden=!r.hidden;
+  const c=document.getElementById('paxcar_'+id); if(c) c.textContent = r.hidden?'▸':'▾';
+}
+async function paxShowPassport(id){
+  const el=document.getElementById('paxpp_'+id); if(!el) return;
+  el.innerHTML='<span class="muted">henter…</span>';
+  const {data,error}=await db.rpc('traveler_passport',{p_traveler:id});
+  el.innerHTML = error?`<span style="color:var(--bad)">${paxEsc(error.message)}</span>`
+    : data?`<b style="font-variant-numeric:tabular-nums">${paxEsc(data)}</b>`:'<span class="muted">—</span>';
+}
+function paxDlg(tripId, travelerId){
+  const p = travelerId ? (window.PAX||[]).find(x=>x.id===travelerId) : null;
+  const d=document.getElementById('paxdlg');
+  d.innerHTML = `<h2 class="pf" style="font-weight:600;margin-top:0;color:var(--forest)">${p?'Redigér rejsende':'Ny rejsende'}</h2>
+  <div class="row"><div style="flex:2"><label>Fulde navn (som i passet)</label><input id="p_name" value="${paxEsc(p&&p.full_name)}"></div>
+    <div><label>Titel</label><select id="p_title">${['','Mr','Mrs','Ms','Miss','Mstr','Dr'].map(x=>`<option ${p&&p.title===x?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div><label>Fødselsdato</label><input id="p_dob" type="date" value="${(p&&p.date_of_birth)||''}"></div></div>
+  <div class="row"><div><label>Køn</label><select id="p_gender"><option value=""></option>${[['M','Mand'],['F','Kvinde']].map(([k,n])=>`<option value="${k}" ${p&&p.gender===k?'selected':''}>${n}</option>`).join('')}</select></div>
+    <div><label>Nationalitet</label><input id="p_nat" maxlength="2" placeholder="NO" value="${paxEsc(p&&p.nationality&&String(p.nationality).trim())}"></div>
+    <div><label>T-shirt-størrelse</label><select id="p_tshirt"><option value="">—</option>${TSHIRTS.map(([k,n])=>`<option value="${k}" ${p&&p.tshirt_size===k?'selected':''}>${n}</option>`).join('')}</select></div>
+    <div style="flex:0 0 148px;align-self:center"><label style="display:flex;gap:6px;align-items:center;font-weight:400;text-transform:none;letter-spacing:0"><input type="checkbox" id="p_lead" ${p&&p.is_lead?'checked':''} style="width:auto"> Hovedrejsende</label></div></div>
+  <div class="row"><div><label>E-mail</label><input id="p_email" value="${paxEsc(p&&p.email)}"></div>
+    <div><label>Telefon</label><input id="p_phone" value="${paxEsc(p&&p.phone)}"></div></div>
+  <div class="row"><div><label>Pasnummer (gemmes krypteret)</label><input id="p_pno" placeholder="${p&&p.has_passport?'gemt — skriv nyt for at erstatte':'udfyldes kun ved behov'}"></div>
+    <div><label>Pas udløber</label><input id="p_pexp" type="date" value="${(p&&p.passport_expiry)||''}"></div></div>
+  <div><label>Allergier &amp; kost</label><textarea id="p_all" rows="2" placeholder="fx glutenallergi, vegetar, nøddeallergi">${paxEsc(p&&p.allergies)}</textarea></div>
+  <div><label>Præferencer / ønsker</label><textarea id="p_pref" rows="2" placeholder="fx dykker, ønsker værelse væk fra restauranten">${paxEsc(p&&p.preferences)}</textarea></div>
+  <div><label>Note om personen (gælder alle rejser)</label><textarea id="p_note" rows="2">${paxEsc(p&&p.note)}</textarea></div>
+  <div><label>Note kun for denne rejse</label><textarea id="p_tnote" rows="2">${paxEsc(p&&p._tnote)}</textarea></div>
+  <div style="margin-top:14px"><button class="btn" onclick="paxSave('${tripId}', ${p?`'${p.id}'`:'null'})">Gem</button>
+  <button class="btn ghost" onclick="document.getElementById('paxdlg').close()">Annullér</button></div><div class="err" id="paxerr"></div>`;
+  d.showModal();
+}
+async function paxSave(tripId, travelerId){
+  const err=document.getElementById('paxerr');
+  const g=id=>{const e=document.getElementById(id);return e?String(e.value).trim():'';};
+  const name=g('p_name'); if(!name){err.textContent='Rejsende skal have et navn.';return;}
+  const lead=document.getElementById('p_lead').checked;
+  const person={full_name:name, title:g('p_title')||null, date_of_birth:g('p_dob')||null,
+    gender:g('p_gender')||null, nationality:g('p_nat').toUpperCase()||null, tshirt_size:g('p_tshirt')||null,
+    email:g('p_email')||null, phone:g('p_phone')||null, passport_expiry:g('p_pexp')||null,
+    allergies:g('p_all')||null, preferences:g('p_pref')||null, note:g('p_note')||null, is_lead:lead};
+  let tid=travelerId;
+  if(tid){
+    const {error}=await db.from('travelers').update(person).eq('id',tid);
+    if(error){err.textContent=error.message;return;}
+    const {error:e2}=await db.from('trip_travelers').update({note:g('p_tnote')||null}).eq('trip_id',tripId).eq('traveler_id',tid);
+    if(e2){err.textContent=e2.message;return;}
+  } else {
+    const cust=(window.TRIP||{}).customer_id;
+    if(!cust){err.textContent='Kunne ikke finde rejsens kunde.';return;}
+    person.customer_id=cust;
+    const {data,error}=await db.from('travelers').insert(person).select('id').single();
+    if(error){err.textContent=error.message;return;}
+    tid=data.id;
+    const {error:e3}=await db.from('trip_travelers').insert({trip_id:tripId,traveler_id:tid,note:g('p_tnote')||null});
+    if(e3){err.textContent=e3.message;return;}
+  }
+  /* Kun én hovedrejsende pr. rejse */
+  if(lead){
+    const andre=(window.PAX||[]).filter(x=>x.id!==tid && x.is_lead).map(x=>x.id);
+    if(andre.length) await db.from('travelers').update({is_lead:false}).in('id',andre);
+  }
+  const pno=String(document.getElementById('p_pno').value||'').trim();
+  if(pno){
+    const {error:pe}=await db.rpc('traveler_set_passport',{p_traveler:tid,p_no:pno});
+    if(pe){err.textContent='Rejsende gemt, men pasnummeret kunne ikke krypteres: '+pe.message;return;}
+  }
+  document.getElementById('paxdlg').close(); viewTrip(tripId);
+}
+async function paxRemove(tripId, travelerId){
+  const p=(window.PAX||[]).find(x=>x.id===travelerId);
+  if(!confirm(`Fjern ${p?p.full_name:'den rejsende'} fra denne rejse?\n\nEr personen ikke med på andre rejser, slettes personen helt.`)) return;
+  const {error}=await db.from('trip_travelers').delete().eq('trip_id',tripId).eq('traveler_id',travelerId);
+  if(error){alert('Kunne ikke fjerne den rejsende: '+error.message);return;}
+  const {count}=await db.from('trip_travelers').select('traveler_id',{count:'exact',head:true}).eq('traveler_id',travelerId);
+  if(!count) await db.from('travelers').delete().eq('id',travelerId);
+  viewTrip(tripId);
 }
 
 // ═══ NY REJSE ═══
