@@ -1941,7 +1941,12 @@ const REP_ALL = [
        const n=tal.length, f=tal[0].departure_date, l=tal[n-1].departure_date;
        kunder.push({key,navn:v.navn,n,
          branch:[...new Set(tal.map(t=>t.branch).filter(Boolean))].join('/'),
-         pax:sumf(tal,'pax_count'), oms:sumf(tal,'package_sell_dkk'), db:sumf(tal,'comm_dkk'),
+         /* v0.11.5: IKKE «pax i alt». At summere pax_count over flere rejser tæller de samme
+            personer om og om igen (samme par rejser typisk sammen hver gang) — tallet blev
+            meningsløst. Vi kan ikke tælle unikke rejsende endnu: kun 2 af 1.358 rejser har
+            registrerede rejsende i travelers/trip_travelers (Dolphin-importen medbragte dem ikke).
+            Indtil R45 er kørt igennem viser vi i stedet den typiske selskabsstørrelse. */
+         paxsnit: n?sumf(tal,'pax_count')/n:0, oms:sumf(tal,'package_sell_dkk'), db:sumf(tal,'comm_dkk'),
          foerste:f, seneste:l, sidsteId:tal[n-1].id,
          aar: n>1 ? ((new Date(l)-new Date(f))/864e5)/365.25/(n-1) : null,
          dest:[...new Set(tal.flatMap(t=>(t.trip_destinations||[]).map(d=>d.destination)))].join(', ')});
@@ -1982,7 +1987,7 @@ const REP_ALL = [
 
      /* 5) genganger-liste */
      const gRows=gen.map(k=>`<tr class="click" onclick="viewTrip('${k.sidsteId}')">
-       <td><b>${k.navn}</b></td><td>${k.branch||'—'}</td><td class="num">${k.n}</td><td class="num">${k.pax||'—'}</td>
+       <td><b>${k.navn}</b></td><td>${k.branch||'—'}</td><td class="num">${k.n}</td><td class="num">${k.paxsnit?(Math.round(10*k.paxsnit)/10).toLocaleString('da-DK'):'—'}</td>
        <td>${fmtDY(k.foerste)}</td><td>${fmtDY(k.seneste)}</td>
        <td class="num">${k.aar!=null?(Math.round(10*k.aar)/10).toLocaleString('da-DK'):'—'}</td>
        <td class="num">${dk(k.oms)}</td>${eco?`<td class="num">${dk(k.db)}</td>`:''}
@@ -1994,12 +1999,14 @@ const REP_ALL = [
        <table class="rep"><tbody>${nk.map(r=>`<tr><td>${r[0]}</td><td class="num">${r[1]}</td></tr>`).join('')}</tbody></table>
        <p class="muted" style="font-size:11px;margin:10px 0 0"><b>Forbehold:</b> kundeidentiteten fra Dolphin-importen hviler på navn alene
        (1.199 af 1.200 kunderows har ingen e-mail). Et par, hvor bookingen står i hans navn den ene gang og hendes den anden,
-       tælles som to engangskunder — tallet er derfor et konservativt gulv. Annullerede og voidede rejser tælles ikke med.</p>
+       tælles som to engangskunder — tallet er derfor et konservativt gulv. Annullerede og voidede rejser tælles ikke med.<br>
+       <b>Om «Ø pax/rejse»:</b> gennemsnitligt antal rejsende pr. rejse — <b>ikke</b> unikke personer. Antal unikke rejsende kan vi ikke opgøre endnu:
+       kun 2 af 1.358 rejser har registrerede rejsende, fordi Dolphin-importen ikke medbragte passagerlisterne (afventer R45).</p>
      </div>
      <div class="card" style="margin-top:12px">
        <h3 style="margin-top:0">Gengangere — kunde for kunde <span class="r mini">${gN} kunder</span></h3>
        <div class="rep-meta">Klik en linje for at åbne kundens seneste rejse. Sorteret efter antal rejser.</div>
-       <div style="overflow-x:auto"><table class="rep"><thead><tr><th>Kunde</th><th>Branch</th><th class="num">Rejser</th><th class="num">Pax i alt</th>
+       <div style="overflow-x:auto"><table class="rep"><thead><tr><th>Kunde</th><th>Branch</th><th class="num">Rejser</th><th class="num" title="Gennemsnitligt antal rejsende pr. rejse — IKKE unikke personer">Ø pax/rejse</th>
          <th>Første rejse</th><th>Seneste rejse</th><th class="num">Ø år mellem</th><th class="num">Omsætning DKK</th>${eco?'<th class="num">DB DKK</th>':''}<th>Destinationer</th></tr></thead>
        <tbody>${gRows||`<tr><td colspan="${eco?10:9}" class="muted" style="padding:14px;text-align:center">Ingen gengangere i det valgte interval.</td></tr>`}</tbody></table></div>
      </div>`;
