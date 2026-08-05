@@ -690,6 +690,12 @@ const FIELD_DEFS = {
   fee: [['fee_type','Gebyrtype','text',''],['notes','Bemærkninger','textarea','']]
 };
 const DETAIL_LABELS = Object.fromEntries(Object.values(FIELD_DEFS).flat().map(f => [f[0], f[1]]));
+DETAIL_LABELS.flynr='Flynr.'; DETAIL_LABELS.flyselskab='Flyselskab'; DETAIL_LABELS.rute='Rute';
+DETAIL_LABELS.afgang='Afgang'; DETAIL_LABELS.ankomst='Ankomst'; DETAIL_LABELS.saeder='Sæder';
+DETAIL_LABELS.room_navn='Værelse'; DETAIL_LABELS.adresse='Adresse'; DETAIL_LABELS.reservationsnr='Reservationsnr.';
+DETAIL_LABELS.website='Hjemmeside'; DETAIL_LABELS.inkluderet='Inkluderet'; DETAIL_LABELS.fra='Fra';
+DETAIL_LABELS.til='Til'; DETAIL_LABELS.tidspunkt='Tidspunkt'; DETAIL_LABELS.selskab='Selskab';
+DETAIL_LABELS.pnr='PNR'; DETAIL_LABELS.nights='Nætter'; DETAIL_LABELS.class='Klasse';
 DETAIL_LABELS.board='Meal plan'; DETAIL_LABELS.nights='Nætter'; DETAIL_LABELS.direct='Direkte'; DETAIL_LABELS.ref='Reference'; DETAIL_LABELS.company='Selskab';
 let session = null;
 const fmtD = s => s ? new Date(s).toLocaleDateString('da-DK',{day:'numeric',month:'short'}) : '—';
@@ -2284,10 +2290,16 @@ async function viewTrip(id){
         if(e.element_type==='flight'||e.element_type==='ticket'){
           const rute=d.rute||d.route||[d.from,d.to].filter(Boolean).join(' → ');
           titel = rute ? rute.replace(/\s*-\s*/g,' → ') : tx('el.flight');
-          linje2=[d.flyselskab||d.airline, d.class, d.pnr?'PNR '+d.pnr:''].filter(Boolean).join(' · ');
+          linje2=[d.flynr, d.flyselskab||d.airline, d.saeder||d.class, d.pnr?'PNR '+d.pnr:'']
+                 .filter(Boolean).join(' · ');
         } else if(e.element_type==='hotel'){
           titel=(e.suppliers&&e.suppliers.name)||e.description;
-          linje2=[d.room_navn||d.room, d.board, d.rooms>1?d.rooms+' vær.':''].filter(Boolean).join(' · ');
+          linje2=[d.room_navn||d.room, d.board, d.rooms>1?d.rooms+' vær.':'', d.adresse]
+                 .filter(Boolean).join(' · ');
+        } else if(e.element_type==='transfer'){
+          titel=d.produkt||e.description;
+          linje2=[d.fra&&d.til?`${d.fra} → ${d.til}`:'', d.tidspunkt?'kl. '+d.tidspunkt:'',
+                  d.selskab||(e.suppliers&&e.suppliers.name)||''].filter(Boolean).join(' · ');
         } else {
           titel=d.produkt||e.description;
           linje2=(e.suppliers&&e.suppliers.name)||'';
@@ -2300,7 +2312,9 @@ async function viewTrip(id){
           'board','rooms','source','dolphin_status','financial_vendor','buy_dkk_foer_regulering',
           'buy_dkk_foer_afbestilling','reguleret','afbestilt_note','dato_mangler_i_rapport','datofejl_rettet']);
         const detaljer=Object.entries(d).filter(([k,v])=>!skjul.has(k)&&v!==''&&v!==null&&v!==false)
-          .map(([k,v])=>`<span class="dt"><span class="muted">${DETAIL_LABELS[k]||k}</span> ${v}</span>`).join('');
+          .map(([k,v])=>`<span class="dt"><span class="muted">${DETAIL_LABELS[k]||k}</span> ${
+            String(v).startsWith('http') ? `<a href="${v}" target="_blank" rel="noopener">${String(v).replace(/^https?:\/\//,'').slice(0,42)}</a>` : v
+          }</span>`).join('');
         return `${nyDag?`<div class="pgday">${fmtDY(e.start_date)}</div>`:''}
         <details class="pgrow">
           <summary>
