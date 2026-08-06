@@ -496,6 +496,25 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .eupick.notset{border-color:#e0b98a;background:#fdf6ec;color:#8a6416;}
 .euhand{font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);font-weight:700;}
 #nav button[data-v="testdata"]{color:#8a6416;}
+.doctbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+.doctbl th{text-align:left;padding:6px 9px;background:#f6f3ec;color:var(--forest);font-size:11.5px;
+  font-weight:600;border-bottom:1px solid var(--line)}
+.doctbl td{padding:7px 9px;border-bottom:1px solid var(--line-2);vertical-align:top}
+.doctbl td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.doctbl tr:hover{background:#faf8f3}
+.dtag{display:inline-block;font-size:10px;letter-spacing:.4px;text-transform:uppercase;font-weight:700;
+  padding:2px 7px;border-radius:10px;background:#eef3f0;color:var(--forest);border:1px solid #d6e0d2}
+.dtag.faktura{background:#fbf3ea;color:#8a6416;border-color:#ecd9bf}
+.dtag.kunde{background:#eef1f6;color:#3f5675;border-color:#d3dce8}
+.dsendt{font-size:10px;color:var(--ok);font-weight:700}
+.docup{background:#faf8f3;border:1px dashed var(--line);border-radius:8px;padding:12px 14px;margin-top:10px}
+.docup select,.docup input[type=text],.docup input[type=date],.docup input[type=number]{
+  font-size:12px;padding:4px 6px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--ink)}
+.docup label{font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;color:var(--mut);
+  font-weight:700;display:block;margin-bottom:3px}
+.docup .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.docmangler{background:#fbf3ea;border:1px solid #ecd9bf;border-left:3px solid var(--gold);
+  border-radius:7px;padding:9px 13px;font-size:12.5px;margin-top:10px;color:#7a5a14}
 .tdrow{cursor:pointer;} .tdrow:hover{background:#faf7f0;}
 </style>
 </head>
@@ -2359,6 +2378,112 @@ function momsTabel(m){
   hele flyrejsen ligger den ene side af grænsen.</p>`;
 }
 
+/* ═══ Dokumenter på rejsen (v0.11.8) ══════════════════════════════════════
+   Filerne ligger i den PRIVATE bucket «rejsedokumenter» og hentes med
+   tidsbegrænsede signerede links — aldrig åbne URL'er, fordi
+   leverandørfakturaer og e-billetter er personhenførbare.
+
+   Gamle versioner slettes ALDRIG. Erstattes et dokument, får det gamle
+   superseded_by sat, og viewet v_rejsedokumenter viser kun det nyeste.    */
+
+const DOC_TYPER = {
+  bookingbekraeftelse:'Bookingbekræftelse', betalingskvittering:'Betalingskvittering',
+  afbestillingsbekraeftelse:'Afbestillingsbekræftelse', e_ticket:'E-billet',
+  pre_departure:'Pre-departure', bilag:'Bilag / faktura', andet:'Andet' };
+const DOC_KUNDE = ['bookingbekraeftelse','betalingskvittering','afbestillingsbekraeftelse','pre_departure'];
+const fmtStr = b => !b ? '—' : (b<1024?b+' B':(b<1048576?(b/1024).toFixed(0)+' KB':(b/1048576).toFixed(1)+' MB'));
+
+function docsPanel(t, els, docs){
+  const d = docs||[];
+  const valgYdelse = (els||[]).map(e=>`<option value="${e.id}">${EL_TYPES[e.element_type]||e.element_type}: ${((e.suppliers&&e.suppliers.name)||e.description||'').slice(0,44)}</option>`).join('');
+  /* Hvilke ydelser med et beløb mangler stadig et bilag? */
+  const medBilag = new Set(d.filter(x=>x.element_id).map(x=>x.element_id));
+  const mangler = (els||[]).filter(e=>e.status!=='cx' && (+e.buy_amount_dkk||0)>0 && !medBilag.has(e.id));
+
+  const raekke = x => `<tr>
+    <td><b>${x.titel||x.file_name}</b>
+      ${x.note?`<div class="mini muted">${x.note}</div>`:''}
+      ${x.is_testdata?'<span class="euhand">testdata</span>':''}</td>
+    <td><span class="dtag ${x.doc_type==='bilag'?'faktura':(DOC_KUNDE.includes(x.doc_type)?'kunde':'')}">${DOC_TYPER[x.doc_type]||x.doc_type}</span>
+      ${x.version>1?`<span class="mini muted">v${x.version}</span>`:''}</td>
+    <td class="mini">${x.ydelse&&x.ydelse!=='—'?x.ydelse:'<span class="muted">Hele rejsen</span>'}
+      ${x.leverandoer?`<div class="muted">${x.leverandoer}</div>`:''}</td>
+    <td class="mini">${x.doc_date?fmtDY(x.doc_date):'—'}</td>
+    <td class="r">${x.amount_dkk!=null?fmtDkk2(+x.amount_dkk):'—'}</td>
+    <td class="r mini muted">${fmtStr(x.size_bytes)}</td>
+    <td class="mini">${x.sendt_til_kunde?`<span class="dsendt">✓ sendt ${fmtDY(x.sent_at)}</span>`:(DOC_KUNDE.includes(x.doc_type)?'<span class="muted">ikke sendt</span>':'')}</td>
+    <td class="r"><button class="btn ghost" style="padding:3px 8px;font-size:11px" onclick="docHent('${x.storage_path}','${(x.file_name||'fil').replace(/'/g,"")}')">Hent</button>
+      ${DOC_KUNDE.includes(x.doc_type)&&!x.sendt_til_kunde?`<button class="btn ghost" style="padding:3px 8px;font-size:11px" onclick="docSendt('${x.id}')">Markér sendt</button>`:''}</td></tr>`;
+
+  return `<div class="card"><h3>Dokumenter <span class="r muted">${d.length}</span></h3>
+    ${d.length?`<table class="doctbl">
+      <tr><th>Dokument</th><th>Type</th><th>Hører til</th><th>Dato</th><th class="r">Beløb</th>
+          <th class="r">Størrelse</th><th>Kunde</th><th></th></tr>
+      ${d.map(raekke).join('')}</table>`
+     :`<p class="muted" style="margin:6px 0 0">Der ligger ingen dokumenter på rejsen endnu. Læg leverandørbekræftelser, fakturaer og e-billetter ind her, så de altid kan findes samme sted.</p>`}
+
+    ${mangler.length?`<div class="docmangler"><b>${mangler.length} ${mangler.length===1?'ydelse har':'ydelser har'} et beløb, men intet bilag:</b>
+      ${mangler.map(e=>`${EL_TYPES[e.element_type]||e.element_type} ${fmtDkk2(+e.buy_amount_dkk||0)}`).join(' · ')}</div>`:''}
+
+    <div class="docup">
+      <div class="row">
+        <div><label>Fil</label><input type="file" id="dc_fil" style="font-size:12px;max-width:230px"></div>
+        <div><label>Type</label><select id="dc_type">${Object.entries(DOC_TYPER).map(([k,v])=>`<option value="${k}"${k==='bilag'?' selected':''}>${v}</option>`).join('')}</select></div>
+        <div><label>Hører til ydelse</label><select id="dc_el"><option value="">Hele rejsen</option>${valgYdelse}</select></div>
+        <div><label>Dokumentdato</label><input type="date" id="dc_dato"></div>
+        <div><label>Beløb DKK</label><input type="number" step="0.01" id="dc_belob" style="width:110px"></div>
+        <div style="flex:1;min-width:150px"><label>Titel / bemærkning</label><input type="text" id="dc_titel" placeholder="fx Faktura 1814185 — Billetkontoret" style="width:100%"></div>
+        <div><button class="btn gold" onclick="docUpload('${t.id}')">Læg op</button></div>
+      </div>
+      <div class="err" id="dc_err"></div>
+      <p class="mini muted" style="margin:2px 0 0">Maks 25 MB. Filerne ligger privat og hentes med tidsbegrænsede links. Erstatter du et dokument, bevares den gamle version — den bliver blot afløst.</p>
+    </div></div>`;
+}
+
+async function docUpload(tripId){
+  const err=document.getElementById('dc_err'); err.textContent='';
+  const f=document.getElementById('dc_fil').files[0];
+  if(!f){ err.textContent='Vælg en fil først.'; return; }
+  if(f.size > 25*1024*1024){ err.textContent='Filen er større end 25 MB.'; return; }
+  const g=id=>{const e=document.getElementById(id);return e?String(e.value).trim():'';};
+  const type=g('dc_type')||'andet', elId=g('dc_el')||null;
+  const rent=f.name.replace(/[^\w.\-]+/g,'_');
+  const sti=`${tripId}/${Date.now()}_${rent}`;
+  err.textContent='Lægger op…';
+  const {error:ue}=await db.storage.from('rejsedokumenter').upload(sti, f, {contentType:f.type||'application/octet-stream', upsert:false});
+  if(ue){ err.textContent='Upload fejlede: '+ue.message; return; }
+  /* Findes samme type på samme ydelse i forvejen? Så er dette en ny version. */
+  const {data:gamle}=await db.from('documents').select('id,version')
+     .eq('trip_id',tripId).eq('doc_type',type).is('superseded_by',null)
+     .eq('element_id',elId).order('version',{ascending:false}).limit(1);
+  const forrige=(gamle&&gamle[0])||null;
+  const {data:ny,error:ie}=await db.from('documents').insert({
+    trip_id:tripId, element_id:elId, doc_type:type,
+    version:(forrige?forrige.version:0)+1,
+    storage_path:sti, file_name:f.name, mime_type:f.type||null, size_bytes:f.size,
+    title:g('dc_titel')||null, doc_date:g('dc_dato')||null,
+    amount_dkk:g('dc_belob')?Number(g('dc_belob')):null,
+    source:'manuel_upload',
+    is_testdata: String((window.TRIP||{}).ref_no||'').startsWith('TEST-')
+  }).select('id').single();
+  if(ie){ err.textContent='Filen blev lagt op, men kunne ikke registreres: '+ie.message; return; }
+  if(forrige) await db.from('documents').update({superseded_by:ny.id}).eq('id',forrige.id);
+  viewTrip(tripId);
+}
+
+async function docHent(sti, navn){
+  const {data,error}=await db.storage.from('rejsedokumenter').createSignedUrl(sti, 120, {download:navn});
+  if(error||!data){ alert('Kunne ikke hente dokumentet: '+(error?error.message:'ukendt fejl')); return; }
+  window.open(data.signedUrl,'_blank');
+}
+
+async function docSendt(id){
+  const til=(window.TRIP&&window.TRIP.customers&&window.TRIP.customers.email)||'kunden';
+  const {error}=await db.from('documents').update({sent_to:til, sent_at:new Date().toISOString()}).eq('id',id);
+  if(error){ alert('Kunne ikke markere som sendt: '+error.message); return; }
+  viewTrip((window.TRIP||{}).id);
+}
+
 function momsPanel(t, els){
   const m = momsBeregn(t, els);
   const gemtScheme = t.vat_scheme||'—', gemtMoms = r2(+t.margin_vat_dkk||0);
@@ -2547,7 +2672,7 @@ async function viewTrip(id){
   navTo('sales');
   app.innerHTML = '<div class="card">Henter rejsen…</div>';
   const fail=(hvor,e)=>{app.innerHTML=`<div class="card"><b style="color:var(--bad)">Fejl (${hvor}):</b> ${e.message}<br><br><button class="btn ghost" onclick="viewSales()">← Til Salg</button></div>`;};
-  const [r1,r2,r3,r4,r5,r6,r7,r8,r9] = await Promise.all([
+  const [r1,r2,r3,r4,r5,r6,r7,r8,r9,r10] = await Promise.all([
     db.from('trips').select('*, customers(first_name,last_name,email,phone)').eq('id',id).single(),
     db.from('trip_destinations').select('destination').eq('trip_id',id).order('seq'),
     db.from('trip_travelers').select('id,note,travelers(id,full_name,date_of_birth,title,gender,is_lead,nationality,email,phone,allergies,preferences,tshirt_size,note,passport_expiry,has_passport)').eq('trip_id',id),
@@ -2556,7 +2681,8 @@ async function viewTrip(id){
     db.from('suppliers').select('id,name').order('name'),
     db.from('flight_invoices').select('*, flight_invoice_lines(*)').eq('trip_id',id).order('invoice_date',{ascending:true}),
     db.from('payments').select('*').eq('trip_id',id).order('settled_at',{ascending:true}),
-    db.from('trip_history').select('at,action,table_name,actor_name').eq('trip_id',id).order('at',{ascending:false}).limit(60)
+    db.from('trip_history').select('at,action,table_name,actor_name').eq('trip_id',id).order('at',{ascending:false}).limit(60),
+    db.from('v_rejsedokumenter').select('*').eq('trip_id',id).order('created_at',{ascending:false})
   ]);
   if(r1.error) return fail('rejse', r1.error);
   if(r4.error) return fail('elementer', r4.error);
@@ -2565,6 +2691,7 @@ async function viewTrip(id){
   const FINV = (r7&&r7.data)?r7.data:[];
   const PAYS = (r8&&r8.data)?r8.data:[];
   const HIST = (r9&&r9.data)?r9.data:[];
+  const DOCS = (r10&&r10.data)?r10.data:[];
   const nexts = FLOW[FLOW.indexOf(t.status)+1];
   app.innerHTML = `
   <div class="pagehead"><h2>${t.ref_no}</h2><span class="sub">${t.customers.last_name}, ${t.customers.first_name}</span>
@@ -2758,6 +2885,8 @@ async function viewTrip(id){
   </div>
 
   ${momsPanel(t, els)}
+
+  ${docsPanel(t, els, DOCS)}
 
   <div class="card"><h3>${tx('prog.title')}</h3>
     ${(()=>{
