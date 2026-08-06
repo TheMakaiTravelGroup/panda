@@ -476,6 +476,27 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .rolecard .pl span{font-size:10px;border-radius:12px;padding:2px 8px;border:1px solid var(--line);}
 .rolecard .pl span.y{background:#eef3ec;color:var(--forest);border-color:#d6e0d2;}
 .rolecard .pl span.n{color:var(--mut);text-decoration:line-through;}
+/* ── Momsgrundlag + testrejser (v0.11.7) ── */
+.momsblock{background:#fbf3ea;border:1px solid #ecd9bf;border-left:3px solid var(--gold);
+  border-radius:7px;padding:11px 14px;font-size:13px;line-height:1.55;margin-bottom:12px;}
+.momsblock b{color:#8a6416;}
+.momsblock.alarm{background:#fbeee9;border-color:#eccdbf;border-left-color:var(--bad);}
+.momsblock.alarm b{color:var(--bad);}
+.momsnote{margin-top:13px;padding-top:10px;border-top:1px dashed var(--line);
+  font-size:11px;color:var(--mut);line-height:1.5;}
+.momsnote b{color:#8a6416;}
+.momssteps{border-collapse:collapse;width:100%;font-size:12.5px;margin:0 0 6px;}
+.momssteps td,.momssteps th{padding:5px 9px;border-bottom:1px solid var(--line-2);}
+.momssteps td.r,.momssteps th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.momssteps tr.step td{background:#f6f3ec;font-weight:700;color:var(--forest);}
+.momssteps tr.tot td{border-top:1px solid var(--line);border-bottom:none;font-weight:700;}
+.momssteps td.ctl{color:var(--mut);font-style:italic;}
+.eupick{font-size:11px;padding:2px 4px;border:1px solid var(--line);border-radius:5px;
+  background:var(--card);color:var(--ink);}
+.eupick.notset{border-color:#e0b98a;background:#fdf6ec;color:#8a6416;}
+.euhand{font-size:9px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);font-weight:700;}
+#nav button[data-v="testdata"]{color:#8a6416;}
+.tdrow{cursor:pointer;} .tdrow:hover{background:#faf7f0;}
 </style>
 </head>
 <body>
@@ -490,6 +511,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
     <button data-v="marketing" data-i18n="nav.marketing">Markedsføring</button>
     <button data-v="reports" data-i18n="nav.reports">Rapporter</button>
     <button data-v="users" style="display:none" data-i18n="nav.users">Brugere</button>
+    <button data-v="testdata" style="display:none" title="Momstestrejser — slettes før go-live">Testrejser</button>
     <button data-v="new" data-i18n="nav.new">＋ Ny rejse</button>
   </nav>
   <div class="foot" id="who"></div>
@@ -1003,6 +1025,7 @@ async function showApp(){
   // Effektive rettigheder = rolle-standarder + individuelle undtagelser (spejler public.my_permissions() i databasen)
   window.PERMS = Object.assign({economy:false,finance:false,reports:true,leads:true,manage_users:false}, (roleDef&&roleDef.permissions)||{}, tm.permission_overrides||{});
   applyNavPerms();
+  checkTestdata();
   $('#who').innerHTML = tm.name + (roleDef?' <span class="muted">· '+roleDef.label+'</span>':'') + '<br><a href="#" onclick="changePassword();return false">'+t('g.changepw')+'</a> · <a href="#" onclick="db.auth.signOut();return false">'+t('g.logout')+'</a>' + langPicker();
   applyI18n();
   viewDash();
@@ -1014,8 +1037,21 @@ function applyNavPerms(){
   const vis = {leads:hasPerm('leads'), finance:hasPerm('finance'), reports:hasPerm('reports'), users:hasPerm('manage_users')};
   document.querySelectorAll('#nav button').forEach(b=>{ if(b.dataset.v in vis) b.style.display = vis[b.dataset.v]?'':'none'; });
 }
+/* Testrejser-menupunktet vises KUN hvis der faktisk findes TEST--rejser i basen.
+   Slettes testdata før go-live 01.09.2026, forsvinder menupunktet af sig selv —
+   så vi ikke risikerer et udviklermenupunkt i drift (R86). */
+async function checkTestdata(){
+  const btn=document.querySelector('#nav button[data-v="testdata"]');
+  if(!btn) return;
+  try{
+    const {count,error}=await db.from('trips').select('id',{count:'exact',head:true}).like('ref_no','TEST-%');
+    if(!error && count>0){ btn.style.display=''; btn.textContent='Testrejser ('+count+')'; }
+    else btn.style.display='none';
+  }catch(e){ btn.style.display='none'; }
+}
+
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>'+t('g.noaccess')+'</h3><p class="muted">'+t('g.noaccess_txt')+'</p></div>'; }
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew})[b.dataset.v]();});
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
 function navTo(v){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));}
 /* v0.10: oversæt statiske elementer og tegn sprogvælgeren */
 function applyI18n(){
@@ -2230,6 +2266,283 @@ function downloadBlob(blob,name){ const u=URL.createObjectURL(blob); const a=doc
 
 // ═══ REJSEDETALJE ═══
 window.onerror = m => { const c=document.createElement('div');c.className='card';c.style.borderColor='var(--bad)';c.textContent='Teknisk fejl: '+m;app.prepend(c); };
+/* ═══ Momsgrundlag på rejsen (v0.11.7) ══════════════════════════════════════
+   Særordningen for rejsebureauer: momsen beregnes af MARGENEN — ikke af
+   omsætningen — og kun den del af margenen der hører til EU's momsområde
+   beskattes. Rejseydelser leveret uden for EU er fritaget.
+
+   Reglerne ligger i app_settings.moms_regelsaet. De er FORELØBIGE: hverken
+   bekræftet af revisor eller kildeverificeret (05.08.2026), og R43 er stadig
+   blokeret. Derfor siger panelet det højt — og derfor viser det ALDRIG et tal
+   det ikke har grundlag for. Mangler en ydelse sin EU-klassifikation, står
+   der at grundlaget ikke kan beregnes, i stedet for at gætte.
+
+   Periodisering (R89): afrejsedato, leveringsprincippet.                    */
+
+const fmtDkk2 = n => (n<0?'-':'') + Math.abs(n).toLocaleString('da-DK',
+                     {minimumFractionDigits:2,maximumFractionDigits:2}) + ' kr';
+/* Halv-op på den absolutte værdi — samme afrunding som Postgres, så Panda og
+   databasen aldrig er én øre uenige. */
+const r2 = n => { const s = n<0?-1:1; return s * Math.round((Math.abs(n)+1e-9)*100)/100; };
+const pct4 = (a,b) => b ? (100*a/b).toFixed(4).replace('.',',')+' %' : '0 %';
+
+const MOMS_FAKTOR = 0.20;  /* 25 % af margen ekskl. moms = 20 % af margen inkl. moms */
+const MOMS_LBL = {fritaget_uden_eu:'Fritaget — uden for EU',
+                  margen_eu:'Margenmoms — ren EU-rejse',
+                  blandet:'Blandet EU / ikke-EU'};
+
+/* null = ikke klassificeret. På et fly betyder null «fordel pro rata». */
+function euFlag(e){ const v=(e.details||{}).eu_vat_area; return (v===true||v===false)?v:null; }
+
+function momsBeregn(t, els){
+  const sum = a => a.reduce((s,e)=>s+(+e.buy_amount_dkk||0),0);
+  const alle = (els||[]).filter(e=>e.status!=='cx' && (+e.buy_amount_dkk||0)!==0);
+  const sell = +t.package_sell_dkk||0;
+  const buy  = r2(sum(alle));
+  const fly  = alle.filter(e=>e.element_type==='flight');
+  const land = alle.filter(e=>e.element_type!=='flight');
+  const landTotal = r2(sum(land));
+  const landEU    = r2(sum(land.filter(e=>euFlag(e)===true)));
+  const flyEU     = r2(sum(fly.filter(e=>euFlag(e)===true)));
+  const flyFordel = r2(sum(fly.filter(e=>euFlag(e)===null)));
+  const uklas = land.filter(e=>euFlag(e)===null);
+  const noegle = landTotal ? landEU/landTotal : 0;
+  const flyEUandel = r2(flyFordel*noegle);
+  const euBuy = r2(landEU + flyEU + flyEUandel);
+  const margen = r2(sell - buy);
+  const euAndel = buy ? euBuy/buy : 0;
+  const euMargen = r2(margen*euAndel);
+  /* Negativ margen giver ikke negativ moms — særordningen kender ikke et
+     momsgrundlag under nul. Tabet bæres, momsen er 0. */
+  const moms = margen>0 ? r2(euMargen*MOMS_FAKTOR) : 0;
+  const scheme = euBuy<=0.005 ? 'fritaget_uden_eu'
+               : (euBuy>=buy-0.005 ? 'margen_eu' : 'blandet');
+  let status = 'ok';
+  if(!alle.length || !sell) status='ingen';
+  else if(uklas.length)     status='mangler';
+  return {status,alle,land,fly,sell,buy,landTotal,landEU,flyEU,flyFordel,flyEUandel,
+          noegle,euBuy,margen,euAndel,euMargen,moms,uklas,scheme};
+}
+
+/* Ydelsestabel med EU-vælger pr. linje. Håndsatte værdier mærkes, så de kan
+   skelnes fra destinationsregisterets egne når R82/R83 er bygget. */
+function momsTabel(m){
+  const rk = e => {
+    const f = euFlag(e), d = e.details||{};
+    const hand = d.eu_vat_area_kilde==='haandsat';
+    const erFly = e.element_type==='flight';
+    const navn = (e.suppliers&&e.suppliers.name)||e.description||'—';
+    const val = f===true?'eu':(f===false?'ikke':'');
+    const opts = [['eu','I EU'],['ikke','Uden for EU'],
+                  ['', erFly?'Fordel pro rata':'— ikke sat —']]
+      .map(([v,l])=>`<option value="${v}" ${val===v?'selected':''}>${l}</option>`).join('');
+    /* Vis kun flyets EU-andel når der faktisk ER en EU-del at fordele til */
+    const andel = erFly && f===null && m.landEU>0
+      ? `<span class="muted mini">heraf EU ${fmtDkk2(r2((+e.buy_amount_dkk||0)*m.noegle))}</span>` : '';
+    return `<tr>
+      <td>${EL_TYPES[e.element_type]||e.element_type}: ${navn}
+        ${d.destination&&d.destination!=='FORDELT'?`<span class="muted mini">· ${d.destination}</span>`:''}
+        ${hand?'<span class="euhand">håndsat</span>':''}</td>
+      <td class="r">${fmtDkk2(+e.buy_amount_dkk||0)}</td>
+      <td>${andel}</td>
+      <td><select class="eupick${val===''&&!erFly?' notset':''}"
+            onchange="momsSetEU('${e.id}',this.value)">${opts}</select></td></tr>`;
+  };
+  return `<table class="momssteps" style="margin-top:10px">
+    <tr><th style="text-align:left">Ydelse</th><th class="r">Køb DKK</th><th></th>
+        <th style="text-align:left">EU's momsområde</th></tr>
+    ${m.land.map(rk).join('')}${m.fly.map(rk).join('')}
+    <tr class="tot"><td>Indkøb i alt</td><td class="r">${fmtDkk2(m.buy)}</td><td colspan="2"></td></tr>
+  </table>
+  <p class="mini muted" style="margin:6px 0 0">Flyet henføres ikke til én destination — det fordeles
+  forholdsmæssigt efter de landbaserede indkøb. Vælg «I EU» eller «Uden for EU» på et fly kun hvis
+  hele flyrejsen ligger den ene side af grænsen.</p>`;
+}
+
+function momsPanel(t, els){
+  const m = momsBeregn(t, els);
+  const gemtScheme = t.vat_scheme||'—', gemtMoms = r2(+t.margin_vat_dkk||0);
+  const foreloebig = `<div class="momsnote"><b>Foreløbigt regelsæt.</b> Reglerne er ikke bekræftet af
+    revisor og ikke kildeverificeret (05.08.2026). Margenmoms-motoren (R43) er stadig blokeret, og
+    tallene her må ikke lægges til grund for en momsafregning. Kilde: <code>app_settings.moms_regelsaet</code>.</div>`;
+
+  if(m.status==='ingen') return `<div class="card"><h3>Momsgrundlag</h3>
+    <p class="muted">Rejsen har hverken elementbeløb eller pakkepris, så der er intet momsgrundlag at
+    regne på endnu.</p>${foreloebig}</div>`;
+
+  if(m.status==='mangler') return `<div class="card"><h3>Momsgrundlag</h3>
+    <div class="momsblock"><b>Momsgrundlaget kan ikke beregnes.</b>
+      ${m.uklas.length} af ${m.land.length} ${m.land.length===1?'ydelse mangler':'ydelser mangler'} at få
+      oplyst, om ${m.uklas.length===1?'den':'de'} ligger i EU's momsområde. Uden det kan margenen ikke
+      deles mellem EU og ikke-EU — og et tal her ville være gætteri.</div>
+    <div class="kv"><span>Gemt på rejsen</span><b>${MOMS_LBL[gemtScheme]||gemtScheme}</b>
+      <span class="muted">· margenmoms ${fmtDkk2(gemtMoms)}</span></div>
+    <p class="mini muted" style="margin:8px 0 0">Det gemte felt er <b>ikke beregnet</b> — det kommer fra
+      Dolphin-importen, hvor alle rejser fik standardværdien «fritaget». Sæt EU-klassifikationen
+      nedenfor, så regner Panda grundlaget ud.</p>
+    ${momsTabel(m)}${foreloebig}</div>`;
+
+  const uenig = gemtScheme!==m.scheme || Math.abs(gemtMoms-m.moms)>0.005;
+  const negativ = m.margen<=0;
+  return `<div class="card"><h3>Momsgrundlag <span class="r muted">${MOMS_LBL[m.scheme]}</span></h3>
+    ${uenig?`<div class="momsblock alarm"><b>Det gemte felt stemmer ikke med beregningen.</b>
+      Rejsen står gemt som «${MOMS_LBL[gemtScheme]||gemtScheme}» med ${fmtDkk2(gemtMoms)} i margenmoms,
+      men ud fra ydelserne skulle den være «${MOMS_LBL[m.scheme]}» med <b>${fmtDkk2(m.moms)}</b>.
+      <button class="btn gold" style="margin-top:8px" onclick="momsGem('${t.id}')">Gem beregningen på rejsen</button></div>`
+    :`<div class="momsblock" style="background:#f1f6ef;border-color:#d6e0d2;border-left-color:var(--ok)">
+      <b style="color:#3f6b4d">Det gemte felt stemmer med beregningen.</b> ${fmtDkk2(m.moms)} i margenmoms.</div>`}
+    <div class="grid g4" style="margin-bottom:4px">
+      <div class="kpi"><b>${fmtDkk2(m.margen)}</b><span>margen i alt</span></div>
+      <div class="kpi"><b>${pct4(m.euBuy,m.buy)}</b><span>EU-andel af indkøbene</span></div>
+      <div class="kpi"><b>${fmtDkk2(m.euMargen)}</b><span>momsgrundlag (EU-margen)</span></div>
+      <div class="kpi"><b>${fmtDkk2(m.moms)}</b><span>margenmoms</span></div>
+    </div>
+    ${negativ?`<div class="momsblock alarm" style="margin-top:10px"><b>Margenen er ${m.margen<0?'negativ':'nul'}.</b>
+      Særordningen kender ikke et momsgrundlag under nul, så momsen er 0 kr. Tabet bæres — det giver
+      ikke moms tilbage.</div>`:''}
+    <details class="agent agentfold" style="margin-top:10px"><summary>
+      <b style="font-size:13px">Sådan er grundlaget regnet ud</b>
+      <div class="mini muted" style="margin-top:2px">Margen → EU-andel → moms. Hvert tal kan efterregnes.</div>
+    </summary>
+    <div style="padding:0 14px 14px">
+    <table class="momssteps">
+      <tr class="step"><td colspan="2">Margenen — det er den, og ikke omsætningen, der beskattes</td></tr>
+      <tr><td>Pakkepris (salg)</td><td class="r">${fmtDkk2(m.sell)}</td></tr>
+      <tr><td>− indkøb af rejseydelser</td><td class="r">−&nbsp;${fmtDkk2(m.buy)}</td></tr>
+      <tr class="tot"><td>= margen (inkl. moms)</td><td class="r">${fmtDkk2(m.margen)}</td></tr>
+
+      <tr class="step"><td colspan="2">Trin 1 — hvor meget af margenen er EU?</td></tr>
+      <tr><td>Landbaserede indkøb i EU</td><td class="r">${fmtDkk2(m.landEU)}</td></tr>
+      <tr><td>Landbaserede indkøb i alt</td><td class="r">${fmtDkk2(m.landTotal)}</td></tr>
+      <tr><td>Fordelingsnøgle for flyet</td><td class="r">${pct4(m.landEU,m.landTotal)}</td></tr>
+      ${m.flyFordel?`<tr><td>Fly der fordeles pro rata (${fmtDkk2(m.flyFordel)})</td>
+        <td class="r">${fmtDkk2(m.flyEUandel)}</td></tr>`:''}
+      ${m.flyEU?`<tr><td>Fly der ligger direkte i EU</td><td class="r">${fmtDkk2(m.flyEU)}</td></tr>`:''}
+      <tr class="tot"><td>= EU-indkøb i alt</td><td class="r">${fmtDkk2(m.euBuy)}</td></tr>
+      <tr><td>EU-andel = ${fmtDkk2(m.euBuy)} ÷ ${fmtDkk2(m.buy)}</td><td class="r">${pct4(m.euBuy,m.buy)}</td></tr>
+      <tr class="tot"><td><b>Momsgrundlag</b> = margen × EU-andel</td><td class="r"><b>${fmtDkk2(m.euMargen)}</b></td></tr>
+      <tr><td class="ctl">Resten af margenen er fritaget (uden for EU)</td>
+        <td class="r ctl">${fmtDkk2(r2(m.margen-m.euMargen))}</td></tr>
+
+      <tr class="step"><td colspan="2">Trin 2 — momsen af EU-delen</td></tr>
+      <tr><td>Momsgrundlag × 0,20</td><td class="r"><b>${fmtDkk2(m.moms)}</b></td></tr>
+      <tr><td class="ctl">Kontrol: grundlag ÷ 1,25 × 0,25 (uden mellemafrunding)</td>
+        <td class="r ctl">${fmtDkk2(r2(m.euMargen/1.25*0.25))}</td></tr>
+    </table>
+    <p class="mini muted" style="margin:2px 0 0">Faktoren er <b>0,20</b> og ikke 0,25, fordi satsen på
+      25 % regnes af beløbet <b>ekskl.</b> moms — og margenen er inkl. moms, da pakkeprisen er inkl. moms.
+      Præcis som en vare til 125 kr. indeholder 25 kr. moms, og 25 kr. er 20 % af 125.
+      ${m.scheme==='fritaget_uden_eu'?'<b>På denne rejse er EU-andelen 0, så faktoren kommer aldrig i spil — momsen er 0 %.</b>':''}</p>
+    ${momsTabel(m)}
+    </div></details>${foreloebig}</div>`;
+}
+
+/* Sæt EU-klassifikationen på én ydelse. Mærkes som håndsat med navn og dato,
+   så den kan skelnes fra destinationsregisterets værdier senere (R83/R84). */
+async function momsSetEU(elId, val){
+  const el=(window.ELS||[]).find(x=>x.id===elId); if(!el) return;
+  const d=Object.assign({}, el.details||{});
+  if(val===''){ delete d.eu_vat_area; delete d.eu_vat_area_kilde;
+                delete d.eu_vat_area_af; delete d.eu_vat_area_dato; }
+  else { d.eu_vat_area=(val==='eu'); d.eu_vat_area_kilde='haandsat';
+         d.eu_vat_area_af=window.MYNAME||window.MYEMAIL||'ukendt'; d.eu_vat_area_dato=today(); }
+  const {error}=await db.from('trip_elements').update({details:d}).eq('id',elId);
+  if(error){ alert('Kunne ikke gemme EU-klassifikationen: '+error.message); return; }
+  viewTrip((window.TRIP||{}).id||el.trip_id);
+}
+
+/* Skriv det beregnede grundlag på rejsen. Bevidst et klik — Panda gemmer ikke
+   momstal som en bivirkning af at man kigger på en side. */
+async function momsGem(tripId){
+  const m=momsBeregn(window.TRIP||{}, window.ELS||[]);
+  if(m.status!=='ok'){ alert('Momsgrundlaget kan ikke beregnes endnu — klassificér ydelserne først.'); return; }
+  const {error}=await db.from('trips').update({vat_scheme:m.scheme,margin_vat_dkk:m.moms}).eq('id',tripId);
+  if(error){ alert('Kunne ikke gemme momsgrundlaget: '+error.message); return; }
+  viewTrip(tripId);
+}
+
+/* ═══ Testrejser (v0.11.7) ═══════════════════════════════════════════════════
+   Genvej til de fem momstestrejser. Menupunktet vises kun så længe de findes.  */
+async function viewTestdata(){
+  navTo('testdata');
+  app.innerHTML = '<div class="card">Henter testrejser…</div>';
+  const [r1,r2,r3] = await Promise.all([
+    db.from('v_moms_specifikation').select('*').like('ref_no','TEST-%').order('ref_no'),
+    db.from('v_moms_pr_destination').select('*').like('ref_no','TEST-%').order('ref_no'),
+    db.from('trips').select('id,ref_no,departure_date,return_date,status,pax_count,owner,group_label')
+      .like('ref_no','TEST-%').order('ref_no')
+  ]);
+  if(r1.error){ app.innerHTML=`<div class="card"><b style="color:var(--bad)">Fejl:</b> ${r1.error.message}</div>`; return; }
+  const spec=r1.data||[], dest=r2.data||[], trips=r3.data||[];
+  if(!spec.length){ app.innerHTML='<div class="card"><h3>Testrejser</h3><p class="muted">Der er ingen TEST--rejser i basen. Er de slettet, kan menupunktet fjernes.</p></div>'; return; }
+  const byRef={}; trips.forEach(t=>byRef[t.ref_no]=t);
+  const SCEN={'TEST-MN9001':'I Europa, uden for EU','TEST-MD9002':'Blandet EU / ikke-EU — skæv afrunding',
+    'TEST-MN9003':'Flere mål, alle uden for Europa','TEST-MD9004':'EU-land, uden for momsområdet — fælden',
+    'TEST-MD9005':'Ren EU-rejse'};
+  const sum=(a,k)=>a.reduce((s,x)=>s+(+x[k]||0),0);
+  app.innerHTML = `
+  <div class="pagehead"><h2>Testrejser</h2><span class="sub">momsscenarier · referencesæt</span></div>
+  <div class="card">
+    <div class="momsblock alarm"><b>Dette er testdata i produktionsbasen.</b> De fem rejser findes for at
+      efterprøve momsberegningen på alle scenarier, inklusive fælderne. De <b>skal slettes før go-live
+      01.09.2026</b> — slettescriptet ligger i <code>app_settings.testdata_manifest</code>. Afrejserne er
+      lagt i 2027, så tallene ikke kan forurene 2026-regnskabet. Menupunktet forsvinder af sig selv når
+      rejserne er væk.</div>
+    <div class="grid g4" style="margin-bottom:12px">
+      <div class="kpi"><b>${spec.length}</b><span>testrejser</span></div>
+      <div class="kpi"><b>${fmtDkk2(sum(spec,'margen_dkk'))}</b><span>margen i alt</span></div>
+      <div class="kpi"><b>${fmtDkk2(sum(spec,'margenmoms_dkk'))}</b><span>margenmoms i alt</span></div>
+      <div class="kpi ${spec.some(x=>x.datastatus!=='OK')?'warn':''}"><b>${spec.filter(x=>x.datastatus==='OK').length}/${spec.length}</b><span>med datastatus OK</span></div>
+    </div>
+    <table class="momssteps">
+      <tr><th style="text-align:left">Rejse</th><th style="text-align:left">Scenarie</th><th>Afrejse</th>
+          <th class="r">Salg</th><th class="r">Indkøb</th><th class="r">Margen</th><th class="r">EU-andel</th>
+          <th class="r">Momsgrundlag</th><th class="r">Margenmoms</th><th>Ordning</th></tr>
+      ${spec.map(x=>{const t=byRef[x.ref_no]||{};return `<tr class="tdrow" onclick="viewTrip('${t.id}')">
+        <td><b>${x.ref_no}</b></td>
+        <td class="mini muted">${SCEN[x.ref_no]||'—'}</td>
+        <td class="mini">${fmtDY(x.departure_date)}</td>
+        <td class="r">${fmtDkk2(+x.salg_dkk||0)}</td>
+        <td class="r">${fmtDkk2(+x.indkoeb_i_alt_dkk||0)}</td>
+        <td class="r">${fmtDkk2(+x.margen_dkk||0)}</td>
+        <td class="r">${x.eu_andel_pct==null?'—':(+x.eu_andel_pct).toFixed(4).replace('.',',')+' %'}</td>
+        <td class="r">${x.momsgrundlag_dkk==null?'—':fmtDkk2(+x.momsgrundlag_dkk)}</td>
+        <td class="r"><b>${x.margenmoms_dkk==null?'—':fmtDkk2(+x.margenmoms_dkk)}</b></td>
+        <td class="mini">${MOMS_LBL[x.vat_scheme_beregnet]||x.vat_scheme_beregnet||'—'}
+          ${x.vat_scheme_stemmer===false?'<span style="color:var(--bad)">✗ afviger</span>':''}</td></tr>`;}).join('')}
+      <tr class="tot"><td colspan="3">I alt</td>
+        <td class="r">${fmtDkk2(sum(spec,'salg_dkk'))}</td>
+        <td class="r">${fmtDkk2(sum(spec,'indkoeb_i_alt_dkk'))}</td>
+        <td class="r">${fmtDkk2(sum(spec,'margen_dkk'))}</td><td></td>
+        <td class="r">${fmtDkk2(sum(spec,'momsgrundlag_dkk'))}</td>
+        <td class="r"><b>${fmtDkk2(sum(spec,'margenmoms_dkk'))}</b></td><td></td></tr>
+    </table>
+    <p class="mini muted" style="margin:6px 0 0">Klik en række for at åbne rejsen. Der er bevidst ingen
+      slet-knap her: at fjerne testdata rører rejser, ydelser, destinationer og en kunde, og bør køres
+      som én kontrolleret handling med efterfølgende rækketælling — ikke med et enkelt klik.</p>
+  </div>
+
+  <div class="card"><h3>Fordeling pr. destination</h3>
+    <table class="momssteps">
+      <tr><th style="text-align:left">Rejse</th><th style="text-align:left">Destination</th><th>I EU</th>
+          <th class="r">Køb direkte</th><th class="r">Køb fly (fordelt)</th><th class="r">Køb i alt</th>
+          <th class="r">Andel</th><th class="r">Omsætning (fordelt)</th><th class="r">Fortjeneste</th></tr>
+      ${dest.map(d=>`<tr>
+        <td class="mini">${d.ref_no}</td><td>${d.destination}</td>
+        <td>${d.eu_vat_area===true?'<b style="color:#3f6b4d">Ja</b>':(d.eu_vat_area===false?'<span class="muted">Nej</span>':'<span class="muted">—</span>')}</td>
+        <td class="r">${fmtDkk2(+d.koeb_direkte_dkk||0)}</td>
+        <td class="r">${fmtDkk2(+d.koeb_fordelt_fly_dkk||0)}</td>
+        <td class="r">${fmtDkk2(+d.koeb_i_alt_dkk||0)}</td>
+        <td class="r">${d.andel_pct==null?'—':(+d.andel_pct).toFixed(2).replace('.',',')+' %'}</td>
+        <td class="r">${fmtDkk2(+d.omsaetning_fordelt_dkk||0)}</td>
+        <td class="r">${fmtDkk2(+d.fortjeneste_fordelt_dkk||0)}</td></tr>`).join('')}
+    </table>
+    <p class="mini muted" style="margin:6px 0 0"><b>Udgifter er faktiske; omsætning er altid fordelt.</b>
+      Rejseelementerne har ingen salgspris, så omsætningen fordeles efter indkøbsnøglen. Flyet henføres
+      ikke til én destination, men fordeles pro rata efter de landbaserede indkøb.</p>
+  </div>`;
+}
+
 async function viewTrip(id){
   navTo('sales');
   app.innerHTML = '<div class="card">Henter rejsen…</div>';
@@ -2443,6 +2756,8 @@ async function viewTrip(id){
       ${diff!==0?`<div style="font-size:11px;color:var(--bad);margin-top:8px">⚠ Kontrol: salg − køb − DB = ${fmtDkkR(diff)} — afvigelse, tjek hovedtal.</div>`:''}`;
     })()}
   </div>
+
+  ${momsPanel(t, els)}
 
   <div class="card"><h3>${tx('prog.title')}</h3>
     ${(()=>{
