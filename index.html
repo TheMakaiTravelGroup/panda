@@ -589,6 +589,7 @@ const I18N = {
   // henvendelses-trin
   'ls.new_lead':    ['Ny henvendelse','Ny henvendelse','New enquiry'],
   'ls.send_email':  ['Send e-mail','Send e-post','Send email'],
+  'ls.email_sent':  ['E-mail sendt (afventer svar)','E-post sendt (venter svar)','Email sent (awaiting reply)'],
   'ls.make_offer':  ['Lav tilbud','Lag tilbud','Build quote'],
   'ls.to_be_sent':  ['Klar til afsendelse','Klar til sending','Ready to send'],
   'ls.offer_sent':  ['Tilbud sendt + SMS','Tilbud sendt + SMS','Quote sent + SMS'],
@@ -746,7 +747,7 @@ const tx = t;
 const STATUS_LABELS = new Proxy({}, { get:(o,k)=> t('st.'+String(k), String(k)) });
 const FLOW = ['bekraeftet','bb_sendt','klar_til_afrejse','god_tur','faerdig'];
 // Henvendelses-pipeline — trin kortlagt fra Pipedrive "Leads - Pipeline" (16. jul 2026)
-const LEAD_STAGES = ['new_lead','send_email','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation','confirmed'].map(k=>[k, t('ls.'+k)]);
+const LEAD_STAGES = ['new_lead','send_email','email_sent','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation','confirmed'].map(k=>[k, t('ls.'+k)]);
 const LEAD_STAGE_LABEL = Object.fromEntries(LEAD_STAGES);
 const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url';
 const EL_TYPES = new Proxy({}, { get:(o,k)=> t('el.'+String(k), String(k)) });
@@ -3532,7 +3533,7 @@ function renderTriage(l){
     `<div class="tr-row"><span class="tr-k">Lead-score</span><span class="tr-v"><b>${tr.score}</b> / 100 <span style="color:var(--mut)">foreløbig — hotelforslag, fly og prismatch lægges til i næste trin</span></span></div>`;
 }
 const BRANCH_LABEL={MN:'Maldivia NO',NO:'Maldivia NO',MD:'Maldivia DK',IT:'Maldivia IT',HQ:'HQ'};
-const STAGE_SHORT={new_lead:'Ny',send_email:'Send e-mail',make_offer:'Lav tilbud',to_be_sent:'Klar',offer_sent:'Tilbud sendt',followed_up:'Fulgt op',thinking:'Tænker',negotiation:'Forhandling',confirmed:'Vundet'};
+const STAGE_SHORT={new_lead:'Ny',send_email:'Send e-mail',email_sent:'E-mail sendt',make_offer:'Lav tilbud',to_be_sent:'Klar',offer_sent:'Tilbud sendt',followed_up:'Fulgt op',thinking:'Tænker',negotiation:'Forhandling',confirmed:'Vundet'};
 const ROT_DAYS=4; // henvendelsen "rådner" når den har ligget stille på et trin i mere end så mange dage
 const DEST_OPTS=['Maldiverne','Dubai','Abu Dhabi','Qatar','Sri Lanka','Mauritius','Seychellerne','Zanzibar','Thailand','Bali / Indonesien','Singapore','Malaysia','Vietnam'];
 const AIRPORT_OPTS=['Oslo (OSL)','Bergen (BGO)','Stavanger (SVG)','Trondheim (TRD)','Tromsø (TOS)','Kristiansand (KRS)','Ålesund (AES)','Bodø (BOO)','Haugesund (HAU)','Sandefjord Torp (TRF)','København (CPH)','Billund (BLL)','Aalborg (AAL)','Aarhus (AAR)','Hamburg (HAM)'];
