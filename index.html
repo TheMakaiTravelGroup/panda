@@ -1701,6 +1701,9 @@ function vpStageCard(status,title,accent,emptyMsg,stampHdr){
    Kun linjer med gennemgang_status ny/til_gennemgang vises — det der er bogført
    automatisk (konfidens høj) blander sig ikke ind i listen. */
 let GK_ROWS=[], GK_KONTI=[], GK_FILTER='alle';
+/* Egen HTML-escaper. Panda har en esc() — men den er lokal inde i exportCSV()
+   og escaper til CSV, ikke til HTML. Den må ikke bruges her. */
+function gkEsc(v){ return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 async function viewGennemgang(){
   if(!hasPerm('finance')) return noAccess('finance');
@@ -1744,7 +1747,7 @@ function gkFilter(f){
 function gkKontoSelect(id,valgt){
   return '<select id="gk-k-'+id+'" style="max-width:250px">'+
     '<option value="">— vælg konto —</option>'+
-    GK_KONTI.map(k=>'<option value="'+k.konto+'"'+(k.konto===valgt?' selected':'')+'>'+k.konto+' · '+esc(k.navn)+'</option>').join('')+
+    GK_KONTI.map(k=>'<option value="'+k.konto+'"'+(k.konto===valgt?' selected':'')+'>'+k.konto+' · '+gkEsc(k.navn)+'</option>').join('')+
     '</select>';
 }
 
@@ -1758,15 +1761,15 @@ function gkRender(){
     const konto=(r.bank_accounts&&r.bank_accounts.kode)||'';
     const neg=(+r.beloeb)<0;
     return '<div class="el-item" id="gk-row-'+r.id+'">'+
-      '<div><b>'+fmtDY(r.bogfoert_dato)+'</b> <span class="muted">'+esc(konto)+'</span>'+
+      '<div><b>'+fmtDY(r.bogfoert_dato)+'</b> <span class="muted">'+gkEsc(konto)+'</span>'+
         '<span style="float:right;font-weight:700;color:'+(neg?'var(--bad)':'var(--ok)')+'">'+fmtDkkR(r.beloeb)+'</span></div>'+
-      '<div style="margin:4px 0 6px">'+esc(r.tekst)+'</div>'+
-      (r.match_ref_no?'<div class="muted" style="margin-bottom:6px">Rejse: <b>'+esc(r.match_ref_no)+'</b></div>':'')+
+      '<div style="margin:4px 0 6px">'+gkEsc(r.tekst)+'</div>'+
+      (r.match_ref_no?'<div class="muted" style="margin-bottom:6px">Rejse: <b>'+gkEsc(r.match_ref_no)+'</b></div>':'')+
       '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+
         gkKontoSelect(r.id,r.forslag_konto||'')+
         '<input id="gk-c-'+r.id+'" placeholder="Hvad er det? (valgfri note)" style="flex:1;min-width:170px">'+
         '<label style="font-size:11.5px"><input type="checkbox" id="gk-r-'+r.id+'" onchange="gkToggleRegel(\''+r.id+'\')"> gem som regel</label>'+
-        '<input id="gk-m-'+r.id+'" value="'+esc(gkMoenster(r.tekst))+'" title="Mønsteret reglen skal matche på — ret det hvis det rammer for bredt" style="display:none;max-width:190px">'+
+        '<input id="gk-m-'+r.id+'" value="'+gkEsc(gkMoenster(r.tekst))+'" title="Mønsteret reglen skal matche på — ret det hvis det rammer for bredt" style="display:none;max-width:190px">'+
         '<button onclick="gkGem(\''+r.id+'\')">Gem</button>'+
       '</div></div>';
   }).join('');
