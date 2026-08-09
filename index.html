@@ -3702,11 +3702,7 @@ function leadBoardRender(){
       </div>`;
     }).join('')}
   </div>
-  ${lost.length?`<div class="card lead-lost" style="margin-top:14px"><h3>Tabte henvendelser (${lost.length})</h3>
-    ${lost.map(l=>`<div class="list-item" onclick="editLead('${l.id}')"><span class="ic">✕</span>
-      <span><b style="color:var(--forest)">${escH(l.contact_name||l.title)}</b> <span class="muted">${escH(l.lost_reason||'—')}</span></span>
-      <span class="when">${fmtDY(l.created_at)}</span></div>`).join('')}</div>`:''}
-  <p class="muted" style="margin-top:10px">Filtrér på branche og ansvarlig ovenfor. Træk et kort til et andet trin for at flytte det, eller klik for at åbne.</p>`;
+    <p class="muted" style="margin-top:10px">Filtrér på branche og ansvarlig ovenfor. Træk et kort til et andet trin for at flytte det, eller klik for at åbne.</p>`;
 }
 function leadCard(l){
   const since=l._stageSince||l.created_at; const d=daysSince(since);
