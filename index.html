@@ -1048,7 +1048,7 @@ async function showApp(){
   checkTestdata();
   $('#who').innerHTML = tm.name + (roleDef?' <span class="muted">· '+roleDef.label+'</span>':'') + '<br><a href="#" onclick="changePassword();return false">'+t('g.changepw')+'</a> · <a href="#" onclick="db.auth.signOut();return false">'+t('g.logout')+'</a>' + langPicker();
   applyI18n();
-  viewDash();
+  applyRoute();
   setupRealtime();
   if(window.__recovery){ window.__recovery=false; setTimeout(changePassword, 500); }
 }
@@ -1072,7 +1072,42 @@ async function checkTestdata(){
 
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>'+t('g.noaccess')+'</h3><p class="muted">'+t('g.noaccess_txt')+'</p></div>'; }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
-function navTo(v){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));}
+function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));setRoute(route||v);}
+/* ── v0.12: hash-router (R-krav: bliv på siden ved reload) ──────────────────
+   Panda holdt kun styr på den aktuelle side i hukommelsen, så et F5 smed
+   brugeren tilbage til dashboardet. Nu skrives siden (og evt. rejse-id) i
+   URL'ens hash, fx  …/panda/#trip/abc-123 . Det giver tre ting på én gang:
+   reload lander samme sted, browserens frem/tilbage virker, og et link til
+   en konkret rejse kan sendes til en kollega.
+   NB: Supabase bruger selv hash til login-/nulstillingslinks (#access_token=…).
+   Derfor ignorerer applyRoute() enhver hash der indeholder = eller &, og
+   supabase-js har under alle omstændigheder allerede tømt den, når showApp()
+   kaldes. */
+const PANDA_ROUTES = {dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,
+  vendorpay:viewVendorPay,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,
+  users:viewUsers,new:viewNew,testdata:viewTestdata};
+function setRoute(h){
+  if(!h) return;
+  window.__route = h;
+  if(location.hash.slice(1) !== h){ try{ location.hash = h; }catch(e){} }
+}
+function applyRoute(){
+  const h = decodeURIComponent((location.hash||'').replace(/^#/,''));
+  window.__route = h;
+  if(!h || /[=&]/.test(h)) return viewDash();          // tom hash eller auth-token
+  const i = h.indexOf('/');
+  const page = i<0 ? h : h.slice(0,i);
+  const arg  = i<0 ? ''  : h.slice(i+1);
+  if(page==='trip' && arg) return viewTrip(arg);
+  const fn = PANDA_ROUTES[page];
+  return fn ? fn() : viewDash();
+}
+window.addEventListener('hashchange', ()=>{
+  if(!session) return;                                  // ikke logget ind
+  const h = decodeURIComponent((location.hash||'').replace(/^#/,''));
+  if(h === window.__route) return;                      // vores egen skrivning
+  applyRoute();
+});
 /* v0.10: oversæt statiske elementer og tegn sprogvælgeren */
 function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n, el.textContent); });
@@ -1659,7 +1694,7 @@ function vpStageCard(status,title,accent,emptyMsg,stampHdr){
       ${rows.map(vpDbRow).join('')}</table>`:`<p class="muted">${emptyMsg}</p>`}</div>`;
 }
 async function viewVendorPay(){
-  navTo('finance');
+  navTo('finance','vendorpay');
   app.innerHTML = '<div class="pagehead"><h2>Økonomi</h2></div><div class="card">Henter leverandørbetalinger…</div>';
   const [trips] = await Promise.all([ fetchTrips(), vpLoadRecon() ]);
   window.VP_REFMAP={}; trips.forEach(t=>{ VP_REFMAP[t.ref_no]=t.id; VP_REFMAP[String(t.ref_no).replace(/^[A-Za-z]+/,'')]=t.id; VP_REFMAP[t.branch+String(t.ref_no).replace(/^[A-Za-z]+/,'')]=t.id; });
@@ -2670,7 +2705,7 @@ async function viewTestdata(){
 }
 
 async function viewTrip(id){
-  navTo('sales');
+  navTo('sales','trip/'+id);
   app.innerHTML = '<div class="card">Henter rejsen…</div>';
   const fail=(hvor,e)=>{app.innerHTML=`<div class="card"><b style="color:var(--bad)">Fejl (${hvor}):</b> ${e.message}<br><br><button class="btn ghost" onclick="viewSales()">← Til Salg</button></div>`;};
   const [r1,r2,r3,r4,r5,r6,r7,r8,r9,r10] = await Promise.all([
