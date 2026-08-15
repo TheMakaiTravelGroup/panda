@@ -25,6 +25,7 @@ aside nav button.on{color:var(--forest);border-left-color:var(--gold);background
 aside .foot{margin-top:auto;padding:16px 28px;font-size:10.5px;color:var(--mut);line-height:1.7;}
 aside .foot a{color:var(--gold);text-decoration:none;}
 main{flex:1;padding:26px 32px;max-width:1280px;}
+main.wide{max-width:none;}
 .pagehead{display:flex;align-items:baseline;gap:14px;margin-bottom:18px;flex-wrap:wrap;}
 .pagehead h2{font-family:'Playfair Display',serif;font-size:27px;font-weight:500;margin:0;color:var(--forest);}
 .pagehead .sub{color:var(--mut);font-size:12px;font-style:italic;font-family:'Playfair Display',serif;}
@@ -317,23 +318,41 @@ table.rep tfoot td{border-top:2px solid var(--line);font-weight:700;}
   .print-only{display:block!important;}
 }
 /* ═══ HENVENDELSER · pipeline-board ═══ */
-.board{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 12px;align-items:flex-start;}
-.col{flex:0 0 224px;background:#faf7f0;border:1px solid var(--line);border-radius:10px;padding:8px;min-height:80px;transition:background .12s,border-color .12s;}
+.leadkpis{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.kpi.mini{flex:0 0 auto;padding:8px 14px;}
+.kpi.mini b{font-size:17px;line-height:1.15;}
+.kpi.mini span{font-size:8.5px;letter-spacing:.9px;}
+.kpi.mini b .cur{font-family:inherit;font-size:11px;font-weight:700;color:var(--mut);letter-spacing:.3px;}
+.board{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 12px;align-items:flex-start;}
+.col{flex:1 1 150px;min-width:150px;background:#faf7f0;border:1px solid var(--line);border-radius:10px;padding:9px 8px;min-height:80px;transition:background .12s,border-color .12s;}
 .col.drop{background:#f2ead6;border-color:var(--gold);}
-.col-h{display:flex;align-items:baseline;gap:6px;margin:2px 4px 8px;}
-.col-h .nm{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);font-weight:700;line-height:1.3;}
-.col-h .ct{margin-left:auto;font-size:9px;font-weight:700;color:var(--gold);background:#fff;border:1px solid var(--line);border-radius:20px;padding:1px 7px;}
-.col-h .sum{width:100%;font-size:9.5px;color:var(--mut);margin:1px 4px 0;font-variant-numeric:tabular-nums;}
-.lead-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-bottom:7px;cursor:pointer;box-shadow:0 1px 2px rgba(120,105,75,.05);border-left:3px solid var(--gold);}
+.col-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px;margin:1px 2px 8px;padding-bottom:6px;border-bottom:2px solid var(--gold);}
+.col-h .nm{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--forest);font-weight:800;line-height:1.25;}
+.col-h .ct{margin-left:auto;font-size:9.5px;font-weight:800;color:#fff;background:var(--forest);border:0;border-radius:20px;padding:1.5px 7px;}
+.col-h .sum{width:100%;font-size:9.5px;font-weight:600;color:var(--mut);margin:2px 1px 0;font-variant-numeric:tabular-nums;}
+.lead-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px;margin-bottom:9px;cursor:pointer;box-shadow:0 1px 2px rgba(120,105,75,.05);border-left:3px solid var(--gold);overflow-wrap:anywhere;}
 .lead-card:hover{border-color:var(--gold);box-shadow:0 3px 10px rgba(120,105,75,.12);}
 .lead-card.drag{opacity:.4;}
-.lead-card .nm{font-weight:600;color:var(--forest);font-size:12.5px;line-height:1.25;}
-.lead-card .meta{font-size:10.5px;color:var(--mut);margin-top:2px;line-height:1.4;}
+.lead-card .nm{display:flex;align-items:flex-start;gap:5px;font-weight:700;color:var(--forest);font-size:12.5px;line-height:1.3;margin:-9px -9px 0;padding:7px 9px 6px;border-radius:0 6px 0 0;background:#f4f1e9;}
+.lead-card .nm .navn{flex:1;min-width:0;}
+.lead-card .nm .ik{flex:0 0 auto;}
+.lead-card.lc-no .nm{background:#e7ecf2;color:#3c5876;}
+.lead-card.lc-dk .nm{background:#f8e6df;color:#8f3a26;}
+.lead-card .meta{font-size:10.5px;font-weight:600;color:var(--ink);margin-top:5px;line-height:1.45;}
+.lead-card .meta.dates{display:flex;flex-wrap:wrap;gap:0 5px;font-variant-numeric:tabular-nums;}
+.lead-card .meta.dates>span{white-space:nowrap;overflow-wrap:normal;word-break:keep-all;}
+.lead-card .bud{font-size:11.5px;font-weight:700;color:var(--ink);margin-top:7px;font-variant-numeric:tabular-nums;}
+.lead-card .bud .pp{font-weight:600;color:var(--mut);}
+.lead-card .bud .cur{font-size:9.5px;font-weight:700;color:var(--mut);letter-spacing:.3px;}
+.lead-card .bud.none{font-weight:600;color:var(--mut);}
 .lead-card .val{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink);}
-.lead-card .foot{display:flex;align-items:center;gap:6px;margin-top:5px;}
+.lead-card .foot{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:10px;padding-top:8px;border-top:1px solid var(--line-2);}
+.lead-card .foot .who{margin-left:auto;display:flex;align-items:center;gap:4px;}
+.lead-card .foot .who .owner-chip{margin-left:0;}
 .age{font-size:8.5px;font-weight:700;border-radius:4px;padding:1.5px 6px;letter-spacing:.5px;}
 .age.fresh{background:#e9f0e6;color:#4a6a3d;} .age.warm{background:#f6edcf;color:#8a6d1f;} .age.hot{background:#f3ddd7;color:#a4442e;}
 .owner-chip{font-size:8.5px;font-weight:700;letter-spacing:.5px;color:#fff;background:#a8a28c;border-radius:20px;padding:1.5px 7px;margin-left:auto;}
+@media (max-width:1500px){ .col-h .nm{font-size:10px;letter-spacing:.4px;} }
 .lead-lost{opacity:.7;} .lead-lost .lead-card{border-left-color:var(--bad);}
 .lead-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
 .lead-form-grid .full{grid-column:1/-1;}
@@ -342,13 +361,22 @@ dialog.lead-dlg h3{font-family:'Playfair Display',serif;color:var(--forest);font
 .dlg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center;}
 .dlg-actions .spacer{margin-left:auto;}
 /* ── henvendelses-kort: chips, branche, dublet ── */
-.lead-card .card-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px;}
-.lead-card .dchip{font-size:9.5px;font-weight:600;color:var(--forest);background:#eef3ec;border:1px solid #d6e0d2;border-radius:20px;padding:0 7px;}
-.lead-card .brch{font-size:8px;font-weight:700;letter-spacing:.4px;background:#eef1f4;color:#5a7089;border:1px solid #d9e0e8;border-radius:4px;padding:1px 5px;}
+.lead-card .card-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+.lead-card .dchip{font-size:9.5px;font-weight:600;color:var(--forest);background:#eef3ec;border:1px solid #d6e0d2;border-radius:20px;padding:1px 7px;line-height:1.5;}
+.lead-card .brch{font-size:9px;font-weight:800;letter-spacing:.6px;background:#eef1f4;color:#5a7089;border:1px solid #d9e0e8;border-radius:4px;padding:1px 5px;}
+.lead-card .brch.br-no{background:#eef1f4;color:#5a7089;border-color:#d9e0e8;}
+.lead-card .brch.br-dk{background:#fbeee9;color:#a4442e;border-color:#e8c6bb;}
 .lead-card .dot-dub{width:7px;height:7px;border-radius:50%;background:var(--bad);display:inline-block;margin-left:4px;}
-.lead-card .tri-chip{font-size:8.5px;font-weight:700;border-radius:4px;padding:1px 6px;margin-top:3px;display:inline-block;}
+.lead-card .tri-chip{font-size:9px;font-weight:700;border-radius:4px;padding:2px 7px;display:inline-block;}
+.lead-card .scorerow{margin-top:8px;display:flex;align-items:center;gap:5px;}
+.lead-card .ikoner{margin-left:auto;display:flex;align-items:center;gap:4px;}
+.lead-card .ik{font-size:15px;line-height:1;cursor:help;display:inline-flex;align-items:center;}
+.lead-card .ik.gengang.skin{font-size:17px;filter:drop-shadow(0 0 3px rgba(212,175,95,.95)) drop-shadow(0 0 6px rgba(212,175,95,.55));}
+.lead-card .ik.varsel{filter:saturate(1.1);}
 .lead-card .tri-chip.good{background:#e9f0e6;color:#4a6a3d;}
 .lead-card .tri-chip.miss{background:#f6edcf;color:#8a6d1f;}
+.lead-card .ferie{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+.lead-card .fchip{font-size:9px;font-weight:700;letter-spacing:.2px;color:var(--forest);background:#fff;border:1px solid var(--gold);border-radius:4px;padding:1.5px 6px;white-space:nowrap;}
 /* ═══ henvendelses-detalje (Pipedrive-inspireret) ═══ */
 dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
 .ld .saved{font-size:11.5px;color:#1f9d57;font-weight:700;opacity:0;transition:opacity .2s;}
@@ -1072,7 +1100,10 @@ async function checkTestdata(){
 
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>'+t('g.noaccess')+'</h3><p class="muted">'+t('g.noaccess_txt')+'</p></div>'; }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
-function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));setRoute(route||v);}
+function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
+  // henvendelses-boardet er bredt (10 trin) — slip main fri fra 1280px-loftet her
+  if(app) app.classList.toggle('wide', v==='leads');
+  setRoute(route||v);}
 /* ── v0.12: hash-router (R-krav: bliv på siden ved reload) ──────────────────
    Panda holdt kun styr på den aktuelle side i hukommelsen, så et F5 smed
    brugeren tilbage til dashboardet. Nu skrives siden (og evt. rejse-id) i
@@ -3639,6 +3670,73 @@ function daysSince(ts){ return ts? Math.max(0,Math.floor((Date.now()-new Date(ts
 function ageCls(d){ return d>=7?'hot':d>=3?'warm':'fresh'; }
 function dagOrd(d){ return d==null?'—':(d===0?'i dag':d===1?'1 dag':d+' dage'); }
 function fmtDT(ts){ if(!ts) return '—'; return new Date(ts).toLocaleString('da-DK',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+// ═══ SKOLEFERIER (DK + NO) ═══
+// Fem ferier der reelt flytter priser og tilgængelighed: sommer, høst/efterår, jul, vinter, påske.
+// Beregnes ud af ISO-ugenummer og påskedato, så det følger skoleåret år efter år uden vedligehold
+// (juleferien går på tværs af nytår, og påsken flytter sig).
+// Norge: høst- og vinterferie ligger forskelligt fra region til region. Regionen udledes af
+// afrejselufthavnen. Kender vi den ikke, vises begge mulige uger — hellere et forbehold end et forkert svar.
+function isoWeekNo(d){
+  const t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()));
+  t.setUTCDate(t.getUTCDate()-((t.getUTCDay()+6)%7)+3);
+  const ft=new Date(Date.UTC(t.getUTCFullYear(),0,4));
+  ft.setUTCDate(ft.getUTCDate()-((ft.getUTCDay()+6)%7)+3);
+  return 1+Math.round((t-ft)/604800000);
+}
+function easterSunday(y){ // Meeus/Jones/Butcher
+  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,
+        f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,
+        i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+        mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;
+  return new Date(Date.UTC(y,mo-1,da));
+}
+// lufthavn → norsk region (koden i parentes i afrejselufthavn-feltet)
+const NO_REGION={OSL:'ost',TRF:'ost',KRS:'ost',BGO:'vest',SVG:'vest',HAU:'vest',AES:'midt',TRD:'midt',BOO:'nord',TOS:'nord'};
+// ferieuger pr. region — rettes her hvis en region viser sig at ligge anderledes
+const FERIEUGER={
+  'NO:ost' :{vinter:[8],  host:[40]},
+  'NO:vest':{vinter:[9],  host:[41]},
+  'NO:midt':{vinter:[9],  host:[40]},
+  'NO:nord':{vinter:[9],  host:[40]},
+  'NO:'    :{vinter:[8,9],host:[40,41]},   // ukendt region → begge muligheder
+  'DK:'    :{vinter:[7,8],host:[42]}       // DK ligger ens på efterårsferien; vinterferien er uge 7 el. 8
+};
+function noRegion(airport){
+  const m=/\(([A-Z]{3})\)/.exec(airport||''); return (m && NO_REGION[m[1]]) || '';
+}
+// hvilken af de fem ferier falder denne dag i?
+function ferieDag(d,land,region){
+  const y=d.getUTCFullYear(), mo=d.getUTCMonth()+1, da=d.getUTCDate(), w=isoWeekNo(d);
+  const uger=FERIEUGER[land+':'+(land==='NO'?region:'')]||FERIEUGER[land+':'];
+  // påske: fra lørdag før palmesøndag til 2. påskedag
+  const dE=Math.round((d-easterSunday(y))/86400000);
+  if(dE>=-8 && dE<=1) return {navn:'Påskeferie'};
+  // juleferie: hen over nytår, samme skoleår
+  if((mo===12&&da>=19)||(mo===1&&da<=3)) return {navn:'Juleferie'};
+  if(uger.vinter.includes(w)) return {navn:'Vinterferie', uge:w};
+  if(uger.host.includes(w))   return {navn: land==='NO'?'Høstferie':'Efterårsferie', uge:w};
+  // sommerferie: NO uge 25–33, DK uge 26–32
+  if(land==='NO' ? (w>=25&&w<=33) : (w>=26&&w<=32)) return {navn:'Sommerferie'};
+  return null;
+}
+// hvilke ferier rammer rejsen? Vinduet udvides med én dag før afrejse og én efter hjemkomst.
+function ferieForRejse(dep,ret,branch,airport){
+  if(!dep) return [];
+  const land = branch==='MD' ? 'DK' : 'NO';
+  const region = land==='NO' ? noRegion(airport) : '';
+  const d0=new Date(dep+'T00:00:00Z'); if(isNaN(d0)) return [];
+  let d1 = ret? new Date(ret+'T00:00:00Z') : new Date(d0);
+  if(isNaN(d1)||d1<d0) d1=new Date(d0);
+  d0.setUTCDate(d0.getUTCDate()-1);   // dagen før afrejse
+  d1.setUTCDate(d1.getUTCDate()+1);   // dagen efter hjemkomst
+  const out=[];
+  for(let i=0, d=new Date(d0); i<=62 && d<=d1; i++, d.setUTCDate(d.getUTCDate()+1)){
+    const f=ferieDag(d,land,region); if(!f) continue;
+    const lbl = f.uge ? f.navn+' uge '+f.uge : f.navn;
+    if(!out.includes(lbl)) out.push(lbl);
+  }
+  return out;
+}
 // ═══ TRIAGE (trin 1: data-drevet klassifikation — uden hotel/fly/pris) ═══
 function tnum(x){ return (x===null||x===undefined||x==='')?null:(+x); }
 function parseBudgetFromText(t){
@@ -3705,7 +3803,28 @@ function renderTriage(l){
     `<div class="tr-row"><span class="tr-k">Ønsket niveau</span><span class="tr-v">${luxLbl[tr.lux]}</span></div>`+
     `<div class="tr-row"><span class="tr-k">Lead-score</span><span class="tr-v"><b>${tr.score}</b> / 100 <span style="color:var(--mut)">foreløbig — hotelforslag, fly og prismatch lægges til i næste trin</span></span></div>`;
 }
+// ── kvalitetsikon efter LEAD-SCORE ────────────────────────────────────────────
+// Grænserne er foreløbige og skal justeres når scoremodellen er genopbygget (krav K8).
+// Sat 14.08.2026 efter den faktiske fordeling på 63 komplette åbne henvendelser:
+//   38(1) 48(4) 54(1) 60(1) 63(18) 65(1) 69(2) 75(1) 78(19) 84(10) 90(5)
+// Modellen giver kun 11 forskellige værdier, og 37 af 63 ligger på 63 eller 78.
+// Grænserne er derfor lagt i hullerne MELLEM klumperne (50 / 63 / 84), så fordelingen
+// bliver 5 💩 · 2 🤞 · 41 👍 · 15 💵. Båndet 50–62 står næsten tomt — det er modellens
+// grovhed, ikke virkeligheden. Rettes HER, ét sted, når K8 er på plads.
+const NOK_TIL_DKK = 0.65;   // implicit kurs fra egne salg (0,6514) — bruges til beløb i tooltip
+const KVALITET = [
+  {fra:84, ikon:'💵', navn:'Dyr / luksus',           note:'øverste fjerdedel af jeres åbne henvendelser'},
+  {fra:63, ikon:'👍', navn:'Mellem',                 note:'god, almindelig henvendelse'},
+  {fra:50, ikon:'🤞', navn:'Kan lige gå',            note:'stram, men mulig'},
+  {fra:0,  ikon:'💩', navn:'Kan ikke lade sig gøre', note:'for lav score'}
+];
+function kvalitetsTrin(score){
+  if(score==null || isNaN(score)) return null;
+  return KVALITET.find(k=>score>=k.fra) || null;
+}
 const BRANCH_LABEL={MN:'Maldivia NO',NO:'Maldivia NO',MD:'Maldivia DK',IT:'Maldivia IT',HQ:'HQ'};
+// kort form til henvendelseskortene — der er ikke plads til (eller brug for) "Maldivia"
+const BRANCH_KORT={MN:'NO',NO:'NO',MD:'DK',IT:'IT',HQ:'HQ'};
 const STAGE_SHORT={new_lead:'Ny',send_email:'Send e-mail',email_sent:'E-mail sendt',make_offer:'Lav tilbud',to_be_sent:'Klar',offer_sent:'Tilbud sendt',followed_up:'Fulgt op',thinking:'Tænker',negotiation:'Forhandling',confirmed:'Vundet'};
 const ROT_DAYS=4; // henvendelsen "rådner" når den har ligget stille på et trin i mere end så mange dage
 const DEST_OPTS=['Maldiverne','Dubai','Abu Dhabi','Qatar','Sri Lanka','Mauritius','Seychellerne','Zanzibar','Thailand','Bali / Indonesien','Singapore','Malaysia','Vietnam'];
@@ -3815,6 +3934,32 @@ async function toggleOfferSms(offId,id,val){ const {error}=await db.from('lead_o
 const BRANCH_OPTS=[['NO','Maldivia NO'],['MD','Maldivia DK'],['IT','Maldivia IT']];
 const ACT_LABEL={system:'System',internt_notat:'Internt notat',opkald:'Opkald til kunde',besked:'Besked til kunde',email_ind:'E-mail fra kunde',email_ud:'E-mail til kunde'};
 function TEAM_OPTS(cur){ const t=window._TEAM||[]; let o=t.map(([ini,nm])=>`<option value="${escH(ini)}" ${cur===ini?'selected':''}>${escH(nm)}</option>`).join(''); if(cur && !t.some(x=>x[0]===cur)) o=`<option value="${escH(cur)}" selected>${escH(cur)}</option>`+o; if(!cur) o='<option value="">—</option>'+o; return o; }
+const maanedStart = () => today().slice(0,7)+'-01';
+// ── varsel: har samme person skrevet til os igen inden for de seneste 30 dage? ──
+// Matcher på e-mail, og ellers på navn (Dolphin-importen har efterladt 1.199 af 1.202
+// kunder uden e-mail, så navnet er det eneste vi har på de gamle).
+function normNavn(x){ return (x||'').toLowerCase().normalize('NFC').replace(/[^a-zæøåéèü ]/g,'').trim().replace(/\s+/g,' '); }
+function markerGentagne(leads){
+  const grænse = Date.now()-30*86400000;
+  const byEmail={}, byNavn={};
+  leads.forEach(l=>{
+    const em=(l.contact_email||'').toLowerCase().trim();
+    if(em && em.includes('@')){ (byEmail[em]=byEmail[em]||[]).push(l); }
+    const nv=normNavn(l.contact_name);
+    if(nv.includes(' ')){ (byNavn[nv]=byNavn[nv]||[]).push(l); }
+  });
+  leads.forEach(l=>{
+    const em=(l.contact_email||'').toLowerCase().trim(), nv=normNavn(l.contact_name);
+    const flok = (em && em.includes('@') && byEmail[em]) || (nv.includes(' ') && byNavn[nv]) || [l];
+    // andre henvendelser fra samme person, oprettet inden for 30 dage
+    const nye = flok.filter(o=>o.id!==l.id && o.created_at && new Date(o.created_at).getTime()>=grænse);
+    if(!nye.length){ l._gentag=null; return; }
+    const seneste = nye.map(o=>daysSince(o.created_at)).sort((a,b)=>a-b)[0];
+    l._gentag={antal:nye.length, dage:seneste};
+  });
+}
+// NB: henvendelser bruger branchekoden NO, rejser bruger MN (og historisk NO) for Norge
+const TRIP_BRANCH={NO:['MN','NO'],MD:['MD']};
 async function fetchLeads(){ const {data}=await db.from('leads').select(LEAD_FIELDS).order('created_at',{ascending:false}); return data||[]; }
 
 async function viewLeads(){
@@ -3825,18 +3970,25 @@ async function viewLeads(){
   window._leads = leads;
   // dublet-info, seneste trinskift og team til kortene
   try{
-    const [dubR, actR, teamR] = await Promise.all([
+    const [dubR, actR, teamR, tripR] = await Promise.all([
       db.from('v_lead_dubletter').select('lead_id,andre_henvendelser,kendte_kunder'),
       db.from('lead_activities').select('lead_id,occurred_at').eq('type','system').not('stage','is',null).order('occurred_at',{ascending:false}),
-      db.from('team_members').select('name,initials,active')
+      db.from('team_members').select('name,initials,active'),
+      // månedens salg — hentes direkte fra rejserne (faktisk booket), kun denne måned
+      db.from('trips').select('ref_no,branch,owner,status,package_sell_dkk,booking_date').gte('booking_date', maanedStart())
     ]);
     const dmap={}; (dubR.data||[]).forEach(d=>{ if((d.andre_henvendelser||0)>0||(d.kendte_kunder||0)>0) dmap[d.lead_id]=d; });
     const smap={}; (actR.data||[]).forEach(a=>{ if(!smap[a.lead_id]) smap[a.lead_id]=a.occurred_at; });
     leads.forEach(l=>{ l._dublet=dmap[l.id]||null; l._stageSince=smap[l.id]||l.created_at; });
+    markerGentagne(leads);
     window._TEAM=(teamR.data||[]).filter(u=>u.active!==false && !/test|maka/i.test((u.initials||'')+(u.name||''))).map(u=>[u.initials,(u.name||'').split(' ')[0]||u.initials]);
-  }catch(e){}
+    // TEST-rejser (TEST-MN9001 osv.) ligger i produktionsdata og må ikke tælle med i månedens salg
+    window._leadMdrSalg=(tripR.data||[]).filter(t=>!['canx','voided'].includes(t.status) && !/^test/i.test(t.ref_no||''));
+  }catch(e){ window._leadMdrSalg=window._leadMdrSalg||[]; }
   leadBoardRender();
 }
+// valuta: feltet på henvendelsen, ellers udledt af branchen (MD = DKK, NO = NOK)
+const leadCur = l => (l && l.currency) ? l.currency : (l && l.branch==='MD' ? 'DKK' : 'NOK');
 function setLeadFilter(k,v){ window._leadFilter=Object.assign({branch:'',owner:''},window._leadFilter); window._leadFilter[k]=v; leadBoardRender(); }
 function leadBoardRender(){
   const leads=window._leads||[];
@@ -3844,10 +3996,14 @@ function leadBoardRender(){
   const match=l=> (!f.branch||l.branch===f.branch) && (!f.owner||l.owner===f.owner);
   const open = leads.filter(l=>l.status==='open' && match(l));
   const lost = leads.filter(l=>l.status==='lost' && match(l));
-  const won  = leads.filter(l=>l.status==='won');
-  const t30 = plusDays(-30);
-  const offerStages = ['make_offer','to_be_sent','offer_sent','followed_up','negotiation'];
-  const pipeVal = open.reduce((s,l)=>s+(+l.est_value||0),0);
+  // ── månedens salg (faktisk booket i trips), samme filter som boardet ──
+  const mdr=(window._leadMdrSalg||[]).filter(t=>{
+    if(f.branch){ const ok=TRIP_BRANCH[f.branch]||[f.branch]; if(!ok.includes(t.branch)) return false; }
+    if(f.owner && t.owner!==f.owner) return false;
+    return true;
+  });
+  const mdrOms=mdr.reduce((s,t)=>s+(+t.package_sell_dkk||0),0);
+  const mdrNavn=new Date(today()).toLocaleDateString('da-DK',{month:'long'});
   const bbtn=(k,v,lab)=>`<button class="lf ${(f[k]||'')===v?'on':''}" onclick="setLeadFilter('${k}','${v}')">${lab}</button>`;
   app.innerHTML = `
   <div class="pagehead"><h2>Henvendelser</h2><span class="sub">salgspipeline før booking</span>
@@ -3858,19 +4014,16 @@ function leadBoardRender(){
     <span class="lf-lbl" style="margin-left:10px">Ansvarlig</span>
     ${bbtn('owner','','Alle')}${(window._TEAM||[]).map(([ini,nm])=>bbtn('owner',escH(ini),escH(nm))).join('')}
   </div>
-  <div class="grid g4" style="margin-bottom:14px">
-    <div class="kpi"><b>${open.length}</b><span>åbne henvendelser</span></div>
-    <div class="kpi"><b>${open.filter(l=>offerStages.includes(l.stage)).length}</b><span>i tilbudsfasen</span></div>
-    <div class="kpi"><b>${won.filter(l=>(l.updated_at||'')>=t30).length}</b><span>vundet (30 dage)</span></div>
-    <div class="kpi"><b>${fval(pipeVal)}</b><span>estimeret pipeline (DKK)</span></div>
+  <div class="leadkpis">
+    ${hasPerm('economy')?`<div class="kpi mini"><b>${fval(mdrOms)} <span class="cur">DKK</span></b><span>solgt for i ${mdrNavn}</span></div>`:''}
+    <div class="kpi mini"><b>${mdr.length}</b><span>solgte rejser i ${mdrNavn}</span></div>
+    <div class="kpi mini"><b>${open.length}</b><span>åbne henvendelser</span></div>
   </div>
   <div class="board" id="leadboard">
     ${LEAD_STAGES.map(([key,label])=>{
       const cards = open.filter(l=>l.stage===key).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-      const sum = cards.reduce((s,l)=>s+(+l.est_value||0),0);
       return `<div class="col" data-stage="${key}" ondragover="leadDragOver(event)" ondragleave="leadDragLeave(event)" ondrop="leadDrop(event,'${key}')">
-        <div class="col-h"><span class="nm">${label}</span><span class="ct">${cards.length}</span>
-          ${sum?`<span class="sum">${fval(sum)} kr.</span>`:''}</div>
+        <div class="col-h"><span class="nm">${label}</span><span class="ct">${cards.length}</span></div>
         ${cards.map(leadCard).join('')||'<p class="muted" style="padding:4px 4px 8px">—</p>'}
       </div>`;
     }).join('')}
@@ -3880,17 +4033,77 @@ function leadBoardRender(){
 function leadCard(l){
   const since=l._stageSince||l.created_at; const d=daysSince(since);
   const dests=destList(l.destination).slice(0,3);
-  const sub=[ l.adults?l.adults+(l.kids?'+'+l.kids:'')+' pax':'', l.departure_date?fmtDY(l.departure_date):'' ].filter(Boolean).join(' · ');
   const tr=triage(l);
-  return `<div class="lead-card" draggable="true" data-id="${l.id}" ondragstart="leadDragStart(event,'${l.id}')" ondragend="leadDragEnd(event)" onclick="editLead('${l.id}')">
-    <div class="nm">${escH(l.contact_name||l.title)}${l._dublet?'<span class="dot-dub" title="Mulig dublet"></span>':''}</div>
+  // rejsende: "2 voksne, 2 børn (4, 9)"
+  const a=tnum(l.adults), k=tnum(l.kids)||0;
+  const ages=(l.child_ages||'').split(/\s*,\s*/).filter(x=>x!=='');
+  const paxParts=[];
+  if(a) paxParts.push(a===1?'1 voksen':a+' voksne');
+  if(k>0) paxParts.push((k===1?'1 barn':k+' børn')+(ages.length?' ('+ages.join(', ')+')':''));
+  const pax=paxParts.join(', ');
+  // nætter: feltet, ellers regnet ud af datoerne
+  let nn=tnum(l.nights);
+  if(nn==null && l.departure_date && l.return_date){
+    const diff=Math.round((new Date(l.return_date)-new Date(l.departure_date))/86400000);
+    if(diff>0) nn=diff;
+  }
+  const naetter = nn!=null && nn>0 ? nn+(nn===1?' nat':' nætter') : '';
+  // afrejse → hjemrejse (+ nætter)
+  const datoer = l.departure_date
+    ? fmtDY(l.departure_date) + (l.return_date? ' → '+fmtDY(l.return_date) : '')
+    : (l.earliest_departure? fmtDY(l.earliest_departure)+' (tidligst)' : '');
+  const linje2 = (datoer?`<span>${escH(datoer)}</span>`:'') + (naetter?`<span>${escH(naetter)}</span>`:'');
+  // budget (samme kilde som triage: felt, fritekst eller estimat)
+  const cur = leadCur(l);
+  // negative beløb findes i data efter Pipedrive-importen (prisintervaller læst som minus) — vis dem ikke som tal
+  const budFejl = (+l.est_value<0) || (tr.total!=null && tr.total<0) || (tr.perPerson!=null && tr.perPerson<0);
+  const bud = budFejl
+    ? '<div class="bud none" title="Beløbet i data er negativt — se henvendelsen efter">Budget uklart</div>'
+    : (tr.total!=null
+        ? `<div class="bud">${fval(tr.total)} <span class="cur">${cur}</span></div>`
+        : (tr.perPerson!=null
+            ? `<div class="bud">${fval(tr.perPerson)} <span class="cur">${cur}</span> <span class="pp">/pers.</span></div>`
+            : '<div class="bud none">Budget ikke oplyst</div>'));
+  const brCls = /^(MN|NO)$/.test(l.branch||'') ? 'br-no' : (l.branch==='MD' ? 'br-dk' : '');
+  // skoleferier rejsen rammer — vejledende, kommunerne ligger ikke helt ens
+  const ferier = ferieForRejse(l.departure_date||l.earliest_departure, l.return_date||l.latest_return, l.branch, l.departure_airport);
+  const ferieHtml = ferier.length
+    ? `<div class="ferie">${ferier.map(f=>`<span class="fchip" title="Rejsen falder i ${escH(f.toLowerCase())} — ${l.branch==='MD'?'dansk':'norsk'} skolekalender${l.branch!=='MD'?(noRegion(l.departure_airport)?' ('+escH(l.departure_airport||'')+')':' (region ukendt — begge mulige uger vises)'):''}. Dagen før afrejse og dagen efter hjemkomst er regnet med.">${escH(f)}</span>`).join('')}</div>`
+    : '';
+  const lcCls = brCls==='br-no' ? 'lc-no' : (brCls==='br-dk' ? 'lc-dk' : '');
+  // ── ikonrækken: genganger, varsel, stærk henvendelse ──
+  const g=l._gentag, du=l._dublet;
+  const grunde=[];
+  if(g) grunde.push('Skrev også '+(g.dage===0?'i dag':dagOrd(g.dage)+' siden')+(g.antal>1?' ('+g.antal+' andre henvendelser)':''));
+  if(du && du.andre_henvendelser>0) grunde.push('Mulig dublet — '+du.andre_henvendelser+' anden henvendelse med samme e-mail');
+  const ikoner=[];
+  // guldhjerte: kunden har købt før. 2+ rejser → hjertet får gnister.
+  const koeb = +(l._koeb||0);
+  const hjerte = koeb>=2
+    ? `<span class="ik gengang skin" title="Trofast kunde — ${koeb} rejser købt hos os. Åbn henvendelsen for historikken.">💛</span>`
+    : (koeb===1 ? '<span class="ik gengang" title="Genganger — kunden har købt én rejse hos os før. Åbn henvendelsen for historikken.">💛</span>' : '');
+  // mangler der oplysninger, kan henvendelsen ikke vurderes — så står lægen der i stedet
+  if(!tr.complete){
+    ikoner.push(`<span class="ik diag" title="Mangler oplysninger før den kan vurderes: ${escH(tr.missing.join(', '))}">❓</span>`);
+  } else {
+    const kv = kvalitetsTrin(tr.score);
+    if(kv) ikoner.push(`<span class="ik kval" title="${escH(kv.navn)} — lead-score ${tr.score}, ${escH(kv.note)}${tr.perPerson!=null&&tr.perPerson>0?'. '+fval(tr.perPerson)+' '+cur+' pr. person':''}">${kv.ikon}</span>`);
+  }
+  if(grunde.length) ikoner.push(`<span class="ik varsel" title="${escH(grunde.join(' · '))} — åbn henvendelsen for detaljer">⛔</span>`);
+  const ikonHtml = ikoner.length?`<span class="ikoner">${ikoner.join('')}</span>`:'';
+  return `<div class="lead-card ${lcCls}" draggable="true" data-id="${l.id}" ondragstart="leadDragStart(event,'${l.id}')" ondragend="leadDragEnd(event)" onclick="editLead('${l.id}')">
+    <div class="nm"><span class="navn">${escH(l.contact_name||l.title)}</span>${hjerte}</div>
+    <div class="scorerow">${tr.complete?`<span class="tri-chip good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri-chip miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}${ikonHtml}</div>
     ${dests.length?`<div class="card-chips">${dests.map(x=>`<span class="dchip">${escH(x)}</span>`).join('')}</div>`:''}
-    ${sub?`<div class="meta">${escH(sub)}</div>`:''}
-    <div>${tr.complete?`<span class="tri-chip good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri-chip miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}</div>
-    <div class="foot"><span class="val">${l.est_value?fval(l.est_value)+' kr.':'—'}</span>
-      <span class="age ${ageCls(d||0)}" title="${dagOrd(d)} på dette trin">${d==null?'—':d+'d'}</span>
-      ${l.branch?`<span class="brch">${escH(BRANCH_LABEL[l.branch]||l.branch)}</span>`:''}
-      ${l.owner?`<span class="owner-chip">${escH(l.owner)}</span>`:''}</div>
+    ${pax?`<div class="meta">${escH(pax)}</div>`:''}
+    ${linje2?`<div class="meta dates">${linje2}</div>`:''}
+    ${ferieHtml}
+    ${bud}
+    <div class="foot">
+      ${l.branch?`<span class="brch ${brCls}" title="${escH(BRANCH_LABEL[l.branch]||l.branch)}">${escH(BRANCH_KORT[l.branch]||l.branch)}</span>`:''}
+      <span class="who">
+        <span class="age ${ageCls(d||0)}" title="${dagOrd(d)} på dette trin — ${l.owner?escH(l.owner)+' er ansvarlig':'ingen ansvarlig sat'}">${d==null?'—':d+'d'}</span>
+        ${l.owner?`<span class="owner-chip">${escH(l.owner)}</span>`:''}</span></div>
   </div>`;
 }
 // drag & drop
