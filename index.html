@@ -3965,18 +3965,28 @@ async function fetchLeads(){ const {data}=await db.from('leads').select(LEAD_FIE
 async function viewLeads(){
   if(!hasPerm('leads')) return noAccess('leads');
   navTo('leads');
-  app.innerHTML = '<div class="pagehead"><h2>Henvendelser</h2></div><div class="card">Henter…</div>';
-  const leads = await fetchLeads();
-  window._leads = leads;
-  // dublet-info, seneste trinskift og team til kortene
-  try{
-    const [dubR, actR, teamR, tripR] = await Promise.all([
+  // Har vi været her før i denne session, vises boardet STRAKS fra det vi allerede
+  // har hentet, og opdateres når de friske data er hjemme. Første gang vises "Henter…".
+  const harCache = !!(window._leads && window._leads.length && window._TEAM);
+  if(harCache) leadBoardRender();
+  else app.innerHTML = '<div class="pagehead"><h2>Henvendelser</h2></div><div class="card">Henter…</div>';
+  // Alle fem kald sendes af sted SAMTIDIG. Før ventede de fire berigelses-kald på at
+  // henvendelserne var hjemme først — en unødig ekstra rundtur til serveren.
+  const pLeads = fetchLeads();
+  const pBerig = Promise.all([
       db.from('v_lead_dubletter').select('lead_id,andre_henvendelser,kendte_kunder'),
       db.from('lead_activities').select('lead_id,occurred_at').eq('type','system').not('stage','is',null).order('occurred_at',{ascending:false}),
       db.from('team_members').select('name,initials,active'),
       // månedens salg — hentes direkte fra rejserne (faktisk booket), kun denne måned
       db.from('trips').select('ref_no,branch,owner,status,package_sell_dkk,booking_date').gte('booking_date', maanedStart())
-    ]);
+  ]).catch(()=>null);
+
+  const leads = await pLeads;
+  window._leads = leads;
+  // dublet-info, seneste trinskift og team til kortene
+  const berig = await pBerig;
+  if(berig){
+    const [dubR, actR, teamR, tripR] = berig;
     const dmap={}; (dubR.data||[]).forEach(d=>{ if((d.andre_henvendelser||0)>0||(d.kendte_kunder||0)>0) dmap[d.lead_id]=d; });
     const smap={}; (actR.data||[]).forEach(a=>{ if(!smap[a.lead_id]) smap[a.lead_id]=a.occurred_at; });
     leads.forEach(l=>{ l._dublet=dmap[l.id]||null; l._stageSince=smap[l.id]||l.created_at; });
@@ -3984,7 +3994,7 @@ async function viewLeads(){
     window._TEAM=(teamR.data||[]).filter(u=>u.active!==false && !/test|maka/i.test((u.initials||'')+(u.name||''))).map(u=>[u.initials,(u.name||'').split(' ')[0]||u.initials]);
     // TEST-rejser (TEST-MN9001 osv.) ligger i produktionsdata og må ikke tælle med i månedens salg
     window._leadMdrSalg=(tripR.data||[]).filter(t=>!['canx','voided'].includes(t.status) && !/^test/i.test(t.ref_no||''));
-  }catch(e){ window._leadMdrSalg=window._leadMdrSalg||[]; }
+  } else { window._leadMdrSalg=window._leadMdrSalg||[]; }
   leadBoardRender();
 }
 // valuta: feltet på henvendelsen, ellers udledt af branchen (MD = DKK, NO = NOK)
