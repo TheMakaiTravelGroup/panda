@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.17 · 22.08.2026
+<!-- Panda · v0.19 · 22.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -651,7 +651,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.17';
+const APP_VERSION = 'v0.19';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -4236,7 +4236,7 @@ async function hvOpen(id){
 function hvRender(l, acts, offers){
   const tr=triage(l), cur=leadCur(l);
   const pos=(window._hvOrder||[]).indexOf(l.id);
-  const notes=acts.filter(a=>a.type==='note');
+  const notes=acts.filter(a=>a.type==='internt_notat');
   const koeb=+(l._koeb||0);
   const villa=hvArr(l.villa_types), meal=hvArr(l.meal_plans), occ=hvArr(l.occasions);
   const dests=destList(l.destination);
@@ -4273,11 +4273,11 @@ function hvRender(l, acts, offers){
       <div class="main">
         <div class="sh"><span class="txt">Kundens ønsker</span></div>
         <div class="wish" contenteditable="true" spellcheck="false" onblur="hvSave('travel_wishes',this.innerText)">${escH(hvRensOnsker(l.travel_wishes||l.wishes||''))}</div>
-        <div class="wsrc">Kundens egne ord${(l.travel_wishes||l.wishes||'')!==hvRensOnsker(l.travel_wishes||l.wishes||'')?' · feltoverskriften fra formularen er skjult':''} <span class="edithint">klik i teksten for at rette</span></div>
+        <div class="wsrc">Kundens egne ord <span class="edithint">klik i teksten for at rette</span></div>
 
         <div class="sh"><span class="txt">Interne noter</span></div>
         <div class="ntadd"><textarea id="hvNote" rows="2" placeholder="Skriv en intern note…"></textarea><button class="b gold" style="align-self:flex-start" onclick="hvAddNote()">Gem</button></div>
-        <ul class="nlist">${notes.length?notes.map(n=>`<li><div class="h"><span class="au">${escH(n.actor||'')}</span><span class="dt">${escH(fmtDT(n.occurred_at))}</span></div><div class="t">${escH(n.body||'')}</div></li>`).join(''):'<li><div class="t" style="color:var(--mut)">Ingen noter endnu.</div></li>'}</ul>
+        <ul class="nlist">${notes.length?notes.map(n=>`<li><div class="h"><span class="au">${escH(n.actor||'')}</span><span class="dt">${escH(fmtDT(n.occurred_at))}</span><button class="nx" onclick="hvDelNote('${n.id}')" title="Slet note">×</button></div><div class="t">${escH(n.body||'')}</div></li>`).join(''):'<li><div class="t" style="color:var(--mut)">Ingen noter endnu.</div></li>'}</ul>
 
         <div class="sh"><span class="txt">Detaljer</span></div>
         <div class="grid3">
@@ -4329,7 +4329,6 @@ function hvRender(l, acts, offers){
               <div class="oact">${fundet.map(u=>`<button class="ob" onclick="hvCopy('${escH(u)}')">Kopiér</button>`).join('')}</div>
             </div>`:''; })()}
           <div class="oadd"><input id="hvOfferUrl" placeholder="Indsæt link til et tilbud fra Team Maldivia…"><button class="ob p" onclick="hvAddOffer()">Tilføj tilbud</button></div>
-          <p class="oconc" style="color:var(--mut)">Kun <b>2 af 211</b> henvendelser har et tilbudslink i det rigtige felt, og <code>offers_count</code> er 0 paa dem alle — men <b>59</b> har et link liggende inde i fritekstteksten, typisk som «TILBUD KLAR — …». De vises ovenfor hvor de findes, men er ikke skrevet ind i databasen. Tilbuddene ligger i Rasmus&#39; tilbudseditor og er aldrig hentet herover — det er praecis det R106 og R107 handler om. Panda kan heller ikke se hvornaar kunden aabner et tilbud; der findes ingen sporingsdata, saa visningstallene fra mockup&#39;en er udeladt frem for at vise tal vi ikke har.</p>
         </div>
 
         <div class="sh"><span class="txt">Historik</span></div>
@@ -4419,9 +4418,15 @@ async function hvStage(k){
 }
 async function hvAddNote(){
   const id=window._hvId, ta=document.getElementById('hvNote'); if(!id||!ta||!ta.value.trim()) return;
-  const {error}=await db.from('lead_activities').insert({lead_id:id,type:'note',body:ta.value.trim(),actor:window.ME||null,occurred_at:new Date().toISOString(),is_touchpoint:false});
+  const {error}=await db.from('lead_activities').insert({lead_id:id,type:'internt_notat',body:ta.value.trim(),actor:(window.MYNAME||window.ME||null),occurred_at:new Date().toISOString(),is_touchpoint:false});
   if(error){ alert(error.message); return; }
   ta.value=''; hvOpen(id);
+}
+async function hvDelNote(actId){
+  if(!confirm('Slet denne note?')) return;
+  const {error}=await db.from('lead_activities').delete().eq('id',actId);
+  if(error){ alert(error.message); return; }
+  hvOpen(window._hvId);
 }
 async function hvAddOffer(){
   const id=window._hvId, inp=document.getElementById('hvOfferUrl'); if(!id||!inp||!inp.value.trim()) return;
