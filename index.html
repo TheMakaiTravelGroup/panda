@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!-- Panda · v0.14 · 22.08.2026
+     Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
+     Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
+     (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
+      kun kunne læses i git-historikken.) -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -569,6 +574,10 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
+// Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
+const APP_VERSION = 'v0.14';
+window.APP_VERSION = APP_VERSION;
+console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
 const app = $('#app');
 /* ═══ v0.10: sprog (da / no / en) ═══
