@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.15 · 22.08.2026
+<!-- Panda · v0.16 · 22.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -598,6 +598,31 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    boardet ruller vandret, saa raekken ikke braekker i to. */
 .hv7 .board{grid-template-columns:repeat(7,minmax(212px,1fr));overflow-x:auto;padding-bottom:8px;}
 @media(max-width:1400px){.hv7 .board{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:minmax(212px,1fr);}}
+/* ── Wendies rettelser 22.08: stoerre kolonneoverskrifter, mindre paagaaende kort ── */
+.hv7 .colh{padding-bottom:9px;}
+.hv7 .colh .nm{font-size:12px;letter-spacing:1.3px;}
+.hv7 .colh .ct{font-size:12px;}
+.hv7 .lc{padding:0 9px 8px;margin-bottom:7px;border-left-width:2px;}
+.hv7 .lc .nm{font-size:14px;padding:6px 9px 5px;margin:0 -9px 0;}
+.hv7 .lc .scorerow{margin-top:6px;}
+.hv7 .lc .tri{font-size:8.5px;padding:2px 6px;}
+.hv7 .lc .card-chips{margin-top:6px;}
+.hv7 .lc .dchip{font-size:9px;padding:1px 6px;}
+.hv7 .lc .meta{font-size:10.5px;margin-top:4px;}
+.hv7 .lc .ferie{margin-top:5px;}
+.hv7 .lc .fchip{font-size:8.5px;padding:1px 6px;}
+.hv7 .lc .bud{font-size:15px;margin-top:6px;}
+.hv7 .lc .foot{margin-top:7px;padding-top:6px;}
+.hv7 .col{padding:9px;min-height:220px;}
+.hv7 .board{grid-template-columns:repeat(7,minmax(192px,1fr));}
+@media(max-width:1400px){.hv7 .board{grid-auto-columns:minmax(192px,1fr);}}
+/* aldersfelter pr. barn */
+.hv7 .kids{display:flex;flex-wrap:wrap;gap:6px;padding:6px 0;}
+.hv7 .kids .kidage{width:46px;text-align:center;font-family:'Inter',sans-serif;font-size:12.5px;padding:6px 0;border:1px solid var(--line);border-radius:3px;background:#fff;}
+.hv7 .kids .kidage.tom{border-color:var(--gold-l);background:rgba(224,201,163,.18);}
+.hv7 .lc .brch,.hv7 .lc .age,.hv7 .lc .owner{white-space:nowrap;}
+.hv7 .lc .foot{gap:5px;font-size:9px;}
+.hv7 .lc .who{gap:5px;}
 
 </style>
 </head>
@@ -626,7 +651,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.15';
+const APP_VERSION = 'v0.16';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -4046,6 +4071,39 @@ const HV_TOP = [['Maldiverne',757],['Mexico',78],['Den Dominikanske Republik',71
 /* Trinnene på skinnen. Samme nøgler som LEAD_STAGES, så data er de samme som
    det gamle board — kun visningen er ny. */
 const HV_RAIL = ['new_lead','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation'];
+/* leads.source staar til 'pipedrive' paa alle 211 - det er importkilden, ikke kundens.
+   Den rigtige kanal ligger i source_channel. */
+const HV_KANAL = {'website':'Hjemmesiden','pipedrive-sync':'Overfoert fra Pipedrive','pipedrive-import':'Importeret fra Pipedrive'};
+
+/* Forklaringen bag lead-scoren - bygget af de samme fire led som triage() regner den ud fra. */
+function hvScoreTip(l,tr){
+  if(!tr.complete) return '';
+  const cur=leadCur(l);
+  const tierTxt={good:['Budgettet holder','Hoejt niveau - over 40.000 pr. person.'],mid:['Budgettet er stramt','Mellemniveau - 20-40.000 pr. person.'],low:['Budgettet er lavt','Under 20.000 pr. person.']}[tr.tier]||['Budget ukendt','Vi kunne ikke laese et beloeb.'];
+  const luxTxt={ultra:['Ultra-luksus efterspurgt','Teksten peger paa det dyreste segment.'],premium:['Premium efterspurgt','Teksten peger paa et hoejere segment.'],standard:['Standard','Ingen tydelige luksussignaler i teksten.']}[tr.lux]||['Standard',''];
+  const nn=tnum(l.nights)||0;
+  const rk=[
+    [tierTxt[0], tierTxt[1]+(tr.perPerson!=null?' '+fval(tr.perPerson)+' '+cur+' pr. person.':''), tr.tier==='good'?'Staerkt':tr.tier==='mid'?'Middel':'Svagt'],
+    ['Alt er oplyst','Vi mangler ikke noget for at kunne bygge et tilbud.','Staerkt'],
+    [luxTxt[0], luxTxt[1], tr.lux==='ultra'?'Staerkt':tr.lux==='premium'?'Middel':'Svagt'],
+    ['Rejsens laengde', nn?(nn+' naetter.'):'Ikke oplyst.', nn>=7?'Staerkt':nn>=4?'Middel':'Svagt']
+  ];
+  return `<span class="tip"><span class="tiph">Hvorfor ${tr.score} af 100</span>`+
+    rk.map(([t,b,st])=>`<span class="tr"><b>${escH(t)}</b>${escH(b)}<i class="st">${st}</i></span>`).join('')+
+    `<span class="trs">Forel&oslash;big model. Scoren siger kun noget om hvor godt <em>henvendelsen</em> er oplyst - ikke om vi kan levere.</span></span>`;
+}
+/* Antal boern -> et aldersfelt pr. barn, med de aldre vi allerede kender. */
+function hvKids(){
+  const kc=document.getElementById('hvKc'), kb=document.getElementById('hvKb'); if(!kb) return;
+  const n=Math.max(0,Math.min(12,+(kc&&kc.value)||0));
+  const l=(window._leads||[]).find(x=>x.id===window._hvId)||{};
+  const kendt=(l.child_ages||'').split(/\s*,\s*/).filter(x=>x!=='');
+  kb.innerHTML=Array.from({length:n},(_,i)=>`<input class="kidage${kendt[i]==null?' tom':''}" placeholder="?" value="${escH(kendt[i]==null?'':kendt[i])}" title="Alder paa barn ${i+1} ved afrejse" onchange="hvSaveKids()">`).join('');
+}
+function hvSaveKids(){
+  const v=[...document.querySelectorAll('#hvKb .kidage')].map(i=>i.value.trim()).filter(x=>x!=='');
+  hvSave('child_ages', v.length?v.join(', '):null);
+}
 
 /* pgArr: Postgres text[] kommer hjem som array; tåler også null og streng. */
 function hvArr(v){ if(Array.isArray(v)) return v; if(v==null||v==='') return []; if(typeof v==='string'){ const s=v.replace(/^\{|\}$/g,''); return s? s.split(',').map(x=>x.replace(/^"|"$/g,'').trim()).filter(Boolean):[]; } return []; }
@@ -4059,15 +4117,17 @@ async function viewHenvendelser(){
   const pLeads = fetchLeads();
   const pBerig = Promise.all([
     db.from('lead_activities').select('lead_id,occurred_at').eq('type','system').not('stage','is',null).order('occurred_at',{ascending:false}),
-    db.from('team_members').select('name,initials,active')
+    db.from('team_members').select('name,initials,active'),
+    db.from('v_lead_kundehistorik').select('lead_id,antal_rejser')
   ]).catch(()=>null);
   const leads = await pLeads;
   window._leads = leads;
   const berig = await pBerig;
   if(berig){
-    const [actR, teamR] = berig;
+    const [actR, teamR, histR] = berig;
     const smap={}; (actR.data||[]).forEach(a=>{ if(!smap[a.lead_id]) smap[a.lead_id]=a.occurred_at; });
-    leads.forEach(l=>{ l._stageSince=smap[l.id]||l.created_at; });
+    const hmap={}; (histR&&histR.data||[]).forEach(h=>{ hmap[h.lead_id]=+h.antal_rejser||0; });
+    leads.forEach(l=>{ l._stageSince=smap[l.id]||l.created_at; l._koeb=hmap[l.id]||0; });
     markerGentagne(leads);
     window._TEAM=(teamR.data||[]).filter(u=>u.active!==false && !/test|maka/i.test((u.initials||'')+(u.name||''))).map(u=>[u.initials,(u.name||'').split(' ')[0]||u.initials]);
   }
@@ -4126,7 +4186,7 @@ function hvCard(l){
   return `<div class="lc ${brc}" data-id="${l.id}" onclick="hvOpen('${l.id}')">
     <div class="nm"><span class="navn">${escH(l.contact_name||l.title||'Uden navn')}</span>${hjerte}</div>
     <div class="scorerow">${tr.complete?`<span class="tri good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}
-      <span class="ikoner">${tr.complete?'':`<span class="ik" title="Mangler oplysninger før den kan vurderes: ${escH(tr.missing.join(', '))}">❓</span>`}</span></div>
+      <span class="ikoner">${tr.complete?(kvalitetsTrin(tr.score)?`<span class="ik" title="${escH((kvalitetsTrin(tr.score)||{}).navn||'')} — lead-score ${tr.score}">${(kvalitetsTrin(tr.score)||{}).ikon||''}</span>`:''):`<span class="ik" title="Mangler oplysninger før den kan vurderes: ${escH(tr.missing.join(', '))}">❓</span>`}</span></div>
     ${dests.length?`<div class="card-chips">${dests.map(x=>`<span class="dchip">${escH(x)}</span>`).join('')}</div>`:''}
     ${pp.length?`<div class="meta">${escH(pp.join(', '))}</div>`:''}
     <div class="meta dates"><span>${escH(datoer)}</span><span>${nn!=null&&nn>0?nn+(nn===1?' nat':' nætter'):''}</span></div>
@@ -4170,8 +4230,7 @@ function hvRender(l, acts, offers){
     <div class="hd">
       <div class="top">
         <div><div class="lab">Henvendelse${l.pipedrive_deal_id?' · '+escH(String(l.pipedrive_deal_id)):''}</div>
-          <h2>${escH(l.title||l.contact_name||'Uden navn')}</h2>
-          <div class="who"><b>${escH(l.contact_name||'')}</b>${l.contact_email?`<span>${escH(l.contact_email)}</span>`:''}${l.contact_phone?`<span>${escH(l.contact_phone)}</span>`:''}</div></div>
+          <h2>${escH(l.title||l.contact_name||'Uden navn')}</h2></div>
         <div class="acts"><span class="pos">${pos>=0?(pos+1)+' / '+window._hvOrder.length:''}</span>
           <button class="b won" disabled title="Bygges i næste trin — jf. R104">Solgt</button>
           <button class="b lost" disabled title="Bygges i næste trin — jf. R104">Tabt</button>
@@ -4183,7 +4242,7 @@ function hvRender(l, acts, offers){
       </div>
       <div class="icons">
         ${koeb?`<span class="ico gold"><b>💛</b>${koeb>=2?'Trofast kunde':'Genganger'} <em>— kunden har købt ${koeb===1?'én rejse':koeb+' rejser'} hos os før</em></span>`:''}
-        <span class="ico score"><b>${tr.complete?'🌴':'❓'}</b>${tr.complete?'Lead-score '+tr.score+' af 100':'Mangler oplysninger'} <em>${tr.complete?'':'— '+escH(tr.missing.join(', '))}</em></span>
+        <span class="ico score" tabindex="0"><b>${tr.complete?((kvalitetsTrin(tr.score)||{}).ikon||'🌴'):'❓'}</b>${tr.complete?'Lead-score '+tr.score+' af 100':'Mangler oplysninger'} <em>${tr.complete?'— hold musen her':'— '+escH(tr.missing.join(', '))}</em>${hvScoreTip(l,tr)}</span>
       </div>
     </div>
 
@@ -4206,8 +4265,6 @@ function hvRender(l, acts, offers){
             <div class="fld"><div class="k">Destination(er)</div><div class="chipedit" id="hvDests">
               ${dests.map(d=>`<span class="dchip">${escH(d)}<button class="x" onclick="hvDelDest(this)" title="Fjern">×</button></span>`).join('')}
               <button class="addchip" onclick="hvAddDest()">+ Tilføj</button></div></div>
-            <div class="fld two"><div><div class="k">Kan rejse tidligst</div><input type="date" value="${l.earliest_departure||''}" onchange="hvSave('earliest_departure',this.value||null)"></div>
-              <div><div class="k">Senest hjemme</div><input type="date" value="${l.latest_return||''}" onchange="hvSave('latest_return',this.value||null)"></div></div>
             <div class="fld two"><div><div class="k">Afrejse</div><input type="date" value="${l.departure_date||''}" onchange="hvSave('departure_date',this.value||null)"></div>
               <div><div class="k">Hjemrejse</div><input type="date" value="${l.return_date||''}" onchange="hvSave('return_date',this.value||null)"></div></div>
             <div class="fld two"><div><div class="k">Antal nætter</div><input value="${l.nights==null?'':l.nights}" onchange="hvSave('nights',this.value===''?null:+this.value)"></div>
@@ -4218,16 +4275,15 @@ function hvRender(l, acts, offers){
           </div>
           <div class="fbox"><div class="lab">Rejsende og budget</div>
             ${fld('Voksne','adults',l.adults)}
-            ${fld('Børn','kids',l.kids)}
-            ${fld('Alder på børn','child_ages',l.child_ages)}
+            <div class="fld"><div class="k">Børn</div><input id="hvKc" value="${l.kids==null?'':l.kids}" oninput="hvKids()" onchange="hvSave('kids',this.value===''?null:+this.value)"></div>
+            <div class="fld"><div class="k">Alder på børn</div><div class="kids" id="hvKb"></div></div>
             <div class="fld"><div class="k">Budget (${escH(cur)})</div><input value="${l.est_value==null?'':l.est_value}" onchange="hvSave('est_value',this.value===''?null:+this.value)"></div>
-            ${fld('Maks. budget','max_budget',l.max_budget)}
           </div>
           <div class="fbox"><div class="lab">Kontakt og kilde</div>
             ${fld('Kontaktnavn','contact_name',l.contact_name)}
             ${fld('E-mail','contact_email',l.contact_email)}
             ${fld('Telefon','contact_phone',l.contact_phone)}
-            ${fld('Kilde','source',l.source)}
+            <div class="fld"><div class="k">Kilde</div><input value="${escH(HV_KANAL[l.source_channel]||l.source_channel||'')}" title="Feltet «source» staar til «pipedrive» paa alle 211 henvendelser — det er hvor data kom FRA, ikke hvor kunden kom fra. Her vises source_channel i stedet." readonly></div>
             <div class="fld"><div class="k">Anledning — vælg gerne flere</div>${multi('occasions',HV_OCC,occ)}</div>
           </div>
         </div>
@@ -4243,7 +4299,7 @@ function hvRender(l, acts, offers){
             <div class="oact">${o.offer_url?`<button class="ob" onclick="hvCopy('${escH(o.offer_url)}')">Kopiér link</button><button class="ob p" onclick="window.open('${escH(o.offer_url)}','_blank')">Åbn</button>`:''}</div>
           </div>`).join(''):'<p class="oconc">Ingen tilbud hentet ind på denne henvendelse endnu.</p>'}
           <div class="oadd"><input id="hvOfferUrl" placeholder="Indsæt link til et tilbud fra Team Maldivia…"><button class="ob p" onclick="hvAddOffer()">Tilføj tilbud</button></div>
-          <p class="oconc" style="color:var(--mut)">Panda kan endnu ikke se hvornår kunden åbner et tilbud — der findes ingen sporingsdata i systemet. Visningstallene fra mockup&#39;en er derfor udeladt her, i stedet for at vise tal vi ikke har. Jf. R106 og R107.</p>
+          <p class="oconc" style="color:var(--mut)">Kun <b>2 af 211</b> henvendelser har overhovedet et tilbudslink registreret i Panda, og <code>offers_count</code> er 0 paa dem alle. Tilbuddene ligger i Rasmus&#39; tilbudseditor og er aldrig hentet herover — det er praecis det R106 og R107 handler om. Panda kan heller ikke se hvornaar kunden aabner et tilbud; der findes ingen sporingsdata, saa visningstallene fra mockup&#39;en er udeladt frem for at vise tal vi ikke har.</p>
         </div>
 
         <div class="sh"><span class="txt">Historik</span></div>
@@ -4281,6 +4337,7 @@ function hvRender(l, acts, offers){
       <span class="kbd">Esc</span><span style="font-size:10px;color:var(--mut)">luk</span>
       <span class="kbd">← →</span><span style="font-size:10px;color:var(--mut)">skift kort</span>
       <button class="b gh" onclick="hvClose()">Luk</button></div>`;
+  hvKids();
 }
 
 function hvClose(){ window._hvId=null;
