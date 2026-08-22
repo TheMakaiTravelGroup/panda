@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.16 · 22.08.2026
+<!-- Panda · v0.17 · 22.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -651,7 +651,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.16';
+const APP_VERSION = 'v0.17';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -4074,6 +4074,26 @@ const HV_RAIL = ['new_lead','make_offer','to_be_sent','offer_sent','followed_up'
 /* leads.source staar til 'pipedrive' paa alle 211 - det er importkilden, ikke kundens.
    Den rigtige kanal ligger i source_channel. */
 const HV_KANAL = {'website':'Hjemmesiden','pipedrive-sync':'Overfoert fra Pipedrive','pipedrive-import':'Importeret fra Pipedrive'};
+/* Feltoverskriften fra henvendelsesformularen er havnet OVEN I kundens tekst ved
+   importen. Fire varianter daekker 142 af henvendelserne. Vi fjerner kun linjen
+   naar den staar helt alene oeverst og matcher praecist - resten roeres ikke. */
+const HV_STDLINJER = ['ønsker og forventninger til reisen','ønsker og forventninger til rejsen','ønsker til rejsen','ønsker til reisen','besked','melding','beskjed'];
+function hvRensOnsker(t){
+  if(!t) return '';
+  const l=String(t).replace(/\r/g,'').split('\n');
+  while(l.length && HV_STDLINJER.includes(l[0].trim().toLowerCase().replace(/[:：]\s*$/,''))) l.shift();
+  while(l.length && !l[0].trim()) l.shift();
+  return l.join('\n').trim();
+}
+/* 59 henvendelser har et tilbudslink liggende inde i fritekstfelterne — typisk
+   som «TILBUD KLAR - https://…» — mens kun 2 har det i offer_url. Vi VISER dem,
+   men skriver dem ikke i databasen; det er en beslutning for Wendie. */
+function hvLinksIFritekst(l){
+  const t=[l.travel_wishes,l.wishes,l.notes,l.highlights,l.offer_url].filter(Boolean).join(' \n ');
+  const m=t.match(/https?:\/\/[^\s<>"')]+/gi)||[];
+  const set=[...new Set(m.map(u=>u.replace(/[.,;)]+$/,'')))];
+  return set.filter(u=>/maldivia|tilbud/i.test(u));
+}
 
 /* Forklaringen bag lead-scoren - bygget af de samme fire led som triage() regner den ud fra. */
 function hvScoreTip(l,tr){
@@ -4252,8 +4272,8 @@ function hvRender(l, acts, offers){
     <div class="body">
       <div class="main">
         <div class="sh"><span class="txt">Kundens ønsker</span></div>
-        <div class="wish" contenteditable="true" spellcheck="false" onblur="hvSave('travel_wishes',this.innerText)">${escH(l.travel_wishes||l.wishes||'')}</div>
-        <div class="wsrc">${l.source?escH(l.source)+' · ':''}kundens egne ord <span class="edithint">klik i teksten for at rette</span></div>
+        <div class="wish" contenteditable="true" spellcheck="false" onblur="hvSave('travel_wishes',this.innerText)">${escH(hvRensOnsker(l.travel_wishes||l.wishes||''))}</div>
+        <div class="wsrc">Kundens egne ord${(l.travel_wishes||l.wishes||'')!==hvRensOnsker(l.travel_wishes||l.wishes||'')?' · feltoverskriften fra formularen er skjult':''} <span class="edithint">klik i teksten for at rette</span></div>
 
         <div class="sh"><span class="txt">Interne noter</span></div>
         <div class="ntadd"><textarea id="hvNote" rows="2" placeholder="Skriv en intern note…"></textarea><button class="b gold" style="align-self:flex-start" onclick="hvAddNote()">Gem</button></div>
@@ -4298,8 +4318,18 @@ function hvRender(l, acts, offers){
             <div class="oviews"><div class="ov1 none">Ingen sporing</div></div>
             <div class="oact">${o.offer_url?`<button class="ob" onclick="hvCopy('${escH(o.offer_url)}')">Kopiér link</button><button class="ob p" onclick="window.open('${escH(o.offer_url)}','_blank')">Åbn</button>`:''}</div>
           </div>`).join(''):'<p class="oconc">Ingen tilbud hentet ind på denne henvendelse endnu.</p>'}
+          ${(()=>{ const kendte=offers.map(o=>o.offer_url).filter(Boolean);
+            const fundet=hvLinksIFritekst(l).filter(u=>!kendte.includes(u));
+            return fundet.length?`<div class="orow" style="background:rgba(224,201,163,.14)">
+              <div class="onum">?</div>
+              <div class="oinfo"><div class="ot">Fundet i henvendelsens tekst</div>
+                <div class="om">${fundet.length===1?'Ét link':fundet.length+' links'} ligger i fritekstfelterne, men er ikke registreret som tilbud i Panda.</div>
+                ${fundet.map(u=>`<a class="olink" href="${escH(u)}" target="_blank" rel="noopener">${escH(u)}</a>`).join('')}</div>
+              <div class="oviews"><div class="ov1 none">Ikke registreret</div></div>
+              <div class="oact">${fundet.map(u=>`<button class="ob" onclick="hvCopy('${escH(u)}')">Kopiér</button>`).join('')}</div>
+            </div>`:''; })()}
           <div class="oadd"><input id="hvOfferUrl" placeholder="Indsæt link til et tilbud fra Team Maldivia…"><button class="ob p" onclick="hvAddOffer()">Tilføj tilbud</button></div>
-          <p class="oconc" style="color:var(--mut)">Kun <b>2 af 211</b> henvendelser har overhovedet et tilbudslink registreret i Panda, og <code>offers_count</code> er 0 paa dem alle. Tilbuddene ligger i Rasmus&#39; tilbudseditor og er aldrig hentet herover — det er praecis det R106 og R107 handler om. Panda kan heller ikke se hvornaar kunden aabner et tilbud; der findes ingen sporingsdata, saa visningstallene fra mockup&#39;en er udeladt frem for at vise tal vi ikke har.</p>
+          <p class="oconc" style="color:var(--mut)">Kun <b>2 af 211</b> henvendelser har et tilbudslink i det rigtige felt, og <code>offers_count</code> er 0 paa dem alle — men <b>59</b> har et link liggende inde i fritekstteksten, typisk som «TILBUD KLAR — …». De vises ovenfor hvor de findes, men er ikke skrevet ind i databasen. Tilbuddene ligger i Rasmus&#39; tilbudseditor og er aldrig hentet herover — det er praecis det R106 og R107 handler om. Panda kan heller ikke se hvornaar kunden aabner et tilbud; der findes ingen sporingsdata, saa visningstallene fra mockup&#39;en er udeladt frem for at vise tal vi ikke har.</p>
         </div>
 
         <div class="sh"><span class="txt">Historik</span></div>
