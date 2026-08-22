@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.14 · 22.08.2026
+<!-- Panda · v0.15 · 22.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -549,6 +549,56 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .docmangler{background:#fbf3ea;border:1px solid #ecd9bf;border-left:3px solid var(--gold);
   border-radius:7px;padding:9px 13px;font-size:12.5px;margin-top:10px;color:#7a5a14}
 .tdrow{cursor:pointer;} .tdrow:hover{background:#faf7f0;}
+
+/* ═══ HENVENDELSER v7 — ny side. Alt er scopet under .hv7, saa intet
+   af den oevrige app kan rammes af disse regler. ═══ */
+.hv7{
+  --page:#efeae1;        /* sider udenom */
+  --card:#fdfbf7;        /* kortflade */
+  --sand:#f2ebe0;        /* varm sektion */
+  --sand2:#e9dfd0;
+  --mist:#e4f0ef;        /* akvamarin dis */
+  --mist2:#d3e7e6;
+  --gold:#c1975a;        /* accent */
+  --gold-l:#e0c9a3;
+  --ink:#3d403a;         /* blød trækul */
+  --ink2:#5c5f57;
+  --mut:#a09884;
+  --line:#e7dfd1;
+  --hair:#f0e9dd;
+  --ok:#7ba488;
+  --bad:#c47d5c;
+}.hv7 *{box-sizing:border-box;}.hv7{font-family:'Inter',system-ui,sans-serif;margin:0;background:var(--page);color:var(--ink);font-size:13px;-webkit-font-smoothing:antialiased;}.hv7 .ser{font-family:'Cormorant Garamond',Georgia,serif;}.hv7 .num{font-variant-numeric:tabular-nums;}.hv7 /* etiket i referencestil: guld versaler + kort guldstreg */
+.lab{font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:600;}.hv7 .lab::after{content:'';display:block;width:26px;height:1px;background:var(--gold-l);margin-top:6px;}.hv7 /* sektionsoverskrift: tydelig, .hv7 med linje ud til kanten */
+.sh{margin:34px 0 14px;display:flex;align-items:center;gap:14px;}.hv7 .sh:first-child{margin-top:0;}.hv7 .sh .txt{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);letter-spacing:.2px;white-space:nowrap;}.hv7 .sh::after{content:'';flex:1;height:1px;background:var(--line);}.hv7 .side .sh::after{background:var(--sand2);}.hv7 /* ══ BOARD ══ */
+.page{padding:24px 28px 60px;transition:filter .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1);}.hv7 .page.dim{filter:blur(3px) saturate(.85);transform:scale(.995);pointer-events:none;}.hv7 .ph{margin-bottom:20px;}.hv7 .ph h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;margin:6px 0 0;color:var(--ink);letter-spacing:.4px;}.hv7 .board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}.hv7 .col{background:rgba(253,251,247,.6);border:1px solid var(--line);border-radius:3px;padding:10px;min-height:330px;}.hv7 .colh{display:flex;align-items:center;gap:7px;margin-bottom:11px;padding:0 2px 8px;border-bottom:1px solid var(--hair);}.hv7 .colh .nm{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--gold);}.hv7 .colh .ct{margin-left:auto;font-size:10px;color:var(--mut);}.hv7 .lc{background:var(--card);border:1px solid var(--line);border-left:2px solid var(--gold-l);border-radius:3px;padding:0 11px 10px;margin-bottom:9px;cursor:pointer;transition:.18s cubic-bezier(.2,.8,.3,1);overflow-wrap:anywhere;}.hv7 .lc:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(120,105,75,.10);border-color:var(--gold-l);}.hv7 .lc.act{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-l);}.hv7 .lc .nm{display:flex;align-items:flex-start;gap:6px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);line-height:1.2;margin:0 -11px 0;padding:8px 11px 7px;background:var(--mist);border-radius:0 2px 0 0;}.hv7 .lc.dk .nm{background:rgba(228,196,179,.34);}.hv7 .lc .nm .navn{flex:1;min-width:0;}.hv7 .lc .scorerow{display:flex;align-items:center;gap:6px;margin-top:8px;}.hv7 .lc .tri{font-size:9px;letter-spacing:.6px;border-radius:2px;padding:3px 8px;}.hv7 .lc .tri.good{background:rgba(123,164,136,.18);color:#4f7a5f;}.hv7 .lc .tri.miss{background:rgba(224,201,163,.34);color:#8d6a34;}.hv7 .lc .ikoner{margin-left:auto;display:flex;gap:4px;}.hv7 .lc .ik{font-size:14px;line-height:1;cursor:help;}.hv7 .lc .ik.skin{font-size:15px;filter:drop-shadow(0 0 3px rgba(193,151,90,.85));}.hv7 .lc .card-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}.hv7 .lc .dchip{font-size:9.5px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 7px;margin:0;}.hv7 .lc .ferie{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}.hv7 .lc .fchip{font-size:9px;color:#8d6a34;background:#fff;border:1px solid var(--gold-l);border-radius:2px;padding:2px 7px;white-space:nowrap;}.hv7 .lc .meta.dates{display:flex;flex-wrap:wrap;gap:0 6px;}.hv7 .lc .bud.none{font-size:12px;color:var(--mut);font-family:'Inter',sans-serif;}.hv7 .lc .cur{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1px;color:var(--mut);}.hv7 .lc .brch{font-size:8.5px;letter-spacing:1.2px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 6px;}.hv7 .lc.dk .brch{color:#a35f3e;background:rgba(228,196,179,.34);}.hv7 .lc .who{margin-left:auto;display:flex;align-items:center;gap:6px;}.hv7 .lc .owner{letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .age{color:var(--mut);}.hv7 .lc .meta{font-size:11px;color:var(--ink2);margin-top:6px;}.hv7 .lc .bud{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-top:9px;color:var(--ink);}.hv7 .lc .ft{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid var(--hair);font-size:9px;}.hv7 .lc .ow{margin-left:auto;letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .ag{color:var(--mut);letter-spacing:.6px;}.hv7 .lc .fl{width:3px;height:3px;border-radius:50%;background:var(--mist2);}.hv7 .hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);color:var(--ink2);font-size:11px;padding:9px 18px;border-radius:3px;z-index:5;box-shadow:0 6px 20px rgba(120,105,75,.12);}.hv7 .hint b{color:var(--gold);font-weight:600;}.hv7 /* ══ OVERLAY ══ */
+.ov{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:26px;
+  background:rgba(90,80,64,.28);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:opacity .26s ease,visibility .26s;}.hv7 .ov.on{opacity:1;visibility:visible;}.hv7 .ld{width:100%;max-width:1160px;max-height:calc(100vh - 52px);overflow-x:hidden;overflow-y:auto;background:var(--card);
+  border-radius:4px;box-shadow:0 40px 110px rgba(80,70,55,.30);
+  transform:translateY(16px) scale(.985);opacity:0;transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .22s;}.hv7 .ov.on .ld{transform:none;opacity:1;}.hv7 .navbtn{position:fixed;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:var(--card);
+  border:1px solid var(--line);color:var(--gold);font-size:17px;cursor:pointer;z-index:41;display:grid;place-items:center;
+  transition:.15s;opacity:0;visibility:hidden;box-shadow:0 6px 20px rgba(80,70,55,.18);}.hv7 .ov.on~.navbtn{opacity:1;visibility:visible;}.hv7 .navbtn:hover{background:var(--gold);color:#fff;border-color:var(--gold);}.hv7 .navbtn.pv{left:16px;}.hv7 .navbtn.nx{right:16px;}.hv7 /* header — lys akvamarin dis */
+.hd{position:sticky;top:0;z-index:5;padding:22px 26px 18px;
+  background:
+    radial-gradient(340px 300px at 92% -70%,rgba(255,255,255,.78),transparent 62%),
+    linear-gradient(135deg,var(--mist) 0%,#eef4f2 38%,var(--sand) 100%);
+  border-bottom:1px solid var(--gold-l);}.hv7 .hd>*{position:relative;}.hv7 .hd .top{display:flex;align-items:flex-start;gap:18px;}.hv7 .hd h2{font-family:'Cormorant Garamond',serif;font-size:31px;font-weight:400;margin:9px 0 6px;letter-spacing:.3px;line-height:1.1;}.hv7 .who{display:flex;flex-wrap:wrap;gap:5px 18px;font-size:11.5px;color:var(--ink2);}.hv7 .who b{font-weight:500;}.hv7 .acts{margin-left:auto;display:flex;align-items:center;gap:7px;}.hv7 .pos{font-size:10px;color:var(--mut);letter-spacing:1px;margin-right:4px;}.hv7 .b{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;border-radius:2px;padding:9px 17px;border:1px solid transparent;cursor:pointer;transition:.16s;white-space:nowrap;}.hv7 .b.won{background:var(--ok);color:#fff;}.hv7 .b.won:hover{background:#6b957a;}.hv7 .b.lost{background:transparent;color:var(--bad);border-color:#e3c4b3;}.hv7 .b.lost:hover{background:var(--bad);color:#fff;border-color:var(--bad);}.hv7 .b.gold{background:var(--gold);color:#fff;}.hv7 .b.gold:hover{background:#ad8548;}.hv7 .b.gh{background:transparent;color:var(--ink2);border-color:var(--line);}.hv7 .b.gh:hover{background:var(--sand);}.hv7 .b.red{background:var(--bad);color:#fff;}.hv7 .xb{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid var(--line);color:var(--ink2);font-size:14px;cursor:pointer;display:grid;place-items:center;transition:.16s;}.hv7 .xb:hover{background:var(--bad);color:#fff;border-color:var(--bad);}.hv7 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px;}.hv7 .icons{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}.hv7 .ico{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink);background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.9);border-radius:3px;padding:5px 11px 5px 8px;}.hv7 .ico b{font-size:14px;line-height:1;font-weight:400;}.hv7 .ico em{font-style:normal;color:var(--mut);font-size:11px;}.hv7 .ico.gold{border-color:var(--gold-l);background:rgba(224,201,163,.26);}.hv7 .ico.score{position:relative;cursor:help;}.hv7 .tip{position:absolute;left:0;top:calc(100% + 9px);width:340px;background:var(--card);border:1px solid var(--line);
+  border-radius:3px;padding:13px 15px;box-shadow:0 14px 40px rgba(80,70,55,.22);opacity:0;visibility:hidden;
+  transform:translateY(-4px);transition:.16s;z-index:9;display:block;}.hv7 .ico.score:hover .tip, .hv7 .ico.score:focus .tip{opacity:1;visibility:visible;transform:none;}.hv7 .tiph{display:block;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:9px;}.hv7 .tr{display:block;font-size:11.5px;color:var(--mut);padding:7px 0;border-bottom:1px solid var(--hair);line-height:1.5;}.hv7 .tr:last-of-type{border-bottom:0;}.hv7 .tr b{display:inline;color:var(--ink);font-weight:600;font-size:12px;margin-right:5px;}.hv7 .tr b::after{content:' —';color:var(--mut);font-weight:400;}.hv7 .tr i{display:inline-block;font-style:normal;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;border-radius:2px;padding:2px 7px;margin-left:6px;vertical-align:1px;}.hv7 .tr i.st{background:rgba(123,164,136,.2);color:#4f7a5f;}.hv7 .tr i.md{background:rgba(224,201,163,.4);color:#8d6a34;}.hv7 .tr i.sv{background:rgba(228,196,179,.35);color:#a35f3e;}.hv7 .trs em{font-style:italic;}.hv7 .trs{display:block;font-family:'Cormorant Garamond',serif;font-size:14.5px;font-style:italic;line-height:1.5;color:var(--ink2);background:var(--mist);border-radius:3px;padding:10px 12px;margin-top:10px;}.hv7 .chip{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;border-radius:2px;padding:4px 10px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.9);color:var(--ink2);}.hv7 .chipsel{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.95);border-radius:2px;padding:3px 5px 3px 10px;transition:.15s;cursor:pointer;}.hv7 .chipsel:hover{border-color:var(--gold-l);background:#fff;}.hv7 .chipsel>span{font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);}.hv7 .chipsel select{font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);border:0;background:transparent;padding:2px 4px;cursor:pointer;font-weight:500;}.hv7 .chipsel select:focus{outline:none;}.hv7 .chip.gold{border-color:var(--gold-l);color:#8d6a34;background:rgba(224,201,163,.3);}.hv7 .chip.warn{border-color:#e3c4b3;color:#a35f3e;background:rgba(228,196,179,.28);}.hv7 /* næste handling */
+.nba{display:flex;align-items:center;gap:11px;padding:11px 26px;background:var(--sand);border-bottom:1px solid var(--line);font-size:12.5px;color:var(--ink2);}.hv7 .pulse{width:6px;height:6px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 0 rgba(196,125,92,.55);animation:pl 2.4s infinite;flex-shrink:0;}@keyframes pl{70%{box-shadow:0 0 0 8px rgba(196,125,92,0);}100%{box-shadow:0 0 0 0 rgba(196,125,92,0);}}.hv7 .nba b{font-weight:600;color:var(--ink);}.hv7 .nba .b{margin-left:auto;}.hv7 /* trin */
+.rail{display:flex;background:var(--card);border-bottom:1px solid var(--hair);}.hv7 .seg{flex:1;padding:11px 6px 0;text-align:center;cursor:pointer;position:relative;transition:.16s;border-right:1px solid var(--hair);}.hv7 .seg:last-child{border-right:0;}.hv7 .seg .d{display:block;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);margin:3px 0 9px;}.hv7 .seg .l{display:block;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);}.hv7 .seg .pb{display:block;height:3px;background:var(--hair);}.hv7 .seg .pb i{display:block;height:100%;background:var(--gold-l);}.hv7 .seg.cur .pb i{background:var(--gold);}.hv7 .seg.done .pb i{background:#9dbfb8;}.hv7 .seg.done{background:var(--mist);}.hv7 .seg.done .d{color:#4d7a72;}.hv7 .seg.done .l{color:#6d8b85;}.hv7 .seg.cur{background:var(--sand2);}.hv7 .seg.cur .d{color:var(--gold);}.hv7 .seg.cur .l{color:#8d6a34;font-weight:600;}.hv7 .seg:hover{background:var(--sand);}.hv7 .rmeta{display:flex;justify-content:space-between;padding:9px 26px;background:var(--card);border-bottom:1px solid var(--line);font-size:11.5px;color:var(--mut);}.hv7 .body{display:grid;grid-template-columns:1fr 300px;align-items:start;}.hv7 .main{padding:24px 26px 32px;min-width:0;}.hv7 .side{background:var(--sand);padding:24px 22px 32px;border-left:1px solid var(--line);align-self:stretch;}.hv7 .ld::-webkit-scrollbar{width:8px;}.hv7 .ld::-webkit-scrollbar-thumb{background:var(--sand2);border-radius:4px;}.hv7 .warn{display:flex;gap:9px;background:rgba(228,196,179,.22);border:1px solid #e8cdbd;border-radius:3px;padding:10px 13px;font-size:11.5px;margin-bottom:18px;color:#8c5738;}.hv7 .wish{border-left:2px solid var(--gold-l);padding:2px 0 2px 16px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;line-height:1.62;color:var(--ink);}.hv7 .wsrc{font-size:11.5px;font-style:italic;color:var(--mut);margin-top:11px;padding-left:18px;}.hv7 .ntadd{display:flex;gap:8px;margin-bottom:10px;}.hv7 .ntadd textarea{flex:1;font-family:'Inter',sans-serif;font-size:12.5px;padding:9px 12px;border:1px solid var(--line);border-radius:3px;background:#fff;resize:vertical;color:var(--ink);}.hv7 .ntadd textarea:focus{outline:none;border-color:var(--gold-l);}.hv7 .nlist{list-style:none;margin:0;padding:0;}.hv7 .nlist li{border:1px solid var(--line);border-radius:3px;padding:11px 13px;margin-bottom:7px;background:#fff;}.hv7 .nlist .h{display:flex;align-items:baseline;gap:9px;font-size:11.5px;margin-bottom:5px;}.hv7 .nlist .au{color:var(--ink);font-weight:600;}.hv7 .nlist .dt{color:var(--mut);}.hv7 .nlist .via{margin-left:auto;color:var(--mut);border:1px solid var(--hair);border-radius:2px;padding:2px 7px;font-size:10px;}.hv7 .nlist .t{font-size:12.5px;line-height:1.6;color:var(--ink2);}.hv7 /* ramme */
+.frame{display:flex;align-items:center;gap:16px;background:var(--mist);border-radius:3px;padding:13px 16px;flex-wrap:wrap;}.hv7 .frame .k{font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:#6d8b85;margin-bottom:3px;}.hv7 .frame .v{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);line-height:1;}.hv7 .fbar{flex:1;min-width:70px;height:2px;background:rgba(255,255,255,.75);position:relative;}.hv7 .fbar i{position:absolute;height:2px;background:var(--gold);}.hv7 .fbar b{position:absolute;top:-3px;width:8px;height:8px;border-radius:50%;background:#fff;border:1.5px solid var(--gold);}.hv7 .flx{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:#5f8c84;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.6);border-radius:2px;padding:4px 9px;}.hv7 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}.hv7 .fbox{border:1px solid var(--line);border-radius:3px;padding:15px 16px;background:#fff;}.hv7 .fbox .lab{margin-bottom:13px;}.hv7 .fld{margin-bottom:11px;}.hv7 .fld:last-child{margin-bottom:0;}.hv7 .fld .k{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);margin-bottom:4px;}.hv7 .fld input, .hv7 .fld select{width:100%;font-family:'Inter',sans-serif;font-size:12.5px;padding:7px 0;border:0;border-bottom:1px solid var(--hair);background:transparent;color:var(--ink);transition:.15s;border-radius:0;}.hv7 .fld input:focus, .hv7 .fld select:focus{outline:none;border-bottom-color:var(--gold);}.hv7 .dchip{display:inline-block;font-size:10px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:3px 9px;margin:2px 4px 0 0;letter-spacing:.3px;}.hv7 .fld.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}.hv7 .kids{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}.hv7 .kids input{text-align:center;border:1px solid var(--hair);border-radius:2px;padding:5px 2px;}.hv7 .kids input::placeholder{color:var(--gold);font-weight:600;opacity:1;}.hv7 .kids input.tom{border-color:var(--gold-l);background:rgba(224,201,163,.14);}.hv7 .sug input, .hv7 .sug select{border-bottom-style:dashed;border-bottom-color:var(--gold);color:#8d6a34;font-style:italic;}.hv7 .sugbar{display:flex;align-items:center;gap:6px;margin-top:5px;}.hv7 .sugbar .t{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);}.hv7 .mini{border:1px solid var(--line);background:#fff;border-radius:2px;width:19px;height:18px;display:grid;place-items:center;cursor:pointer;font-size:9px;padding:0;transition:.14s;}.hv7 .mini.y{color:var(--ok);}.hv7 .mini.y:hover{background:var(--ok);color:#fff;border-color:var(--ok);}.hv7 .mini.n{color:var(--mut);}.hv7 .mini.n:hover{background:var(--sand);}.hv7 .offer{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:3px;padding:14px 16px;}.hv7 .offer .t{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;}.hv7 .offer .s{font-size:12px;color:var(--mut);margin-top:5px;}.hv7 /* ── tilføj tilbud ── */
+.oadd{display:flex;gap:8px;align-items:center;padding:13px 16px;border-top:1px solid var(--hair);background:var(--card);}.hv7 .oadd input{flex:1;font-family:'Inter',sans-serif;font-size:12.5px;padding:8px 0;border:0;border-bottom:1px dashed var(--gold-l);background:transparent;color:var(--ink);}.hv7 .oadd input:focus{outline:none;border-bottom-color:var(--gold);border-bottom-style:solid;}.hv7 .oadd input::placeholder{color:var(--mut);}.hv7 .oresolve{display:none;align-items:center;gap:10px;padding:11px 16px;background:var(--mist);border-top:1px solid var(--hair);font-size:12px;color:#4d7a72;}.hv7 .oresolve.on{display:flex;}.hv7 .spin{width:12px;height:12px;border:2px solid rgba(93,132,124,.25);border-top-color:#4d7a72;border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0;}@keyframes sp{to{transform:rotate(360deg);}}.hv7 /* ── flervalg ── */
+.multi{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}.hv7 .mopt{font-family:'Inter',sans-serif;font-size:11px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:2px;padding:5px 10px;cursor:pointer;transition:.14s;}.hv7 .mopt:hover{border-color:var(--gold-l);color:var(--ink2);}.hv7 .mopt.on{background:rgba(224,201,163,.34);border-color:var(--gold);color:#8d6a34;font-weight:500;}.hv7 .sug .multi .mopt.on{border-style:dashed;}.hv7 .fld.sug .k{color:var(--gold);}.hv7 /* ── destinationsvælger ── */
+.ov3{position:fixed;inset:0;background:rgba(90,80,64,.42);backdrop-filter:blur(4px);display:none;place-items:center;z-index:70;padding:24px;}.hv7 .ov3.on{display:grid;}.hv7 .dpick{background:var(--card);border-radius:4px;max-width:620px;width:100%;max-height:calc(100vh - 60px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 34px 90px rgba(80,70,55,.36);}.hv7 .dph{display:flex;align-items:flex-start;gap:14px;padding:20px 22px 16px;background:linear-gradient(135deg,var(--mist),var(--sand));border-bottom:1px solid var(--gold-l);}.hv7 .dph h3{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:400;margin:8px 0 0;}.hv7 .xb2{margin-left:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid var(--line);color:var(--ink2);cursor:pointer;font-size:13px;}.hv7 .xb2:hover{background:var(--bad);color:#fff;border-color:var(--bad);}.hv7 .dsearch{padding:14px 22px;border-bottom:1px solid var(--hair);}.hv7 .dsearch input{width:100%;font-family:'Inter',sans-serif;font-size:14px;padding:9px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);}.hv7 .dsearch input:focus{outline:none;border-bottom-color:var(--gold);}.hv7 .dbody{overflow-y:auto;padding:6px 22px 22px;}.hv7 .dgrp{border-bottom:1px solid var(--hair);padding:14px 0;}.hv7 .dgrp:last-of-type{border-bottom:0;}.hv7 .dgrp.top{padding-top:16px;}.hv7 .dgh, .hv7 .dgrp>summary{font-size:8.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);margin-bottom:11px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;}.hv7 .dgrp>summary::-webkit-details-marker{display:none;}.hv7 .dgrp>summary::before{content:'+';font-size:13px;}.hv7 .dgrp[open]>summary::before{content:'−';}.hv7 .dwrap{display:flex;flex-wrap:wrap;gap:6px;}.hv7 .dopt{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:2px;padding:8px 13px;cursor:pointer;transition:.14s;}.hv7 .dopt:hover{border-color:var(--gold);color:var(--gold);background:rgba(224,201,163,.14);}.hv7 .dopt.big{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:var(--ink);padding:9px 15px;background:var(--mist);border-color:transparent;}.hv7 .dopt.big em{font-style:normal;font-family:'Inter',sans-serif;font-size:9.5px;color:var(--mut);margin-left:8px;}.hv7 .dopt.big:hover{background:rgba(224,201,163,.3);border-color:var(--gold);}.hv7 .dopt.valgt{background:var(--gold);color:#fff;border-color:var(--gold);}.hv7 .dnone{display:none;font-size:12.5px;color:var(--mut);padding:14px 0 0;}.hv7 .dnone.on{display:block;}.hv7 .dopt.add{margin-left:8px;border-style:dashed;border-color:var(--gold-l);color:var(--gold);}.hv7 /* ── alt kan rettes og fjernes ── */
+.chipedit{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}.hv7 .dchip .x{border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:13px;line-height:1;padding:0 0 0 5px;}.hv7 .dchip .x:hover{color:var(--bad);}.hv7 .addchip{font-family:'Inter',sans-serif;font-size:10px;color:var(--gold);background:transparent;border:1px dashed var(--gold-l);border-radius:2px;padding:3px 9px;cursor:pointer;}.hv7 .addchip:hover{background:rgba(224,201,163,.2);}.hv7 [contenteditable="true"]{border-radius:3px;transition:.14s;outline:none;}.hv7 [contenteditable="true"]:hover{background:rgba(224,201,163,.12);box-shadow:0 0 0 4px rgba(224,201,163,.12);}.hv7 [contenteditable="true"]:focus{background:#fff;box-shadow:0 0 0 1px var(--gold),0 0 0 5px rgba(193,151,90,.13);}.hv7 .edithint{font-style:normal;color:var(--gold);}.hv7 .nx{margin-left:8px;border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:14px;line-height:1;padding:0 2px;}.hv7 .nx:hover{color:var(--bad);}.hv7 .ob.x2{border-color:transparent;color:var(--mut);}.hv7 .ob.x2:hover{border-color:var(--bad);color:var(--bad);}.hv7 /* ── tilbudsliste ── */
+.offers{border:1px solid var(--line);border-radius:3px;overflow:hidden;background:#fff;}.hv7 .orow{display:flex;align-items:center;gap:16px;padding:14px 16px;border-bottom:1px solid var(--hair);transition:.15s;}.hv7 .orow:last-of-type{border-bottom:0;}.hv7 .orow:hover{background:var(--sand);}.hv7 .orow.hot{background:rgba(224,201,163,.18);border-left:2px solid var(--gold);}.hv7 .orow.cold{opacity:.62;}.hv7 .onum{width:26px;height:26px;flex-shrink:0;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--mut);}.hv7 .orow.hot .onum{border-color:var(--gold);color:var(--gold);background:#fff;}.hv7 .oinfo{flex:1;min-width:0;}.hv7 .ot{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--ink);line-height:1.2;}.hv7 .okombi{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:#5f8c84;background:var(--mist);border-radius:2px;padding:3px 8px;margin-left:8px;vertical-align:3px;}.hv7 .om{font-size:11.5px;color:var(--mut);margin-top:3px;}.hv7 .olink{display:inline-block;font-size:11px;color:var(--gold);text-decoration:none;margin-top:5px;border-bottom:1px solid var(--gold-l);}.hv7 .olink:hover{color:#96702f;}.hv7 .oviews{width:132px;flex-shrink:0;text-align:right;}.hv7 .ov1{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:500;color:var(--ink);line-height:1;}.hv7 .ov1 span{font-family:'Inter',sans-serif;font-size:10.5px;color:var(--mut);margin-left:3px;}.hv7 .ov1.none{font-size:13px;font-style:italic;color:var(--mut);}.hv7 .obar{height:2px;background:var(--sand2);margin:7px 0 5px;}.hv7 .obar i{display:block;height:100%;background:var(--gold);}.hv7 .ol1{font-size:10.5px;color:var(--mut);}.hv7 .oact{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}.hv7 .ob{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.5px;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:2px;padding:6px 11px;cursor:pointer;white-space:nowrap;transition:.14s;}.hv7 .ob:hover{border-color:var(--gold);color:var(--gold);}.hv7 .ob.p{background:var(--gold);color:#fff;border-color:var(--gold);}.hv7 .ob.p:hover{background:#ad8548;color:#fff;}.hv7 .oconc{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--ink2);background:var(--mist);margin:0;padding:12px 16px;line-height:1.5;border-top:1px solid var(--hair);}.hv7 .oconc b{font-style:normal;font-weight:600;color:var(--ink);}.hv7 .tl{list-style:none;margin:0;padding:0 0 0 15px;border-left:1px solid var(--hair);}.hv7 .tl li{position:relative;padding:0 0 15px 15px;}.hv7 .tl li::before{content:'';position:absolute;left:-19px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--card);border:1px solid var(--line);}.hv7 .tl li.tp::before{background:var(--gold);border-color:var(--gold);}.hv7 .tl .h{font-size:12.5px;color:var(--ink);}.hv7 .tl .w{font-size:11px;color:var(--mut);margin-top:2px;}.hv7 .tl .bd{font-size:12px;color:var(--ink2);margin-top:5px;line-height:1.55;background:var(--sand);border-radius:3px;padding:7px 11px;}.hv7 .tag{font-size:9px;letter-spacing:.6px;border-radius:2px;padding:2px 7px;margin-left:7px;font-weight:500;vertical-align:1px;}.hv7 .tag.tp{background:rgba(224,201,163,.35);color:#8d6a34;}.hv7 .tag.int{background:var(--mist);color:#5f8c84;}.hv7 .tl .h{display:flex;align-items:center;flex-wrap:wrap;}.hv7 /* sidepanel */
+.scoreline{display:flex;align-items:baseline;gap:10px;}.hv7 .scoreline .n{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:400;line-height:.85;color:var(--ink);}.hv7 .scoreline .of{font-size:11px;color:var(--mut);}.hv7 .scoreline .cat{margin-left:auto;font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:#8d6a34;background:rgba(224,201,163,.4);border:1px solid var(--gold-l);border-radius:2px;padding:4px 9px;}.hv7 .scorebar{height:2px;background:var(--sand2);margin-top:12px;}.hv7 .scorebar i{display:block;height:100%;background:var(--gold);}.hv7 .vur{display:grid;gap:6px;}.hv7 .vur button{font-family:'Inter',sans-serif;text-align:left;background:#fff;border:1px solid var(--line);border-radius:3px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--ink2);font-size:11.5px;transition:.16s;}.hv7 .vur button .dot{width:6px;height:6px;border-radius:50%;background:var(--sand2);}.hv7 .vur button:hover{border-color:var(--gold-l);}.hv7 .vur button.on{background:rgba(224,201,163,.28);border-color:var(--gold);color:var(--ink);font-weight:500;}.hv7 .vur button.on .dot{background:var(--gold);}.hv7 .vur button small{margin-left:auto;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);}.hv7 .vurnote{font-size:10px;color:var(--mut);line-height:1.6;margin-top:9px;font-style:italic;}.hv7 .opens{background:#fff;border:1px solid var(--line);border-radius:3px;overflow:hidden;}.hv7 .opens .tp2{display:flex;align-items:baseline;gap:9px;padding:13px 15px;border-bottom:1px solid var(--hair);}.hv7 .opens .tp2 .n{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;line-height:.9;color:var(--ink);}.hv7 .opens .tp2 .l{font-size:11.5px;color:var(--mut);line-height:1.45;}.hv7 .ol{list-style:none;margin:0;padding:0;}.hv7 .ol li{display:flex;align-items:center;gap:9px;padding:8px 15px;border-bottom:1px solid var(--hair);font-size:11px;color:var(--ink2);}.hv7 .ol li:last-child{border-bottom:0;}.hv7 .ol li.hot{background:rgba(228,196,179,.2);}.hv7 .ol .dur{font-size:9px;color:var(--mut);}.hv7 .ol .ago{margin-left:auto;font-size:10.5px;color:var(--mut);}.hv7 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px;}.hv7 .kpi{background:#fff;border:1px solid var(--line);border-radius:3px;padding:12px 13px;}.hv7 .kpi .n{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;line-height:1;color:var(--ink);}.hv7 .kpi .l{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.4;}.hv7 details.tech{margin-top:24px;border-top:1px solid var(--sand2);padding-top:14px;}.hv7 details.tech summary{cursor:pointer;font-size:8.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--mut);list-style:none;display:flex;gap:8px;align-items:center;}.hv7 details.tech summary::-webkit-details-marker{display:none;}.hv7 details.tech summary::before{content:'+';color:var(--gold);font-size:13px;}.hv7 details.tech[open] summary::before{content:'−';}.hv7 .techrow{display:flex;gap:10px;font-size:10px;margin-top:10px;}.hv7 .techrow .k{flex:0 0 84px;color:var(--mut);letter-spacing:.6px;}.hv7 .techrow .v{flex:1;word-break:break-all;color:var(--ink2);}.hv7 .foot{display:flex;align-items:center;gap:10px;padding:13px 26px;border-top:1px solid var(--line);background:var(--card);position:sticky;bottom:0;z-index:3;}.hv7 .foot .sp{margin-left:auto;}.hv7 .saved{font-size:11.5px;color:var(--ok);}.hv7 .kbd{font-size:9px;letter-spacing:.6px;background:var(--sand);border:1px solid var(--line);border-radius:2px;padding:2px 7px;color:var(--mut);}.hv7 .ov2{position:fixed;inset:0;background:rgba(90,80,64,.42);backdrop-filter:blur(4px);display:none;place-items:center;z-index:60;padding:20px;}.hv7 .ov2.on{display:grid;}.hv7 .ldlg{background:var(--card);border-radius:4px;max-width:490px;width:100%;overflow:hidden;box-shadow:0 30px 90px rgba(80,70,55,.35);}.hv7 .ldlg .h{background:linear-gradient(135deg,var(--sand),var(--sand2));padding:18px 22px;border-bottom:1px solid var(--gold-l);}.hv7 .ldlg .h h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;margin:0 0 3px;}.hv7 .ldlg .h p{margin:0;font-size:11px;color:var(--ink2);}.hv7 .ldlg .c{padding:18px 22px 22px;}.hv7 .reasons{display:grid;gap:6px;margin-bottom:15px;}.hv7 .reasons button{font-family:'Inter',sans-serif;text-align:left;background:#fff;border:1px solid var(--line);border-radius:3px;padding:12px 14px;cursor:pointer;font-size:12.5px;color:var(--ink2);transition:.15s;}.hv7 .reasons button:hover{border-color:var(--gold);}.hv7 .reasons button.on{background:rgba(224,201,163,.3);border-color:var(--gold);color:var(--ink);font-weight:500;}.hv7 .ldlg label{display:block;font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin:0 0 5px;}.hv7 .ldlg input, .hv7 .ldlg textarea{width:100%;font-family:'Inter',sans-serif;font-size:12.5px;padding:8px 0;border:0;border-bottom:1px solid var(--hair);background:transparent;margin-bottom:14px;}.hv7 .ldlg input:focus, .hv7 .ldlg textarea:focus{outline:none;border-bottom-color:var(--gold);}.hv7 .lf{display:flex;gap:8px;justify-content:flex-end;}.hv7 .mm{position:fixed;right:14px;bottom:14px;background:var(--card);border:1px solid var(--gold-l);color:var(--gold);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;padding:7px 13px;border-radius:2px;z-index:70;}@media(max-width:1000px){.hv7 .body{grid-template-columns:1fr;}.hv7 .grid3{grid-template-columns:1fr;}.hv7 .board{grid-template-columns:repeat(2,1fr);}}
+/* 7 trin passer ikke i mockup'ens 5 kolonner. Kolonnerne faar fast bredde og
+   boardet ruller vandret, saa raekken ikke braekker i to. */
+.hv7 .board{grid-template-columns:repeat(7,minmax(212px,1fr));overflow-x:auto;padding-bottom:8px;}
+@media(max-width:1400px){.hv7 .board{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:minmax(212px,1fr);}}
+
 </style>
 </head>
 <body>
@@ -557,6 +607,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   <nav id="nav">
     <button data-v="dash" class="on" data-i18n="nav.dash">Dashboard</button>
     <button data-v="leads" data-i18n="nav.leads">Henvendelser</button>
+    <button data-v="hv" title="Ny henvendelsesside (v7) — den gamle ligger stadig under «Henvendelser»">Henvendelser (ny)</button>
     <button data-v="sales" data-i18n="nav.sales">Salg</button>
     <button data-v="finance" data-i18n="nav.finance">Økonomi</button>
     <button data-v="tasks" data-i18n="nav.tasks">Opgaver</button>
@@ -575,7 +626,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.14';
+const APP_VERSION = 'v0.15';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -786,7 +837,7 @@ const FLOW = ['bekraeftet','bb_sendt','klar_til_afrejse','god_tur','faerdig'];
 // Henvendelses-pipeline — trin kortlagt fra Pipedrive "Leads - Pipeline" (16. jul 2026)
 const LEAD_STAGES = ['new_lead','send_email','email_sent','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation','confirmed'].map(k=>[k, t('ls.'+k)]);
 const LEAD_STAGE_LABEL = Object.fromEntries(LEAD_STAGES);
-const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url';
+const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url,villa_types,meal_plans,occasions,vurdering,vurdering_by,vurdering_at';
 const EL_TYPES = new Proxy({}, { get:(o,k)=> t('el.'+String(k), String(k)) });
 const SALES_TASKS = ['tjek_rejse','pre_departure','god_tur','hjemkomst','retrieval'];
 const FIN_TASKS = ['restbetaling','leverandoerbetaling','kreditvarsel','dok_sync'];
@@ -1108,7 +1159,7 @@ async function checkTestdata(){
 }
 
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>'+t('g.noaccess')+'</h3><p class="muted">'+t('g.noaccess_txt')+'</p></div>'; }
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,hv:viewHenvendelser,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
 function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   // henvendelses-boardet er bredt (10 trin) — slip main fri fra 1280px-loftet her
   if(app) app.classList.toggle('wide', v==='leads');
@@ -1123,7 +1174,7 @@ function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button')
    Derfor ignorerer applyRoute() enhver hash der indeholder = eller &, og
    supabase-js har under alle omstændigheder allerede tømt den, når showApp()
    kaldes. */
-const PANDA_ROUTES = {dash:viewDash,leads:viewLeads,sales:viewSales,finance:viewFinance,
+const PANDA_ROUTES = {dash:viewDash,leads:viewLeads,hv:viewHenvendelser,sales:viewSales,finance:viewFinance,
   vendorpay:viewVendorPay,gennemgang:viewGennemgang,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,
   users:viewUsers,new:viewNew,testdata:viewTestdata};
 function setRoute(h){
@@ -3970,6 +4021,374 @@ function markerGentagne(leads){
 // NB: henvendelser bruger branchekoden NO, rejser bruger MN (og historisk NO) for Norge
 const TRIP_BRANCH={NO:['MN','NO'],MD:['MD']};
 async function fetchLeads(){ const {data}=await db.from('leads').select(LEAD_FIELDS).order('created_at',{ascending:false}); return data||[]; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   HENVENDELSER (ny side, v7)
+   Bygget som SELVSTÆNDIG side ved siden af den gamle viewLeads/editLead.
+   Den gamle røres ikke, før Wendie har sagt god for denne.
+   Datakilder: leads, lead_activities, lead_offers — alt fra maldivia-core.
+   ══════════════════════════════════════════════════════════════════════ */
+const HV_VILLA = ['Beach Villa','Beach Villa m. pool','Vandvilla','Vandvilla m. pool','Sunset vandvilla','Familievilla','Suite / residence'];
+const HV_MEAL  = ['Kun morgenmad','Halvpension','Helpension','All Inclusive','Premium All Inclusive','Dine Around'];
+const HV_OCC   = ['Familieferie','Bryllupsrejse','Bryllupsdag','Rund fødselsdag','Fødselsdag','Jubilæum','Babymoon','Forlovelse','Vennerejse','Bare ferie'];
+const HV_VUR   = [['super_god','Super god','prioritér'],['god','God','normal'],['nederen','Nederen','lav indsats'],['umulig','Umulig','luk hurtigt']];
+const HV_DEST_GROUPS = [
+  ['Det Indiske Ocean',['Maldiverne','Mauritius','Seychellerne','Sri Lanka','Zanzibar','Réunion']],
+  ['Caribien',['Den Dominikanske Republik','Jamaica','Barbados','Grenada','Curaçao','Aruba','St. Lucia','Antigua','St. Martin','Anguilla','Bahamas','Turks & Caicos','St. Barth','Cuba']],
+  ['Mexico og Mellemamerika',['Mexico','Cancún','Riviera Maya','Costa Rica','Belize','Panama']],
+  ['Mellemøsten',['Dubai','Abu Dhabi','Oman','Qatar']],
+  ['Asien',['Thailand','Bali','Vietnam','Singapore','Malaysia','Filippinerne','Cambodja','Japan']],
+  ['Afrika',['Sydafrika','Kenya','Tanzania','Marokko','Namibia','Botswana']],
+  ['Stillehavet',['Bora Bora','Fransk Polynesien','Fiji','Cook Islands']],
+  ['USA',['Florida','Hawaii','New York','Californien']]
+];
+const HV_TOP = [['Maldiverne',757],['Mexico',78],['Den Dominikanske Republik',71],['Mauritius',55],['Jamaica',50],['Dubai',18],['Barbados',17],['Curaçao',15],['Grenada',10],['Seychellerne',6]];
+/* Trinnene på skinnen. Samme nøgler som LEAD_STAGES, så data er de samme som
+   det gamle board — kun visningen er ny. */
+const HV_RAIL = ['new_lead','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation'];
+
+/* pgArr: Postgres text[] kommer hjem som array; tåler også null og streng. */
+function hvArr(v){ if(Array.isArray(v)) return v; if(v==null||v==='') return []; if(typeof v==='string'){ const s=v.replace(/^\{|\}$/g,''); return s? s.split(',').map(x=>x.replace(/^"|"$/g,'').trim()).filter(Boolean):[]; } return []; }
+
+async function viewHenvendelser(){
+  if(!hasPerm('leads')) return noAccess('leads');
+  navTo('hv');
+  const harCache = !!(window._leads && window._leads.length && window._TEAM);
+  if(harCache) hvBoardRender();
+  else app.innerHTML = '<div class="pagehead"><h2>Henvendelser</h2></div><div class="card">Henter…</div>';
+  const pLeads = fetchLeads();
+  const pBerig = Promise.all([
+    db.from('lead_activities').select('lead_id,occurred_at').eq('type','system').not('stage','is',null).order('occurred_at',{ascending:false}),
+    db.from('team_members').select('name,initials,active')
+  ]).catch(()=>null);
+  const leads = await pLeads;
+  window._leads = leads;
+  const berig = await pBerig;
+  if(berig){
+    const [actR, teamR] = berig;
+    const smap={}; (actR.data||[]).forEach(a=>{ if(!smap[a.lead_id]) smap[a.lead_id]=a.occurred_at; });
+    leads.forEach(l=>{ l._stageSince=smap[l.id]||l.created_at; });
+    markerGentagne(leads);
+    window._TEAM=(teamR.data||[]).filter(u=>u.active!==false && !/test|maka/i.test((u.initials||'')+(u.name||''))).map(u=>[u.initials,(u.name||'').split(' ')[0]||u.initials]);
+  }
+  hvBoardRender();
+}
+
+function hvBoardRender(){
+  const leads=(window._leads||[]).filter(l=>l.status==='open');
+  const cols=HV_RAIL.map(k=>[k, leads.filter(l=>l.stage===k)]);
+  // henvendelser med et trin der ikke er på skinnen samles i første kolonne
+  const kendte=new Set(HV_RAIL);
+  const rest=leads.filter(l=>!kendte.has(l.stage));
+  if(rest.length) cols[0][1]=cols[0][1].concat(rest);
+  window._hvOrder=[].concat(...cols.map(c=>c[1])).map(l=>l.id);
+  app.innerHTML = `<div class="hv7">
+    <div class="page" id="hvPage">
+      <div class="ph"><div class="lab">Salgspipeline før booking</div><h1>Henvendelser</h1></div>
+      <div class="board">
+        ${cols.map(([k,ls])=>`<div class="col">
+          <div class="colh"><span class="nm">${escH(STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k)}</span><span class="ct">${ls.length}</span></div>
+          ${ls.map(hvCard).join('')}
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="hint" id="hvHint">Klik en henvendelse for at åbne — <b>Esc</b> lukker, <b>←</b> <b>→</b> skifter kort</div>
+    <div class="ov" id="hvOv" onclick="if(event.target===this)hvClose()"><div class="ld" id="hvLd"></div></div>
+    <button class="navbtn pv" onclick="hvStep(-1)">‹</button>
+    <button class="navbtn nx" onclick="hvStep(1)">›</button>
+    <div class="ov3" id="hvOv3" onclick="if(event.target===this)hvCloseDest()">${hvDestPicker()}</div>
+  </div>`;
+  if(!window._hvKeys){ window._hvKeys=true; document.addEventListener('keydown',hvKey); }
+}
+
+function hvCard(l){
+  const tr=triage(l);
+  const dests=destList(l.destination).slice(0,3);
+  const d=daysSince(l._stageSince||l.created_at);
+  const a=tnum(l.adults), k=tnum(l.kids)||0;
+  const ages=(l.child_ages||'').split(/\s*,\s*/).filter(x=>x!=='');
+  const pp=[]; if(a) pp.push(a===1?'1 voksen':a+' voksne');
+  if(k>0) pp.push((k===1?'1 barn':k+' børn')+(ages.length?' ('+ages.join(', ')+')':''));
+  let nn=tnum(l.nights);
+  if(nn==null && l.departure_date && l.return_date){ const df=Math.round((new Date(l.return_date)-new Date(l.departure_date))/86400000); if(df>0) nn=df; }
+  const datoer = l.departure_date ? fmtDY(l.departure_date)+(l.return_date?' → '+fmtDY(l.return_date):'') : (l.earliest_departure? fmtDY(l.earliest_departure)+' (tidligst)':'—');
+  const cur=leadCur(l);
+  const budFejl = (+l.est_value<0) || (tr.total!=null && tr.total<0) || (tr.perPerson!=null && tr.perPerson<0);
+  const bud = budFejl ? '<div class="bud none" title="Beløbet i data er negativt — se henvendelsen efter">Budget uklart</div>'
+    : (tr.total!=null ? `<div class="bud">${fval(tr.total)} <span class="cur">${cur}</span></div>`
+    : (tr.perPerson!=null ? `<div class="bud">${fval(tr.perPerson)} <span class="cur">${cur}</span> <span class="pp">/pers.</span></div>`
+    : '<div class="bud none">Budget ikke oplyst</div>'));
+  const brc = /^(MN|NO)$/.test(l.branch||'') ? 'no' : (l.branch==='MD'?'dk':'');
+  const ferier = ferieForRejse(l.departure_date||l.earliest_departure, l.return_date||l.latest_return, l.branch, l.departure_airport);
+  const koeb=+(l._koeb||0);
+  const hjerte = koeb>=2 ? `<span class="ik gengang skin" title="Trofast kunde — ${koeb} rejser købt hos os">💛</span>`
+    : (koeb===1?'<span class="ik gengang" title="Genganger — kunden har købt én rejse hos os før">💛</span>':'');
+  return `<div class="lc ${brc}" data-id="${l.id}" onclick="hvOpen('${l.id}')">
+    <div class="nm"><span class="navn">${escH(l.contact_name||l.title||'Uden navn')}</span>${hjerte}</div>
+    <div class="scorerow">${tr.complete?`<span class="tri good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}
+      <span class="ikoner">${tr.complete?'':`<span class="ik" title="Mangler oplysninger før den kan vurderes: ${escH(tr.missing.join(', '))}">❓</span>`}</span></div>
+    ${dests.length?`<div class="card-chips">${dests.map(x=>`<span class="dchip">${escH(x)}</span>`).join('')}</div>`:''}
+    ${pp.length?`<div class="meta">${escH(pp.join(', '))}</div>`:''}
+    <div class="meta dates"><span>${escH(datoer)}</span><span>${nn!=null&&nn>0?nn+(nn===1?' nat':' nætter'):''}</span></div>
+    ${ferier.length?`<div class="ferie">${ferier.map(f=>`<span class="fchip">${escH(f)}</span>`).join('')}</div>`:''}
+    ${bud}
+    <div class="foot"><span class="brch ${brc}">${escH(BRANCH_KORT[l.branch]||l.branch||'')}</span>
+      <span class="who"><span class="age">${d==null?'—':d+'d'}</span>${l.owner?`<span class="owner">${escH(l.owner)}</span>`:''}</span></div>
+  </div>`;
+}
+
+/* ── detaljevisningen ───────────────────────────────────────────────── */
+async function hvOpen(id){
+  const l=(window._leads||[]).find(x=>x.id===id); if(!l) return;
+  window._hvId=id;
+  document.getElementById('hvOv').classList.add('on');
+  document.getElementById('hvPage').classList.add('dim');
+  document.getElementById('hvHint').style.display='none';
+  document.getElementById('hvLd').innerHTML='<div style="padding:60px;text-align:center;color:var(--mut)">Henter…</div>';
+  const [actR,offR]=await Promise.all([
+    db.from('lead_activities').select('*').eq('lead_id',id).order('occurred_at',{ascending:false}),
+    db.from('lead_offers').select('*').eq('lead_id',id).order('seq',{ascending:false})
+  ]);
+  if(window._hvId!==id) return; // brugeren nåede at skifte kort
+  hvRender(l, actR.data||[], offR.data||[]);
+}
+
+function hvRender(l, acts, offers){
+  const tr=triage(l), cur=leadCur(l);
+  const pos=(window._hvOrder||[]).indexOf(l.id);
+  const notes=acts.filter(a=>a.type==='note');
+  const koeb=+(l._koeb||0);
+  const villa=hvArr(l.villa_types), meal=hvArr(l.meal_plans), occ=hvArr(l.occasions);
+  const dests=destList(l.destination);
+  const curIdx=HV_RAIL.indexOf(l.stage);
+  const modtaget=daysSince(l.created_at);
+  const tilAfrejse = l.departure_date ? Math.round((new Date(l.departure_date)-new Date(today()))/86400000) : null;
+  const berpkt=acts.filter(a=>a.is_touchpoint).length;
+  const multi=(navn,liste,valgte)=>`<div class="multi">${liste.map(o=>`<button class="mopt ${valgte.includes(o)?'on':''}" onclick="hvTog(this,'${navn}')">${escH(o)}</button>`).join('')}</div>`;
+  const fld=(k,felt,val,type)=>`<div class="fld"><div class="k">${escH(k)}</div><input ${type?`type="${type}"`:''} value="${escH(val==null?'':String(val))}" onchange="hvSave('${felt}',this.value)"></div>`;
+  document.getElementById('hvLd').innerHTML = `
+    <div class="hd">
+      <div class="top">
+        <div><div class="lab">Henvendelse${l.pipedrive_deal_id?' · '+escH(String(l.pipedrive_deal_id)):''}</div>
+          <h2>${escH(l.title||l.contact_name||'Uden navn')}</h2>
+          <div class="who"><b>${escH(l.contact_name||'')}</b>${l.contact_email?`<span>${escH(l.contact_email)}</span>`:''}${l.contact_phone?`<span>${escH(l.contact_phone)}</span>`:''}</div></div>
+        <div class="acts"><span class="pos">${pos>=0?(pos+1)+' / '+window._hvOrder.length:''}</span>
+          <button class="b won" disabled title="Bygges i næste trin — jf. R104">Solgt</button>
+          <button class="b lost" disabled title="Bygges i næste trin — jf. R104">Tabt</button>
+          <button class="xb" onclick="hvClose()" title="Luk (Esc)">✕</button></div>
+      </div>
+      <div class="chips">
+        <label class="chipsel"><span>Branche</span><select onchange="hvSave('branch',this.value)">${BRANCH_OPTS.map(([k,lab])=>`<option value="${k}" ${l.branch===k?'selected':''}>${escH(lab)}</option>`).join('')}</select></label>
+        <label class="chipsel"><span>Ansvarlig</span><select onchange="hvSave('owner',this.value)">${TEAM_OPTS(l.owner||'')}</select></label>
+      </div>
+      <div class="icons">
+        ${koeb?`<span class="ico gold"><b>💛</b>${koeb>=2?'Trofast kunde':'Genganger'} <em>— kunden har købt ${koeb===1?'én rejse':koeb+' rejser'} hos os før</em></span>`:''}
+        <span class="ico score"><b>${tr.complete?'🌴':'❓'}</b>${tr.complete?'Lead-score '+tr.score+' af 100':'Mangler oplysninger'} <em>${tr.complete?'':'— '+escH(tr.missing.join(', '))}</em></span>
+      </div>
+    </div>
+
+    <div class="rail">${HV_RAIL.map((k,i)=>`<div class="seg ${i<curIdx?'done':(i===curIdx?'cur':'')}" onclick="hvStage('${k}')"><span class="l">${escH(STAGE_SHORT[k]||k)}</span><span class="d">${i===curIdx?dagOrd(daysSince(l._stageSince||l.created_at)):''}</span><span class="pb"></span></div>`).join('')}</div>
+    <div class="rmeta"><span>Klik et trin for at flytte henvendelsen dertil</span><span>Modtaget ${dagOrd(modtaget)} siden</span></div>
+
+    <div class="body">
+      <div class="main">
+        <div class="sh"><span class="txt">Kundens ønsker</span></div>
+        <div class="wish" contenteditable="true" spellcheck="false" onblur="hvSave('travel_wishes',this.innerText)">${escH(l.travel_wishes||l.wishes||'')}</div>
+        <div class="wsrc">${l.source?escH(l.source)+' · ':''}kundens egne ord <span class="edithint">klik i teksten for at rette</span></div>
+
+        <div class="sh"><span class="txt">Interne noter</span></div>
+        <div class="ntadd"><textarea id="hvNote" rows="2" placeholder="Skriv en intern note…"></textarea><button class="b gold" style="align-self:flex-start" onclick="hvAddNote()">Gem</button></div>
+        <ul class="nlist">${notes.length?notes.map(n=>`<li><div class="h"><span class="au">${escH(n.actor||'')}</span><span class="dt">${escH(fmtDT(n.occurred_at))}</span></div><div class="t">${escH(n.body||'')}</div></li>`).join(''):'<li><div class="t" style="color:var(--mut)">Ingen noter endnu.</div></li>'}</ul>
+
+        <div class="sh"><span class="txt">Detaljer</span></div>
+        <div class="grid3">
+          <div class="fbox"><div class="lab">Rejsen</div>
+            <div class="fld"><div class="k">Destination(er)</div><div class="chipedit" id="hvDests">
+              ${dests.map(d=>`<span class="dchip">${escH(d)}<button class="x" onclick="hvDelDest(this)" title="Fjern">×</button></span>`).join('')}
+              <button class="addchip" onclick="hvAddDest()">+ Tilføj</button></div></div>
+            <div class="fld two"><div><div class="k">Kan rejse tidligst</div><input type="date" value="${l.earliest_departure||''}" onchange="hvSave('earliest_departure',this.value||null)"></div>
+              <div><div class="k">Senest hjemme</div><input type="date" value="${l.latest_return||''}" onchange="hvSave('latest_return',this.value||null)"></div></div>
+            <div class="fld two"><div><div class="k">Afrejse</div><input type="date" value="${l.departure_date||''}" onchange="hvSave('departure_date',this.value||null)"></div>
+              <div><div class="k">Hjemrejse</div><input type="date" value="${l.return_date||''}" onchange="hvSave('return_date',this.value||null)"></div></div>
+            <div class="fld two"><div><div class="k">Antal nætter</div><input value="${l.nights==null?'':l.nights}" onchange="hvSave('nights',this.value===''?null:+this.value)"></div>
+              <div><div class="k">Villaer/værelser</div><input value="${l.villas==null?'':l.villas}" onchange="hvSave('villas',this.value===''?null:+this.value)"></div></div>
+            ${fld('Afrejselufthavn','departure_airport',l.departure_airport)}
+            <div class="fld"><div class="k">Villatype — vælg gerne flere</div>${multi('villa_types',HV_VILLA,villa)}</div>
+            <div class="fld"><div class="k">Forplejning — vælg gerne flere</div>${multi('meal_plans',HV_MEAL,meal)}</div>
+          </div>
+          <div class="fbox"><div class="lab">Rejsende og budget</div>
+            ${fld('Voksne','adults',l.adults)}
+            ${fld('Børn','kids',l.kids)}
+            ${fld('Alder på børn','child_ages',l.child_ages)}
+            <div class="fld"><div class="k">Budget (${escH(cur)})</div><input value="${l.est_value==null?'':l.est_value}" onchange="hvSave('est_value',this.value===''?null:+this.value)"></div>
+            ${fld('Maks. budget','max_budget',l.max_budget)}
+          </div>
+          <div class="fbox"><div class="lab">Kontakt og kilde</div>
+            ${fld('Kontaktnavn','contact_name',l.contact_name)}
+            ${fld('E-mail','contact_email',l.contact_email)}
+            ${fld('Telefon','contact_phone',l.contact_phone)}
+            ${fld('Kilde','source',l.source)}
+            <div class="fld"><div class="k">Anledning — vælg gerne flere</div>${multi('occasions',HV_OCC,occ)}</div>
+          </div>
+        </div>
+
+        <div class="sh"><span class="txt">Tilbud til kunden</span></div>
+        <div class="offers">
+          ${offers.length?offers.map(o=>`<div class="orow">
+            <div class="onum">${o.seq==null?'–':o.seq}</div>
+            <div class="oinfo"><div class="ot">${escH(o.note||'Tilbud')}</div>
+              <div class="om">${o.sent_at?'Sendt '+escH(fmtDY(o.sent_at)):'Ikke sendt'}${o.source?' · '+escH(o.source):''}</div>
+              ${o.offer_url?`<a class="olink" href="${escH(o.offer_url)}" target="_blank" rel="noopener">${escH(o.offer_url)}</a>`:''}</div>
+            <div class="oviews"><div class="ov1 none">Ingen sporing</div></div>
+            <div class="oact">${o.offer_url?`<button class="ob" onclick="hvCopy('${escH(o.offer_url)}')">Kopiér link</button><button class="ob p" onclick="window.open('${escH(o.offer_url)}','_blank')">Åbn</button>`:''}</div>
+          </div>`).join(''):'<p class="oconc">Ingen tilbud hentet ind på denne henvendelse endnu.</p>'}
+          <div class="oadd"><input id="hvOfferUrl" placeholder="Indsæt link til et tilbud fra Team Maldivia…"><button class="ob p" onclick="hvAddOffer()">Tilføj tilbud</button></div>
+          <p class="oconc" style="color:var(--mut)">Panda kan endnu ikke se hvornår kunden åbner et tilbud — der findes ingen sporingsdata i systemet. Visningstallene fra mockup&#39;en er derfor udeladt her, i stedet for at vise tal vi ikke har. Jf. R106 og R107.</p>
+        </div>
+
+        <div class="sh"><span class="txt">Historik</span></div>
+        <ul class="tl">${acts.length?acts.slice(0,40).map(a=>`<li class="${a.is_touchpoint?'tp':''}">
+          <div class="h">${a.type==='system'?(a.stage?'Flyttet til «'+escH(LEAD_STAGE_LABEL[a.stage]||a.stage)+'»':escH(a.body||'System')):escH(ACT_LABEL[a.type]||a.type)} <span class="tag ${a.is_touchpoint?'tp':'int'}">${a.is_touchpoint?'Berøringspunkt':'Internt'}</span></div>
+          <div class="w">${escH(fmtDT(a.occurred_at))}${a.actor?' · '+escH(a.actor):''}</div>
+          ${a.body&&a.type!=='system'?`<div class="bd">${escH(a.body)}</div>`:''}</li>`).join(''):'<li><div class="w">Ingen historik endnu.</div></li>'}</ul>
+      </div>
+
+      <div class="side">
+        <div class="sh"><span class="txt">Lead-score</span></div>
+        <div class="scoreline"><span class="n">${tr.complete?tr.score:'—'}</span><span class="of">/ 100</span>${tr.complete?`<span class="cat">${escH((kvalitetsTrin(tr.score)||{}).navn||'')}</span>`:''}</div>
+        <div class="scorebar"><i style="width:${tr.complete?tr.score:0}%"></i></div>
+
+        <div class="sh"><span class="txt">Vores vurdering</span></div>
+        <div class="vur">${HV_VUR.map(([k,n,s])=>`<button class="${l.vurdering===k?'on':''}" onclick="hvVur('${k}')"><span class="dot"></span>${n}<small>${s}</small></button>`).join('')}</div>
+        <p class="vurnote">${l.vurdering?('Sat af '+escH(l.vurdering_by||'?')+(l.vurdering_at?' '+escH(fmtDY(l.vurdering_at)):'')+'. '):''}Gemmes sammen med udfaldet, så vi kan se om vurderingen rammer bedre end scoren.</p>
+
+        <div class="sh"><span class="txt">Nøgletal</span></div>
+        <div class="kpis">
+          <div class="kpi"><div class="n">${berpkt}</div><div class="l">berørings-<br>punkter</div></div>
+          <div class="kpi"><div class="n">${modtaget==null?'—':modtaget}</div><div class="l">dage siden<br>modtaget</div></div>
+          <div class="kpi"><div class="n">${tilAfrejse==null?'—':tilAfrejse}</div><div class="l">dage til<br>afrejse</div></div>
+          <div class="kpi"><div class="n">${offers.length}</div><div class="l">tilbud<br>hentet</div></div>
+        </div>
+
+        <details class="tech"><summary>Sporing og teknik</summary>
+          ${[['utm_source',l.utm_source],['Kampagne',l.utm_campaign],['Kilde',l.source_channel],['Hørt om os',l.heard_about_us],['Oprettet',l.pipedrive_deal_id?('Pipedrive '+l.pipedrive_deal_id):'Panda']]
+            .filter(([,v])=>v).map(([k,v])=>`<div class="techrow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')||'<div class="techrow"><span class="v">Ingen sporingsdata.</span></div>'}
+        </details>
+      </div>
+    </div>
+
+    <div class="foot"><span class="saved" id="hvSaved"></span><span class="sp"></span>
+      <span class="kbd">Esc</span><span style="font-size:10px;color:var(--mut)">luk</span>
+      <span class="kbd">← →</span><span style="font-size:10px;color:var(--mut)">skift kort</span>
+      <button class="b gh" onclick="hvClose()">Luk</button></div>`;
+}
+
+function hvClose(){ window._hvId=null;
+  const o=document.getElementById('hvOv'); if(o) o.classList.remove('on');
+  const p=document.getElementById('hvPage'); if(p) p.classList.remove('dim');
+  const h=document.getElementById('hvHint'); if(h) h.style.display=''; }
+function hvStep(d){ const o=document.getElementById('hvOv'); if(!o||!o.classList.contains('on')) return;
+  const arr=window._hvOrder||[]; let i=arr.indexOf(window._hvId); if(i<0) return;
+  hvOpen(arr[(i+d+arr.length)%arr.length]); }
+function hvKey(e){
+  const ov=document.getElementById('hvOv'); if(!ov) return;
+  const o3=document.getElementById('hvOv3');
+  if(e.key==='Escape'){ if(o3&&o3.classList.contains('on')) hvCloseDest(); else if(ov.classList.contains('on')) hvClose(); return; }
+  if(!ov.classList.contains('on')) return;
+  if(document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
+  if(document.activeElement&&document.activeElement.isContentEditable) return;
+  if(e.key==='ArrowLeft') hvStep(-1);
+  if(e.key==='ArrowRight') hvStep(1);
+}
+
+/* ── gem ────────────────────────────────────────────────────────────── */
+async function hvSave(felt,val){
+  const id=window._hvId; if(!id) return;
+  const {error}=await db.from('leads').update({[felt]:val}).eq('id',id);
+  const s=document.getElementById('hvSaved');
+  if(error){ if(s){ s.textContent='Kunne ikke gemme: '+error.message; s.style.color='var(--bad)'; } return; }
+  const l=(window._leads||[]).find(x=>x.id===id); if(l) l[felt]=val;
+  if(s){ s.textContent='Gemt'; s.style.color=''; setTimeout(()=>{ if(s.textContent==='Gemt') s.textContent=''; },1800); }
+}
+function hvTog(btn,felt){
+  btn.classList.toggle('on');
+  const valgte=[...btn.parentNode.querySelectorAll('.mopt.on')].map(b=>b.textContent.trim());
+  hvSave(felt, valgte.length?valgte:null);
+}
+function hvVur(k){
+  const id=window._hvId; if(!id) return;
+  document.querySelectorAll('.hv7 .vur button').forEach(b=>b.classList.remove('on'));
+  const i=HV_VUR.findIndex(v=>v[0]===k); const btns=document.querySelectorAll('.hv7 .vur button');
+  if(btns[i]) btns[i].classList.add('on');
+  const l=(window._leads||[]).find(x=>x.id===id);
+  if(l){ l.vurdering=k; l.vurdering_by=window.ME||''; l.vurdering_at=new Date().toISOString(); }
+  db.from('leads').update({vurdering:k, vurdering_by:window.ME||null, vurdering_at:new Date().toISOString()}).eq('id',id);
+}
+async function hvStage(k){
+  const id=window._hvId; if(!id) return;
+  const {error}=await db.from('leads').update({stage:k}).eq('id',id); if(error){ alert(error.message); return; }
+  const l=(window._leads||[]).find(x=>x.id===id); if(l){ l.stage=k; l._stageSince=new Date().toISOString(); }
+  hvOpen(id);
+}
+async function hvAddNote(){
+  const id=window._hvId, ta=document.getElementById('hvNote'); if(!id||!ta||!ta.value.trim()) return;
+  const {error}=await db.from('lead_activities').insert({lead_id:id,type:'note',body:ta.value.trim(),actor:window.ME||null,occurred_at:new Date().toISOString(),is_touchpoint:false});
+  if(error){ alert(error.message); return; }
+  ta.value=''; hvOpen(id);
+}
+async function hvAddOffer(){
+  const id=window._hvId, inp=document.getElementById('hvOfferUrl'); if(!id||!inp||!inp.value.trim()) return;
+  const url=inp.value.trim();
+  const {data:eks}=await db.from('lead_offers').select('seq').eq('lead_id',id).order('seq',{ascending:false}).limit(1);
+  const seq=((eks&&eks[0]&&eks[0].seq)||0)+1;
+  const {error}=await db.from('lead_offers').insert({lead_id:id,offer_url:url,seq,source:'manuel'});
+  if(error){ alert(error.message); return; }
+  inp.value=''; hvOpen(id);
+}
+function hvCopy(u){ try{ navigator.clipboard.writeText(u); const s=document.getElementById('hvSaved'); if(s){ s.textContent='Link kopieret'; setTimeout(()=>{ if(s.textContent==='Link kopieret') s.textContent=''; },1500);} }catch(e){} }
+
+/* ── destinationsvælger ─────────────────────────────────────────────── */
+function hvDestPicker(){
+  return `<div class="dpick">
+    <div class="dph"><div><div class="lab">Vælg destination</div><h3>Hvor vil kunden hen?</h3></div>
+      <button class="xb2" onclick="hvCloseDest()">✕</button></div>
+    <div class="dsearch"><input id="hvDq" placeholder="Søg destination…" oninput="hvFiltD(this.value)" autocomplete="off"></div>
+    <div class="dbody" id="hvDbody">
+      <div class="dgrp top"><div class="dgh">Jeres mest solgte</div><div class="dwrap">
+        ${HV_TOP.map(([n,c])=>`<button class="dopt big" onclick="hvPickD(this)">${escH(n)}<em>${c}</em></button>`).join('')}
+      </div></div>
+      ${HV_DEST_GROUPS.map(([g,ls],i)=>`<details class="dgrp" ${i===0?'open':''}><summary>${escH(g)}</summary><div class="dwrap">
+        ${ls.map(n=>`<button class="dopt" onclick="hvPickD(this)">${escH(n)}</button>`).join('')}</div></details>`).join('')}
+      <p class="dnone" id="hvDnone">Ingen match. <button class="dopt add" onclick="hvAddFree()">Tilføj som ny destination</button></p>
+    </div></div>`;
+}
+function hvAddDest(){ const q=document.getElementById('hvDq'); if(q){ q.value=''; hvFiltD(''); }
+  const have=hvCurDests();
+  document.querySelectorAll('.hv7 .dopt').forEach(o=>o.classList.toggle('valgt', have.includes(o.childNodes[0].nodeValue.trim())));
+  document.getElementById('hvOv3').classList.add('on'); setTimeout(()=>{ if(q) q.focus(); },60); }
+function hvCloseDest(){ const o=document.getElementById('hvOv3'); if(o) o.classList.remove('on'); }
+function hvCurDests(){ return [...document.querySelectorAll('#hvDests .dchip')].map(c=>c.childNodes[0].nodeValue.trim()); }
+function hvSaveDests(){ hvSave('destination', hvCurDests().join(', ')); }
+function hvDelDest(btn){ btn.parentNode.remove(); hvSaveDests(); }
+function hvInsertDest(v){
+  const wrap=document.getElementById('hvDests'); if(!wrap) return;
+  if(hvCurDests().includes(v)) return;
+  const el=document.createElement('span'); el.className='dchip';
+  el.appendChild(document.createTextNode(v));
+  const b=document.createElement('button'); b.className='x'; b.title='Fjern'; b.textContent='×';
+  b.onclick=function(){ hvDelDest(this); };
+  el.appendChild(b);
+  wrap.insertBefore(el, wrap.querySelector('.addchip'));
+  hvSaveDests();
+}
+function hvPickD(o){ hvInsertDest(o.childNodes[0].nodeValue.trim()); o.classList.add('valgt'); }
+function hvAddFree(){ const v=(document.getElementById('hvDq')||{}).value; if(!v||!v.trim()) return; hvInsertDest(v.trim()); hvCloseDest(); }
+function hvFiltD(q){ q=(q||'').toLowerCase().trim(); let hits=0;
+  document.querySelectorAll('#hvDbody .dgrp').forEach(g=>{ let any=false;
+    g.querySelectorAll('.dopt').forEach(o=>{ const m=!q||o.childNodes[0].nodeValue.toLowerCase().includes(q); o.style.display=m?'':'none'; if(m) any=true; });
+    g.style.display=any?'':'none'; if(any) hits++; if(q&&g.tagName==='DETAILS') g.open=true; });
+  const dn=document.getElementById('hvDnone'); if(dn) dn.classList.toggle('on', !!q&&!hits); }
+
 
 async function viewLeads(){
   if(!hasPerm('leads')) return noAccess('leads');
