@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.21 · 22.08.2026
+<!-- Panda · v0.23 · 24.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -550,6 +550,30 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   border-radius:7px;padding:9px 13px;font-size:12.5px;margin-top:10px;color:#7a5a14}
 .tdrow{cursor:pointer;} .tdrow:hover{background:#faf7f0;}
 
+
+/* ═══ NULSTILLING foer v7-reglerne ═══
+   Tyve klassenavne findes BAADE i Panda og i v7 (.sh, .tip, .foot, .col ...).
+   Scopingen under .hv7 forhindrer v7 i at paavirke resten af appen, men ikke
+   det modsatte: Pandas egne globale regler siver ind i den nye side for de
+   egenskaber v7 ikke selv saetter. Det var derfor score-boblen kollapsede
+   (Pandas .tip saetter height:15px) og sektionsoverskrifterne stod med VERSALER
+   (Pandas .sh saetter text-transform). Her nulstilles praecis de egenskaber der
+   siver ind - intet andet - og v7's egne regler staar umiddelbart efter. ═══ */
+.hv7 .board{align-items:unset;padding:unset;}
+.hv7 .col{flex:unset;min-width:unset;transition:unset;}
+.hv7 .dchip{border:unset;font-weight:unset;line-height:unset;}
+.hv7 .foot{color:unset;flex-wrap:unset;font-size:unset;line-height:unset;margin-top:unset;padding-top:unset;}
+.hv7 .kpi{position:unset;}
+.hv7 .lf{background:unset;border:unset;border-radius:unset;color:unset;cursor:unset;font:unset;font-size:unset;font-weight:unset;padding:unset;}
+.hv7 .mini{color:unset;}
+.hv7 .nlist{border-top:unset;display:unset;flex-direction:unset;gap:unset;}
+.hv7 .num{color:unset;font-family:unset;font-size:unset;line-height:unset;min-width:unset;}
+.hv7 .saved{font-weight:unset;opacity:unset;transition:unset;}
+.hv7 .seg{border:unset;border-radius:unset;display:unset;margin-left:unset;overflow:unset;}
+.hv7 .sh{color:unset;font-size:unset;font-weight:unset;letter-spacing:unset;margin:unset;text-transform:unset;}
+.hv7 .tag{text-transform:unset;}
+.hv7 .tip{align-items:unset;color:unset;cursor:unset;font-family:unset;font-size:unset;font-weight:unset;height:unset;justify-content:unset;line-height:unset;right:unset;}
+.hv7 .who{align-items:unset;margin-left:unset;}
 /* ═══ HENVENDELSER v7 — ny side. Alt er scopet under .hv7, saa intet
    af den oevrige app kan rammes af disse regler. ═══ */
 .hv7{
@@ -632,6 +656,9 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .kpi .l{font-size:10px;margin-top:5px;}
 .hv7 .vurnote{font-size:9.5px;}
 .hv7 .lc .brch,.hv7 .lc .age,.hv7 .lc .owner{white-space:nowrap;}
+.hv7 .nlist .nx{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  width:auto;height:auto;padding:3px 8px;border-radius:2px;color:var(--mut);background:none;border:1px solid transparent;}
+.hv7 .nlist .nx:hover{color:var(--bad);border-color:#e3c4b3;background:#fff;}
 .hv7 .lc .foot{gap:5px;font-size:9px;}
 .hv7 .lc .who{gap:5px;}
 
@@ -662,7 +689,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.21';
+const APP_VERSION = 'v0.23';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -4109,23 +4136,21 @@ function hvLinksIFritekst(l){
   return set.filter(u=>/maldivia|tilbud/i.test(u));
 }
 
-/* Forklaringen bag lead-scoren - bygget af de samme fire led som triage() regner den ud fra. */
-function hvScoreTip(l,tr){
-  if(!tr.complete) return '';
-  const cur=leadCur(l);
-  const tierTxt={good:['Budgettet holder','Hoejt niveau - over 40.000 pr. person.'],mid:['Budgettet er stramt','Mellemniveau - 20-40.000 pr. person.'],low:['Budgettet er lavt','Under 20.000 pr. person.']}[tr.tier]||['Budget ukendt','Vi kunne ikke laese et beloeb.'];
-  const luxTxt={ultra:['Ultra-luksus efterspurgt','Teksten peger paa det dyreste segment.'],premium:['Premium efterspurgt','Teksten peger paa et hoejere segment.'],standard:['Standard','Ingen tydelige luksussignaler i teksten.']}[tr.lux]||['Standard',''];
-  const nn=tnum(l.nights)||0;
-  const rk=[
-    [tierTxt[0], tierTxt[1]+(tr.perPerson!=null?' '+fval(tr.perPerson)+' '+cur+' pr. person.':''), tr.tier==='good'?'Staerkt':tr.tier==='mid'?'Middel':'Svagt'],
-    ['Alt er oplyst','Vi mangler ikke noget for at kunne bygge et tilbud.','Staerkt'],
-    [luxTxt[0], luxTxt[1], tr.lux==='ultra'?'Staerkt':tr.lux==='premium'?'Middel':'Svagt'],
-    ['Rejsens laengde', nn?(nn+' naetter.'):'Ikke oplyst.', nn>=7?'Staerkt':nn>=4?'Middel':'Svagt']
-  ];
-  return `<span class="tip"><span class="tiph">Hvorfor ${tr.score} af 100</span>`+
-    rk.map(([t,b,st])=>`<span class="tr"><b>${escH(t)}</b>${escH(b)}<i class="st">${st}</i></span>`).join('')+
-    `<span class="trs">Forel&oslash;big model. Scoren siger kun noget om hvor godt <em>henvendelsen</em> er oplyst - ikke om vi kan levere.</span></span>`;
+/* Hvor mange dage henvendelsen har ligget paa HVERT trin, regnet ud af stadieskiftene. */
+function hvTrinDage(l, acts){
+  const skift = acts.filter(a=>a.type==='system' && a.stage)
+                    .map(a=>({stage:a.stage, t:new Date(a.occurred_at)}))
+                    .sort((a,b)=>a.t-b.t);
+  const ud={}; const nu=new Date();
+  let stage = skift.length ? 'new_lead' : l.stage;
+  let fra = new Date(l.created_at);
+  const laeg=(st,ms)=>{ if(!st) return; ud[st]=(ud[st]||0)+Math.max(0,ms); };
+  for(const s of skift){ laeg(stage, s.t-fra); stage=s.stage; fra=s.t; }
+  laeg(stage, nu-fra);
+  const dage={}; Object.keys(ud).forEach(k=>{ dage[k]=Math.floor(ud[k]/86400000); });
+  return dage;
 }
+
 /* Antal boern -> et aldersfelt pr. barn, med de aldre vi allerede kender. */
 function hvKids(){
   const kc=document.getElementById('hvKc'), kb=document.getElementById('hvKb'); if(!kb) return;
@@ -4276,11 +4301,15 @@ function hvRender(l, acts, offers){
       </div>
       <div class="icons">
         ${koeb?`<span class="ico gold"><b>💛</b>${koeb>=2?'Trofast kunde':'Genganger'} <em>— kunden har købt ${koeb===1?'én rejse':koeb+' rejser'} hos os før</em></span>`:''}
-        <span class="ico score" tabindex="0"><b>${tr.complete?((kvalitetsTrin(tr.score)||{}).ikon||'🌴'):'❓'}</b>${tr.complete?'Lead-score '+tr.score+' af 100':'Mangler oplysninger'} <em>${tr.complete?'— hold musen her':'— '+escH(tr.missing.join(', '))}</em>${hvScoreTip(l,tr)}</span>
+        <span class="ico score"><b>${tr.complete?((kvalitetsTrin(tr.score)||{}).ikon||'🌴'):'❓'}</b>${tr.complete?'Lead-score '+tr.score+' af 100':'Mangler oplysninger'}${tr.complete?'':` <em>— ${escH(tr.missing.join(', '))}</em>`}</span>
       </div>
     </div>
 
-    <div class="rail">${HV_RAIL.map((k,i)=>`<div class="seg ${i<curIdx?'done':(i===curIdx?'cur':'')}" onclick="hvStage('${k}')"><span class="l">${escH(STAGE_SHORT[k]||k)}</span><span class="d">${i===curIdx?dagOrd(daysSince(l._stageSince||l.created_at)):''}</span><span class="pb"></span></div>`).join('')}</div>
+    <div class="rail">${(()=>{ const dg=hvTrinDage(l,acts); return HV_RAIL.map((k,i)=>{
+        const d=dg[k];
+        const txt = d==null ? '—' : (d===0?'under et døgn':d===1?'1 dag':d+' dage');
+        return `<div class="seg ${i<curIdx?'done':(i===curIdx?'cur':'')}" onclick="hvStage('${k}')" title="${d==null?'Henvendelsen har ikke ligget på dette trin':'I alt '+txt+' på dette trin'}"><span class="l">${escH(STAGE_SHORT[k]||k)}</span><span class="d">${escH(txt)}</span><span class="pb"></span></div>`;
+      }).join(''); })()}</div>
     <div class="rmeta"><span>Klik et trin for at flytte henvendelsen dertil</span><span>${modtaget===0?'Modtaget i dag':'Modtaget for '+dagOrd(modtaget)+' siden'}</span></div>
 
     <div class="body">
@@ -4291,7 +4320,7 @@ function hvRender(l, acts, offers){
 
         <div class="sh"><span class="txt">Interne noter</span></div>
         <div class="ntadd"><textarea id="hvNote" rows="2" placeholder="Skriv en intern note…"></textarea><button class="b gold" style="align-self:flex-start" onclick="hvAddNote()">Gem</button></div>
-        <ul class="nlist">${notes.length?notes.map(n=>`<li><div class="h"><span class="au">${escH(n.actor||'')}</span><span class="dt">${escH(fmtDT(n.occurred_at))}</span><button class="nx" onclick="hvDelNote('${n.id}')" title="Slet note">×</button></div><div class="t">${escH(n.body||'')}</div></li>`).join(''):'<li><div class="t" style="color:var(--mut)">Ingen noter endnu.</div></li>'}</ul>
+        <ul class="nlist">${notes.length?notes.map(n=>`<li><div class="h"><span class="au">${escH(n.actor||'')}</span><span class="dt">${escH(fmtDT(n.occurred_at))}</span><button class="nx" onclick="hvDelNote('${n.id}')" title="Slet denne note">Slet</button></div><div class="t">${escH(n.body||'')}</div></li>`).join(''):'<li><div class="t" style="color:var(--mut)">Ingen noter endnu.</div></li>'}</ul>
 
         <div class="sh"><span class="txt">Detaljer</span></div>
         <div class="grid3">
@@ -4331,7 +4360,7 @@ function hvRender(l, acts, offers){
               <div class="om">${o.sent_at?'Sendt '+escH(fmtDY(o.sent_at)):'Ikke sendt'}${o.source?' · '+escH(o.source):''}</div>
               ${o.offer_url?`<a class="olink" href="${escH(o.offer_url)}" target="_blank" rel="noopener">${escH(o.offer_url)}</a>`:''}</div>
             <div class="oviews"><div class="ov1 none">Ingen sporing</div></div>
-            <div class="oact">${o.offer_url?`<button class="ob" onclick="hvCopy('${escH(o.offer_url)}')">Kopiér link</button><button class="ob p" onclick="window.open('${escH(o.offer_url)}','_blank')">Åbn</button>`:''}</div>
+            <div class="oact">${o.offer_url?`<button class="ob" onclick="hvCopy('${escH(o.offer_url)}')">Kopiér link</button><button class="ob p" onclick="hvAabnTilbud('${escH(o.offer_url)}')" title="Åbnes som intern visning">Åbn</button>`:''}<button class="ob x2" onclick="hvDelOffer('${o.id}')" title="Fjern dette tilbud fra henvendelsen">Fjern</button></div>
           </div>`).join(''):'<p class="oconc">Ingen tilbud hentet ind på denne henvendelse endnu.</p>'}
           ${(()=>{ const kendte=offers.map(o=>o.offer_url).filter(Boolean);
             const fundet=hvLinksIFritekst(l).filter(u=>!kendte.includes(u));
@@ -4436,6 +4465,17 @@ async function hvAddNote(){
   const {error}=await db.from('lead_activities').insert({lead_id:id,type:'internt_notat',body:ta.value.trim(),actor:(window.MYNAME||window.ME||null),occurred_at:new Date().toISOString(),is_touchpoint:false});
   if(error){ alert(error.message); return; }
   ta.value=''; hvOpen(id);
+}
+async function hvDelOffer(offerId){
+  if(!confirm('Fjern dette tilbud fra henvendelsen?\n\nSelve tilbudssiden slettes ikke — kun linket her.')) return;
+  const {error}=await db.from('lead_offers').delete().eq('id',offerId);
+  if(error){ alert(error.message); return; }
+  hvOpen(window._hvId);
+}
+/* Aabner teamet et tilbud fra Panda, skal visningen ikke taelle som kundens (R111). */
+function hvAabnTilbud(u){
+  try{ const x=new URL(u); x.searchParams.set('staff','1'); u=x.toString(); }catch(e){}
+  window.open(u,'_blank','noopener');
 }
 async function hvDelNote(actId){
   if(!confirm('Slet denne note?')) return;
