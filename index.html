@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.30 · 25.08.2026
+<!-- Panda · v0.32 · 25.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -715,6 +715,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .insq{border-left:2px solid #e0c9a3;padding:2px 0 2px 16px;margin:0 0 18px;}
 .insq p{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;line-height:1.45;color:#3d403a;}
 .insq p b{color:#c1975a;font-weight:600;}
+.insq p em{font-style:normal;color:#a09884;font-size:11px;display:block;margin-top:3px;}
 .insq:empty{display:none;}
 .insgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .icard{background:#fdfbf7;border:1px solid #e7dfd1;border-radius:3px;padding:16px 18px;cursor:pointer;
@@ -802,7 +803,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.30';
+const APP_VERSION = 'v0.32';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -4275,30 +4276,31 @@ function personligLinje(trips){
   const naetter=t=>t.reduce((s,x)=>s+(x.return_date&&x.departure_date?
     Math.max(0,Math.round((new Date(x.return_date)-new Date(x.departure_date))/86400000)):0),0);
   const L=[];
+  /* Hver linje skal definere sit eget tal: hvad maales, paa hvilke rejser, og i hvilken periode. */
+  const P1=`rejser du selv har booket`;
 
   if(iaar.length>=3){
-    L.push(`Du har lukket <b>${iaar.length} rejser</b> i år, ${navn} — det er ${kr(gaester(iaar))} mennesker der har fået en ferie.`);
+    L.push(`<b>${iaar.length} rejser</b> har du booket i år — ${kr(gaester(iaar))} gæster. <em>Målt på bookingdato, 1. januar til i dag.</em>`);
     const dage=Math.max(1,Math.round((new Date()-new Date(aar+'-01-01'))/86400000));
-    L.push(`Du har solgt for <b>${kr(oms(iaar))} kr.</b> i år. Det svarer til ${kr(oms(iaar)/dage)} kr. hver eneste dag siden nytår.`);
+    L.push(`<b>${kr(oms(iaar))} kr.</b> har du solgt for i år. Det er ${kr(oms(iaar)/dage)} kr. i snit pr. dag. <em>Salgspris på ${P1}, 1. januar til i dag.</em>`);
   }
   if(iaar.length>=3 && sidsteAarHertil.length>=3){
     const d=oms(iaar)-oms(sidsteAarHertil);
-    const p=Math.round(100*d/Math.max(1,oms(sidsteAarHertil)));
-    L.push(d>=0
-      ? `Du ligger <b>${p} % foran</b> samme tid sidste år — ${kr(oms(iaar))} mod ${kr(oms(sidsteAarHertil))} kr.`
-      : `Samme tid sidste år stod du på ${kr(oms(sidsteAarHertil))} kr. I år er du på ${kr(oms(iaar))}. Der er stadig et stykke af året tilbage.`);
+    const p=Math.round(100*Math.abs(d)/Math.max(1,oms(sidsteAarHertil)));
+    L.push(`Du er <b>${p} % ${d>=0?'foran':'efter'}</b> sidste år: ${kr(oms(iaar))} kr. mod ${kr(oms(sidsteAarHertil))} kr. `
+      +`<em>Salgspris på ${P1}, 1. januar til ${new Date().toLocaleDateString('da-DK',{day:'numeric',month:'long'})} — begge år.</em>`);
   }
   if(mine.length>=10){
-    L.push(`I alt har du sendt <b>${kr(gaester(mine))} gæster</b> afsted — ${kr(naetter(mine))} nætter væk hjemmefra, fordelt på ${mine.length} rejser.`);
+    L.push(`I alt har du sendt <b>${kr(gaester(mine))} gæster</b> afsted på ${mine.length} rejser. <em>Alle ${P1}, så langt data rækker.</em>`);
   }
   const sidste=mine.filter(t=>t.booking_date).sort((a,b)=>b.booking_date.localeCompare(a.booking_date))[0];
   if(sidste){
     const d=Math.round((new Date()-new Date(sidste.booking_date))/86400000);
-    if(d<=14) L.push(d===0?`Du lukkede en rejse i dag. <b>${escH(sidste.ref_no)}</b> — godt gået.`
-                     :`Din seneste booking var for ${d} dag${d===1?'':'e'} siden: <b>${escH(sidste.ref_no)}</b>.`);
+    if(d<=14) L.push(d===0?`Du lukkede en rejse i dag: <b>${escH(sidste.ref_no)}</b>. Godt gået.`
+                     :`Din seneste booking var for <b>${d} dag${d===1?'':'e'}</b> siden: ${escH(sidste.ref_no)}.`);
   }
   const stoerst=mine.filter(t=>+t.package_sell_dkk>0).sort((a,b)=>b.package_sell_dkk-a.package_sell_dkk)[0];
-  if(stoerst) L.push(`Din største rejse nogensinde er <b>${escH(stoerst.ref_no)}</b> til ${kr(stoerst.package_sell_dkk)} kr. — ${stoerst.pax_count} rejsende.`);
+  if(stoerst) L.push(`Din største rejse er <b>${escH(stoerst.ref_no)}</b> til ${kr(stoerst.package_sell_dkk)} kr. for ${stoerst.pax_count} rejsende. <em>Salgspris, alle år.</em>`);
   if(!L.length) return null;
   return L[Math.floor(Math.random()*L.length)];
 }
@@ -4340,9 +4342,13 @@ function byggIndsigter(trips, leads){
   const ok  = (trips||[]).filter(t=>!['canx','voided'].includes(t.status) && !/^test/i.test(t.ref_no||''));
   const pris= ok.filter(t=>+t.package_sell_dkk>0);
   const ud=[];
-  const aarene=ok.map(t=>t.booking_date&&t.booking_date.slice(0,4)).filter(Boolean).sort();
-  const foersteAar=aarene[0], sidsteAar=aarene[aarene.length-1];
-  const HELE = foersteAar&&foersteAar!==sidsteAar ? `${foersteAar}–${sidsteAar}` : (sidsteAar||'i alt');
+  /* Perioden opgoeres kun paa aar med reelt volumen — et aar med en haandfuld rejser
+     er starten paa et datasaet, ikke et aar, og skal ikke faa grafen til at se skaev ud. */
+  const aarTal={}; ok.forEach(t=>{ if(t.booking_date) aarTal[t.booking_date.slice(0,4)]=(aarTal[t.booking_date.slice(0,4)]||0)+1; });
+  const rigtige=Object.keys(aarTal).filter(a=>aarTal[a]>=20).sort();
+  const foersteAar=rigtige[0]||Object.keys(aarTal).sort()[0];
+  const sidsteAar=rigtige[rigtige.length-1]||foersteAar;
+  const HELE = foersteAar&&foersteAar!==sidsteAar ? `${foersteAar}–${sidsteAar}` : (sidsteAar||'alle år');
   const P=(form,titel,periode,l,e,g)=>ud.push({form,titel,periode,l,e,g});
   const PP=(form,titel,periode,l,e,g)=>ud.push({form,titel,periode,l,e,g,personlig:true});
   const mine = ok.filter(t=>t.owner===window.ME);
@@ -4431,7 +4437,7 @@ function byggIndsigter(trips, leads){
     const oms=ok.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0);
     P('tal','Alt hvad I har sendt afsted',HELE,
       `Det er <b>${Math.round(naetter/365)} år</b> under palmerne.`,
-      `${kr0(gaester)} gæster fordelt på ${kr0(ok.length)} rejser siden ${foersteAar}, og ${kr0(naetter)} nætter væk hjemmefra tilsammen. Det er alt hvad der ligger i Panda — rejser fra før ${foersteAar} kom aldrig med fra Dolphin.`,
+      `${kr0(gaester)} gæster fordelt på ${kr0(ok.length)} rejser, og ${kr0(naetter)} nætter væk hjemmefra tilsammen. Målt på alle rejser i Panda fra ${foersteAar} og frem.`,
       fTal(kr0(gaester),'gæster',`fordelt på ${kr0(ok.length)} rejser`,
         [['nætter solgt',kr0(naetter)],['mio. kr.',kr0(oms/1000000)],['rejser',kr0(ok.length)]]),
       `Alle rejser i maldivia-core.`);
@@ -4443,7 +4449,7 @@ function byggIndsigter(trips, leads){
     const oms=nye.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0);
     P('tal','Seneste 30 dage','seneste 30 dage',
       `De seneste 30 dage har I solgt <b>${nye.length} rejser</b>.`,
-      `${kr0(oms)} kr. og ${nye.reduce((s,t)=>s+(t.pax_count||0),0)} gæster.`,
+      `Hele holdets bookinger de seneste 30 dage, målt på bookingdato: ${kr0(oms)} kr. i salgspris og ${nye.reduce((s,t)=>s+(t.pax_count||0),0)} gæster.`,
       fTal(kr0(oms/1000),'t.kr.','solgt de seneste 30 dage',
         [['rejser',nye.length],['gæster',nye.reduce((s,t)=>s+(t.pax_count||0),0)],
          ['kr. pr. rejse',kr0(oms/nye.length)]]),
@@ -4456,7 +4462,7 @@ function byggIndsigter(trips, leads){
     const dage=Math.max(1,Math.round((new Date()-new Date(aarNu+'-01-01'))/86400000));
     PP('tal','Dig i år',aarNu,
       `Du har lukket <b>${iaar.length} rejser</b> i år.`,
-      `${kr0(gaesterAf(iaar))} mennesker har fået en ferie, fordi du tog telefonen. Det er ${kr0(omsAf(iaar)/dage)} kr. hver eneste dag siden nytår.`,
+      `${kr0(gaesterAf(iaar))} gæster på rejser du selv har booket i år, målt på bookingdato. Salgsprisen svarer til ${kr0(omsAf(iaar)/dage)} kr. i snit pr. dag siden nytår.`,
       fTal(kr0(omsAf(iaar)/1000),'t.kr.','solgt i år',
         [['rejser',iaar.length],['gæster',gaesterAf(iaar)],['kr. pr. rejse',kr0(omsAf(iaar)/iaar.length)]]));
   })();
@@ -4468,14 +4474,14 @@ function byggIndsigter(trips, leads){
     const mx=Math.max(a,b);
     PP('bars','Dig mod sidste år','samme dato',
       a>=b?`Du ligger <b>${p} % foran</b> sidste år.`:`Du ligger <b>${Math.abs(p)} % efter</b> sidste år — endnu.`,
-      `Målt på samme dato: ${kr0(a)} kr. i år mod ${kr0(b)} kr. sidste år. ${iaar.length} rejser mod ${ifjor.length}.`,
+      `Salgspris på rejser du selv har booket, 1. januar til i dag — begge år. ${kr0(a)} kr. mod ${kr0(b)} kr., ${iaar.length} rejser mod ${ifjor.length}.`,
       fBars([[aarNu,`${kr0(a)} kr. <em>· ${iaar.length} rejser</em>`,Math.round(100*a/mx),'alt'],
              [String(+aarNu-1),`${kr0(b)} kr. <em>· ${ifjor.length} rejser</em>`,Math.round(100*b/mx)]]));
   })();
   (()=>{ if(mine.length<10) return;
     PP('tal','Dine gæster','i alt',
       `Du har sendt <b>${kr0(gaesterAf(mine))} gæster</b> afsted.`,
-      `Fordelt på ${mine.length} rejser og ${kr0(naetterAf(mine))} nætter væk hjemmefra. Det er ${Math.round(naetterAf(mine)/365)} år med ferie, som du har stået bag.`,
+      `Alle rejser du selv har booket, så langt data rækker: ${mine.length} rejser og ${kr0(naetterAf(mine))} nætter. Det er ${Math.round(naetterAf(mine)/365)} år med ferie, du har stået bag.`,
       fTal(kr0(gaesterAf(mine)),'gæster','du selv har sendt afsted',
         [['rejser',mine.length],['nætter',kr0(naetterAf(mine))],['mio. kr.',kr0(omsAf(mine)/1000000)]]));
   })();
@@ -4485,7 +4491,7 @@ function byggIndsigter(trips, leads){
     const mx=+top[0].package_sell_dkk;
     PP('bars','Dine største rejser','i alt',
       `Din største rejse er <b>${kr0(st.package_sell_dkk)} kr.</b>`,
-      `${escH(st.ref_no)} — ${st.pax_count} rejsende. Her er dine fem største.`,
+      `${escH(st.ref_no)} med ${st.pax_count} rejsende. Målt på salgspris, alle år. Her er dine fem største.`,
       fBars(top.map((t,i)=>[t.ref_no,`${kr0(t.package_sell_dkk)} kr. <em>· ${t.pax_count} pers.</em>`,Math.round(100*t.package_sell_dkk/mx),i===0?'alt':''])));
   })();
   (()=>{ const iaar=minePris.filter(t=>t.booking_date&&t.booking_date.slice(0,4)===aarNu);
@@ -4495,7 +4501,7 @@ function byggIndsigter(trips, leads){
     const top=r.reduce((a,x)=>x[1]>a[1]?x:a); if(!top[1]) return;
     PP('kolonner','Din bedste måned',aarNu,
       `<b>${top[0][0].toUpperCase()+top[0].slice(1)}</b> var din stærkeste måned i år.`,
-      `${top[1]} rejser lukket i ${top[0]}. Sådan har året fordelt sig for dig.`,
+      `${top[1]} rejser booket i ${top[0]}. Fordelingen er dine egne bookinger i år, måned for måned.`,
       fKol(r, top[0]));
   })();
   (()=>{ const pr={};
@@ -4505,7 +4511,7 @@ function byggIndsigter(trips, leads){
     const alle=Object.keys(pr).length;
     PP('ring','Dine gengangere','i alt',
       `<b>${igen} af dine kunder</b> er kommet igen.`,
-      `Ud af ${alle} kunder du har haft, har ${igen} bestilt en rejse mere hos dig. Det er den bedste anmeldelse der findes.`,
+      `Ud af ${alle} kunder du har booket for, har ${igen} bestilt mindst én rejse mere hos dig. Det er den bedste anmeldelse der findes.`,
       fRing(Math.round(100*igen/alle), igen+'', 'kunder igen',
         [['Kom igen',igen,'alt'],['Rejste én gang',alle-igen,'']]));
   })();
@@ -4610,6 +4616,227 @@ function byggIndsigter(trips, leads){
       `Der er sendt tilbud til ${sendt.length} kunder som stadig er åbne. Et gammelt tilbud er sjældent dødt — det mangler bare et kald.`,
       fBars(r.map(x=>[x[0],`${x[1]} henvendelse${x[1]===1?'':'r'}`,Math.round(100*x[1]/mx),x[0]==='Over 3 måneder'?'alt':''])),
       `Åbne henvendelser på trinnet «Tilbud sendt».`);
+  })();
+
+  /* ══ FLERE INDSIGTER — alle regnet paa de samme rejser ══ */
+  const natAf = t => (t.return_date&&t.departure_date)
+    ? Math.max(0,Math.round((new Date(t.return_date)-new Date(t.departure_date))/86400000)) : null;
+  const destAf = t => (t.trip_destinations||[]).map(d=>d.destination).filter(Boolean);
+  const topListe = (arr, n=5) => Object.entries(arr).sort((a,b)=>b[1]-a[1]).slice(0,n);
+
+  /* rejsens laengde */
+  (()=>{ const b=pris.filter(t=>natAf(t)); if(b.length<50) return;
+    const sp=[['Under 7 nætter',n=>n<7],['7–9 nætter',n=>n>=7&&n<10],['10–13 nætter',n=>n>=10&&n<14],['14 nætter eller mere',n=>n>=14]];
+    const r=sp.map(([n,f])=>{ const g=b.filter(t=>f(natAf(t)));
+      return {n,c:g.length,p:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0}; }).filter(x=>x.c>3);
+    if(r.length<3) return; const mx=Math.max(...r.map(x=>x.c));
+    const top=r.reduce((a,x)=>x.c>a.c?x:a);
+    P('bars','Rejsens længde',HELE,
+      `De fleste rejser <b>${top.n.toLowerCase()}</b>.`,
+      `${top.c} af ${b.length} rejser ligger i det spænd. Salgsprisen stiger med længden — fra ${kr0(r[0].p)} kr. til ${kr0(r[r.length-1].p)} kr.`,
+      fBars(r.map(x=>[x.n,`${x.c} rejser <em>· ${kr0(x.p)} kr.</em>`,Math.round(100*x.c/mx),x===top?'alt':''])));
+  })();
+
+  /* nationalitet */
+  (()=>{ const b=pris.filter(t=>t.customer_currency); if(b.length<50) return;
+    const NAV={NOK:'Norske kunder',DKK:'Danske kunder',EUR:'Øvrige kunder'};
+    const g={}; b.forEach(t=>{ const k=NAV[(t.customer_currency||'').toUpperCase()]||'Øvrige kunder';
+      (g[k]=g[k]||{c:0,sum:0}).c++; g[k].sum+= +t.package_sell_dkk; });
+    const r=Object.entries(g).map(([n,v])=>({n,c:v.c,p:v.sum/v.c})).sort((a,b)=>b.c-a.c);
+    if(r.length<2) return; const mx=Math.max(...r.map(x=>x.c));
+    P('bars','Hvem der rejser',HELE,
+      `<b>${r[0].n}</b> fylder mest — ${Math.round(100*r[0].c/b.length)} % af alle rejser.`,
+      `Fordelt på ${b.length} rejser. Gennemsnitlig salgspris står til højre — det er ikke nødvendigvis den største gruppe der køber dyrest.`,
+      fBars(r.map((x,i)=>[x.n,`${x.c} rejser <em>· ${kr0(x.p)} kr.</em>`,Math.round(100*x.c/mx),i===0?'alt':''])));
+  })();
+
+  /* destinationer */
+  (()=>{ const g={}; ok.forEach(t=>destAf(t).forEach(d=>{ g[d]=(g[d]||0)+1; }));
+    const r=topListe(g,6); if(r.length<3) return; const mx=r[0][1];
+    const i_alt=Object.keys(g).length;
+    P('bars','Destinationerne',HELE,
+      `<b>${r[0][0]}</b> er det I sælger — ${r[0][1]} rejser.`,
+      `I har solgt til ${i_alt} forskellige destinationer i alt, men de fem største står for langt hovedparten.`,
+      fBars(r.map((x,i)=>[x[0],`${x[1]} rejser`,Math.round(100*x[1]/mx),i===0?'alt':''])));
+  })();
+
+  /* fortjeneste */
+  (()=>{ const b=ok.filter(t=>+t.comm_dkk>0 && +t.package_sell_dkk>0); if(b.length<50) return;
+    const sum=b.reduce((s,t)=>s+ +t.comm_dkk,0);
+    const marg=100*sum/b.reduce((s,t)=>s+ +t.package_sell_dkk,0);
+    const sp=[['Under 10 %',m=>m<10],['10–18 %',m=>m>=10&&m<18],['18–25 %',m=>m>=18&&m<25],['Over 25 %',m=>m>=25]];
+    const r=sp.map(([n,f])=>[n,b.filter(t=>f(100*t.comm_dkk/t.package_sell_dkk)).length]).filter(x=>x[1]);
+    const mx=Math.max(...r.map(x=>x[1]));
+    const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    P('bars','Fortjenesten',HELE,
+      `I tjener <b>${marg.toFixed(1)} %</b> på en rejse i gennemsnit.`,
+      `${kr0(sum/b.length)} kr. pr. rejse, målt som kommission mod salgspris på ${b.length} rejser. De fleste ligger i spændet ${top[0].toLowerCase()}.`,
+      fBars(r.map(x=>[x[0],`${x[1]} rejser`,Math.round(100*x[1]/mx),x===top?'alt':''])));
+  })();
+
+  /* aar for aar */
+  (()=>{ const g={}; ok.forEach(t=>{ if(!t.booking_date) return;
+      const a=t.booking_date.slice(0,4); (g[a]=g[a]||{c:0,sum:0}).c++; g[a].sum+= +(t.package_sell_dkk||0); });
+    const aar=Object.keys(g).sort(); if(aar.length<3) return;
+    const fulde=aar.filter(a=>g[a].c>=20);
+    if(fulde.length<3) return;
+    const r=fulde.map(a=>[a,Math.round(g[a].sum/1000000*10)/10]);
+    const bedst=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    P('kolonner','År for år',fulde[0]+'–'+fulde[fulde.length-1],
+      `<b>${bedst[0]}</b> er jeres bedste år — ${bedst[1]} mio. kr.`,
+      `Salgspris på alle bookede rejser, år for år. Kun år med mindst 20 rejser er med, så en halv sæson ikke ligner et fald.`,
+      fKol(r, bedst[0]));
+  })();
+
+  /* aflysninger */
+  (()=>{ const alle=(trips||[]).filter(t=>!/^test/i.test(t.ref_no||''));
+    const canx=alle.filter(t=>t.status==='canx'); if(canx.length<5||alle.length<100) return;
+    const pct=100*canx.length/alle.length;
+    P('ring','Aflysninger',HELE,
+      `<b>${pct.toFixed(1)} %</b> af rejserne bliver aflyst.`,
+      `${canx.length} aflyste ud af ${alle.length} bookede rejser i alt. Resten er gennemført eller på vej.`,
+      fRing(pct, canx.length+'', 'aflyste rejser',
+        [['Gennemført eller undervejs',alle.length-canx.length,'alt'],['Aflyst',canx.length,'']]));
+  })();
+
+  /* pipeline: hvad er booket frem i tiden */
+  (()=>{ const idag=new Date().toISOString().slice(0,10);
+    const frem=pris.filter(t=>t.departure_date>idag); if(frem.length<10) return;
+    const sum=frem.reduce((s,t)=>s+ +t.package_sell_dkk,0);
+    const g={}; frem.forEach(t=>{ const m=t.departure_date.slice(0,7); g[m]=(g[m]||0)+1; });
+    const r=Object.entries(g).sort().slice(0,8).map(([m,c])=>[m.slice(5)+'/'+m.slice(2,4),c]);
+    const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    P('kolonner','Booket frem i tiden','fra i dag',
+      `<b>${frem.length} rejser</b> venter på at komme afsted.`,
+      `${kr0(sum)} kr. i salgspris er allerede booket, men ikke rejst endnu. Fordelt på afrejsemåned.`,
+      fKol(r, top[0]));
+  })();
+
+  /* hvor mange er ude samtidig */
+  (()=>{ const b=ok.filter(t=>t.departure_date&&t.return_date); if(b.length<50) return;
+    const g={}; b.forEach(t=>{ const m=t.departure_date.slice(0,7); g[m]=(g[m]||0)+(t.pax_count||0); });
+    const r=Object.entries(g).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const mx=r[0][1];
+    P('bars','Travleste måneder',HELE,
+      `<b>${r[0][0]}</b> var måneden med flest gæster afsted.`,
+      `${r[0][1]} gæster rejste ud i den måned. Her er de fem travleste måneder I har haft.`,
+      fBars(r.map((x,i)=>[x[0],`${x[1]} gæster`,Math.round(100*x[1]/mx),i===0?'alt':''])));
+  })();
+
+  /* prisspaend */
+  (()=>{ const b=pris.slice().sort((a,b)=>a.package_sell_dkk-b.package_sell_dkk); if(b.length<50) return;
+    const med=b[Math.floor(b.length/2)].package_sell_dkk;
+    const sp=[['Under 50.000',p=>p<50000],['50–100.000',p=>p>=50000&&p<100000],
+              ['100–150.000',p=>p>=100000&&p<150000],['Over 150.000',p=>p>=150000]];
+    const r=sp.map(([n,f])=>[n,b.filter(t=>f(+t.package_sell_dkk)).length]).filter(x=>x[1]);
+    const mx=Math.max(...r.map(x=>x[1])); const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    P('bars','Prisspændet',HELE,
+      `Halvdelen af rejserne koster over <b>${kr0(med)} kr.</b>`,
+      `Medianen er ${kr0(med)} kr. — den dyreste rejse I har solgt er ${kr0(b[b.length-1].package_sell_dkk)} kr., den billigste ${kr0(b[0].package_sell_dkk)}.`,
+      fBars(r.map(x=>[x[0],`${x[1]} rejser`,Math.round(100*x[1]/mx),x===top?'alt':''])));
+  })();
+
+  /* boernefamilier */
+  (()=>{ const b=pris.filter(t=>t.pax_count>0); if(b.length<50) return;
+    const par=b.filter(t=>t.pax_count===2), familie=b.filter(t=>t.pax_count>=3);
+    if(!par.length||!familie.length) return;
+    const snit=a=>a.reduce((s,t)=>s+ +t.package_sell_dkk,0)/a.length;
+    const mx=Math.max(snit(par),snit(familie));
+    P('bars','Par eller familie',HELE,
+      `<b>${Math.round(100*par.length/b.length)} %</b> af rejserne er to personer.`,
+      `Parret er jeres typiske kunde. Familien fylder mindre i antal, men mere i kroner — ${kr0(snit(familie))} kr. mod ${kr0(snit(par))}.`,
+      fBars([['To personer',`${par.length} rejser <em>· ${kr0(snit(par))} kr.</em>`,Math.round(100*snit(par)/mx)],
+             ['Tre eller flere',`${familie.length} rejser <em>· ${kr0(snit(familie))} kr.</em>`,Math.round(100*snit(familie)/mx),'alt']]));
+  })();
+
+  /* hvor lang tid en henvendelse tager */
+  (()=>{ if(!leads||leads.length<50) return;
+    const g={}; leads.forEach(l=>{ const m=(l.created_at||'').slice(0,7); if(m) g[m]=(g[m]||0)+1; });
+    const r=Object.entries(g).sort().slice(-8).map(([m,c])=>[m.slice(5)+'/'+m.slice(2,4),c]);
+    if(r.length<3) return; const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    P('kolonner','Henvendelser pr. måned','seneste måneder',
+      `<b>${top[1]} henvendelser</b> i ${top[0]} — jeres bedste måned.`,
+      `Antal henvendelser modtaget pr. måned. Det er toppen af tragten: alt hvad der senere bliver til rejser, starter her.`,
+      fKol(r, top[0]));
+  })();
+
+  /* ══ FLERE PERSONLIGE ══ */
+  (()=>{ if(minePris.length<10) return;
+    const minSnit=omsAf(minePris)/minePris.length;
+    const holdet=pris.filter(t=>t.owner&&t.owner!==window.ME);
+    if(holdet.length<10) return;
+    const holdSnit=omsAf(holdet)/holdet.length;
+    const mx=Math.max(minSnit,holdSnit);
+    PP('bars','Din gennemsnitsrejse','i alt',
+      `Din gennemsnitsrejse er <b>${kr0(minSnit)} kr.</b>`,
+      `Målt på salgspris over ${minePris.length} rejser du selv har booket. Resten af holdet ligger på ${kr0(holdSnit)} kr. over ${holdet.length} rejser.`,
+      fBars([['Dig',`${kr0(minSnit)} kr. <em>· ${minePris.length} rejser</em>`,Math.round(100*minSnit/mx),'alt'],
+             ['Resten af holdet',`${kr0(holdSnit)} kr. <em>· ${holdet.length} rejser</em>`,Math.round(100*holdSnit/mx)]]));
+  })();
+
+  (()=>{ if(mine.length<10) return;
+    const g={}; mine.forEach(t=>destAf(t).forEach(d=>{ g[d]=(g[d]||0)+1; }));
+    const r=topListe(g,5); if(r.length<2) return; const mx=r[0][1];
+    PP('bars','Dine destinationer','i alt',
+      `Du sælger mest til <b>${r[0][0]}</b>.`,
+      `${r[0][1]} af dine ${mine.length} rejser går dertil. Her er de fem du sender flest til.`,
+      fBars(r.map((x,i)=>[x[0],`${x[1]} rejser`,Math.round(100*x[1]/mx),i===0?'alt':''])));
+  })();
+
+  (()=>{ const alle=pris.filter(t=>t.owner); if(alle.length<20||!minePris.length) return;
+    const g={}; alle.forEach(t=>{ g[t.owner]=(g[t.owner]||0)+ +t.package_sell_dkk; });
+    const total=Object.values(g).reduce((s,x)=>s+x,0);
+    const min=g[window.ME]||0; if(!min) return;
+    PP('ring','Din andel','i alt',
+      `Du står for <b>${Math.round(100*min/total)} %</b> af alt salg.`,
+      `Målt på salgspris over alle rejser med en ansvarlig. Det er ${kr0(min)} kr. af ${kr0(total)} kr.`,
+      fRing(Math.round(100*min/total), Math.round(100*min/total)+' %','af holdets salg',
+        Object.entries(g).sort((a,b)=>b[1]-a[1]).map(([o,v])=>[o===window.ME?'Dig':o,kr0(v/1000)+' t.kr.',o===window.ME?'alt':''])));
+  })();
+
+  (()=>{ if(minePris.length<10) return;
+    const nat=minePris.map(t=>natAf(t)).filter(n=>n);
+    if(nat.length<10) return;
+    const snit=nat.reduce((s,x)=>s+x,0)/nat.length;
+    const laengst=minePris.filter(t=>natAf(t)).sort((a,b)=>natAf(b)-natAf(a))[0];
+    PP('tal','Dine nætter','i alt',
+      `Du har solgt <b>${kr0(naetterAf(mine))} nætter</b>.`,
+      `Gennemsnitligt ${snit.toFixed(1)} nætter pr. rejse. Din længste er ${escH(laengst.ref_no)} med ${natAf(laengst)} nætter.`,
+      fTal(kr0(naetterAf(mine)),'nætter','du har solgt i alt',
+        [['rejser',mine.length],['snit',snit.toFixed(1)+' nætter'],['længste',natAf(laengst)+' nætter']]));
+  })();
+
+  (()=>{ const iaar=minePris.filter(t=>t.booking_date&&t.booking_date.slice(0,4)===aarNu);
+    if(iaar.length<5) return;
+    const D=['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+    const r=[1,2,3,4,5,6,0].map(d=>[D[d],iaar.filter(t=>new Date(t.booking_date).getDay()===d).length]).filter(x=>x[1]);
+    if(r.length<3) return; const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    PP('kolonner','Din bedste ugedag',aarNu,
+      `Du lukker flest rejser om <b>${top[0].toLowerCase()}en</b>.`,
+      `${top[1]} af dine ${iaar.length} bookinger i år faldt på en ${top[0].toLowerCase()}.`,
+      fKol(r, top[0]));
+  })();
+
+  (()=>{ if(mine.length<20) return;
+    const g={}; mine.forEach(t=>{ if(!t.booking_date) return;
+      const a=t.booking_date.slice(0,4); (g[a]=g[a]||{c:0,sum:0}).c++; g[a].sum+= +(t.package_sell_dkk||0); });
+    const aar=Object.keys(g).sort().filter(a=>g[a].c>=5);
+    if(aar.length<3) return;
+    const r=aar.map(a=>[a,g[a].c]);
+    const bedst=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    PP('kolonner','Dit bedste år',aar[0]+'–'+aar[aar.length-1],
+      `<b>${bedst[0]}</b> var dit stærkeste år — ${bedst[1]} rejser.`,
+      `Antal rejser du selv har booket, år for år. Kun år med mindst fem bookinger er med.`,
+      fKol(r, bedst[0]));
+  })();
+
+  (()=>{ const g=new Date(Date.now()-90*86400000).toISOString().slice(0,10);
+    const nye=minePris.filter(t=>t.booking_date&&t.booking_date>=g); if(nye.length<3) return;
+    PP('tal','Dit seneste kvartal','seneste 90 dage',
+      `<b>${nye.length} rejser</b> på 90 dage.`,
+      `${kr0(omsAf(nye))} kr. i salgspris og ${gaesterAf(nye)} gæster — rejser du selv har booket de seneste tre måneder.`,
+      fTal(kr0(omsAf(nye)/1000),'t.kr.','solgt på 90 dage',
+        [['rejser',nye.length],['gæster',gaesterAf(nye)],['pr. uge',(nye.length/13).toFixed(1)]]));
   })();
 
   return ud;
