@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.23 · 24.08.2026
+<!-- Panda · v0.24 · 24.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -689,7 +689,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.23';
+const APP_VERSION = 'v0.24';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -4341,7 +4341,7 @@ function hvRender(l, acts, offers){
             ${fld('Voksne','adults',l.adults)}
             <div class="fld"><div class="k">Børn</div><input id="hvKc" value="${l.kids==null?'':l.kids}" oninput="hvKids()" onchange="hvSave('kids',this.value===''?null:+this.value)"></div>
             <div class="fld"><div class="k">Alder på børn</div><div class="kids" id="hvKb"></div></div>
-            <div class="fld"><div class="k">Budget (${escH(cur)})</div><input value="${l.est_value==null?'':l.est_value}" onchange="hvSave('est_value',this.value===''?null:+this.value)"></div>
+            <div class="fld"><div class="k">Budget (${escH(cur)})</div><input value="${l.est_value==null?'':fval(l.est_value)}" onchange="hvSaveTal(this,'est_value')"></div>
           </div>
           <div class="fbox"><div class="lab">Kontakt og kilde</div>
             ${fld('Kontaktnavn','contact_name',l.contact_name)}
@@ -4432,6 +4432,19 @@ function hvKey(e){
 }
 
 /* ── gem ────────────────────────────────────────────────────────────── */
+/* Beloeb skrives med dansk tusindtalsseparator. Feltet tager imod hvad som helst
+   - 110000, 110.000, 110.000,50 - og skriver det pænt tilbage efter gem. */
+function hvTal(v){
+  if(v==null) return null;
+  const s=String(v).replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.');
+  if(s==='') return null;
+  const n=parseFloat(s); return isNaN(n)?null:n;
+}
+function hvSaveTal(el,felt){
+  const n=hvTal(el.value);
+  el.value = n==null ? '' : fval(n);
+  hvSave(felt,n);
+}
 async function hvSave(felt,val){
   const id=window._hvId; if(!id) return;
   const {error}=await db.from('leads').update({[felt]:val}).eq('id',id);
