@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.29 · 25.08.2026
+<!-- Panda · v0.30 · 25.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -659,8 +659,40 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 /* ── Dashboardets indsigter — samme palet som henvendelsessiden ── */
 /* Rejseplan — én kompakt linje pr. rejse */
+/* ── Dashboardet i samme palet som indsigterne og henvendelsessiden ── */
+#app.dashskin{background:#efeae1;}
+#app.dashskin .card{background:#fdfbf7;border:1px solid #e7dfd1;border-radius:3px;box-shadow:none;padding:18px 20px;}
+#app.dashskin .card h3{font-size:8.5px;letter-spacing:2.2px;text-transform:uppercase;color:#c1975a;font-weight:600;
+  font-family:'Inter',sans-serif;margin:0 0 12px;display:flex;align-items:center;gap:10px;}
+#app.dashskin .card h3 .r{margin-left:auto;font-weight:400;letter-spacing:.4px;text-transform:none;font-size:10.5px;color:#a09884;}
+#app.dashskin .pagehead h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:29px;color:#3d403a;}
+#app.dashskin .pagehead h2 i{color:#c1975a;}
+#app.dashskin .pagehead .sub{color:#a09884;}
+#app.dashskin .subhead{font-size:8.5px;letter-spacing:1.8px;text-transform:uppercase;color:#a09884;font-weight:600;
+  margin:14px 0 4px;padding-bottom:5px;border-bottom:1px solid #f0e9dd;}
+#app.dashskin .muted{color:#a09884;}
+#app.dashskin .agent{background:#fdfbf7;border:1px solid #e7dfd1;border-radius:3px;box-shadow:none;}
+#app.dashskin .agent .nm{font-size:8.5px;letter-spacing:2.2px;text-transform:uppercase;color:#c1975a;font-weight:600;}
+#app.dashskin .rev-card b,#app.dashskin .rev-row .rl{color:#3d403a;}
+#app.dashskin .rev-lead b{font-family:'Cormorant Garamond',serif;color:#3d403a;}
+#app.dashskin .rev-h{font-size:8.5px;letter-spacing:1.8px;text-transform:uppercase;color:#a09884;}
+#app.dashskin .rb-tot{background:#f2ebe0;}
+#app.dashskin .rb-real{background:#7ba488;}
+#app.dashskin .sw-real{background:#7ba488;}
+#app.dashskin .sw-rest{background:#e9dfd0;}
+#app.dashskin .qnow{border-color:#e0c9a3;color:#c1975a;}
+.udenu{margin:2px 0 0;}
+.un{display:grid;grid-template-columns:minmax(0,auto) auto minmax(0,1fr) auto auto;align-items:baseline;gap:12px;
+  padding:5px 2px;border-bottom:1px solid #f0e9dd;cursor:pointer;font-size:12px;}
+.un:last-child{border-bottom:0;}
+.un:hover{background:#faf6ec;}
+.un .k{font-weight:600;color:var(--forest,#223B2F);white-space:nowrap;}
+.un .r2{color:#a09884;font-size:11px;white-space:nowrap;}
+.un .st{color:#5c5f57;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.un .me{color:#a09884;font-size:10.5px;white-space:nowrap;}
+.un .ti{color:#a09884;font-size:10.5px;white-space:nowrap;}
 .rplan{margin:2px 0 0;}
-.rp{display:grid;grid-template-columns:82px 16px minmax(0,auto) 1fr auto;align-items:baseline;gap:10px;
+.rp{display:grid;grid-template-columns:82px 16px minmax(0,auto) 1fr auto 12px;align-items:baseline;gap:10px;
   padding:5px 2px;border-bottom:1px solid #f0e9dd;cursor:pointer;font-size:12px;}
 .rp:last-child{border-bottom:0;}
 .rp:hover{background:#faf6ec;}
@@ -671,6 +703,15 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .rp .nvn{font-weight:600;color:var(--forest,#223B2F);white-space:nowrap;}
 .rp .det{color:#a09884;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .rp .hvad{color:#a09884;font-size:10.5px;white-space:nowrap;}
+.rp .chev{color:#c8c0ad;font-size:13px;transition:transform .18s;display:inline-block;}
+.rp.on .chev{transform:rotate(90deg);color:#c1975a;}
+.rp.on{background:#faf6ec;}
+.rpx{display:none;padding:8px 2px 10px 108px;border-bottom:1px solid #f0e9dd;background:#fdfbf7;}
+.rpx.on{display:block;}
+.rx{display:grid;grid-template-columns:70px 1fr;gap:10px;font-size:11.5px;padding:2px 0;}
+.rx span{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:#c1975a;font-weight:600;padding-top:2px;}
+.rx b{font-weight:400;color:#5c5f57;}
+.rx a{color:#c1975a;}
 .insq{border-left:2px solid #e0c9a3;padding:2px 0 2px 16px;margin:0 0 18px;}
 .insq p{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;line-height:1.45;color:#3d403a;}
 .insq p b{color:#c1975a;font-weight:600;}
@@ -761,7 +802,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.29';
+const APP_VERSION = 'v0.30';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -1298,6 +1339,7 @@ document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadT
 function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   // henvendelses-boardet er bredt (10 trin) — slip main fri fra 1280px-loftet her
   if(app) app.classList.toggle('wide', v==='leads');
+  if(app) app.classList.toggle('dashskin', v==='dash');
   setRoute(route||v);}
 /* ── v0.12: hash-router (R-krav: bliv på siden ved reload) ──────────────────
    Panda holdt kun styr på den aktuelle side i hukommelsen, så et F5 smed
@@ -1493,6 +1535,36 @@ async function viewDash(){
     naeste7.push({d, titel, kort, ud, hjem:hj});
   }
   const wkD = depToday.length+depWeek.length-depPrev.length;
+  // Elementer for de rejser der staar i rejseplanen — saa linjen kan foldes ud
+  const planIds=[...new Set([].concat(...naeste7.map(d=>d.ud.concat(d.hjem)))
+      .concat(nextDep?[nextDep]:[]).concat(nextHome?[nextHome]:[]).map(t=>t.id))];
+  const planEls = planIds.length ? await db.from('trip_elements')
+      .select('trip_id,element_type,description,details,start_date,end_date,suppliers:supplier_id(name)')
+      .in('trip_id',planIds).then(r=>r.data||[]) : [];
+  const planKort={};
+  planEls.forEach(e=>{ (planKort[e.trip_id]=planKort[e.trip_id]||[]).push(e); });
+  /* Kort resumé pr. rejse: hvem de flyver med, hvorfra, hvor de bor og hvor længe. */
+  const planResume = id => {
+    const els=(planKort[id]||[]).slice().sort((a,b)=>(a.start_date||'').localeCompare(b.start_date||''));
+    const fly=els.filter(e=>e.element_type==='flight');
+    const hoteller=els.filter(e=>e.element_type==='hotel');
+    const transfer=els.filter(e=>e.element_type==='transfer');
+    const d=els[0]&&els[0].details||{};
+    const linjer=[];
+    if(fly.length){
+      const selskab=[...new Set(fly.map(f=>(f.suppliers&&f.suppliers.name)||f.description).filter(Boolean))];
+      const fra=[...new Set(fly.map(f=>(f.details||{}).from||(f.details||{}).fra).filter(Boolean))];
+      linjer.push(['Fly', selskab.join(' · ')+(fra.length?` · fra ${fra.join(', ')}`:'')]);
+    }
+    hoteller.forEach(h=>{
+      const n=h.start_date&&h.end_date?Math.max(0,Math.round((new Date(h.end_date)-new Date(h.start_date))/86400000)):null;
+      const m=hotelMeta(h);
+      linjer.push(['Hotel', `${(h.suppliers&&h.suppliers.name)||h.description||'—'}${n?` · ${n} nætter`:''}${m?` · ${m}`:''}`]);
+    });
+    if(transfer.length) linjer.push(['Transfer',[...new Set(transfer.map(t=>(t.suppliers&&t.suppliers.name)||t.description).filter(Boolean))].join(' · ')]);
+    if(!linjer.length) linjer.push(['','Ingen elementer registreret på rejsen endnu.']);
+    return linjer;
+  };
   const hour = new Date().getHours();
   const greet = hour<10?'God morgen':hour<12?'God formiddag':hour<18?'God eftermiddag':'God aften';
   const delta = n => n===0?'':`<span class="delta ${n>0?'up':'down'}">${n>0?'▲':'▼'}${Math.abs(n)}</span>`;
@@ -1588,24 +1660,37 @@ async function viewDash(){
        roeres ikke - kun visningen her. -->
 
   <div class="card" style="margin-bottom:12px">
-    <h3>Ude nu — hvem er hvor <span class="r muted">${new Date().toLocaleDateString('da-DK',{day:'numeric',month:'short'})} · ${tripsInUse} rejser aktive · ${sharedEls} delte hoteller/fly</span></h3>
-    ${inUse.length ? `<div class="inuse">`+inUse.map(g=>{const shared=g.tripIds.length>1;
-      return `<div class="inuse-row${shared?' shared':''}">
-        <div class="il"><span class="eltag t-${g.type}">${EL_TAG[g.type]||g.type}</span> <b>${g.label}</b>${shared?`<span class="sharedbadge">delt · ${g.tripIds.length} kunder</span>`:''}</div>
-        <div class="ir">${g.rows.map(r=>{const meta=g.type==='hotel'?hotelMeta(r):'';return `<a class="cust" href="#" onclick="viewTrip('${r.trips.id}');return false">${r.trips.customers.last_name}, ${r.trips.customers.first_name} <span class="muted">${r.trips.ref_no} · ${(r.trips.trip_destinations||[]).map(d=>d.destination).join(' + ')} · ${r.trips.pax_count} pax · ${fmtD(r.start_date)}${r.end_date?'–'+fmtD(r.end_date):''}</span>${meta?`<span class="elmeta">${meta}</span>`:''}</a>`;}).join('')}</div>
-      </div>`;}).join('')+`</div>` : '<p class="muted">Ingen hoteller, fly eller transfers i brug i dag.</p>'}
+    <h3>Ude nu <span class="r muted">${outNow.length} rejse${outNow.length===1?'':'r'} · ${paxOut} gæster</span></h3>
+    ${outNow.length ? `<div class="udenu">`+outNow.map(t=>{
+        const mine=inUseEls.filter(e=>e.trips&&e.trips.id===t.id);
+        const hotel=mine.find(e=>e.element_type==='hotel');
+        const sted=hotel?(hotel.suppliers&&hotel.suppliers.name||hotel.description||''):'';
+        const meta=hotel?hotelMeta(hotel):'';
+        const til=hotel&&hotel.end_date?fmtD(hotel.end_date):(t.return_date?fmtD(t.return_date):'');
+        return `<div class="un" onclick="viewTrip('${t.id}')">
+          <span class="k">${escH(t.customers.last_name)}, ${escH(t.customers.first_name)}</span>
+          <span class="r2">${escH(t.ref_no)} · ${t.pax_count} rejsende</span>
+          <span class="st">${sted?escH(sted):escH(t.trip_destinations.map(x=>x.destination).join(' + '))}</span>
+          <span class="me">${escH(meta)}</span>
+          <span class="ti">hjem ${escH(fmtD(t.return_date))}</span>
+        </div>`;}).join('')+`</div>`
+      : '<p class="muted" style="margin:0">Ingen kunder er afsted lige nu.</p>'}
   </div>
 
   <div class="card" style="margin-bottom:12px"><h3>Rejseplan <span class="r muted">de næste syv dage</span></h3>
     ${naeste7.length ? `<div class="rplan">${naeste7.map(d=>
       (d.ud.map(t=>[t,'ud']).concat(d.hjem.map(t=>[t,'hjem']))).map(([t,retning],n)=>
-      `<div class="rp" onclick="viewTrip('${t.id}')">
+      (()=>{ const nat=t.return_date&&t.departure_date?Math.max(0,Math.round((new Date(t.return_date)-new Date(t.departure_date))/86400000)):null;
+        return `<div class="rp" onclick="foldRejse(this)">
          <span class="dag">${n===0?escH(d.kort):''}</span>
          <span class="pil ${retning}">${retning==='ud'?'→':'←'}</span>
          <span class="nvn">${escH(t.customers.last_name)}, ${escH(t.customers.first_name)}</span>
-         <span class="det">${escH(t.ref_no)} · ${escH(t.trip_destinations.map(x=>x.destination).join(' + '))} · ${t.pax_count} rejsende</span>
+         <span class="det">${escH(t.ref_no)} · ${escH(t.trip_destinations.map(x=>x.destination).join(' + '))} · ${t.pax_count} rejsende${nat?` · ${nat} nætter`:''} · ${escH(fmtD(t.departure_date))}–${escH(fmtD(t.return_date))}</span>
          <span class="hvad">${retning==='ud'?'rejser ud':'kommer hjem'}</span>
-       </div>`).join('')).join('')}</div>`
+         <span class="chev">›</span>
+       </div>
+       <div class="rpx">${planResume(t.id).map(([k,v])=>`<div class="rx"><span>${escH(k)}</span><b>${escH(v)}</b></div>`).join('')}
+         <div class="rx"><span></span><b><a href="#" onclick="event.stopPropagation();viewTrip('${t.id}');return false">Åbn rejsen →</a></b></div></div>`;})()).join('')).join('')}</div>`
       : `<p class="muted" style="margin:0 0 8px">Der sker ingenting de næste syv dage.</p>`}
     ${(nextDep||nextHome) && !naeste7.length ? `<p class="subhead">Næste efter det</p>
       ${nextDep?`<div class="rp" onclick="viewTrip('${nextDep.id}')"><span class="dag">${escH(fmtD(nextDep.departure_date))}</span><span class="pil ud">→</span>
@@ -4259,6 +4344,14 @@ function byggIndsigter(trips, leads){
   const foersteAar=aarene[0], sidsteAar=aarene[aarene.length-1];
   const HELE = foersteAar&&foersteAar!==sidsteAar ? `${foersteAar}–${sidsteAar}` : (sidsteAar||'i alt');
   const P=(form,titel,periode,l,e,g)=>ud.push({form,titel,periode,l,e,g});
+  const PP=(form,titel,periode,l,e,g)=>ud.push({form,titel,periode,l,e,g,personlig:true});
+  const mine = ok.filter(t=>t.owner===window.ME);
+  const minePris = mine.filter(t=>+t.package_sell_dkk>0);
+  const aarNu = String(new Date().getFullYear());
+  const gaesterAf=a=>a.reduce((s,x)=>s+(x.pax_count||0),0);
+  const omsAf=a=>a.reduce((s,x)=>s+ +(x.package_sell_dkk||0),0);
+  const naetterAf=a=>a.reduce((s,x)=>s+(x.return_date&&x.departure_date?
+    Math.max(0,Math.round((new Date(x.return_date)-new Date(x.departure_date))/86400000)):0),0);
 
   /* 1 · gengangere — hvad der FAKTISK er interessant */
   (()=>{ const pr={};
@@ -4344,21 +4437,6 @@ function byggIndsigter(trips, leads){
       `Alle rejser i maldivia-core.`);
   })();
 
-  /* 6 · dig selv i aar — stort tal */
-  (()=>{ const iaar=ok.filter(t=>t.booking_date&&t.booking_date>=String(new Date().getFullYear())+'-01-01');
-    if(iaar.length<5||!window.ME) return;
-    const e={}; iaar.forEach(t=>{ const o=t.owner||'?'; const g=e[o]=e[o]||{n:0,sum:0,pax:0};
-      g.n++; g.sum+=+(t.package_sell_dkk||0); g.pax+=(t.pax_count||0); });
-    const mig=e[window.ME]; if(!mig) return;
-    const andre=Object.entries(e).filter(([o])=>o!==window.ME);
-    P('tal','Dig i år',String(new Date().getFullYear()),
-      `Du har booket <b>${mig.n} rejser</b> i år.`,
-      `${kr0(mig.pax)} gæster du selv har sendt afsted, til ${kr0(mig.sum/mig.n)} kr. i snit pr. rejse.`,
-      fTal(kr0(mig.sum/1000),'t.kr.','solgt i år',
-        [['rejser',mig.n],['gæster',mig.pax]].concat(andre.map(([o,g])=>[o,kr0(g.sum/1000)+' t.kr.']))),
-      `Rejser booket siden 1. januar.`);
-  })();
-
   /* 7 · de seneste 30 dage — stort tal */
   (()=>{ const g=new Date(Date.now()-30*86400000).toISOString().slice(0,10);
     const nye=ok.filter(t=>t.booking_date&&t.booking_date>=g); if(nye.length<3) return;
@@ -4370,6 +4448,66 @@ function byggIndsigter(trips, leads){
         [['rejser',nye.length],['gæster',nye.reduce((s,t)=>s+(t.pax_count||0),0)],
          ['kr. pr. rejse',kr0(oms/nye.length)]]),
       `Rejser med bookingdato inden for 30 dage.`);
+  })();
+
+  /* ── PERSONLIGE ── */
+  (()=>{ const iaar=mine.filter(t=>t.booking_date&&t.booking_date.slice(0,4)===aarNu);
+    if(iaar.length<3) return;
+    const dage=Math.max(1,Math.round((new Date()-new Date(aarNu+'-01-01'))/86400000));
+    PP('tal','Dig i år',aarNu,
+      `Du har lukket <b>${iaar.length} rejser</b> i år.`,
+      `${kr0(gaesterAf(iaar))} mennesker har fået en ferie, fordi du tog telefonen. Det er ${kr0(omsAf(iaar)/dage)} kr. hver eneste dag siden nytår.`,
+      fTal(kr0(omsAf(iaar)/1000),'t.kr.','solgt i år',
+        [['rejser',iaar.length],['gæster',gaesterAf(iaar)],['kr. pr. rejse',kr0(omsAf(iaar)/iaar.length)]]));
+  })();
+  (()=>{ const iaar=mine.filter(t=>t.booking_date&&t.booking_date.slice(0,4)===aarNu);
+    const idag=new Date().toISOString().slice(5,10);
+    const ifjor=mine.filter(t=>t.booking_date&&t.booking_date.slice(0,4)===String(+aarNu-1)&&t.booking_date.slice(5)<=idag);
+    if(iaar.length<3||ifjor.length<3) return;
+    const a=omsAf(iaar), b=omsAf(ifjor), p=Math.round(100*(a-b)/Math.max(1,b));
+    const mx=Math.max(a,b);
+    PP('bars','Dig mod sidste år','samme dato',
+      a>=b?`Du ligger <b>${p} % foran</b> sidste år.`:`Du ligger <b>${Math.abs(p)} % efter</b> sidste år — endnu.`,
+      `Målt på samme dato: ${kr0(a)} kr. i år mod ${kr0(b)} kr. sidste år. ${iaar.length} rejser mod ${ifjor.length}.`,
+      fBars([[aarNu,`${kr0(a)} kr. <em>· ${iaar.length} rejser</em>`,Math.round(100*a/mx),'alt'],
+             [String(+aarNu-1),`${kr0(b)} kr. <em>· ${ifjor.length} rejser</em>`,Math.round(100*b/mx)]]));
+  })();
+  (()=>{ if(mine.length<10) return;
+    PP('tal','Dine gæster','i alt',
+      `Du har sendt <b>${kr0(gaesterAf(mine))} gæster</b> afsted.`,
+      `Fordelt på ${mine.length} rejser og ${kr0(naetterAf(mine))} nætter væk hjemmefra. Det er ${Math.round(naetterAf(mine)/365)} år med ferie, som du har stået bag.`,
+      fTal(kr0(gaesterAf(mine)),'gæster','du selv har sendt afsted',
+        [['rejser',mine.length],['nætter',kr0(naetterAf(mine))],['mio. kr.',kr0(omsAf(mine)/1000000)]]));
+  })();
+  (()=>{ if(minePris.length<5) return;
+    const st=minePris.slice().sort((a,b)=>b.package_sell_dkk-a.package_sell_dkk)[0];
+    const top=minePris.slice().sort((a,b)=>b.package_sell_dkk-a.package_sell_dkk).slice(0,5);
+    const mx=+top[0].package_sell_dkk;
+    PP('bars','Dine største rejser','i alt',
+      `Din største rejse er <b>${kr0(st.package_sell_dkk)} kr.</b>`,
+      `${escH(st.ref_no)} — ${st.pax_count} rejsende. Her er dine fem største.`,
+      fBars(top.map((t,i)=>[t.ref_no,`${kr0(t.package_sell_dkk)} kr. <em>· ${t.pax_count} pers.</em>`,Math.round(100*t.package_sell_dkk/mx),i===0?'alt':''])));
+  })();
+  (()=>{ const iaar=minePris.filter(t=>t.booking_date&&t.booking_date.slice(0,4)===aarNu);
+    if(iaar.length<6) return;
+    const M=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const r=M.map((n,i)=>[n,iaar.filter(t=>+t.booking_date.slice(5,7)===i+1).length]);
+    const top=r.reduce((a,x)=>x[1]>a[1]?x:a); if(!top[1]) return;
+    PP('kolonner','Din bedste måned',aarNu,
+      `<b>${top[0][0].toUpperCase()+top[0].slice(1)}</b> var din stærkeste måned i år.`,
+      `${top[1]} rejser lukket i ${top[0]}. Sådan har året fordelt sig for dig.`,
+      fKol(r, top[0]));
+  })();
+  (()=>{ const pr={};
+    mine.forEach(t=>{ if(!t.customer_id) return; pr[t.customer_id]=(pr[t.customer_id]||0)+1; });
+    const igen=Object.values(pr).filter(n=>n>1).length;
+    if(igen<2) return;
+    const alle=Object.keys(pr).length;
+    PP('ring','Dine gengangere','i alt',
+      `<b>${igen} af dine kunder</b> er kommet igen.`,
+      `Ud af ${alle} kunder du har haft, har ${igen} bestilt en rejse mere hos dig. Det er den bedste anmeldelse der findes.`,
+      fRing(Math.round(100*igen/alle), igen+'', 'kunder igen',
+        [['Kom igen',igen,'alt'],['Rejste én gang',alle-igen,'']]));
   })();
 
   /* 8 · rejseaaret — maanedskolonner */
@@ -4482,7 +4620,7 @@ function tegnIndsigtskort(idx, plads){
   const alle=window.__INDSIGTER||[]; if(!alle.length) return '';
   const d=alle[idx%alle.length];
   return `<div class="icard f-${d.form}" onclick="skiftIndsigt(${plads})" title="Klik for en anden indsigt">
-    <div class="ih"><span>${escH(d.titel)}</span><em>${escH(d.periode||'')}</em><i>↻</i></div>
+    <div class="ih"><span>${escH(d.titel)}</span><em>${escH((d.periode||'').toLowerCase()===d.titel.toLowerCase()?'':(d.periode||''))}</em><i>↻</i></div>
     <p class="il">${d.l}</p>
     ${d.g}
     <p class="ie">${escH(d.e)}</p>
@@ -4491,8 +4629,11 @@ function tegnIndsigtskort(idx, plads){
 function skiftIndsigt(plads){
   const alle=window.__INDSIGTER||[]; if(alle.length<5) return;
   const brugt=window.__valgte||[];
+  // foerste kort skifter kun mellem de personlige
+  const pulje=alle.map((d,i)=>({d,i})).filter(x=>plads===0 ? x.d.personlig : !x.d.personlig).map(x=>x.i);
+  if(!pulje.length) return;
   let n; let forsoeg=0;
-  do { n=Math.floor(Math.random()*alle.length); forsoeg++; } while(brugt.includes(n) && forsoeg<40);
+  do { n=pulje[Math.floor(Math.random()*pulje.length)]; forsoeg++; } while(brugt.includes(n) && forsoeg<40);
   brugt[plads]=n; window.__valgte=brugt;
   const el=document.getElementById('ikort'+plads);
   if(el) el.outerHTML=`<div id="ikort${plads}">${tegnIndsigtskort(n,plads)}</div>`;
@@ -4501,9 +4642,15 @@ function tegnIndsigter(){
   const alle=window.__INDSIGTER||[]; const boks=document.getElementById('insgrid');
   if(!boks) return;
   if(!alle.length){ boks.innerHTML='<p class="muted">Der er endnu ikke data nok til at finde mønstre.</p>'; return; }
-  // fire forskellige — helst med forskellig form, saa kortene ikke ligner hinanden
+  /* Udvalget skifter fra dag til dag: datoen bruges som froe, saa man ser noget nyt
+     hver morgen — men det samme hvis man genindlaeser i loebet af dagen. */
+  const froe=(()=>{ const d=new Date(); return d.getFullYear()*1000+d.getMonth()*40+d.getDate(); })();
+  let n=froe; const rnd=()=>{ n=(n*1103515245+12345)&0x7fffffff; return n/0x7fffffff; };
   const valgt=[], former=[];
-  const blandet=alle.map((d,i)=>({d,i})).sort(()=>Math.random()-0.5);
+  // foerste kort er ALTID personligt
+  const pers=alle.map((d,i)=>({d,i})).filter(x=>x.d.personlig);
+  if(pers.length){ const p=pers[Math.floor(rnd()*pers.length)]; valgt.push(p.i); former.push(p.d.form); }
+  const blandet=alle.map((d,i)=>({d,i})).filter(x=>!x.d.personlig).sort(()=>rnd()-0.5);
   blandet.forEach(({d,i})=>{ if(valgt.length>=4) return;
     if(!former.includes(d.form)||valgt.length>=3){ valgt.push(i); former.push(d.form); } });
   blandet.forEach(({i})=>{ if(valgt.length<4 && !valgt.includes(i)) valgt.push(i); });
@@ -4848,6 +4995,14 @@ function hvRender(l, acts, offers){
   hvKids();
 }
 
+/* Folder en linje i rejseplanen ud — én ad gangen. */
+function foldRejse(el){
+  const x=el.nextElementSibling; if(!x||!x.classList.contains('rpx')) return;
+  const aaben=x.classList.contains('on');
+  el.closest('.rplan').querySelectorAll('.rpx.on').forEach(o=>o.classList.remove('on'));
+  el.closest('.rplan').querySelectorAll('.rp.on').forEach(o=>o.classList.remove('on'));
+  if(!aaben){ x.classList.add('on'); el.classList.add('on'); }
+}
 function hvClose(){ window._hvId=null;
   const o=document.getElementById('hvOv'); if(o) o.classList.remove('on');
   const p=document.getElementById('hvPage'); if(p) p.classList.remove('dim');
