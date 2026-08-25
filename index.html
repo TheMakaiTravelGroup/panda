@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.24 · 24.08.2026
+<!-- Panda · v0.26 · 24.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -689,7 +689,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.24';
+const APP_VERSION = 'v0.26';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -1397,7 +1397,7 @@ async function viewDash(){
   const EL_TAG={hotel:'Hotel',flight:'Fly',ticket:'Billet',transfer:'Transfer',other:'Andet',fee:'Gebyr',insurance:'Forsikring'};
   const wkD = depToday.length+depWeek.length-depPrev.length;
   const hour = new Date().getHours();
-  const greet = hour<10?'God morgen':hour<18?'God dag':'God aften';
+  const greet = hour<10?'God morgen':hour<12?'God formiddag':hour<18?'God eftermiddag':'God aften';
   const delta = n => n===0?'':`<span class="delta ${n>0?'up':'down'}">${n>0?'▲':'▼'}${Math.abs(n)}</span>`;
   // ── Morgenbrief-data (rene menupunkter) ──
   const briefDate = brief ? fmtD(brief.briefing_date) : new Date().toLocaleDateString('da-DK',{day:'numeric',month:'short'});
@@ -1485,23 +1485,10 @@ async function viewDash(){
   <span class="sub">${new Date().toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'})}</span>
   <span class="sub" style="margin-left:auto">${depToday.length?depToday.length+' afrejser i dag':'ingen afrejser i dag'} · ${paxOut} gæster ude · ${tasksDue.length?tasksDue.length+' opgaver til forfald':'alt ajour'} <span class="livedot" title="Opdaterer automatisk">● live</span></span></div>
 
-  <div class="card" style="margin-bottom:12px">
-    <h3>Morgenbrief <span class="r muted">pr. ${briefDate}</span></h3>
-    ${brief && brief.top_line ? `<p class="brief-lead">${brief.top_line} <a href="#" onclick="document.getElementById('newsbox').scrollIntoView({behavior:'smooth'});return false">se alle nyheder ↓</a></p>` : ''}
-
-    ${briefSec('Vigtige opgaver i dag', briefTasks.length, briefTasks.slice(0,CAP).map(k=>briefRow(
-      `${k.title}${k.trips?` <span class="muted">${k.trips.ref_no}</span>`:''}`, overdueWhen(k), k.trip_id?`viewTrip('${k.trip_id}')`:''
-    )).concat(briefTasks.length>CAP?[`<p class="brief-more">+ ${briefTasks.length-CAP} flere under Salg/Økonomi</p>`]:[]))}
-
-    ${briefSec('Kundebevægelser i dag', 0, moveF.map(m=>briefRow(m,'','')))}
-
-    ${briefSec('Nye salg siden i går', pulseF.length, pulseF.map(p=>briefRow(p.text||'','','')))}
-
-    ${isAdmin && revToday>0 ? `<div class="brief-sec"><p class="brief-sec-h">Omdannet til faktisk indtægt i dag</p>
-      <div class="brief-rev"><b>${krFull(revToday)}</b><span class="muted">${depToday.length} afrejse${depToday.length===1?'':'r'}${revRas&&revWen?` · Rasmus ${krFull(revRas)} · Wendie ${krFull(revWen)}`:''}</span></div></div>` : ''}
-
-    ${!brief && !briefTasks.length && !briefPays.length ? `<p class="brief-empty">Din brief lander automatisk kl. 6 hver morgen — der er ikke skrevet en endnu i dag.</p>` : (brief && !brief.top_line && !briefTasks.length && !briefPays.length && !mailF.length && !moveF.length && !pulseF.length ? `<p class="brief-empty">Roligt på kontoret i dag — ingen forfaldne opgaver, betalinger eller bevægelser.</p>` : '')}
-  </div>
+  <!-- Morgenbriefen er taget ud af dashboardet 24.08.2026 (Wendie): for lang og
+       klumpet, og indholdet var bygget til ét login. Hilsenen bliver. Briefen selv
+       kommer tilbage i en form der virker for alle brugere. Data og genereringen
+       roeres ikke - kun visningen her. -->
 
   ${hasPerm('economy')?`<div class="card rev-card" style="margin-bottom:12px">
     <h3>Omsætning 2026</h3>
@@ -4111,7 +4098,12 @@ const HV_DEST_GROUPS = [
 const HV_TOP = [['Maldiverne',757],['Mexico',78],['Den Dominikanske Republik',71],['Mauritius',55],['Jamaica',50],['Dubai',18],['Barbados',17],['Curaçao',15],['Grenada',10],['Seychellerne',6]];
 /* Trinnene på skinnen. Samme nøgler som LEAD_STAGES, så data er de samme som
    det gamle board — kun visningen er ny. */
-const HV_RAIL = ['new_lead','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation'];
+/* Trinnene paa boardet - de samme som i Pipedrive. Boardet viste tidligere kun syv,
+   og de manglende blev smidt i foerste kolonne; det ramte 27 aabne henvendelser.
+   «confirmed» er IKKE et trin i Pipedrive (Wendie 24.08) - vundet er en status, ikke en
+   kolonne - saa den er ude. Henvendelser der alligevel staar paa et trin uden kolonne
+   skjules ikke: de faar deres egen kolonne til sidst, saa de kan ses og ryddes op. */
+const HV_RAIL = LEAD_STAGES.map(s=>s[0]).filter(k=>k!=='confirmed');
 /* leads.source staar til 'pipedrive' paa alle 211 - det er importkilden, ikke kundens.
    Den rigtige kanal ligger i source_channel. */
 const HV_KANAL = {'website':'Hjemmesiden','pipedrive-sync':'Overfoert fra Pipedrive','pipedrive-import':'Importeret fra Pipedrive'};
@@ -4196,17 +4188,18 @@ async function viewHenvendelser(){
 function hvBoardRender(){
   const leads=(window._leads||[]).filter(l=>l.status==='open');
   const cols=HV_RAIL.map(k=>[k, leads.filter(l=>l.stage===k)]);
-  // henvendelser med et trin der ikke er på skinnen samles i første kolonne
+  // Henvendelser paa et trin uden kolonne laegges IKKE i foerste kolonne - det skjulte
+  // dem tidligere. De faar deres egen kolonne til sidst, saa de kan ses og ryddes op.
   const kendte=new Set(HV_RAIL);
   const rest=leads.filter(l=>!kendte.has(l.stage));
-  if(rest.length) cols[0][1]=cols[0][1].concat(rest);
+  if(rest.length) cols.push(['__rest', rest]);
   window._hvOrder=[].concat(...cols.map(c=>c[1])).map(l=>l.id);
   app.innerHTML = `<div class="hv7">
     <div class="page" id="hvPage">
       <div class="ph"><div class="lab">Salgspipeline før booking</div><h1>Henvendelser</h1></div>
       <div class="board">
         ${cols.map(([k,ls])=>`<div class="col">
-          <div class="colh"><span class="nm">${escH(STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k)}</span><span class="ct">${ls.length}</span></div>
+          <div class="colh"><span class="nm" ${k==='__rest'?'title="Disse henvendelser står på et trin der ikke findes på boardet — typisk «Vundet», som ikke længere er en kolonne i Pipedrive. De skal enten markeres solgt eller flyttes til et rigtigt trin."':''}>${k==='__rest'?'Uden for flowet':escH(STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k)}</span><span class="ct">${ls.length}</span></div>
           ${ls.map(hvCard).join('')}
         </div>`).join('')}
       </div>
