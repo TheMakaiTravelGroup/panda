@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.28 · 25.08.2026
+<!-- Panda · v0.29 · 25.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -657,28 +657,77 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .vurnote{font-size:9.5px;}
 .hv7 .lc .brch,.hv7 .lc .age,.hv7 .lc .owner{white-space:nowrap;}
 
-/* ── Dashboardets indsigtskort — samme palet som henvendelsessiden ── */
-.ins{display:grid;grid-template-columns:1fr 290px;gap:0;}
-.ins .v{padding-right:22px;border-right:1px solid #f0e9dd;}
-.ins .h{padding-left:22px;display:flex;flex-direction:column;justify-content:center;}
-.ins .lead{font-family:'Cormorant Garamond',Georgia,serif;font-size:21px;line-height:1.3;margin:0 0 8px;color:#3d403a;}
-.ins .lead b{color:#c1975a;font-weight:600;}
-.ins .exp{font-size:12px;color:#5c5f57;margin:0;}
-.ins .src{font-size:10px;color:#a09884;margin-top:10px;}
-.ins .q p{margin:0;font-family:'Cormorant Garamond',serif;font-size:18px;line-height:1.45;color:#3d403a;}
-.ins .q cite{display:block;margin-top:8px;font-style:normal;font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:#c1975a;}
-.ibars{display:grid;gap:6px;margin-top:12px;}
-.ibar{display:grid;grid-template-columns:118px 1fr 150px;align-items:center;gap:10px;}
-.ibar .l{font-size:11px;color:#5c5f57;}
-.ibar .t{height:13px;background:#f2ebe0;border-radius:2px;overflow:hidden;}
-.ibar .t i{display:block;height:100%;background:#d3e7e6;border-radius:2px;}
+/* ── Dashboardets indsigter — samme palet som henvendelsessiden ── */
+/* Rejseplan — én kompakt linje pr. rejse */
+.rplan{margin:2px 0 0;}
+.rp{display:grid;grid-template-columns:82px 16px minmax(0,auto) 1fr auto;align-items:baseline;gap:10px;
+  padding:5px 2px;border-bottom:1px solid #f0e9dd;cursor:pointer;font-size:12px;}
+.rp:last-child{border-bottom:0;}
+.rp:hover{background:#faf6ec;}
+.rp .dag{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:#c1975a;font-weight:600;white-space:nowrap;}
+.rp .pil{font-size:12px;color:#a09884;}
+.rp .pil.ud{color:#7ba488;}
+.rp .pil.hjem{color:#c1975a;}
+.rp .nvn{font-weight:600;color:var(--forest,#223B2F);white-space:nowrap;}
+.rp .det{color:#a09884;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rp .hvad{color:#a09884;font-size:10.5px;white-space:nowrap;}
+.insq{border-left:2px solid #e0c9a3;padding:2px 0 2px 16px;margin:0 0 18px;}
+.insq p{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;line-height:1.45;color:#3d403a;}
+.insq p b{color:#c1975a;font-weight:600;}
+.insq:empty{display:none;}
+.insgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.icard{background:#fdfbf7;border:1px solid #e7dfd1;border-radius:3px;padding:16px 18px;cursor:pointer;
+  transition:.2s cubic-bezier(.2,.8,.3,1);height:100%;}
+.icard:hover{border-color:#e0c9a3;box-shadow:0 10px 28px rgba(120,105,75,.10);transform:translateY(-2px);}
+.icard .ih{display:flex;align-items:center;gap:8px;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:#c1975a;font-weight:600;margin-bottom:10px;}
+.icard .ih em{font-style:normal;font-weight:400;letter-spacing:1.2px;color:#a09884;}
+.icard .ih i{margin-left:auto;font-style:normal;font-size:12px;color:#a09884;opacity:0;transition:.18s;}
+.icard:hover .ih i{opacity:1;}
+.icard .il{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;line-height:1.3;margin:0 0 10px;color:#3d403a;}
+.icard .il b{color:#c1975a;font-weight:600;}
+.icard .ie{font-size:11.5px;color:#5c5f57;margin:12px 0 0;line-height:1.55;}
+.icard .is{font-size:9.5px;color:#a09884;margin:8px 0 0;}
+.ibars{display:grid;gap:5px;}
+.ibar{display:grid;grid-template-columns:96px 1fr 118px;align-items:center;gap:8px;}
+.ibar .l{font-size:10.5px;color:#5c5f57;}
+.ibar .t{height:11px;background:#f2ebe0;border-radius:2px;overflow:hidden;}
+.ibar .t i{display:block;height:100%;background:#d3e7e6;border-radius:2px;transition:width .5s cubic-bezier(.2,.8,.3,1);}
 .ibar .t i.alt{background:#c1975a;}
-.ibar .v{font-size:11px;text-align:right;font-variant-numeric:tabular-nums;color:#3d403a;}
-.ibar .v em{font-style:normal;color:#a09884;font-size:10px;}
-.insbtn{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1.6px;text-transform:uppercase;
-  background:none;border:0;border-bottom:1px solid #e0c9a3;color:#c1975a;cursor:pointer;padding:2px 0;}
-.insbtn:hover{border-bottom-color:#c1975a;}
-@media(max-width:900px){.ins{grid-template-columns:1fr}.ins .v{border-right:0;padding-right:0}.ins .h{padding-left:0;margin-top:16px;border-top:1px solid #f0e9dd;padding-top:16px}}
+.ibar .v{font-size:10.5px;text-align:right;font-variant-numeric:tabular-nums;color:#3d403a;}
+.ibar .v em{font-style:normal;color:#a09884;font-size:9.5px;}
+/* ring */
+.iring{display:flex;align-items:center;gap:20px;}
+.iring .ring{width:118px;height:118px;flex:none;transform:rotate(-90deg);}
+.iring .rbg{fill:none;stroke:#f2ebe0;stroke-width:11;}
+.iring .rfg{fill:none;stroke:#c1975a;stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.3,1);}
+.iring{position:relative;}
+.iring .rmidt{position:absolute;left:0;width:118px;text-align:center;}
+.iring .rmidt b{display:block;font-family:'Cormorant Garamond',serif;font-size:26px;color:#3d403a;line-height:1;}
+.iring .rmidt span{font-size:9px;color:#a09884;}
+.iring .rdele{flex:1;display:grid;gap:6px;}
+.iring .rd{display:flex;align-items:center;gap:8px;font-size:11px;color:#5c5f57;}
+.iring .rd i{width:8px;height:8px;border-radius:50%;background:#d3e7e6;flex:none;}
+.iring .rd i.alt{background:#c1975a;}
+.iring .rd i.aab{background:#e9dfd0;}
+.iring .rd b{margin-left:auto;color:#3d403a;font-variant-numeric:tabular-nums;}
+/* maanedskolonner */
+.ikol{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;align-items:end;height:92px;}
+.ikol .k{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:3px;text-align:center;}
+.ikol .k i{display:block;background:#d3e7e6;border-radius:2px 2px 0 0;min-height:2px;transition:height .6s cubic-bezier(.2,.8,.3,1);}
+.ikol .k.top i{background:#c1975a;}
+.ikol .k .n{font-size:8px;color:#a09884;white-space:nowrap;}
+.ikol .k .c{font-size:9px;color:#5c5f57;font-variant-numeric:tabular-nums;}
+.ikol .k:hover i{background:#c1975a;}
+/* stort tal */
+.ital .stort{display:flex;align-items:baseline;gap:8px;}
+.ital .stort b{font-family:'Cormorant Garamond',serif;font-size:44px;line-height:.9;color:#3d403a;font-weight:400;}
+.ital .stort small{font-size:12px;color:#a09884;}
+.ital .u{font-size:10.5px;color:#a09884;margin:6px 0 0;}
+.ital .smaa{display:flex;gap:20px;margin-top:14px;padding-top:12px;border-top:1px solid #f0e9dd;}
+.ital .smaa b{display:block;font-family:'Cormorant Garamond',serif;font-size:17px;color:#3d403a;}
+.ital .smaa span{font-size:9.5px;color:#a09884;}
+@media(max-width:900px){.insgrid{grid-template-columns:1fr}}
+
 .hv7 .nlist .nx{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;
   width:auto;height:auto;padding:3px 8px;border-radius:2px;color:var(--mut);background:none;border:1px solid transparent;}
 .hv7 .nlist .nx:hover{color:var(--bad);border-color:#e3c4b3;background:#fff;}
@@ -712,7 +761,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.28';
+const APP_VERSION = 'v0.29';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -1376,7 +1425,7 @@ async function viewDash(){
       return felles;
     }),
     db.from('documents').select('id',{count:'exact',head:true}),
-    db.from('trip_elements').select('id,element_type,description,details,start_date,end_date,status,suppliers:supplier_id(name),trips!inner(id,ref_no,status,pax_count,customers(last_name,first_name),trip_destinations(destination))').lte('start_date',t0).or(`end_date.gte.${t0},end_date.is.null`).then(r=>r.data||[]),
+    db.from('trip_elements').select('id,element_type,description,details,start_date,end_date,status,suppliers:supplier_id(name),trips!inner(id,ref_no,status,pax_count,customers(last_name,first_name),trip_destinations(destination))').lte('start_date',t0).or(`end_date.gte.${t0},and(end_date.is.null,start_date.eq.${t0})`).then(r=>r.data||[]),
     vpLoadRecon(),
     db.from('leads').select('created_at,status,owner,stage,contact_name,est_value,currency').then(r=>r.data||[])
   ]);
@@ -1439,7 +1488,9 @@ async function viewDash(){
     const dt=new Date(d+'T00:00:00');
     const titel = i===0?'I dag' : i===1?'I morgen'
       : dt.toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'});
-    naeste7.push({d, titel, ud, hjem:hj});
+    const kort = i===0?'I dag' : i===1?'I morgen'
+      : dt.toLocaleDateString('da-DK',{weekday:'short',day:'numeric',month:'short'}).replace('.','');
+    naeste7.push({d, titel, kort, ud, hjem:hj});
   }
   const wkD = depToday.length+depWeek.length-depPrev.length;
   const hour = new Date().getHours();
@@ -1537,19 +1588,6 @@ async function viewDash(){
        roeres ikke - kun visningen her. -->
 
   <div class="card" style="margin-bottom:12px">
-    <h3>Vidste du <span class="r"><button class="insbtn" onclick="visIndsigt()">vis noget andet</button></span></h3>
-    <div class="ins">
-      <div class="v">
-        <p class="lead" id="iLead"></p>
-        <p class="exp" id="iExp"></p>
-        <div id="iGraf"></div>
-        <p class="src" id="iSrc"></p>
-      </div>
-      <div class="h q"><p id="iQ"></p><cite id="iQc"></cite></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:12px">
     <h3>Ude nu — hvem er hvor <span class="r muted">${new Date().toLocaleDateString('da-DK',{day:'numeric',month:'short'})} · ${tripsInUse} rejser aktive · ${sharedEls} delte hoteller/fly</span></h3>
     ${inUse.length ? `<div class="inuse">`+inUse.map(g=>{const shared=g.tripIds.length>1;
       return `<div class="inuse-row${shared?' shared':''}">
@@ -1558,48 +1596,27 @@ async function viewDash(){
       </div>`;}).join('')+`</div>` : '<p class="muted">Ingen hoteller, fly eller transfers i brug i dag.</p>'}
   </div>
 
-  <div class="card" style="margin-bottom:12px"><h3>Rejser i dag</h3>
-    <p class="subhead">Rejser ud${depToday.length?` · ${depToday.length}`:''}</p>
-    ${depToday.length?groupNat(depToday,depRow):'<p class="muted">Ingen afrejser i dag.</p>'}
-    <p class="subhead">Rejser hjem${homeToday.length?` · ${homeToday.length}`:''}</p>
-    ${homeToday.length?groupNat(homeToday,homeRow):'<p class="muted">Ingen der rejser hjem i dag.</p>'}
-    ${landedToday.length?`<p class="subhead">Lander hjemme i dag · ${landedToday.length}</p>${groupNat(landedToday,homeRow)}`:''}
-    <p class="subhead">Næste efter i dag</p>
-    ${nextDep?`<div class="list-item" onclick="viewTrip('${nextDep.id}')"><span class="ic">→</span>
-      <span><b style="color:var(--forest)">${nextDep.customers.last_name}, ${nextDep.customers.first_name}</b> <span class="muted">${nextDep.ref_no} · ${nextDep.trip_destinations.map(x=>x.destination).join(' + ')} · ${nextDep.pax_count} rejsende</span></span>
-      <span class="when">rejser ud ${fmtD(nextDep.departure_date)}${nextDepDage!=null?` · om ${nextDepDage} dag${nextDepDage===1?'':'e'}`:''}</span></div>`
-      :'<p class="muted">Ingen kommende afrejser.</p>'}
-    ${nextHome?`<div class="list-item" onclick="viewTrip('${nextHome.id}')"><span class="ic">←</span>
-      <span><b style="color:var(--forest)">${nextHome.customers.last_name}, ${nextHome.customers.first_name}</b> <span class="muted">${nextHome.ref_no} · ${nextHome.trip_destinations.map(x=>x.destination).join(' + ')} · ${nextHome.pax_count} rejsende</span></span>
-      <span class="when">hjem ${fmtD(nextHome.return_date)}${nextHomeDage!=null?` · om ${nextHomeDage} dag${nextHomeDage===1?'':'e'}`:''}</span></div>`
-      :'<p class="muted">Ingen kommende hjemkomster.</p>'}
+  <div class="card" style="margin-bottom:12px"><h3>Rejseplan <span class="r muted">de næste syv dage</span></h3>
+    ${naeste7.length ? `<div class="rplan">${naeste7.map(d=>
+      (d.ud.map(t=>[t,'ud']).concat(d.hjem.map(t=>[t,'hjem']))).map(([t,retning],n)=>
+      `<div class="rp" onclick="viewTrip('${t.id}')">
+         <span class="dag">${n===0?escH(d.kort):''}</span>
+         <span class="pil ${retning}">${retning==='ud'?'→':'←'}</span>
+         <span class="nvn">${escH(t.customers.last_name)}, ${escH(t.customers.first_name)}</span>
+         <span class="det">${escH(t.ref_no)} · ${escH(t.trip_destinations.map(x=>x.destination).join(' + '))} · ${t.pax_count} rejsende</span>
+         <span class="hvad">${retning==='ud'?'rejser ud':'kommer hjem'}</span>
+       </div>`).join('')).join('')}</div>`
+      : `<p class="muted" style="margin:0 0 8px">Der sker ingenting de næste syv dage.</p>`}
+    ${(nextDep||nextHome) && !naeste7.length ? `<p class="subhead">Næste efter det</p>
+      ${nextDep?`<div class="rp" onclick="viewTrip('${nextDep.id}')"><span class="dag">${escH(fmtD(nextDep.departure_date))}</span><span class="pil ud">→</span>
+        <span class="nvn">${escH(nextDep.customers.last_name)}, ${escH(nextDep.customers.first_name)}</span>
+        <span class="det">${escH(nextDep.ref_no)} · ${nextDep.pax_count} rejsende</span>
+        <span class="hvad">om ${nextDepDage} dage</span></div>`:''}
+      ${nextHome?`<div class="rp" onclick="viewTrip('${nextHome.id}')"><span class="dag">${escH(fmtD(nextHome.return_date))}</span><span class="pil hjem">←</span>
+        <span class="nvn">${escH(nextHome.customers.last_name)}, ${escH(nextHome.customers.first_name)}</span>
+        <span class="det">${escH(nextHome.ref_no)} · ${nextHome.pax_count} rejsende</span>
+        <span class="hvad">om ${nextHomeDage} dage</span></div>`:''}`:''}
   </div>
-
-  <div class="card" style="margin-bottom:12px"><h3>De næste 7 dage</h3>
-    ${naeste7.length ? naeste7.map(d=>`
-      <p class="subhead">${d.titel}${d.ud.length+d.hjem.length?` · ${d.ud.length+d.hjem.length}`:''}</p>
-      ${d.ud.map(t=>`<div class="list-item" onclick="viewTrip('${t.id}')"><span class="ic">→</span>
-        <span><b style="color:var(--forest)">${t.customers.last_name}, ${t.customers.first_name}</b> <span class="muted">${t.ref_no} · ${t.trip_destinations.map(x=>x.destination).join(' + ')} · ${t.pax_count} rejsende</span></span>
-        <span class="when">rejser ud</span></div>`).join('')}
-      ${d.hjem.map(t=>`<div class="list-item" onclick="viewTrip('${t.id}')"><span class="ic">←</span>
-        <span><b style="color:var(--forest)">${t.customers.last_name}, ${t.customers.first_name}</b> <span class="muted">${t.ref_no} · ${t.trip_destinations.map(x=>x.destination).join(' + ')} · ${t.pax_count} rejsende</span></span>
-        <span class="when">kommer hjem</span></div>`).join('')}
-    `).join('') : '<p class="muted">Der sker ingenting de næste syv dage — hverken afrejser eller hjemkomster.</p>'}
-  </div>
-
-  ${hasPerm('economy')?`<div class="card rev-card" style="margin-bottom:12px">
-    <h3>Omsætning 2026</h3>
-    <p class="rev-lead"><b>${kr(yReal)}</b> omdannet til faktisk indtægt <span class="muted">— af ${kr(yTotal)} solgt · ${pctI(yReal,yTotal)}% af året realiseret</span></p>
-    <p class="rev-h">Omdannet til indtægt <span class="rev-leg"><i class="sw sw-real"></i>omdannet<i class="sw sw-rest"></i>endnu ikke rejst</span></p>
-    <div class="rev-rows">
-      ${[['Denne måned',moReal,moTotal],['Dette kvartal',cq.real,cq.total],['Hele 2026',yReal,yTotal]].map(row=>`<div class="rev-row"><span class="rl">${row[0]}</span><span class="rb"><i class="rb-tot" style="width:100%"></i><i class="rb-real" style="width:${pctI(row[1],row[2])}%"></i></span><span class="rv">${kr(row[1])} / ${kr(row[2])}<b>${pctI(row[1],row[2])}%</b></span></div>`).join('')}
-    </div>
-    <p class="rev-h">Fordelt på kvartaler <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">— hvornår årets omsætning lander</span></p>
-    <div class="rev-rows">
-      ${qAgg.map(x=>`<div class="rev-row"><span class="rl">Q${x.q}${x.q===curQ?' <span class="qnow">nu</span>':''}</span><span class="rb"><i class="rb-tot" style="width:${Math.round(100*x.total/qMax)}%"></i><i class="rb-real" style="width:${Math.round(100*x.real/qMax)}%"></i></span><span class="rv">${kr(x.total)}<b>${pctI(x.real,x.total)}%</b></span></div>`).join('')}
-    </div>
-    <i class="tip">?</i><span class="tipbox"><b>Omdannet til faktisk indtægt.</b> En rejses salgsværdi bliver til indtægt når kunden er rejst (afrejsedato passeret). Grøn = allerede afrejst; lys = solgt men endnu ikke rejst. «Fordelt på kvartaler» viser hvornår årets omsætning periodisk lander.</span>
-  </div>`:''}
 
   <div class="grid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
     <details class="agent agentfold">
@@ -1628,23 +1645,30 @@ async function viewDash(){
     </details>`}
   </div>
 
-  <div class="grid g2">
-    <div>
-      <div class="card"><h3>Dagens opgaver <span class="r"><a href="#" onclick="viewSales();return false">salg</a> · <a href="#" onclick="viewFinance();return false">økonomi</a></span></h3>
-        <p class="subhead">Til forfald i dag${dueTasksList.length?` · ${dueTasksList.length}`:''}</p>
-        ${dueTasksList.map(k=>taskLine(k,'viewDash')).join('')||'<p class="muted">Ingen opgaver til forfald i dag.</p>'}
-        ${payReminders.length?`<p class="subhead">Påmindelser · mind kunden om restbetaling</p>
-        ${payReminders.map(k=>{const d=daysUntil(k.due_date);return `<div class="brief-item click" ${k.trip_id?`onclick="viewTrip('${k.trip_id}')"`:''}><span class="ic">✉</span><span class="tx">Mind kunden om restbetaling${k.trips?` <span class="muted">${k.trips.ref_no}</span>`:''} — forfalder ${fmtD(k.due_date)}</span><span class="when">om ${d} dg.</span></div>`;}).join('')}`:''}
-        ${upcomingTasksList.length?`<details class="fold-up"><summary>Kommende opgaver · ${upcomingTasksList.length}</summary>
-        ${upcomingTasksList.slice(0,10).map(k=>taskLine(k,'viewDash')).join('')}
-        ${upcomingTasksList.length>10?`<p class="muted center" style="margin:6px 0 0">+ ${upcomingTasksList.length-10} flere under Salg/Økonomi</p>`:''}</details>`:''}
-      </div>
+  ${(hasPerm('economy') && ['WEN','RAS'].includes(window.ME))?`<div class="card rev-card" style="margin-bottom:12px">
+    <h3>Omsætning 2026</h3>
+    <p class="rev-lead"><b>${kr(yReal)}</b> omdannet til faktisk indtægt <span class="muted">— af ${kr(yTotal)} solgt · ${pctI(yReal,yTotal)}% af året realiseret</span></p>
+    <p class="rev-h">Omdannet til indtægt <span class="rev-leg"><i class="sw sw-real"></i>omdannet<i class="sw sw-rest"></i>endnu ikke rejst</span></p>
+    <div class="rev-rows">
+      ${[['Denne måned',moReal,moTotal],['Dette kvartal',cq.real,cq.total],['Hele 2026',yReal,yTotal]].map(row=>`<div class="rev-row"><span class="rl">${row[0]}</span><span class="rb"><i class="rb-tot" style="width:100%"></i><i class="rb-real" style="width:${pctI(row[1],row[2])}%"></i></span><span class="rv">${kr(row[1])} / ${kr(row[2])}<b>${pctI(row[1],row[2])}%</b></span></div>`).join('')}
     </div>
+    <p class="rev-h">Fordelt på kvartaler <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:400">— hvornår årets omsætning lander</span></p>
+    <div class="rev-rows">
+      ${qAgg.map(x=>`<div class="rev-row"><span class="rl">Q${x.q}${x.q===curQ?' <span class="qnow">nu</span>':''}</span><span class="rb"><i class="rb-tot" style="width:${Math.round(100*x.total/qMax)}%"></i><i class="rb-real" style="width:${Math.round(100*x.real/qMax)}%"></i></span><span class="rv">${kr(x.total)}<b>${pctI(x.real,x.total)}%</b></span></div>`).join('')}
+    </div>
+    <i class="tip">?</i><span class="tipbox"><b>Omdannet til faktisk indtægt.</b> En rejses salgsværdi bliver til indtægt når kunden er rejst (afrejsedato passeret). Grøn = allerede afrejst; lys = solgt men endnu ikke rejst. «Fordelt på kvartaler» viser hvornår årets omsætning periodisk lander.</span>
+  </div>`:''}
+
+  <div class="card" style="margin-bottom:12px">
+    <div class="insq" id="insq"></div>
+    <h3>Vidste du <span class="r">klik på et kort for en anden indsigt</span></h3>
+    <div class="insgrid" id="insgrid"></div>
   </div>`;
   app.innerHTML = __dashHtml;
   // Indsigterne regnes paa de rejser der allerede er hentet — og vises tilfaeldigt
+  window.__DASHTRIPS = trips;
   window.__INDSIGTER = byggIndsigter(trips, dashLeads);
-  visIndsigt();
+  tegnIndsigter();
 }
 
 // ═══ SALG ═══
@@ -4144,227 +4168,350 @@ async function fetchLeads(){ const {data}=await db.from('leads').select(LEAD_FIE
 
 /* ══════════════════════════════════════════════════════════════════════
    DASHBOARDETS INDSIGTER
-   Alt regnes live paa de rejser der allerede er hentet til dashboardet —
-   ingen faste tal, ingen ekstra kald bortset fra ét lille til leads.
-   Der vaelges én indsigt og ét citat ved hvert besoeg.
+   Alt regnes live paa de rejser og henvendelser dashboardet allerede har hentet.
+   Hver indsigt har en FORM — soejler, ring, maanedskolonner eller stort tal —
+   saa de fire kort nederst ser forskellige ud. Klik paa et kort for en ny.
    ══════════════════════════════════════════════════════════════════════ */
-const DASH_CITATER=[
- ['Vi rejser ikke for at flygte fra livet, men for at livet ikke skal flygte fra os.','Anonymt'],
- ['Verden er en bog, og den der ikke rejser læser kun én side.','Augustin'],
- ['Rejsen er belønningen.','Kinesisk ordsprog'],
- ['Man ser kun godt med hjertet.','Saint-Exupéry'],
- ['Livet er enten et vovestykke eller ingenting.','Helen Keller'],
- ['Det er ikke hvad du ser, men hvad du får øje på.','Thoreau'],
- ['At rejse er at leve.','H.C. Andersen'],
- ['Vi lever under samme himmel, men har ikke samme horisont.','Adenauer'],
- ['Ingen bliver den samme efter at have set havet.','Anonymt'],
- ['Perfektion er nået, når der ikke er mere at fjerne.','Saint-Exupéry'],
- ['Den der vil flytte verden, må først flytte sig selv.','Sokrates'],
- ['Rejser man langt nok, møder man sig selv.','David Mitchell']
-];
+/* En personlig linje til den der er logget ind — regnet paa vedkommendes egne rejser.
+   Ikke et citat: noget der anerkender indsatsen med tal der er ens egne. */
+function personligLinje(trips){
+  const me=window.ME, navn=window.MYNAME||'';
+  const ok=(trips||[]).filter(t=>!['canx','voided'].includes(t.status) && !/^test/i.test(t.ref_no||''));
+  const mine=ok.filter(t=>t.owner===me);
+  if(!me || mine.length<3) return null;
+  const kr=n=>Math.round(n||0).toLocaleString('da-DK');
+  const aar=String(new Date().getFullYear());
+  const iaar=mine.filter(t=>t.booking_date&&t.booking_date.slice(0,4)===aar);
+  const sidsteAar=mine.filter(t=>t.booking_date&&t.booking_date.slice(0,4)===String(+aar-1));
+  const idag=new Date().toISOString().slice(0,10).slice(5);
+  const sidsteAarHertil=sidsteAar.filter(t=>t.booking_date.slice(5)<=idag);
+  const gaester=t=>t.reduce((s,x)=>s+(x.pax_count||0),0);
+  const oms=t=>t.reduce((s,x)=>s+ +(x.package_sell_dkk||0),0);
+  const naetter=t=>t.reduce((s,x)=>s+(x.return_date&&x.departure_date?
+    Math.max(0,Math.round((new Date(x.return_date)-new Date(x.departure_date))/86400000)):0),0);
+  const L=[];
 
-const iBar = rows => `<div class="ibars">`+rows.map(r=>
+  if(iaar.length>=3){
+    L.push(`Du har lukket <b>${iaar.length} rejser</b> i år, ${navn} — det er ${kr(gaester(iaar))} mennesker der har fået en ferie.`);
+    const dage=Math.max(1,Math.round((new Date()-new Date(aar+'-01-01'))/86400000));
+    L.push(`Du har solgt for <b>${kr(oms(iaar))} kr.</b> i år. Det svarer til ${kr(oms(iaar)/dage)} kr. hver eneste dag siden nytår.`);
+  }
+  if(iaar.length>=3 && sidsteAarHertil.length>=3){
+    const d=oms(iaar)-oms(sidsteAarHertil);
+    const p=Math.round(100*d/Math.max(1,oms(sidsteAarHertil)));
+    L.push(d>=0
+      ? `Du ligger <b>${p} % foran</b> samme tid sidste år — ${kr(oms(iaar))} mod ${kr(oms(sidsteAarHertil))} kr.`
+      : `Samme tid sidste år stod du på ${kr(oms(sidsteAarHertil))} kr. I år er du på ${kr(oms(iaar))}. Der er stadig et stykke af året tilbage.`);
+  }
+  if(mine.length>=10){
+    L.push(`I alt har du sendt <b>${kr(gaester(mine))} gæster</b> afsted — ${kr(naetter(mine))} nætter væk hjemmefra, fordelt på ${mine.length} rejser.`);
+  }
+  const sidste=mine.filter(t=>t.booking_date).sort((a,b)=>b.booking_date.localeCompare(a.booking_date))[0];
+  if(sidste){
+    const d=Math.round((new Date()-new Date(sidste.booking_date))/86400000);
+    if(d<=14) L.push(d===0?`Du lukkede en rejse i dag. <b>${escH(sidste.ref_no)}</b> — godt gået.`
+                     :`Din seneste booking var for ${d} dag${d===1?'':'e'} siden: <b>${escH(sidste.ref_no)}</b>.`);
+  }
+  const stoerst=mine.filter(t=>+t.package_sell_dkk>0).sort((a,b)=>b.package_sell_dkk-a.package_sell_dkk)[0];
+  if(stoerst) L.push(`Din største rejse nogensinde er <b>${escH(stoerst.ref_no)}</b> til ${kr(stoerst.package_sell_dkk)} kr. — ${stoerst.pax_count} rejsende.`);
+  if(!L.length) return null;
+  return L[Math.floor(Math.random()*L.length)];
+}
+
+const kr0 = n => Math.round(n||0).toLocaleString('da-DK');
+
+/* ── formerne ─────────────────────────────────────────────────────── */
+const fBars = rows => `<div class="ibars">`+rows.map(r=>
   `<div class="ibar"><span class="l">${escH(r[0])}</span><span class="t"><i class="${r[3]||''}" style="width:${r[2]}%"></i></span><span class="v">${r[1]}</span></div>`).join('')+`</div>`;
 
+const fRing = (pct, midt, under, dele) => {
+  const R=54, C=2*Math.PI*R;
+  return `<div class="iring">
+    <svg viewBox="0 0 140 140" class="ring">
+      <circle cx="70" cy="70" r="${R}" class="rbg"/>
+      <circle cx="70" cy="70" r="${R}" class="rfg" style="stroke-dasharray:${C};stroke-dashoffset:${C*(1-pct/100)}"/>
+    </svg>
+    <div class="rmidt"><b>${midt}</b><span>${escH(under)}</span></div>
+    <div class="rdele">${dele.map(d=>`<div class="rd"><i class="${d[2]||''}"></i><span>${escH(d[0])}</span><b>${d[1]}</b></div>`).join('')}</div>
+  </div>`;
+};
+
+const fKol = (rows, fremhaev) => {
+  const mx=Math.max(...rows.map(r=>r[1]))||1;
+  return `<div class="ikol">${rows.map(r=>
+    `<div class="k${r[0]===fremhaev?' top':''}" title="${escH(r[0])}: ${r[1]}">
+       <span class="c">${r[1]}</span><i style="height:${Math.round(100*r[1]/mx)}%"></i><span class="n">${escH(String(r[0]))}</span>
+     </div>`).join('')}</div>`;
+};
+
+const fTal = (tal, enhed, under, smaa) => `<div class="ital">
+  <div class="stort"><b>${tal}</b><small>${escH(enhed||'')}</small></div>
+  <p class="u">${escH(under)}</p>
+  ${smaa&&smaa.length?`<div class="smaa">${smaa.map(s=>`<div><b>${s[1]}</b><span>${escH(s[0])}</span></div>`).join('')}</div>`:''}
+</div>`;
+
+/* ── indsigterne ──────────────────────────────────────────────────── */
 function byggIndsigter(trips, leads){
-  const kr0 = n => Math.round(n||0).toLocaleString('da-DK');
-  const ok  = trips.filter(t=>!['canx','voided'].includes(t.status) && !/^test/i.test(t.ref_no||''));
-  const medPris = ok.filter(t=>+t.package_sell_dkk>0);
+  const ok  = (trips||[]).filter(t=>!['canx','voided'].includes(t.status) && !/^test/i.test(t.ref_no||''));
+  const pris= ok.filter(t=>+t.package_sell_dkk>0);
   const ud=[];
+  const aarene=ok.map(t=>t.booking_date&&t.booking_date.slice(0,4)).filter(Boolean).sort();
+  const foersteAar=aarene[0], sidsteAar=aarene[aarene.length-1];
+  const HELE = foersteAar&&foersteAar!==sidsteAar ? `${foersteAar}–${sidsteAar}` : (sidsteAar||'i alt');
+  const P=(form,titel,periode,l,e,g)=>ud.push({form,titel,periode,l,e,g});
 
-  // ── 1 · gengangere ────────────────────────────────────────────────
+  /* 1 · gengangere — hvad der FAKTISK er interessant */
   (()=>{ const pr={};
-    ok.forEach(t=>{ if(!t.customer_id) return; const g=pr[t.customer_id]=pr[t.customer_id]||{n:0,sum:0};
-      g.n++; g.sum+=+(t.package_sell_dkk||0); });
-    const g=Object.values(pr); if(g.length<20) return;
-    const grp=k=>g.filter(x=>k(x.n));
-    const snit=a=>a.length?a.reduce((s,x)=>s+x.sum,0)/a.length:0;
-    const en=grp(n=>n===1), to=grp(n=>n===2), tre=grp(n=>n>=3);
+    pris.forEach(t=>{ if(!t.customer_id) return; const g=pr[t.customer_id]=pr[t.customer_id]||{n:0,sum:0,pax:0,d:[]};
+      g.n++; g.sum+=+t.package_sell_dkk; g.pax+=(t.pax_count||0); if(t.departure_date) g.d.push(t.departure_date); });
+    const g=Object.values(pr); if(g.length<50) return;
+    const en=g.filter(x=>x.n===1), to=g.filter(x=>x.n===2), tre=g.filter(x=>x.n>=3);
     if(!to.length||!tre.length) return;
-    const mx=Math.max(snit(en),snit(to),snit(tre));
-    ud.push({l:`En kunde der rejser med os <b>anden gang</b>, bruger dobbelt så meget.`,
-      e:`${(100*(to.length+tre.length)/g.length).toFixed(1)} % kommer igen — men økonomisk ligner de tre grupper slet ikke hinanden.`,
-      g:iBar([['Én rejse',`${kr0(snit(en))} kr. <em>· ${en.length} kunder</em>`,Math.round(100*snit(en)/mx)],
-              ['To rejser',`${kr0(snit(to))} kr. <em>· ${to.length} kunder</em>`,Math.round(100*snit(to)/mx),'alt'],
-              ['Tre eller flere',`${kr0(snit(tre))} kr. <em>· ${tre.length} kunder</em>`,Math.round(100*snit(tre)/mx),'alt']]),
-      s:`${g.length} kunder med mindst én gennemført rejse.`});
+    const prRejse=a=>a.reduce((s,x)=>s+x.sum/x.n,0)/a.length;
+    const mellem=a=>{ const v=a.filter(x=>x.d.length>1).map(x=>{ const s=x.d.slice().sort();
+      return (new Date(s[s.length-1])-new Date(s[0]))/86400000/(x.d.length-1); });
+      return v.length? v.reduce((s,x)=>s+x,0)/v.length : null; };
+    const m2=mellem(to), m3=mellem(tre);
+    const mx=Math.max(prRejse(en),prRejse(to),prRejse(tre));
+    P('bars','Gengangeren',HELE,
+      `Gengangeren betaler <b>det samme</b> pr. rejse — det er den tredje rejse der rykker.`,
+      `En kunde der har rejst to gange, betaler stort set det samme pr. rejse som en førstegangskunde. Først fra tredje rejse stiger beløbet — og de rejser i større selskab. `+
+      (m2?`Til gengæld ved vi hvornår de kommer igen: der går i snit ${Math.round(m2/30)} måneder mellem to rejser.`:''),
+      fBars([['Første rejse',`${kr0(prRejse(en))} kr. <em>· ${en.length} kunder</em>`,Math.round(100*prRejse(en)/mx)],
+             ['Har rejst 2 gange',`${kr0(prRejse(to))} kr. <em>· ${to.length} kunder</em>`,Math.round(100*prRejse(to)/mx)],
+             ['Har rejst 3+ gange',`${kr0(prRejse(tre))} kr. <em>· ${tre.length} kunder</em>`,Math.round(100*prRejse(tre)/mx),'alt']]),
+      `Gennemsnitspris pr. rejse, ikke samlet forbrug. ${g.length} kunder.`);
   })();
 
-  // ── 2 · hvor tidligt de booker ────────────────────────────────────
-  (()=>{ const b=medPris.filter(t=>t.booking_date&&t.departure_date);
-    if(b.length<50) return;
-    const dage=t=>Math.round((new Date(t.departure_date)-new Date(t.booking_date))/86400000);
-    const spand=[['Under 1 måned',d=>d<30],['1–3 måneder',d=>d>=30&&d<90],['3–6 måneder',d=>d>=90&&d<180],
-                 ['6–12 måneder',d=>d>=180&&d<365],['Over et år',d=>d>=365]];
-    const r=spand.map(([n,f])=>{ const g=b.filter(t=>f(dage(t)));
-      return {n, c:g.length, pris:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0,
+  /* 2 · hvornaar de vender tilbage */
+  (()=>{ const pr={};
+    ok.forEach(t=>{ if(!t.customer_id||!t.departure_date) return;
+      (pr[t.customer_id]=pr[t.customer_id]||[]).push(t.departure_date); });
+    const gaps=[]; Object.values(pr).forEach(d=>{ if(d.length<2) return; const s=d.slice().sort();
+      for(let i=1;i<s.length;i++) gaps.push((new Date(s[i])-new Date(s[i-1]))/86400000); });
+    if(gaps.length<10) return;
+    const spand=[['Under 1 år',d=>d<365],['1–2 år',d=>d>=365&&d<730],['2–3 år',d=>d>=730&&d<1095],['Over 3 år',d=>d>=1095]];
+    const r=spand.map(([n,f])=>[n,gaps.filter(f).length]).filter(x=>x[1]);
+    const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    const snit=Math.round(gaps.reduce((s,x)=>s+x,0)/gaps.length);
+    P('kolonner','Hvornår de vender tilbage',HELE,
+      `De kommer igen efter <b>${Math.round(snit/30)} måneder</b>.`,
+      `Når en kunde først vender tilbage, sker det oftest ${top[0].toLowerCase()} efter sidste rejse. Det er dér en henvendelse fra jer rammer bedst.`,
+      fKol(r, top[0]),
+      `${gaps.length} gentagne rejser fra ${Object.values(pr).filter(d=>d.length>1).length} kunder.`);
+  })();
+
+  /* 3 · hvor tidligt de booker */
+  (()=>{ const b=pris.filter(t=>t.booking_date&&t.departure_date); if(b.length<50) return;
+    const dg=t=>Math.round((new Date(t.departure_date)-new Date(t.booking_date))/86400000);
+    const spand=[['Under 1 md.',d=>d<30],['1–3 md.',d=>d>=30&&d<90],['3–6 md.',d=>d>=90&&d<180],
+                 ['6–12 md.',d=>d>=180&&d<365],['Over 1 år',d=>d>=365]];
+    const r=spand.map(([n,f])=>{ const g=b.filter(t=>f(dg(t)));
+      return {n,c:g.length,pris:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0,
               pax:g.length?g.reduce((s,t)=>s+(t.pax_count||0),0)/g.length:0}; }).filter(x=>x.c>5);
-    if(r.length<3) return;
-    const mx=Math.max(...r.map(x=>x.pris));
-    ud.push({l:`Jo tidligere kunden booker, jo <b>større</b> bliver rejsen.`,
-      e:`Det stiger hele vejen — og gruppen vokser med, fra ${r[0].pax.toFixed(1)} til ${r[r.length-1].pax.toFixed(1)} rejsende.`,
-      g:iBar(r.map((x,i)=>[x.n,`${kr0(x.pris)} kr. <em>· ${x.pax.toFixed(1)} pers.</em>`,Math.round(100*x.pris/mx), i===r.length-1?'alt':''])),
-      s:`${b.length} rejser med både bookingdato og pris.`});
+    if(r.length<3) return; const mx=Math.max(...r.map(x=>x.pris));
+    P('bars','Hvor tidligt de booker',HELE,
+      `Jo tidligere kunden booker, jo <b>større</b> bliver rejsen.`,
+      `Det stiger hele vejen — og selskabet vokser med, fra ${r[0].pax.toFixed(1)} til ${r[r.length-1].pax.toFixed(1)} rejsende.`,
+      fBars(r.map((x,i)=>[x.n,`${kr0(x.pris)} kr. <em>· ${x.pax.toFixed(1)} pers.</em>`,Math.round(100*x.pris/mx),i===r.length-1?'alt':''])),
+      `${b.length} rejser med bookingdato og pris.`);
   })();
 
-  // ── 3 · ugedag ────────────────────────────────────────────────────
-  (()=>{ const b=medPris.filter(t=>t.booking_date); if(b.length<50) return;
-    const DAGE=['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
-    const r=[1,2,3,4,5,6,0].map(d=>{ const g=b.filter(t=>new Date(t.booking_date).getDay()===d);
-      return {n:DAGE[d], c:g.length, pris:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0}; }).filter(x=>x.c>3);
-    if(r.length<5) return;
-    const mx=Math.max(...r.map(x=>x.pris)), top=r.find(x=>x.pris===mx);
-    ud.push({l:`<b>${top.n}</b> er den dag hvor de dyreste rejser bookes.`,
-      e:`En booking der falder på en ${top.n.toLowerCase()} er i snit ${kr0(mx)} kr. værd — mod ${kr0(Math.min(...r.map(x=>x.pris)))} på den roligste dag.`,
-      g:iBar(r.map(x=>[x.n,`${kr0(x.pris)} kr. <em>· ${x.c} rejser</em>`,Math.round(100*x.pris/mx), x===top?'alt':''])),
-      s:`${b.length} bookinger fordelt på ugedag.`});
+  /* 4 · konvertering — ring */
+  (()=>{ if(!leads||leads.length<50) return;
+    const won=leads.filter(l=>l.status==='won').length, lost=leads.filter(l=>l.status==='lost').length,
+          open=leads.filter(l=>l.status==='open').length, lukket=won+lost;
+    if(lukket<20) return;
+    const pct=100*won/lukket;
+    P('ring','Konvertering','alle henvendelser',
+      `<b>${won} ud af ${leads.length}</b> henvendelser er markeret solgt.`,
+      `Det er ${won} solgte mod ${lost} tabte — ${pct.toFixed(0)} % af de ${lukket} der er lukket. ${open} er stadig åbne. MEN: tallet er ikke jeres rigtige hitrate. De ${lost} tabte kommer næsten alle fra Pipedrive-importen, hvor gamle henvendelser blev lukket i bulk, og Solgt-knappen har aldrig været i brug. Først når I selv markerer solgt og tabt, betyder tallet noget.`,
+      fRing(pct, pct.toFixed(0)+' %', 'af de afsluttede',
+        [['Solgt',won,'alt'],['Tabt',lost,''],['Stadig åbne',open,'aab']]),
+      `${leads.length} henvendelser i alt.`);
   })();
 
-  // ── 4 · gruppestoerrelse ──────────────────────────────────────────
-  (()=>{ const b=medPris.filter(t=>t.pax_count>0); if(b.length<50) return;
-    const spand=[['Alene',p=>p===1],['To',p=>p===2],['Tre–fire',p=>p>=3&&p<=4],['Fem eller flere',p=>p>=5]];
-    const r=spand.map(([n,f])=>{ const g=b.filter(t=>f(t.pax_count));
-      return {n, c:g.length, pp:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk/t.pax_count,0)/g.length:0,
-              tot:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0}; }).filter(x=>x.c>5);
-    if(r.length<3) return;
-    const mx=Math.max(...r.map(x=>x.pp));
-    ud.push({l:`Prisen pr. person <b>falder</b> med gruppen — men rejsen bliver dobbelt så stor.`,
-      e:`${r[1]?r[1].n.toLowerCase():'To'} rejsende betaler ${kr0(r[1]?r[1].pp:0)} kr. hver. Den største gruppe betaler ${kr0(r[r.length-1].pp)} — men rejsen er ${kr0(r[r.length-1].tot)} kr. mod ${kr0(r[1]?r[1].tot:0)}.`,
-      g:iBar(r.map((x,i)=>[x.n,`${kr0(x.pp)} kr./pers. <em>· ${x.c} rejser</em>`,Math.round(100*x.pp/mx), i===r.length-1?'alt':''])),
-      s:`${b.length} rejser med pris og antal rejsende.`});
-  })();
-
-  // ── 5 · alt hvad I har sendt afsted ───────────────────────────────
+  /* 5 · alt hvad I har sendt afsted — stort tal */
   (()=>{ if(ok.length<100) return;
     const gaester=ok.reduce((s,t)=>s+(t.pax_count||0),0);
-    const naetter=ok.reduce((s,t)=>s+ (t.return_date&&t.departure_date?Math.max(0,Math.round((new Date(t.return_date)-new Date(t.departure_date))/86400000)):0),0);
+    const naetter=ok.reduce((s,t)=>s+(t.return_date&&t.departure_date?Math.max(0,Math.round((new Date(t.return_date)-new Date(t.departure_date))/86400000)):0),0);
     const oms=ok.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0);
-    ud.push({l:`I har sendt <b>${kr0(gaester)} gæster</b> på ferie.`,
-      e:`Tilsammen har de haft ${kr0(naetter)} nætter væk hjemmefra — det svarer til ${Math.round(naetter/365)} år under palmerne. Og det er blevet til ${kr0(Math.round(oms/1000000))} mio. kr. i omsætning.`,
-      g:iBar([['Rejser',`${kr0(ok.length)}`,100,'alt'],
-              ['Gæster',`${kr0(gaester)}`,Math.min(100,Math.round(100*gaester/Math.max(gaester,ok.length)))],
-              ['Nætter solgt',`${kr0(naetter)}`,100]]),
-      s:`Alle rejser i maldivia-core, annullerede og testrejser holdt ude.`});
+    P('tal','Alt hvad I har sendt afsted',HELE,
+      `Det er <b>${Math.round(naetter/365)} år</b> under palmerne.`,
+      `${kr0(gaester)} gæster fordelt på ${kr0(ok.length)} rejser siden ${foersteAar}, og ${kr0(naetter)} nætter væk hjemmefra tilsammen. Det er alt hvad der ligger i Panda — rejser fra før ${foersteAar} kom aldrig med fra Dolphin.`,
+      fTal(kr0(gaester),'gæster',`fordelt på ${kr0(ok.length)} rejser`,
+        [['nætter solgt',kr0(naetter)],['mio. kr.',kr0(oms/1000000)],['rejser',kr0(ok.length)]]),
+      `Alle rejser i maldivia-core.`);
   })();
 
-  // ── 6 · dig selv i aar ────────────────────────────────────────────
-  (()=>{ const iaar=ok.filter(t=>t.booking_date&&t.booking_date>='2026-01-01');
-    if(iaar.length<10 || !window.ME) return;
-    const ejere={}; iaar.forEach(t=>{ const o=t.owner||'?'; const g=ejere[o]=ejere[o]||{n:0,sum:0,pax:0};
+  /* 6 · dig selv i aar — stort tal */
+  (()=>{ const iaar=ok.filter(t=>t.booking_date&&t.booking_date>=String(new Date().getFullYear())+'-01-01');
+    if(iaar.length<5||!window.ME) return;
+    const e={}; iaar.forEach(t=>{ const o=t.owner||'?'; const g=e[o]=e[o]||{n:0,sum:0,pax:0};
       g.n++; g.sum+=+(t.package_sell_dkk||0); g.pax+=(t.pax_count||0); });
-    const mig=ejere[window.ME]; if(!mig) return;
-    const alle=Object.entries(ejere).sort((a,b)=>b[1].sum-a[1].sum);
-    const mx=alle[0][1].sum;
-    ud.push({l:`Du har booket <b>${mig.n} rejser</b> i år — ${kr0(mig.sum)} kr.`,
-      e:`Det er ${kr0(mig.pax)} gæster du selv har sendt afsted, til ${kr0(mig.sum/mig.n)} kr. i snit pr. rejse.`,
-      g:iBar(alle.map(([o,g])=>[o===window.ME?'Dig':o, `${kr0(g.sum)} kr. <em>· ${g.n} rejser</em>`,
-              Math.round(100*g.sum/mx), o===window.ME?'alt':''])),
-      s:`Rejser booket siden 1. januar 2026.`});
+    const mig=e[window.ME]; if(!mig) return;
+    const andre=Object.entries(e).filter(([o])=>o!==window.ME);
+    P('tal','Dig i år',String(new Date().getFullYear()),
+      `Du har booket <b>${mig.n} rejser</b> i år.`,
+      `${kr0(mig.pax)} gæster du selv har sendt afsted, til ${kr0(mig.sum/mig.n)} kr. i snit pr. rejse.`,
+      fTal(kr0(mig.sum/1000),'t.kr.','solgt i år',
+        [['rejser',mig.n],['gæster',mig.pax]].concat(andre.map(([o,g])=>[o,kr0(g.sum/1000)+' t.kr.']))),
+      `Rejser booket siden 1. januar.`);
   })();
 
-  // ── 7 · de seneste 30 dage ────────────────────────────────────────
-  (()=>{ const graense=new Date(Date.now()-30*86400000).toISOString().slice(0,10);
-    const nye=ok.filter(t=>t.booking_date&&t.booking_date>=graense);
-    if(nye.length<3) return;
+  /* 7 · de seneste 30 dage — stort tal */
+  (()=>{ const g=new Date(Date.now()-30*86400000).toISOString().slice(0,10);
+    const nye=ok.filter(t=>t.booking_date&&t.booking_date>=g); if(nye.length<3) return;
     const oms=nye.reduce((s,t)=>s+ +(t.package_sell_dkk||0),0);
-    const pax=nye.reduce((s,t)=>s+(t.pax_count||0),0);
-    const ejere={}; nye.forEach(t=>{ const o=t.owner||'?'; ejere[o]=(ejere[o]||0)+ +(t.package_sell_dkk||0); });
-    const alle=Object.entries(ejere).sort((a,b)=>b[1]-a[1]); const mx=alle[0][1];
-    ud.push({l:`De seneste 30 dage har I solgt <b>${nye.length} rejser</b>.`,
-      e:`${kr0(oms)} kr. og ${pax} gæster — ${kr0(oms/nye.length)} kr. i snit pr. rejse.`,
-      g:iBar(alle.map(([o,v])=>[o===window.ME?'Dig':o,`${kr0(v)} kr.`,Math.round(100*v/mx), o===window.ME?'alt':''])),
-      s:`Rejser med bookingdato inden for de seneste 30 dage.`});
+    P('tal','Seneste 30 dage','seneste 30 dage',
+      `De seneste 30 dage har I solgt <b>${nye.length} rejser</b>.`,
+      `${kr0(oms)} kr. og ${nye.reduce((s,t)=>s+(t.pax_count||0),0)} gæster.`,
+      fTal(kr0(oms/1000),'t.kr.','solgt de seneste 30 dage',
+        [['rejser',nye.length],['gæster',nye.reduce((s,t)=>s+(t.pax_count||0),0)],
+         ['kr. pr. rejse',kr0(oms/nye.length)]]),
+      `Rejser med bookingdato inden for 30 dage.`);
   })();
 
-  // ── 8 · afrejsemaaned ─────────────────────────────────────────────
-  (()=>{ const b=medPris.filter(t=>t.departure_date); if(b.length<100) return;
-    const M=['januar','februar','marts','april','maj','juni','juli','august','september','oktober','november','december'];
-    const r=M.map((n,i)=>{ const g=b.filter(t=>+t.departure_date.slice(5,7)===i+1);
-      return {n, c:g.length, pris:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0}; }).filter(x=>x.c>3);
-    const dyrest=r.reduce((a,x)=>x.pris>a.pris?x:a), flest=r.reduce((a,x)=>x.c>a.c?x:a);
-    const top=[...r].sort((a,b)=>b.pris-a.pris).slice(0,5); const mx=top[0].pris;
-    ud.push({l:`<b>${dyrest.n[0].toUpperCase()+dyrest.n.slice(1)}</b> er jeres dyreste måned — men <b>${flest.n}</b> er den travleste.`,
-      e:`En ${dyrest.n}-rejse ligger på ${kr0(dyrest.pris)} kr. i snit. ${flest.n[0].toUpperCase()+flest.n.slice(1)} har flest afrejser med ${flest.c}.`,
-      g:iBar(top.map(x=>[x.n[0].toUpperCase()+x.n.slice(1),`${kr0(x.pris)} kr. <em>· ${x.c} rejser</em>`,Math.round(100*x.pris/mx), x===dyrest?'alt':''])),
-      s:`${b.length} rejser fordelt på afrejsemåned.`});
+  /* 8 · rejseaaret — maanedskolonner */
+  (()=>{ const b=pris.filter(t=>t.departure_date); if(b.length<100) return;
+    const M=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const r=M.map((n,i)=>[n,b.filter(t=>+t.departure_date.slice(5,7)===i+1).length]);
+    const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    const dyr=M.map((n,i)=>{ const g=b.filter(t=>+t.departure_date.slice(5,7)===i+1);
+      return {n,p:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0}; })
+      .filter(x=>x.p).reduce((a,x)=>x.p>a.p?x:a);
+    P('kolonner','Rejseåret',HELE,
+      `<b>${top[0][0].toUpperCase()+top[0].slice(1)}</b> er jeres travleste måned — men <b>${dyr.n}</b> er den dyreste.`,
+      `${top[1]} afrejser i ${top[0]}. En ${dyr.n}-rejse ligger til gengæld på ${kr0(dyr.p)} kr. i snit.`,
+      fKol(r, top[0]),
+      `${b.length} rejser fordelt på afrejsemåned.`);
   })();
 
-  // ── 9 · henvendelser: hvornaar de skriver ─────────────────────────
-  (()=>{ if(!leads || leads.length<50) return;
-    const spand=[['kl. 05–08',h=>h>=5&&h<9],['kl. 09–10',h=>h>=9&&h<11],['kl. 11–14',h=>h>=11&&h<15],
-                 ['kl. 15–17',h=>h>=15&&h<18],['kl. 18–20',h=>h>=18&&h<21],['kl. 21–04',h=>h>=21||h<5]];
-    const r=spand.map(([n,f])=>({n, c:leads.filter(l=>f(new Date(l.created_at).getHours())).length}));
-    const mx=Math.max(...r.map(x=>x.c)); if(!mx) return;
-    const top=r.filter(x=>x.c>=mx*0.85);
-    ud.push({l:`Henvendelserne kommer i <b>bølger</b> — ${top.map(x=>x.n).join(' og ')}.`,
-      e:`Der kommer stadig ${r[5].c} henvendelser efter kl. 21 — folk drømmer om Maldiverne når huset er faldet til ro.`,
-      g:iBar(r.map(x=>[x.n,`${x.c} henvendelser`,Math.round(100*x.c/mx), top.includes(x)?'alt':''])),
-      s:`${leads.length} henvendelser med tidsstempel.`});
+  /* 9 · bookingmaaned — maanedskolonner */
+  (()=>{ const b=ok.filter(t=>t.booking_date); if(b.length<100) return;
+    const M=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    const r=M.map((n,i)=>[n,b.filter(t=>+t.booking_date.slice(5,7)===i+1).length]);
+    const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    const snit=r.reduce((s,x)=>s+x[1],0)/12;
+    P('kolonner','Bookingmåneden',HELE,
+      `<b>${top[0][0].toUpperCase()+top[0].slice(1)}</b> er måneden hvor drømmen bliver til en rejse.`,
+      `${top[1]} bookinger mod ${Math.round(snit)} i en gennemsnitsmåned — ${(top[1]/snit).toFixed(1)} gange så mange.`,
+      fKol(r, top[0]),
+      `${b.length} rejser fordelt på bookingmåned.`);
   })();
 
-  // ── 11 · hvor taet er vi paa et salg ──────────────────────────────
-  (()=>{ if(!leads || !leads.length) return;
-    const aabne=leads.filter(l=>l.status==='open');
-    const varme=aabne.filter(l=>['negotiation','thinking','followed_up'].includes(l.stage));
+  /* 10 · ugedag */
+  (()=>{ const b=pris.filter(t=>t.booking_date); if(b.length<50) return;
+    const D=['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+    const r=[1,2,3,4,5,6,0].map(d=>{ const g=b.filter(t=>new Date(t.booking_date).getDay()===d);
+      return {n:D[d],c:g.length,p:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0}; }).filter(x=>x.c>3);
+    if(r.length<5) return; const mx=Math.max(...r.map(x=>x.p)), top=r.find(x=>x.p===mx);
+    P('bars','Ugedagen',HELE,
+      `<b>${top.n}</b> er dagen hvor de dyreste rejser bookes.`,
+      `En ${top.n.toLowerCase()}sbooking er i snit ${kr0(mx)} kr. værd — mod ${kr0(Math.min(...r.map(x=>x.p)))} på den roligste dag.`,
+      fBars(r.map(x=>[x.n,`${kr0(x.p)} kr. <em>· ${x.c} rejser</em>`,Math.round(100*x.p/mx),x===top?'alt':''])),
+      `${b.length} bookinger fordelt på ugedag.`);
+  })();
+
+  /* 11 · gruppestoerrelse */
+  (()=>{ const b=pris.filter(t=>t.pax_count>0); if(b.length<50) return;
+    const spand=[['Alene',p=>p===1],['To',p=>p===2],['Tre–fire',p=>p>=3&&p<=4],['Fem eller flere',p=>p>=5]];
+    const r=spand.map(([n,f])=>{ const g=b.filter(t=>f(t.pax_count));
+      return {n,c:g.length,pp:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk/t.pax_count,0)/g.length:0,
+              tot:g.length?g.reduce((s,t)=>s+ +t.package_sell_dkk,0)/g.length:0}; }).filter(x=>x.c>5);
+    if(r.length<3) return; const mx=Math.max(...r.map(x=>x.pp));
+    P('bars','Gruppestørrelsen',HELE,
+      `Prisen pr. person <b>falder</b> med gruppen — men rejsen bliver dobbelt så stor.`,
+      `Den største gruppe betaler ${kr0(r[r.length-1].pp)} kr. pr. person mod ${kr0(r[1].pp)} for et par — men rejsen er ${kr0(r[r.length-1].tot)} kr. mod ${kr0(r[1].tot)}.`,
+      fBars(r.map((x,i)=>[x.n,`${kr0(x.pp)} kr./pers. <em>· ${x.c} rejser</em>`,Math.round(100*x.pp/mx),i===r.length-1?'alt':''])),
+      `${b.length} rejser med pris og antal rejsende.`);
+  })();
+
+  /* 12 · naar de skriver */
+  (()=>{ if(!leads||leads.length<50) return;
+    // Lige lange blokke paa fire timer — ellers vinder det bredeste spand af sig selv
+    const sp=[['00–04',0],['04–08',4],['08–12',8],['12–16',12],['16–20',16],['20–24',20]];
+    const r=sp.map(([n,fra])=>[n,leads.filter(l=>{const h=new Date(l.created_at).getHours();
+      return h>=fra && h<fra+4;}).length]);
+    const mx=Math.max(...r.map(x=>x[1])); if(!mx) return;
+    const top=r.reduce((a,x)=>x[1]>a[1]?x:a);
+    const sent=r[0][1]+r[5][1];
+    P('kolonner','Når de skriver','alle henvendelser',
+      `<b>${top[1]} af ${leads.length}</b> henvendelser lander mellem kl. ${top[0].replace('–',' og ')}.`,
+      `Tallene er alle henvendelser vi har, ikke pr. dag. ${sent} af dem er skrevet efter kl. 20 eller før kl. 4 — folk drømmer om Maldiverne når huset er faldet til ro.`,
+      fKol(r, top[0]),
+      `Alle ${leads.length} henvendelser, fordelt på fire-timers blokke.`);
+  })();
+
+  /* 13 · taet paa et salg */
+  (()=>{ if(!leads||!leads.length) return;
+    const varme=leads.filter(l=>l.status==='open'&&['negotiation','thinking','followed_up'].includes(l.stage));
     if(varme.length<2) return;
     const sum=varme.reduce((s,l)=>s+ +(l.est_value||0),0);
     const grp={}; varme.forEach(l=>{ grp[l.stage]=(grp[l.stage]||0)+1; });
     const mx=Math.max(...Object.values(grp));
-    ud.push({l:`<b>${varme.length} henvendelser</b> er tæt på en beslutning lige nu.`,
-      e:`De står på forhandling, opfølgning eller «tænker» — og har tilsammen ${kr0(sum)} i budget. Det er dem der skal ringes til i dag.`,
-      g:iBar(Object.entries(grp).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
-        [STAGE_SHORT[k]||k, `${v} henvendelse${v===1?'':'r'}`, Math.round(100*v/mx), 'alt'])),
-      s:`Åbne henvendelser på de tre sidste trin før salg.`});
+    P('bars','Tæt på en beslutning','lige nu',
+      `<b>${varme.length} henvendelser</b> er tæt på en beslutning lige nu.`,
+      `De står på forhandling, opfølgning eller «tænker» — tilsammen ${kr0(sum)} i budget. Det er dem der skal ringes til i dag.`,
+      fBars(Object.entries(grp).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+        [STAGE_SHORT[k]||k,`${v} henvendelse${v===1?'':'r'}`,Math.round(100*v/mx),'alt'])),
+      `Åbne henvendelser på de sidste trin før salg.`);
   })();
 
-  // ── 12 · dem der er gaaet i staa ──────────────────────────────────
-  (()=>{ if(!leads || !leads.length) return;
-    const nu=Date.now();
-    const sendt=leads.filter(l=>l.status==='open' && l.stage==='offer_sent');
+  /* 14 · gaaet i staa */
+  (()=>{ if(!leads||!leads.length) return;
+    const nu=Date.now(), sendt=leads.filter(l=>l.status==='open'&&l.stage==='offer_sent');
     if(sendt.length<3) return;
-    const dage=l=>Math.round((nu-new Date(l.created_at))/86400000);
-    const gamle=sendt.filter(l=>dage(l)>30);
-    if(!gamle.length) return;
-    const spand=[['Under 2 uger',d=>d<14],['2–4 uger',d=>d>=14&&d<30],['1–3 måneder',d=>d>=30&&d<90],['Over 3 måneder',d=>d>=90]];
-    const r=spand.map(([n,f])=>({n,c:sendt.filter(l=>f(dage(l))).length})).filter(x=>x.c);
-    const mx=Math.max(...r.map(x=>x.c));
-    ud.push({l:`<b>${gamle.length} tilbud</b> har ligget mere end en måned uden at blive lukket.`,
-      e:`Der er sendt tilbud til ${sendt.length} kunder som stadig er åbne. Et gammelt tilbud er sjældent dødt — det mangler bare et kald.`,
-      g:iBar(r.map(x=>[x.n,`${x.c} henvendelse${x.c===1?'':'r'}`,Math.round(100*x.c/mx), x.n==='Over 3 måneder'?'alt':''])),
-      s:`Åbne henvendelser på trinnet «Tilbud sendt».`});
-  })();
-
-  // ── 10 · konvertering ─────────────────────────────────────────────
-  (()=>{ if(!leads || leads.length<50) return;
-    const won=leads.filter(l=>l.status==='won').length;
-    const lost=leads.filter(l=>l.status==='lost').length;
-    const open=leads.filter(l=>l.status==='open').length;
-    const lukket=won+lost; if(lukket<20) return;
-    const pct=(100*won/lukket);
-    ud.push({l:`<b>${pct.toFixed(0)} %</b> af de afsluttede henvendelser bliver til en rejse.`,
-      e:`${won} solgt og ${lost} tabt ud af ${lukket} afsluttede. ${open} er stadig åbne og kan nå at blive til noget. Tallet bliver først helt præcist når Solgt-knappen er i brug — de fleste af de tabte kommer fra Pipedrive-importen.`,
-      g:iBar([['Solgt',`${won}`,Math.round(100*won/lukket),'alt'],
-              ['Tabt',`${lost}`,Math.round(100*lost/lukket)],
-              ['Stadig åbne',`${open}`,Math.round(100*open/Math.max(lukket,open))]]),
-      s:`${leads.length} henvendelser i alt.`});
+    const dg=l=>Math.round((nu-new Date(l.created_at))/86400000);
+    const gamle=sendt.filter(l=>dg(l)>30); if(!gamle.length) return;
+    const sp=[['Under 2 uger',d=>d<14],['2–4 uger',d=>d>=14&&d<30],['1–3 måneder',d=>d>=30&&d<90],['Over 3 måneder',d=>d>=90]];
+    const r=sp.map(([n,f])=>[n,sendt.filter(l=>f(dg(l))).length]).filter(x=>x[1]);
+    const mx=Math.max(...r.map(x=>x[1]));
+    P('bars','Tilbud der venter','lige nu',
+      `<b>${gamle.length} tilbud</b> har ligget mere end en måned.`,
+      `Der er sendt tilbud til ${sendt.length} kunder som stadig er åbne. Et gammelt tilbud er sjældent dødt — det mangler bare et kald.`,
+      fBars(r.map(x=>[x[0],`${x[1]} henvendelse${x[1]===1?'':'r'}`,Math.round(100*x[1]/mx),x[0]==='Over 3 måneder'?'alt':''])),
+      `Åbne henvendelser på trinnet «Tilbud sendt».`);
   })();
 
   return ud;
 }
 
-function visIndsigt(){
-  const alle=window.__INDSIGTER||[];
-  if(!alle.length) return;
-  let i; do { i=Math.floor(Math.random()*alle.length); } while(alle.length>1 && i===window.__sidsteIndsigt);
-  window.__sidsteIndsigt=i; const d=alle[i];
-  const el=id=>document.getElementById(id);
-  if(el('iLead')) el('iLead').innerHTML=d.l;
-  if(el('iExp'))  el('iExp').textContent=d.e;
-  if(el('iGraf')) el('iGraf').innerHTML=d.g;
-  if(el('iSrc'))  el('iSrc').textContent=d.s;
-  const q=DASH_CITATER[Math.floor(Math.random()*DASH_CITATER.length)];
-  if(el('iQ'))  el('iQ').textContent=q[0];
-  if(el('iQc')) el('iQc').textContent=q[1];
+/* ── visning: fire kort, hver med sin egen ─────────────────────────── */
+function tegnIndsigtskort(idx, plads){
+  const alle=window.__INDSIGTER||[]; if(!alle.length) return '';
+  const d=alle[idx%alle.length];
+  return `<div class="icard f-${d.form}" onclick="skiftIndsigt(${plads})" title="Klik for en anden indsigt">
+    <div class="ih"><span>${escH(d.titel)}</span><em>${escH(d.periode||'')}</em><i>↻</i></div>
+    <p class="il">${d.l}</p>
+    ${d.g}
+    <p class="ie">${escH(d.e)}</p>
+  </div>`;
+}
+function skiftIndsigt(plads){
+  const alle=window.__INDSIGTER||[]; if(alle.length<5) return;
+  const brugt=window.__valgte||[];
+  let n; let forsoeg=0;
+  do { n=Math.floor(Math.random()*alle.length); forsoeg++; } while(brugt.includes(n) && forsoeg<40);
+  brugt[plads]=n; window.__valgte=brugt;
+  const el=document.getElementById('ikort'+plads);
+  if(el) el.outerHTML=`<div id="ikort${plads}">${tegnIndsigtskort(n,plads)}</div>`;
+}
+function tegnIndsigter(){
+  const alle=window.__INDSIGTER||[]; const boks=document.getElementById('insgrid');
+  if(!boks) return;
+  if(!alle.length){ boks.innerHTML='<p class="muted">Der er endnu ikke data nok til at finde mønstre.</p>'; return; }
+  // fire forskellige — helst med forskellig form, saa kortene ikke ligner hinanden
+  const valgt=[], former=[];
+  const blandet=alle.map((d,i)=>({d,i})).sort(()=>Math.random()-0.5);
+  blandet.forEach(({d,i})=>{ if(valgt.length>=4) return;
+    if(!former.includes(d.form)||valgt.length>=3){ valgt.push(i); former.push(d.form); } });
+  blandet.forEach(({i})=>{ if(valgt.length<4 && !valgt.includes(i)) valgt.push(i); });
+  window.__valgte=valgt;
+  boks.innerHTML=valgt.map((n,p)=>`<div id="ikort${p}">${tegnIndsigtskort(n,p)}</div>`).join('');
+  const p=personligLinje(window.__DASHTRIPS);
+  const boksP=document.getElementById('insq');
+  if(boksP) boksP.innerHTML = p ? `<p>${p}</p>` : '';
 }
 
 /* ══════════════════════════════════════════════════════════════════════
