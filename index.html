@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.33 · 25.08.2026
+<!-- Panda · v0.34 · 26.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -627,6 +627,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .colh .nm{font-size:12px;letter-spacing:1.3px;}
 .hv7 .colh .ct{font-size:12px;}
 .hv7 .lc{padding:0 9px 8px;margin-bottom:7px;border-left-width:2px;}
+.hv7 .lc{cursor:grab;}.hv7 .lc:active{cursor:grabbing;}.hv7 .lc.dragging{opacity:.35;transform:rotate(-1.2deg) scale(.98);box-shadow:0 14px 30px rgba(120,105,75,.18);}.hv7 .col{transition:background .16s,border-color .16s,box-shadow .16s;}.hv7 .col.kandrop{border-style:dashed;border-color:var(--gold-l);}.hv7 .col.over{background:rgba(224,201,163,.26);border-style:solid;border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold-l);}.hv7 .hint.kvit{border-color:var(--gold);color:var(--ink);}.hv7 .hint.kvit b{color:var(--ok,#4f7a5f);}
 .hv7 .lc .nm{font-size:14px;padding:6px 9px 5px;margin:0 -9px 0;}
 .hv7 .lc .scorerow{margin-top:6px;}
 .hv7 .lc .tri{font-size:8.5px;padding:2px 6px;}
@@ -803,7 +804,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.33';
+const APP_VERSION = 'v0.34';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -5271,13 +5272,14 @@ function hvBoardRender(){
     <div class="page" id="hvPage">
       <div class="ph"><div class="lab">Salgspipeline før booking</div><h1>Henvendelser</h1></div>
       <div class="board">
-        ${cols.map(([k,ls])=>`<div class="col">
+        ${cols.map(([k,ls])=>`<div class="col" data-stage="${k}"${k==='__rest'?'':`
+          ondragover="hvDragOver(event)" ondragleave="hvDragLeave(event)" ondrop="hvDrop(event,'${k}')"`}>
           <div class="colh"><span class="nm" ${k==='__rest'?'title="Disse henvendelser står på et trin der ikke findes på boardet — typisk «Vundet», som ikke længere er en kolonne i Pipedrive. De skal enten markeres solgt eller flyttes til et rigtigt trin."':''}>${k==='__rest'?'Uden for flowet':escH(STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k)}</span><span class="ct">${ls.length}</span></div>
           ${ls.map(hvCard).join('')}
         </div>`).join('')}
       </div>
     </div>
-    <div class="hint" id="hvHint">Klik en henvendelse for at åbne — <b>Esc</b> lukker, <b>←</b> <b>→</b> skifter kort</div>
+    <div class="hint" id="hvHint">Klik for at åbne · <b>træk</b> et kort til en anden kolonne for at flytte trin — <b>Esc</b> lukker, <b>←</b> <b>→</b> skifter kort</div>
     <div class="ov" id="hvOv" onclick="if(event.target===this)hvClose()"><div class="ld" id="hvLd"></div></div>
     <button class="navbtn pv" onclick="hvStep(-1)">‹</button>
     <button class="navbtn nx" onclick="hvStep(1)">›</button>
@@ -5308,7 +5310,8 @@ function hvCard(l){
   const koeb=+(l._koeb||0);
   const hjerte = koeb>=2 ? `<span class="ik gengang skin" title="Trofast kunde — ${koeb} rejser købt hos os">💛</span>`
     : (koeb===1?'<span class="ik gengang" title="Genganger — kunden har købt én rejse hos os før">💛</span>':'');
-  return `<div class="lc ${brc}" data-id="${l.id}" onclick="hvOpen('${l.id}')">
+  return `<div class="lc ${brc}" data-id="${l.id}" onclick="hvOpen('${l.id}')"
+    draggable="true" ondragstart="hvDragStart(event,'${l.id}')" ondragend="hvDragEnd(event)">
     <div class="nm"><span class="navn">${escH(l.contact_name||l.title||'Uden navn')}</span>${hjerte}</div>
     <div class="scorerow">${tr.complete?`<span class="tri good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}
       <span class="ikoner">${tr.complete?(kvalitetsTrin(tr.score)?`<span class="ik" title="${escH((kvalitetsTrin(tr.score)||{}).navn||'')} — lead-score ${tr.score}">${(kvalitetsTrin(tr.score)||{}).ikon||''}</span>`:''):`<span class="ik" title="Mangler oplysninger før den kan vurderes: ${escH(tr.missing.join(', '))}">❓</span>`}</span></div>
@@ -5320,6 +5323,70 @@ function hvCard(l){
     <div class="foot"><span class="brch ${brc}">${escH(BRANCH_KORT[l.branch]||l.branch||'')}</span>
       <span class="who"><span class="age">${d==null?'—':d+'d'}</span>${l.owner?`<span class="owner">${escH(l.owner)}</span>`:''}</span></div>
   </div>`;
+}
+
+/* ── traek og slip: flyt en henvendelse til et andet trin ───────────────
+   Selve trin-skiftet skrives til leads.stage. Historikken behoever vi ikke
+   roere: databasens trigger trg_lead_log_stage skriver flytningen i
+   lead_activities af sig selv, praecis som naar man skifter trin inde i kortet.
+   Kolonnen «Uden for flowet» kan man traekke FRA, men ikke TIL — den er ikke
+   et rigtigt trin, bare et opsamlingssted for gamle Pipedrive-vaerdier.       */
+let _hvDrag=null;
+function hvDragStart(e,id){
+  _hvDrag=id;
+  try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',id); }catch(_){}
+  e.currentTarget.classList.add('dragging');
+  document.querySelectorAll('.hv7 .col[data-stage]:not([data-stage="__rest"])').forEach(c=>c.classList.add('kandrop'));
+}
+function hvDragEnd(e){
+  _hvDrag=null;
+  if(e&&e.currentTarget&&e.currentTarget.classList) e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.hv7 .col').forEach(c=>c.classList.remove('kandrop','over'));
+}
+function hvDragOver(e){
+  if(!_hvDrag) return;
+  e.preventDefault();
+  try{ e.dataTransfer.dropEffect='move'; }catch(_){}
+  e.currentTarget.classList.add('over');
+}
+function hvDragLeave(e){
+  // forlader man kun et barn inde i kolonnen, skal markeringen blive staaende
+  if(e.relatedTarget && e.currentTarget.contains(e.relatedTarget)) return;
+  e.currentTarget.classList.remove('over');
+}
+async function hvDrop(e,k){
+  e.preventDefault();
+  let id=_hvDrag;
+  if(!id){ try{ id=e.dataTransfer.getData('text/plain'); }catch(_){} }
+  _hvDrag=null;
+  document.querySelectorAll('.hv7 .col').forEach(c=>c.classList.remove('kandrop','over'));
+  if(!id||!k||k==='__rest') return;
+  const l=(window._leads||[]).find(x=>x.id===id);
+  if(!l || l.stage===k) return;
+  const fra=l.stage, fraTid=l._stageSince;
+  // flyt kortet med det samme, saa det foles oejeblikkeligt — og rul tilbage hvis gemningen fejler
+  l.stage=k; l._stageSince=new Date().toISOString();
+  hvBoardRender();
+  const {error}=await db.from('leads').update({stage:k}).eq('id',id);
+  if(error){
+    l.stage=fra; l._stageSince=fraTid;
+    hvBoardRender();
+    alert('Kunne ikke flytte henvendelsen:\n\n'+error.message);
+    return;
+  }
+  hvKvit(`${l.contact_name||l.title||'Henvendelsen'} flyttet til «${STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k}»`);
+}
+/* Kort kvittering nede i hjaelpelinjen — forsvinder af sig selv igen. */
+function hvKvit(tekst){
+  const h=document.getElementById('hvHint'); if(!h) return;
+  if(!window._hvHintOrg) window._hvHintOrg=h.innerHTML;
+  clearTimeout(window._hvKvitTimer);
+  h.innerHTML=`<b>✓</b> ${escH(tekst)}`;
+  h.classList.add('kvit');
+  window._hvKvitTimer=setTimeout(()=>{
+    const hh=document.getElementById('hvHint');
+    if(hh){ hh.innerHTML=window._hvHintOrg; hh.classList.remove('kvit'); }
+  },2600);
 }
 
 /* ── detaljevisningen ───────────────────────────────────────────────── */
