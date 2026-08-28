@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.35 · 26.08.2026
+<!-- Panda · v0.36 · 26.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -633,6 +633,20 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .boardscroll::-webkit-scrollbar-thumb{background:var(--gold-l);border-radius:5px;}
 .hv7 .boardscroll::-webkit-scrollbar-thumb:hover{background:var(--gold);}
 /* ── Wendies rettelser 22.08: stoerre kolonneoverskrifter, mindre paagaaende kort ── */
+/* ── filterlinje og noegletal (hentet over fra den gamle side, ny dragt) ── */
+.hv7 .hvfilter{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 13px;}
+.hv7 .hvfilter .lbl{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-right:3px;}
+.hv7 .hvfilter .skel{width:1px;height:15px;background:var(--line);margin:0 9px;}
+.hv7 .hvfilter button{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--ink2);background:#fff;
+  border:1px solid var(--line);border-radius:999px;padding:5px 14px;cursor:pointer;transition:.15s;line-height:1.4;}
+.hv7 .hvfilter button:hover{border-color:var(--gold-l);color:var(--ink);}
+.hv7 .hvfilter button.on{background:var(--ink);border-color:var(--ink);color:#fdfbf7;font-weight:500;}
+.hv7 .hvkpis{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px;}
+.hv7 .hvkpi{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:11px 17px;min-width:158px;}
+.hv7 .hvkpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:500;
+  color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;}
+.hv7 .hvkpi .cur{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:1.2px;color:var(--mut);font-weight:400;}
+.hv7 .hvkpi .l{display:block;font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);margin-top:7px;}
 .hv7 .colh{padding-bottom:9px;}
 .hv7 .colh .nm{font-size:12px;letter-spacing:1.3px;}
 .hv7 .colh .ct{font-size:12px;}
@@ -814,7 +828,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.35';
+const APP_VERSION = 'v0.36';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -5254,13 +5268,16 @@ async function viewHenvendelser(){
   const pBerig = Promise.all([
     db.from('lead_activities').select('lead_id,occurred_at').eq('type','system').not('stage','is',null).order('occurred_at',{ascending:false}),
     db.from('team_members').select('name,initials,active'),
-    db.from('v_lead_kundehistorik').select('lead_id,antal_rejser')
+    db.from('v_lead_kundehistorik').select('lead_id,antal_rejser'),
+    // maanedens salg — hentes fra rejserne (faktisk booket), kun denne maaned
+    db.from('trips').select('ref_no,branch,owner,status,package_sell_dkk,booking_date').gte('booking_date', maanedStart())
   ]).catch(()=>null);
   const leads = await pLeads;
   window._leads = leads;
   const berig = await pBerig;
   if(berig){
-    const [actR, teamR, histR] = berig;
+    const [actR, teamR, histR, tripR] = berig;
+    window._leadMdrSalg=(tripR&&tripR.data||[]).filter(t=>!['canx','voided'].includes(t.status) && !/^test/i.test(t.ref_no||''));
     const smap={}; (actR.data||[]).forEach(a=>{ if(!smap[a.lead_id]) smap[a.lead_id]=a.occurred_at; });
     const hmap={}; (histR&&histR.data||[]).forEach(h=>{ hmap[h.lead_id]=+h.antal_rejser||0; });
     leads.forEach(l=>{ l._stageSince=smap[l.id]||l.created_at; l._koeb=hmap[l.id]||0; });
@@ -5270,8 +5287,17 @@ async function viewHenvendelser(){
   hvBoardRender();
 }
 
+/* Filtret ligger i hukommelsen, ikke i basen — det aendrer kun hvad man SER.
+   Samme to knapraekker som paa den gamle side: branche og ansvarlig. */
+function hvFilter(k,v){
+  window._hvFilter=Object.assign({branch:'',owner:''},window._hvFilter);
+  window._hvFilter[k]=v;
+  hvBoardRender();
+}
 function hvBoardRender(){
-  const leads=(window._leads||[]).filter(l=>l.status==='open');
+  const f=Object.assign({branch:'',owner:''}, window._hvFilter);
+  const passer=l=>(!f.branch||l.branch===f.branch)&&(!f.owner||l.owner===f.owner);
+  const leads=(window._leads||[]).filter(l=>l.status==='open' && passer(l));
   const cols=HV_RAIL.map(k=>[k, leads.filter(l=>l.stage===k)]);
   // Henvendelser paa et trin uden kolonne laegges IKKE i foerste kolonne - det skjulte
   // dem tidligere. De faar deres egen kolonne til sidst, saa de kan ses og ryddes op.
@@ -5282,6 +5308,7 @@ function hvBoardRender(){
   app.innerHTML = `<div class="hv7">
     <div class="page" id="hvPage">
       <div class="ph"><div class="lab">Salgspipeline før booking</div><h1>Henvendelser</h1></div>
+      ${hvFilterOgTal(f)}
       <div class="boardscroll"><div class="board" style="--kol:${cols.length}">
         ${cols.map(([k,ls])=>`<div class="col" data-stage="${k}"${k==='__rest'?'':`
           ondragover="hvDragOver(event)" ondragleave="hvDragLeave(event)" ondrop="hvDrop(event,'${k}')"`}>
@@ -5297,6 +5324,35 @@ function hvBoardRender(){
     <div class="ov3" id="hvOv3" onclick="if(event.target===this)hvCloseDest()">${hvDestPicker()}</div>
   </div>`;
   if(!window._hvKeys){ window._hvKeys=true; document.addEventListener('keydown',hvKey); }
+}
+
+/* Filterknapper + de tre noegletal oeverst paa siden.
+   Noegletallene foelger filtret: vaelger man Rasmus, viser de Rasmus' tal.
+   «Solgt for» er faktisk booket omsaetning fra rejserne i indevaerende maaned —
+   ikke budgettet paa henvendelserne, som er et skoen. */
+function hvFilterOgTal(f){
+  const knap=(k,v,tekst)=>`<button class="${(f[k]||'')===v?'on':''}" onclick="hvFilter('${k}','${v}')">${escH(tekst)}</button>`;
+  const mdr=(window._leadMdrSalg||[]).filter(t=>{
+    if(f.branch){ const ok=TRIP_BRANCH[f.branch]||[f.branch]; if(!ok.includes(t.branch)) return false; }
+    if(f.owner && t.owner!==f.owner) return false;
+    return true;
+  });
+  const oms=mdr.reduce((s,t)=>s+(+t.package_sell_dkk||0),0);
+  const mdrNavn=new Date(today()).toLocaleDateString('da-DK',{month:'long'});
+  const aabne=(window._leads||[]).filter(l=>l.status==='open'
+    && (!f.branch||l.branch===f.branch) && (!f.owner||l.owner===f.owner)).length;
+  return `<div class="hvfilter">
+    <span class="lbl">Branche</span>
+    ${knap('branch','','Alle')}${knap('branch','NO','Maldivia NO')}${knap('branch','MD','Maldivia DK')}
+    <span class="skel"></span>
+    <span class="lbl">Ansvarlig</span>
+    ${knap('owner','','Alle')}${(window._TEAM||[]).map(([ini,nm])=>knap('owner',ini,nm)).join('')}
+  </div>
+  <div class="hvkpis">
+    ${hasPerm('economy')?`<div class="hvkpi"><b>${fval(oms)} <span class="cur">DKK</span></b><span class="l">solgt for i ${escH(mdrNavn)}</span></div>`:''}
+    <div class="hvkpi"><b>${mdr.length}</b><span class="l">solgte rejser i ${escH(mdrNavn)}</span></div>
+    <div class="hvkpi"><b>${aabne}</b><span class="l">åbne henvendelser</span></div>
+  </div>`;
 }
 
 function hvCard(l){
