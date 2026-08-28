@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.36 · 26.08.2026
+<!-- Panda · v0.39 · 28.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -663,8 +663,55 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .lc .bud{font-size:15px;margin-top:6px;}
 .hv7 .lc .foot{margin-top:7px;padding-top:6px;}
 .hv7 .col{padding:9px;min-height:220px;}
-.hv7 .board{grid-template-columns:repeat(7,minmax(192px,1fr));}
-@media(max-width:1400px){.hv7 .board{grid-auto-columns:minmax(192px,1fr);}}
+
+/* ══ LAESBARHED 28.08 ══════════════════════════════════════════════════
+   Wendie: «det står så småt og pænt — det skal det stadig, men det må
+   godt være en anelse tydeligere.» Udtrykket er det samme; det der er
+   aendret er de to ting der faktisk goer tekst svaer at laese: stoerrelsen
+   paa den mindste tekst, og hvor lys den graa er. Ingen nye farver,
+   ingen ny typografi — kun et hak op og et hak moerkere.
+   Staar sidst i stilarket med vilje, saa det ikke bliver overskrevet.  */
+.hv7{--mut:#8b8370;--ink2:#4f544b;}
+/* kortene */
+.hv7 .lc .nm{font-size:15px;}
+.hv7 .lc .tri{font-size:9.5px;padding:3px 7px;}
+.hv7 .lc .dchip{font-size:10px;padding:2px 7px;}
+.hv7 .lc .fchip{font-size:9.5px;padding:2px 7px;}
+.hv7 .lc .meta{font-size:11.5px;line-height:1.5;color:var(--ink2);}
+/* datolinjen holdes en anelse mindre og braekker ikke midt i en dato */
+.hv7 .lc .meta.dates{font-size:11px;}
+.hv7 .lc .meta.dates > span{white-space:nowrap;}
+.hv7 .lc .bud{font-size:16.5px;}
+.hv7 .lc .brch{font-size:9.5px;padding:2px 7px;}
+/* Kortets bundlinje arvede overlayets .foot-regler: sticky, hvid baggrund og
+   26px sidepolstring inde i et 150px bredt kort. Derfor blev DK / 27d / WEN
+   presset ned under hinanden. Her nulstilles det, og linjen laases til ÉN
+   raekke: branche til venstre, alder og ejer til hoejre, paa samme grundlinje. */
+.hv7 .col .lc .foot{position:static;z-index:auto;background:none;box-shadow:none;
+  display:flex;align-items:center;gap:8px;flex-wrap:nowrap;
+  border-top:1px solid var(--hair);padding:7px 0 0;margin-top:8px;
+  font-size:10.5px;line-height:1.25;}
+.hv7 .col .lc .foot .who{margin-left:auto;display:flex;align-items:center;gap:9px;white-space:nowrap;}
+.hv7 .col .lc .foot .brch{flex:0 0 auto;}
+.hv7 .col .lc .foot .age{color:var(--mut);font-variant-numeric:tabular-nums;}
+.hv7 .col .lc .foot .owner{color:var(--gold);font-weight:600;letter-spacing:1.1px;}
+.hv7 .lc .age{font-size:10.5px;}
+.hv7 .lc .owner{font-size:10.5px;letter-spacing:1.2px;}
+.hv7 .lc .cur{font-size:10px;}
+/* kolonneoverskrifterne — guld er smukt, men lyst guld paa sand er svagt */
+.hv7 .colh .nm{font-size:12.5px;color:#a8823f;}
+.hv7 .colh .ct{color:var(--ink2);}
+/* detaljevisningen: feltnavne og indtastet tekst */
+.hv7 .fld .k{font-size:9.5px;letter-spacing:1.3px;}
+.hv7 .fld input, .hv7 .fld select{font-size:13.5px;}
+.hv7 .mopt{font-size:11.5px;color:var(--ink2);}
+.hv7 .frame .k{font-size:9.5px;}
+.hv7 .kpi .l{font-size:11.5px;}
+/* FJERNET 28.08: to gamle regler laaste boardet til 7 kolonner à mindst 192px.
+   De stammer fra dengang der var syv trin, laa EFTER den nye kolonneregel og vandt
+   derfor over den — resultatet var syv brede kolonner og tre klemte til hoejre.
+   Kolonnebredden styres nu ét sted: .hv7 .board hoejere oppe. Laeg ikke nye
+   grid-template-columns paa .hv7 .board her. */
 /* aldersfelter pr. barn */
 .hv7 .kids{display:flex;flex-wrap:wrap;gap:6px;padding:6px 0;}
 .hv7 .kids .kidage{width:46px;text-align:center;font-family:'Inter',sans-serif;font-size:12.5px;padding:6px 0;border:1px solid var(--line);border-radius:3px;background:#fff;}
@@ -828,7 +875,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.36';
+const APP_VERSION = 'v0.39';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -5246,6 +5293,8 @@ function hvTrinDage(l, acts){
 function hvKids(){
   const kc=document.getElementById('hvKc'), kb=document.getElementById('hvKb'); if(!kb) return;
   const n=Math.max(0,Math.min(12,+(kc&&kc.value)||0));
+  // ingen boern = intet aldersfelt; ellers staar der bare et tomt hul i formularen
+  const ramme=document.getElementById('hvKbF'); if(ramme) ramme.style.display = n>0 ? '' : 'none';
   const l=(window._leads||[]).find(x=>x.id===window._hvId)||{};
   const kendt=(l.child_ages||'').split(/\s*,\s*/).filter(x=>x!=='');
   kb.innerHTML=Array.from({length:n},(_,i)=>`<input class="kidage${kendt[i]==null?' tom':''}" placeholder="?" value="${escH(kendt[i]==null?'':kendt[i])}" title="Alder paa barn ${i+1} ved afrejse" onchange="hvSaveKids()">`).join('');
@@ -5540,7 +5589,7 @@ function hvRender(l, acts, offers){
           <div class="fbox"><div class="lab">Rejsende og budget</div>
             ${fld('Voksne','adults',l.adults)}
             <div class="fld"><div class="k">Børn</div><input id="hvKc" value="${l.kids==null?'':l.kids}" oninput="hvKids()" onchange="hvSave('kids',this.value===''?null:+this.value)"></div>
-            <div class="fld"><div class="k">Alder på børn</div><div class="kids" id="hvKb"></div></div>
+            <div class="fld" id="hvKbF"${(tnum(l.kids)||0)>0?'':' style="display:none"'}><div class="k">Alder på børn</div><div class="kids" id="hvKb"></div></div>
             <div class="fld"><div class="k">Budget (${escH(cur)})</div><input value="${l.est_value==null?'':fval(l.est_value)}" onchange="hvSaveTal(this,'est_value')"></div>
           </div>
           <div class="fbox"><div class="lab">Kontakt og kilde</div>
