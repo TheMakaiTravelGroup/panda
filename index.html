@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.39 · 28.08.2026
+<!-- Panda · v0.42 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -663,6 +663,70 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .lc .bud{font-size:15px;margin-top:6px;}
 .hv7 .lc .foot{margin-top:7px;padding-top:6px;}
 .hv7 .col{padding:9px;min-height:220px;}
+/* ══ SØGNING ══════════════════════════════════════════════════════════
+   Samme udseende de to steder den bruges. Ligger uden for .hv7, fordi
+   feltet også skal virke på dashboardet.                              */
+.sogboks{position:relative}
+.sogfelt{display:flex;align-items:center;gap:12px;background:#fffefb;border:1px solid var(--line);
+  border-radius:3px;padding:0 16px;transition:.16s}
+.sogfelt:focus-within{border-color:#e0c9a3;box-shadow:0 0 0 3px rgba(224,201,163,.22)}
+.sogfelt .lup{color:#c1975a;font-size:15px}
+.sogfelt input{flex:1;font-family:'Inter',sans-serif;font-size:14.5px;padding:13px 0;border:0;
+  background:transparent;color:#2e332e}
+.sogfelt input:focus{outline:none}
+.sogfelt input::placeholder{color:#98937f}
+.sogkbd{font-size:9px;letter-spacing:.6px;background:#f2ebe0;border:1px solid var(--line);
+  border-radius:2px;padding:3px 7px;color:#98937f}
+.sogryd{background:none;border:0;color:#98937f;cursor:pointer;font-size:17px;padding:0 2px;line-height:1}
+.sogryd:hover{color:#2e332e}
+.sogres{position:absolute;left:0;right:0;top:100%;z-index:40;background:#fffefb;border:1px solid var(--line);
+  border-top:0;border-radius:0 0 3px 3px;max-height:60vh;overflow-y:auto;
+  box-shadow:0 14px 40px rgba(120,105,75,.16)}
+.sogres[hidden]{display:none}
+.soggrp{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:#c1975a;font-weight:600;
+  padding:12px 16px 6px;border-bottom:1px solid #f0e9dc;background:#f2ebe0}
+.sogrw{display:flex;align-items:center;gap:14px;padding:11px 16px;border-bottom:1px solid #f0e9dc;cursor:pointer;transition:.13s}
+.sogrw:hover{background:rgba(242,235,224,.7)}
+.sogrw:last-child{border-bottom:0}
+.sogik{width:28px;height:28px;border-radius:50%;background:#e4f0ef;display:grid;place-items:center;font-size:13px;flex:0 0 auto}
+.sogm{flex:1;min-width:0}
+.sogn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;line-height:1.25;color:#2e332e}
+.sogd{font-size:11.5px;color:#4f544b;margin-top:2px}
+.sogfra{font-size:10.5px;color:#8b8370;margin-top:3px;font-style:italic}
+.sogh{background:rgba(224,201,163,.5);border-radius:2px;padding:0 2px}
+.soghoej{flex:0 0 auto;text-align:right}
+.sogbel{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#2e332e}
+.sogtid{font-size:10.5px;color:#8b8370;margin-top:2px}
+.sogmrk{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;padding:3px 8px;border-radius:2px;
+  font-weight:600;white-space:nowrap;flex:0 0 auto}
+.sogmrk.aaben{background:rgba(224,201,163,.45);color:#8d6a34}
+.sogmrk.vundet{background:rgba(123,164,136,.22);color:#4f7a5f}
+.sogmrk.tabt{background:rgba(163,81,47,.1);color:#a3512f}
+.sogmrk.rejse{background:#e8ddcb;color:#4f544b}
+.sogmrk.kunde{background:#e4f0ef;color:#4c7f77}
+.sogtom{padding:20px 16px;font-size:12.5px;color:#8b8370;line-height:1.6}
+.sogbund{padding:10px 16px;font-size:11px;color:#8b8370;background:#f2ebe0;border-top:1px solid #f0e9dc;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sogbund b{color:#4f544b}
+.sogflere{font-family:'Inter',sans-serif;font-size:11px;background:#fff;border:1px solid #e0c9a3;
+  border-radius:2px;padding:5px 12px;cursor:pointer;color:#8d6a34;font-weight:500;transition:.15s}
+.sogflere:hover{background:#c1975a;border-color:#c1975a;color:#fff}
+.sogtaster{margin-left:auto}
+.sogov{position:fixed;inset:0;background:rgba(90,80,64,.42);backdrop-filter:blur(4px);display:none;
+  place-items:start center;z-index:80;padding:60px 20px 20px}
+.sogov.on{display:grid}
+.sogalle{background:#fffefb;border-radius:4px;max-width:900px;width:100%;max-height:80vh;display:flex;
+  flex-direction:column;overflow:hidden;box-shadow:0 30px 90px rgba(80,70,55,.35)}
+.sogalleh{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,#f2ebe0,#e8ddcb)}
+.sogalleh h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin:0;flex:1;color:#2e332e}
+.sogalleb{overflow-y:auto}
+.sogalleb .sogres{position:static;border:0;box-shadow:none;max-height:none}
+.card.sogkort{padding:0;border:0;background:none;box-shadow:none;overflow:visible}
+.hv7 .hvsog{margin-left:auto;min-width:270px;position:relative}
+.hv7 .hvsog .sogfelt{padding:0 13px}
+.hv7 .hvsog .sogfelt input{font-size:13px;padding:8px 0}
+
 
 /* ══ LAESBARHED 28.08 ══════════════════════════════════════════════════
    Wendie: «det står så småt og pænt — det skal det stadig, men det må
@@ -875,7 +939,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.39';
+const APP_VERSION = 'v0.42';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -1803,6 +1867,8 @@ async function viewDash(){
       </div>
     </details>`}
   </div>
+
+  <div class="card sogkort" style="margin-bottom:12px">${sogFelt('dash', false)}</div>
 
   ${(hasPerm('economy') && ['WEN','RAS'].includes(window.ME))?`<div class="card rev-card" style="margin-bottom:12px">
     <h3>Omsætning 2026</h3>
@@ -5219,6 +5285,255 @@ function tegnIndsigter(){
 }
 
 /* ══════════════════════════════════════════════════════════════════════
+   SØGNING — ét felt der finder alt
+
+   To steder, samme kode: på dashboardet søges der i hele systemet, på
+   henvendelsessiden kun i sager (henvendelser og rejser).
+
+   PRINCIPPET: én sag, ét forløb. En henvendelse der er blevet til en
+   rejse, vises KUN som rejsen — al info fra henvendelsen følger med, og
+   under navnet står hvor sagen kom fra. Statistisk er det samme sag hele
+   vejen; nogle når bare aldrig længere end til solgt eller tabt.
+
+   Der søges direkte i basen, ikke i det siden tilfældigvis har hentet.
+   ══════════════════════════════════════════════════════════════════════ */
+
+const SOG_GRAENSE = 10;      // de bedste vises; resten via «se alle»
+const SOG_HENT    = 60;      // hentes pr. tabel, så «se alle» har noget at vise
+
+function sogFelt(id, kunSager){
+  return `<div class="sogboks" id="sogboks_${id}">
+    <div class="sogfelt">
+      <span class="lup">⌕</span>
+      <input id="sogq_${id}" autocomplete="off" spellcheck="false"
+        placeholder="${kunSager?'Søg i alle henvendelser og rejser…':'Søg efter kunde, rejse, henvendelse, hotel, ref.nr. eller telefon…'}"
+        oninput="sogTast('${id}',${!!kunSager})" onkeydown="sogTaster(event,'${id}')">
+      ${kunSager?'':'<span class="sogkbd">⌘K</span>'}
+      <button class="sogryd" onclick="sogRyd('${id}',${!!kunSager})" title="Ryd">×</button>
+    </div>
+    <div class="sogres" id="sogres_${id}" hidden></div>
+  </div>`;
+}
+
+let _sogTimer = null;
+function sogTast(id, kunSager){
+  clearTimeout(_sogTimer);
+  const q = (document.getElementById('sogq_'+id)||{}).value || '';
+  if(q.trim().length < 2){ sogSkjul(id); return; }
+  _sogTimer = setTimeout(()=>sogKoer(id, kunSager), 220);
+}
+function sogSkjul(id){
+  const r = document.getElementById('sogres_'+id);
+  if(r){ r.hidden = true; r.innerHTML=''; }
+}
+function sogRyd(id, kunSager){
+  const i = document.getElementById('sogq_'+id);
+  if(i){ i.value=''; i.focus(); }
+  sogSkjul(id);
+}
+
+/* Slår op i basen. Fire kald parallelt — henvendelser, rejser på ref.nr.,
+   kunder, og rejser hvis kunden matcher. Alt filtreres i basen, ikke her. */
+async function sogKoer(id, kunSager){
+  const q = (document.getElementById('sogq_'+id)||{}).value.trim();
+  if(q.length < 2) return;
+  const m = '*'+q.replace(/[%,()]/g,' ').trim()+'*';
+  const boks = document.getElementById('sogres_'+id);
+  if(boks){ boks.hidden=false; boks.innerHTML='<div class="sogtom">Søger…</div>'; }
+
+  const kald = [
+    db.from('leads')
+      .select('id,contact_name,contact_email,contact_phone,destination,stage,status,branch,owner,est_value,currency,departure_date,created_at,converted_trip_id')
+      .or(`contact_name.ilike.${m},contact_email.ilike.${m},contact_phone.ilike.${m},destination.ilike.${m},title.ilike.${m}`)
+      .limit(SOG_HENT),
+    db.from('trips')
+      .select('id,ref_no,branch,status,departure_date,return_date,pax_count,package_sell_dkk,customer_currency,package_sell_total,owner,customers(first_name,last_name,email),trip_destinations(destination)')
+      .ilike('ref_no', m).limit(SOG_HENT),
+    kunSager ? null : db.from('customers')
+      .select('id,first_name,last_name,email,phone,country')
+      .or(`first_name.ilike.${m},last_name.ilike.${m},email.ilike.${m},phone.ilike.${m}`)
+      .limit(SOG_HENT),
+    db.from('customers').select('id').or(`first_name.ilike.${m},last_name.ilike.${m},email.ilike.${m}`).limit(40)
+  ];
+  const [rL, rTref, rK, rKid] = await Promise.all(kald.map(k=>k||Promise.resolve({data:[]})));
+
+  // rejser hvor KUNDEN matcher — ikke kun ref.nr.
+  let rTk = {data:[]};
+  const kids = (rKid.data||[]).map(x=>x.id);
+  if(kids.length){
+    rTk = await db.from('trips')
+      .select('id,ref_no,branch,status,departure_date,return_date,pax_count,package_sell_dkk,customer_currency,package_sell_total,owner,customers(first_name,last_name,email),trip_destinations(destination)')
+      .in('customer_id', kids).limit(SOG_HENT);
+  }
+
+  // søgefeltet kan være skiftet imens
+  const nu = (document.getElementById('sogq_'+id)||{}).value.trim();
+  if(nu !== q) return;
+
+  const leads = (rL.data||[]).filter(l=>!/^test/i.test(l.contact_name||''));
+  const rejser = [...(rTref.data||[]), ...(rTk.data||[])]
+    .filter(t=>!/^test/i.test(t.ref_no||'') && t.status!=='voided');
+  const kunder = (rK.data||[]);
+
+  window._sogSidste = window._sogSidste || {};
+  window._sogSidste[id] = {q, raek: sogSamlSager(leads, rejser, kunder, kunSager, q)};
+  sogTegn(id, false);
+}
+
+/* Sætter sagerne sammen: en henvendelse med converted_trip_id vises som
+   rejsen. Rejser uden henvendelse står for sig. Ingen dubletter. */
+function sogSamlSager(leads, rejser, kunder, kunSager, q){
+  const brugteTrips = new Set();
+  const sager = [];
+
+  leads.forEach(l=>{
+    const t = l.converted_trip_id ? rejser.find(x=>x.id===l.converted_trip_id) : null;
+    if(t){ brugteTrips.add(t.id); sager.push(sogRaekkeRejse(t, l)); }
+    else sager.push(sogRaekkeLead(l));
+  });
+  rejser.forEach(t=>{ if(!brugteTrips.has(t.id) && !sager.some(s=>s.id===t.id)) sager.push(sogRaekkeRejse(t, null)); });
+
+  const rejst = sager.filter(s=>s.t==='rejse');
+  const ikke  = sager.filter(s=>s.t==='lead');
+  const ql = q.toLowerCase();
+  const r = x => { const n=(x.n||'').toLowerCase();
+    return n.startsWith(ql) ? 0 : n.split(/[\s·]+/).some(o=>o.startsWith(ql)) ? 1 : n.includes(ql) ? 2 : 3; };
+  const sorter = a => a.sort((x,y)=>r(x)-r(y));
+
+  const ud = [];
+  if(sorter(rejst).length) ud.push(['Blevet til rejser', rejst]);
+  if(sorter(ikke).length)  ud.push(['Henvendelser — endnu ikke rejser', ikke]);
+  if(!kunSager && kunder.length) ud.push(['Kunder', sorter(kunder.map(sogRaekkeKunde))]);
+  return ud;
+}
+
+function sogRaekkeRejse(t, l){
+  const c = t.customers||{};
+  const navn = `${(c.last_name||'')}${c.first_name?', '+c.first_name:''}`.trim() || '—';
+  const dest = (t.trip_destinations||[]).map(d=>d.destination).filter(Boolean).slice(0,2).join(', ');
+  const bits = [dest, t.departure_date?fmtDY(t.departure_date):null,
+                t.pax_count?t.pax_count+' rejsende':null, t.owner].filter(Boolean);
+  return { t:'rejse', id:t.id, ik:'🌴',
+    n:`${t.ref_no} · ${navn}`, d:bits.join(' · '),
+    fra: l ? 'kom fra henvendelse '+fmtDY(l.created_at) : null,
+    mrk: TRIP_STATUS_KORT[t.status] || t.status, mklasse:'rejse',
+    bel: t.package_sell_dkk ? fval(Math.round(t.package_sell_dkk))+' DKK' : '',
+    tid: t.departure_date ? 'afrejse '+fmtDY(t.departure_date) : '' };
+}
+function sogRaekkeLead(l){
+  const bits = [l.destination, l.departure_date?fmtDY(l.departure_date):null,
+                l.contact_email, l.owner].filter(Boolean);
+  const tabt = l.status==='lost', vundet = l.status==='won';
+  return { t:'lead', id:l.id, ik:'✉️',
+    n: l.contact_name || 'Uden navn', d: bits.join(' · '),
+    fra: vundet ? 'markeret solgt — men ingen rejse er koblet på' : null,
+    mrk: tabt?'Tabt':(vundet?'Vundet':(STAGE_SHORT[l.stage]||LEAD_STAGE_LABEL[l.stage]||l.stage||'Åben')),
+    mklasse: tabt?'tabt':(vundet?'vundet':'aaben'),
+    bel: (+l.est_value>0) ? fval(l.est_value)+' '+(l.currency||'') : '',
+    tid: l.created_at ? 'oprettet '+fmtDY(l.created_at) : '' };
+}
+function sogRaekkeKunde(c){
+  const navn = `${(c.last_name||'')}${c.first_name?', '+c.first_name:''}`.trim() || '—';
+  return { t:'kunde', id:c.id, ik:'👤', n:navn,
+    d:[c.email, c.phone, c.country].filter(Boolean).join(' · ') || 'Ingen kontaktoplysninger',
+    fra:null, mrk:'Kunde', mklasse:'kunde', bel:'', tid:'' };
+}
+
+const TRIP_STATUS_KORT = {bekraeftet:'Bekræftet', bb_sendt:'BB sendt', klar_til_afrejse:'Klar',
+  god_tur:'Ude nu', faerdig:'Færdig', canx:'Aflyst'};
+
+function sogFremhaev(txt, q){
+  const s = String(txt||''); if(!q) return escH(s);
+  const i = s.toLowerCase().indexOf(q.toLowerCase());
+  if(i<0) return escH(s);
+  return escH(s.slice(0,i))+'<span class="sogh">'+escH(s.slice(i,i+q.length))+'</span>'+escH(s.slice(i+q.length));
+}
+
+function sogTegn(id, alle){
+  const d = (window._sogSidste||{})[id];
+  const boks = document.getElementById('sogres_'+id);
+  if(!d || !boks) return;
+  const antal = d.raek.reduce((n,g)=>n+g[1].length, 0);
+  if(!antal){
+    boks.hidden=false;
+    boks.innerHTML = `<div class="sogtom">Intet fundet på «${escH(d.q)}».<br>
+      Der søges i navn, e-mail, telefon, ref.nr. og destination.</div>`;
+    return;
+  }
+  let vist = 0, html = '';
+  d.raek.forEach(([navn, raekker])=>{
+    const del = alle ? raekker : raekker.slice(0, Math.max(0, SOG_GRAENSE - vist));
+    if(!del.length) return;
+    vist += del.length;
+    html += `<div class="soggrp">${escH(navn)} · ${raekker.length}</div>`;
+    del.forEach(x=>{
+      html += `<div class="sogrw" onclick="sogAabn('${x.t}','${x.id}')">
+        <div class="sogik">${x.ik}</div>
+        <div class="sogm"><div class="sogn">${sogFremhaev(x.n,d.q)}</div>
+          <div class="sogd">${sogFremhaev(x.d,d.q)}</div>
+          ${x.fra?`<div class="sogfra">${escH(x.fra)}</div>`:''}</div>
+        <div class="sogmrk ${x.mklasse}">${escH(x.mrk)}</div>
+        <div class="soghoej"><div class="sogbel">${escH(x.bel)}</div>
+          <div class="sogtid">${escH(x.tid)}</div></div>
+      </div>`;
+    });
+  });
+  html += `<div class="sogbund">${
+    (!alle && antal > SOG_GRAENSE)
+      ? `Viser de ${SOG_GRAENSE} bedste af <b>${antal}</b> træf
+         <button class="sogflere" onclick="sogSeAlle('${id}')">Se alle ${antal} resultater →</button>`
+      : `${antal} træf`
+  }<span class="sogtaster"><b>Esc</b> lukker</span></div>`;
+  boks.hidden = false;
+  boks.innerHTML = html;
+}
+
+function sogSeAlle(id){
+  const d = (window._sogSidste||{})[id]; if(!d) return;
+  const antal = d.raek.reduce((n,g)=>n+g[1].length,0);
+  let ov = document.getElementById('sogAlleOv');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id='sogAlleOv'; ov.className='sogov';
+    ov.onclick = e => { if(e.target===ov) sogLukAlle(); };
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML = `<div class="sogalle">
+    <div class="sogalleh"><h3>${antal} resultater for «${escH(d.q)}»</h3>
+      <button class="sogryd" onclick="sogLukAlle()">×</button></div>
+    <div class="sogalleb" id="sogAlleListe"></div></div>`;
+  ov.classList.add('on');
+  const gem = document.getElementById('sogres_'+id);
+  const midl = document.createElement('div'); midl.id='sogres_alle';
+  document.getElementById('sogAlleListe').appendChild(midl);
+  window._sogSidste['alle'] = d;
+  sogTegn('alle', true);
+}
+function sogLukAlle(){ const o=document.getElementById('sogAlleOv'); if(o) o.classList.remove('on'); }
+
+/* Én sag, ét forløb: er henvendelsen blevet til en rejse, åbnes rejsen. */
+function sogAabn(type, id){
+  sogLukAlle();
+  document.querySelectorAll('.sogres').forEach(r=>r.hidden=true);
+  if(type==='rejse') return viewTrip(id);
+  if(type==='lead')  { navTo('hv'); return hvOpen(id); }
+  if(type==='kunde') return viewTrips && viewTrips();
+}
+function sogTaster(e, id){
+  if(e.key==='Escape'){ sogSkjul(id); e.target.blur(); }
+}
+if(!window._sogGenvej){
+  window._sogGenvej = true;
+  document.addEventListener('keydown', e=>{
+    if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){
+      const f = document.getElementById('sogq_dash') || document.querySelector('.sogfelt input');
+      if(f){ e.preventDefault(); f.focus(); f.select(); }
+    }
+    if(e.key==='Escape') sogLukAlle();
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════════
    HENVENDELSER (ny side, v7)
    Bygget som SELVSTÆNDIG side ved siden af den gamle viewLeads/editLead.
    Den gamle røres ikke, før Wendie har sagt god for denne.
@@ -5396,6 +5711,7 @@ function hvFilterOgTal(f){
     <span class="skel"></span>
     <span class="lbl">Ansvarlig</span>
     ${knap('owner','','Alle')}${(window._TEAM||[]).map(([ini,nm])=>knap('owner',ini,nm)).join('')}
+    <div class="hvsog">${sogFelt('hv', true)}</div>
   </div>
   <div class="hvkpis">
     ${hasPerm('economy')?`<div class="hvkpi"><b>${fval(oms)} <span class="cur">DKK</span></b><span class="l">solgt for i ${escH(mdrNavn)}</span></div>`:''}
