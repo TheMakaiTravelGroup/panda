@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.46 · 29.08.2026
+<!-- Panda · v0.47 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -964,6 +964,212 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .lc .foot{gap:5px;font-size:9px;}
 .hv7 .lc .who{gap:5px;}
 
+
+/* ══════════ MELLEMLANDING ══════════ */
+/* ══ MELLEMLANDING — scoped under .ml7 saa intet lækker ud i resten af Panda ══ */
+.ml7{--mlpage:#efeae1;--mlcard:#fdfbf7;--mlsand:#f2ebe0;--mlsand2:#e8ddcb;--mlmist:#e4f0ef;
+  --mlgold:#c1975a;--mlgoldl:#e0c9a3;--mlink:#3d403a;--mlink2:#4f544b;--mlmut:#8b8370;
+  --mlline:#e7dfd1;--mlhair:#f0e9dc;--mlok:#7ba488;--mlokd:#4f7a5f;--mladvar:#8d6a34;--mlfejl:#a3512f;
+  font-family:'Inter',system-ui,sans-serif;font-size:13px;color:var(--mlink);padding-bottom:90px}
+.ml7 *{box-sizing:border-box}
+.ml7 .mllab{font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:var(--mlgold);font-weight:600}
+.ml7 .mllab::after{content:'';display:block;width:26px;height:1px;background:var(--mlgoldl);margin-top:6px}
+.ml7 h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;margin:8px 0 0;letter-spacing:.4px}
+.ml7 .mlph{display:flex;align-items:flex-end;gap:20px;margin-bottom:6px;flex-wrap:wrap}
+.ml7 .mlph .mlh{flex:1;min-width:280px}
+.ml7 .mlkunde{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--mlink2);margin-top:6px}
+.ml7 .mlforkl{font-size:12.5px;color:var(--mlink2);line-height:1.65;max-width:820px;margin:16px 0 8px}
+.ml7 .mlforkl b{color:var(--mlink)}
+/* tilstandskæden — ALLE trin nøjagtig samme størrelse, ellers bliver den skæv */
+.ml7 .mltilstand{display:flex;align-items:center;flex-wrap:wrap;row-gap:8px;justify-content:flex-end}
+.ml7 .mltrin{display:grid;place-items:center;height:38px;min-width:112px;padding:0 14px;
+  border:1px solid var(--mlline);border-radius:2px;background:#fff;font-size:9px;letter-spacing:1.8px;
+  text-transform:uppercase;color:var(--mlmut);font-weight:600;white-space:nowrap}
+.ml7 .mltrin.naa{background:rgba(224,201,163,.4);border-color:var(--mlgoldl);color:var(--mladvar)}
+.ml7 .mltrin.naeste{border-color:var(--mlgoldl);border-style:dashed;color:var(--mlink2)}
+.ml7 .mlstreg{width:22px;height:1px;background:var(--mlgoldl);flex:0 0 22px}
+.ml7 .mlsh{display:flex;align-items:center;gap:14px;margin:32px 0 14px}
+.ml7 .mlsh .txt{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;white-space:nowrap}
+.ml7 .mlsh::after{content:'';flex:1;height:1px;background:var(--mlline)}
+.ml7 .mlsh .r{font-size:11px;color:var(--mlmut);white-space:nowrap}
+.ml7 .mlkort{background:var(--mlcard);border:1px solid var(--mlline);border-radius:3px}
+.ml7 .mltom{padding:26px 20px;font-size:12.5px;color:var(--mlmut);line-height:1.6}
+.ml7 .mltilfoej{padding:14px 18px;border-top:1px solid var(--mlhair);display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── én ydelse ── */
+.ml7 .mlel{border-bottom:1px solid var(--mlhair)}
+.ml7 .mlel:last-of-type{border-bottom:0}
+.ml7 .mlelh{display:flex;align-items:center;gap:14px;padding:15px 18px;cursor:pointer;transition:.15s}
+.ml7 .mlelh:hover{background:rgba(242,235,224,.5)}
+.ml7 .mlikon{width:32px;height:32px;border-radius:50%;background:var(--mlmist);display:grid;place-items:center;
+  font-size:14px;flex:0 0 auto}
+.ml7 .mleltxt{flex:1;min-width:0}
+.ml7 .mleltxt .t{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;line-height:1.2}
+.ml7 .mleltxt .u{font-size:11.5px;color:var(--mlink2);margin-top:3px}
+.ml7 .mllev{flex:0 0 118px;text-align:right}
+.ml7 .mllev .n{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mlmut)}
+.ml7 .mllev .v{font-size:12px;color:var(--mlink2);margin-top:3px}
+.ml7 .mlpris2{flex:0 0 210px;display:flex;gap:10px;align-items:flex-end;justify-content:flex-end}
+.ml7 .mlpris2 .kol{text-align:right}
+.ml7 .mlpris2 .k{font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mlmut)}
+.ml7 .mlpris2 .v{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;margin-top:2px;
+  font-variant-numeric:tabular-nums}
+.ml7 .mlpris2 .v.op{color:var(--mlfejl)} .ml7 .mlpris2 .v.ned{color:var(--mlokd)}
+.ml7 .mlpris2 .v.lig{color:var(--mlokd)} .ml7 .mlpris2 .v.ingen{color:var(--mlmut)}
+.ml7 .mlpris2 .pilm{color:var(--mlmut);font-size:12px;padding-bottom:3px}
+.ml7 .mlpil2{flex:0 0 auto;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 10px;
+  border-radius:2px;font-weight:600;white-space:nowrap}
+.ml7 .mlpil2.ok{background:rgba(123,164,136,.2);color:var(--mlokd)}
+.ml7 .mlpil2.afv{background:rgba(163,81,47,.12);color:var(--mlfejl)}
+.ml7 .mlpil2.vent{background:var(--mlsand2);color:var(--mlmut)}
+.ml7 .mlpil{color:var(--mlgold);font-size:14px;transition:.2s;flex:0 0 12px}
+.ml7 .mlel.aaben .mlpil{transform:rotate(90deg)}
+.ml7 .mlelbody{display:none;padding:0 18px 18px 64px}
+.ml7 .mlel.aaben .mlelbody{display:block}
+
+/* ── priser vi har fundet ── */
+.ml7 .mlplist{background:var(--mlsand);border-radius:3px;padding:4px 0;margin-bottom:10px}
+.ml7 .ptop{display:flex;align-items:baseline;gap:10px;padding:9px 14px 7px;font-size:10px;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--mlmut);font-weight:600;flex-wrap:wrap}
+.ml7 .ptop em{font-style:normal;letter-spacing:0;text-transform:none;font-size:11px;font-weight:400}
+.ml7 .mlpr{display:flex;align-items:center;gap:12px;padding:9px 14px;border-top:1px solid rgba(255,255,255,.9);
+  font-size:12.5px;flex-wrap:wrap}
+.ml7 .mlpr .vk{flex:0 0 18px;color:var(--mlokd);font-weight:700;text-align:center}
+.ml7 .mlpr .plev{flex:0 0 130px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.ml7 .mlpr .pbel{flex:0 0 120px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;
+  font-variant-numeric:tabular-nums}
+.ml7 .mlpr .pbel em{font-style:normal;font-family:'Inter',sans-serif;font-size:11px;font-weight:400;
+  color:var(--mlmut);margin-left:4px}
+.ml7 .mlpr .pdif{flex:0 0 96px;font-size:11.5px;font-weight:600}
+.ml7 .mlpr .pdif.op{color:var(--mlfejl)} .ml7 .mlpr .pdif.ned{color:var(--mlokd)} .ml7 .mlpr .pdif.lig{color:var(--mlokd)}
+.ml7 .mlpr .pmeta{flex:1;min-width:120px;font-size:11px;color:var(--mlmut);line-height:1.5;overflow-wrap:anywhere}
+.ml7 .mlpr .pmeta b{color:var(--mlink2);font-weight:500}
+.ml7 .mlpr .pmeta .uv{color:var(--mladvar)}
+.ml7 .mlpr .pval{flex:0 0 auto;display:flex;gap:4px;align-items:center}
+.ml7 .mlpr.valgt{background:rgba(255,255,255,.75)}
+.ml7 .mlpr.uledig .pbel,.ml7 .mlpr.uledig .plev{text-decoration:line-through;color:var(--mlmut)}
+.ml7 .pmini{font-family:'Inter',sans-serif;font-size:10.5px;background:none;border:0;color:var(--mlmut);
+  cursor:pointer;padding:4px 5px;text-decoration:underline;text-underline-offset:2px}
+.ml7 .pmini:hover{color:var(--mlink)}
+.ml7 .pmini.slet:hover{color:var(--mlfejl)}
+.ml7 .valgtmrk{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mlokd);
+  font-weight:600;padding:0 4px}
+.ml7 .ptom{padding:12px 14px;font-size:12.5px;color:var(--mlmut);line-height:1.6}
+.ml7 .pknap{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px 11px;border-top:1px solid rgba(255,255,255,.9)}
+.ml7 .mlfund{background:rgba(163,81,47,.08);border:1px solid #e3c4b3;border-radius:3px;padding:13px 15px;
+  font-size:12.5px;line-height:1.6;margin-bottom:10px}
+.ml7 .mlfund .hvem{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mlfejl);
+  margin-bottom:6px;font-weight:600}
+.ml7 .mlknapper{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.ml7 .mlfejl{font-size:11.5px;color:var(--mlfejl);margin-top:10px;min-height:1em}
+.ml7 .mlpny{background:#fff;border:1px solid var(--mlgoldl);border-radius:3px;padding:14px 16px;margin-bottom:10px}
+.ml7 .mlpny[hidden]{display:none}
+.ml7 .mlpny .hvem{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mladvar);
+  font-weight:600;margin-bottom:12px}
+.ml7 .mlpgrid{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:14px 18px;align-items:end}
+.ml7 .mlpgrid .bred{grid-column:1 / -1}
+.ml7 .mlpgrid label{display:block;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--mlmut);margin-bottom:4px}
+.ml7 .mlpgrid input,.ml7 .mlpgrid select{width:100%;font-family:'Inter',sans-serif;font-size:13.5px;padding:6px 0;
+  border:0;border-bottom:1px solid var(--mlgoldl);background:transparent;color:var(--mlink);border-radius:0}
+.ml7 .mlpgrid input:focus,.ml7 .mlpgrid select:focus{outline:none;border-bottom-color:var(--mlgold)}
+.ml7 .mlpgrid .hj{display:block;font-size:10px;color:var(--mlmut);margin-top:4px}
+.ml7 .chk{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mlink2);text-transform:none;
+  letter-spacing:0;font-weight:400}
+.ml7 .chk input{width:auto}
+.ml7 .mlelgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;background:#fff;
+  border:1px solid var(--mlline);border-radius:3px;padding:14px 16px;margin-top:10px}
+.ml7 .mlelgrid .k{font-size:9px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mlmut)}
+.ml7 .mlelgrid .v{font-size:12.5px;margin-top:4px;font-weight:500}
+.ml7 .mlelgrid .v.frist{color:var(--mladvar)}
+
+/* ── kurser ── */
+.ml7 .mlkurskort{background:var(--mlcard);border:1px solid var(--mlline);border-radius:3px;padding:16px 18px}
+.ml7 .kurstop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.ml7 .kurstop .n{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mlmut);font-weight:600}
+.ml7 .kurstop .sml2{font-size:11.5px;color:var(--mlmut)}
+.ml7 .kurstop .hoejre{margin-left:auto}
+.ml7 .kforkl{font-size:11.5px;color:var(--mlink2);line-height:1.6;margin:0 0 14px;max-width:840px}
+.ml7 .kforkl b{color:var(--mlink)}
+.ml7 .mlktab{width:100%;border-collapse:collapse;font-size:12.5px}
+.ml7 .mlktab th{font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mlmut);font-weight:600;
+  text-align:right;padding:0 10px 8px;border-bottom:1px solid var(--mlhair)}
+.ml7 .mlktab th:first-child{text-align:left}
+.ml7 .mlktab td{padding:9px 10px;border-bottom:1px solid var(--mlhair);text-align:right;vertical-align:middle}
+.ml7 .mlktab td:first-child{text-align:left;font-weight:600}
+.ml7 .mlktab tr:last-child td{border-bottom:0}
+.ml7 .mlktab .hj{font-weight:400;font-size:10.5px;color:var(--mlmut);margin-top:3px;max-width:300px}
+.ml7 .mlktab .sml{font-weight:400;color:var(--mlmut);font-size:10.5px}
+.ml7 .mlktab .marked{font-variant-numeric:tabular-nums;color:var(--mlink2)}
+.ml7 .mlktab .marked em{font-style:normal;display:block;font-size:9.5px;color:var(--mlmut);margin-top:2px}
+.ml7 .mlktab .eff{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.ml7 .mlktab .skoen{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--mladvar);
+  background:rgba(224,201,163,.4);border-radius:2px;padding:2px 6px;margin-left:6px}
+.ml7 .kfod{font-size:11px;color:var(--mlmut);line-height:1.6;margin-top:12px;padding-top:11px;
+  border-top:1px solid var(--mlhair)}
+.ml7 .kfod b{color:var(--mladvar)}
+
+/* ── regnestykket ── */
+.ml7 .mlregn{display:grid;grid-template-columns:1.45fr 1fr;gap:14px}
+.ml7 .mlrtab{background:var(--mlcard);border:1px solid var(--mlline);border-radius:3px;padding:16px 20px}
+.ml7 .mlrr{display:flex;align-items:baseline;gap:12px;padding:8px 0;font-size:12.5px}
+.ml7 .mlrr .l{flex:1;color:var(--mlink2);min-width:0}
+.ml7 .mlrr .l small{display:block;font-size:10.5px;color:var(--mlmut);margin-top:3px;line-height:1.45}
+.ml7 .mlrr .l small b{color:var(--mlink2);font-weight:600}
+.ml7 .mlrr .l small .fl{color:var(--mlfejl)}
+.ml7 .mlrr .l small .uv{color:var(--mladvar)}
+.ml7 .mlrr .v{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ml7 .mlrr.sum{border-top:1px solid var(--mlsand2);margin-top:6px;padding-top:11px;font-weight:600}
+.ml7 .mlrr.slut{border-top:1px solid var(--mlgoldl);margin-top:6px;padding-top:12px}
+.ml7 .mlrr.slut .l{font-weight:600;color:var(--mlink)}
+.ml7 .mlrr.slut .v{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600}
+.ml7 .mlrr.fin{font-size:11px;color:var(--mlmut);padding:1px 0}
+.ml7 .mlrr.nok{background:rgba(224,201,163,.24);border-radius:3px;margin:10px -10px 0;padding:12px 10px}
+.ml7 .mlrr.nok .l{font-weight:600;color:var(--mladvar)}
+.ml7 .mlrr.nok .v{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--mlink)}
+.ml7 .mlbegge{font-size:11.5px;color:var(--mlink2);line-height:1.6;margin-top:13px;padding-top:11px;
+  border-top:1px solid var(--mlhair)}
+.ml7 .mlbegge b{color:var(--mlink)}
+.ml7 .mljbox{background:#fff;border:1px solid var(--mlgoldl);border-radius:3px;padding:16px 18px}
+.ml7 .mlhvem{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mladvar);
+  font-weight:600;margin-bottom:6px}
+.ml7 .mlaccept{background:var(--mlsand);border-left:3px solid var(--mlgold);border-radius:0 3px 3px 0;
+  padding:11px 15px;margin:12px 0 14px}
+.ml7 .mlaccept .al{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mlmut);font-weight:600}
+.ml7 .mlaccept .av{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:600;line-height:1.15;margin-top:3px}
+.ml7 .mlaccept .av em{font-style:normal;font-family:'Inter',sans-serif;font-size:12px;color:var(--mlmut);
+  font-weight:400;margin-left:5px}
+.ml7 .mlaccept .am{font-size:11px;color:var(--mlmut);margin-top:3px}
+.ml7 .mljforkl{font-size:11.5px;color:var(--mlink2);line-height:1.6;margin:0 0 14px}
+.ml7 .mljrk{display:grid;grid-template-columns:repeat(2,minmax(120px,1fr));gap:14px 16px;align-items:end}
+.ml7 .mljrk label{display:block;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--mlmut);margin-bottom:5px}
+.ml7 .mljrk input{width:100%;font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;padding:2px 0;
+  border:0;border-bottom:1px solid var(--mlgoldl);background:transparent;color:var(--mlink)}
+.ml7 .mljrk input:focus{outline:none;border-bottom-color:var(--mlgold)}
+.ml7 .mljrk .e{display:block;font-size:10px;color:var(--mlmut);margin-top:5px}
+.ml7 .mldb{background:var(--mlmist);border:1px solid #cfe3e0;border-radius:3px;padding:16px 18px;margin-top:14px}
+.ml7 .mldb .stor{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:500;line-height:1}
+.ml7 .mldb .stor small{font-size:15px;color:#4c7f77;margin-left:4px}
+.ml7 .mldb .u{font-size:11.5px;color:#4c7f77;margin-top:8px;line-height:1.5}
+.ml7 .mldb .sam{margin-top:13px;padding:11px 13px;background:rgba(255,255,255,.6);border-radius:3px;
+  font-size:12.5px;line-height:1.6;color:var(--mlink2)}
+.ml7 .mldb .sam:empty{display:none}
+.ml7 .mldb .sam .ned{color:var(--mlfejl);font-weight:600}
+.ml7 .mldb .sam .op,.ml7 .mldb .sam .lige{color:var(--mlokd);font-weight:600}
+.ml7 .mldb .sam .fin{font-size:11px;color:var(--mlmut);margin-top:5px}
+
+/* ── bunden ── */
+.ml7 .mlbund{position:sticky;bottom:0;background:var(--mlcard);border:1px solid var(--mlline);border-radius:3px;
+  padding:15px 20px;display:flex;align-items:center;gap:16px;margin-top:22px;flex-wrap:wrap;
+  box-shadow:0 -6px 20px rgba(120,105,75,.07);z-index:5}
+.ml7 .mlbund .status{flex:1;min-width:250px;font-size:12px;color:var(--mlink2);line-height:1.55}
+.ml7 .mlbund .status b{color:var(--mlink)}
+.ml7 .btn.sm{font-size:11px;padding:6px 11px}
+.ml7 .btn.fare{color:var(--mlfejl);border-color:#e3c4b3}
+@media(max-width:1020px){.ml7 .mlregn,.ml7 .mlelgrid,.ml7 .mlpgrid{grid-template-columns:1fr}
+  .ml7 .mllev,.ml7 .mlpris2{flex:0 0 auto}}
+
 </style>
 </head>
 <body>
@@ -991,7 +1197,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.46';
+const APP_VERSION = 'v0.47';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -3357,6 +3563,12 @@ async function viewTestdata(){
 async function viewTrip(id){
   navTo('sales','trip/'+id);
   app.innerHTML = '<div class="card">Henter rejsen…</div>';
+  /* En rejse i mellemlanding har sin egen side: dér tjekkes priserne, og
+     dér dannes ref.nr. Den almindelige rejseside forudsaetter et nummer. */
+  {
+    const mm = await db.from('trips').select('status').eq('id',id).single();
+    if(mm.data && mm.data.status === 'mellemlanding') return viewMel(id);
+  }
   const fail=(hvor,e)=>{app.innerHTML=`<div class="card"><b style="color:var(--bad)">Fejl (${hvor}):</b> ${e.message}<br><br><button class="btn ghost" onclick="viewSales()">← Til Salg</button></div>`;};
   const [r1,r2,r3,r4,r5,r6,r7,r8,r9,r10] = await Promise.all([
     db.from('trips').select('*, customers(first_name,last_name,email,phone)').eq('id',id).single(),
@@ -6161,7 +6373,10 @@ function hvRender(l, acts, offers){
       <button class="b gh" onclick="hvClose()">Luk</button>
       ${l.status==='lost'
         ? `<button class="b gh" onclick="hvGenaabn()">Åbn igen</button>`
-        : `<button class="b lost" onclick="hvTabtDlg()">Tabt</button>`}</div>`;
+        : l.converted_trip_id
+          ? `<button class="b won" onclick="hvClose();viewTrip('${l.converted_trip_id}')">Åbn rejsen →</button>`
+          : `<button class="b lost" onclick="hvTabtDlg()">Tabt</button>
+             <button class="b won" onclick="hvSolgtDlg()">Solgt</button>`}</div>`;
   hvKids();
 }
 
@@ -6859,6 +7074,699 @@ async function usrLogin(email){
 function alertUsr(error){ app.insertAdjacentHTML('afterbegin','<div class="card" style="border-color:var(--bad)"><p style="color:var(--bad);margin:0">Kunne ikke gemme: '+error.message+'</p></div>'); }
 
 init();
+
+/* ══════════ MELLEMLANDING OG SOLGT ══════════ */
+/* ══════════════════════════════════════════════════════════════════════════
+   MELLEMLANDING — trinnet mellem «Solgt» og en bekræftet rejse.
+   Kunden har accepteret, men rejsen er ikke oprettet endnu. Her efterprøves
+   hvert element: kan det stadig købes til den pris, tilbuddet blev bygget på?
+
+   ÉN METODE: alt regnes gennem DKK. Regnskabet er i DKK, så DKK er
+   grundlaget. Krydskurser udledes altid og gemmes aldrig — det var to
+   modstridende tal for samme kurs, der gjorde «metode A» og «metode B»
+   forskellige i tilbudseditoren.
+
+   effektiv købskurs = markedskurs × (1+bankmargin) × (1+risikobuffer)
+   salgskurs DKK→NOK = (1/markedskurs) × (1+bankmargin) × (1+risikobuffer)
+                       ^ modsat retning: vi MODTAGER valutaen i stedet for
+                         at betale den, så forsigtighed betyder det omvendte.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const ML_KILDER = ['Tilbudseditoren','Leverandørens eget system','E-mail fra leverandøren',
+                   'Telefon','Farewise','Andet'];
+const ML_VALUTAER = ['EUR','USD','DKK','NOK','GBP','CHF','SEK','THB'];
+
+const mlNf  = n => (n==null||isNaN(n)) ? '—' : Math.round(n).toLocaleString('da-DK');
+const mlNf1 = n => (n==null||isNaN(n)) ? '—' : Number(n).toFixed(1).replace('.',',');
+const mlNf4 = n => (n==null||isNaN(n)) ? '—' : Number(n).toFixed(4).replace('.',',');
+const mlTal = s => { const v = parseFloat(String(s==null?'':s).replace(/[.\s]/g,'').replace(',','.')); return isNaN(v)?0:v; };
+const mlDato = s => s ? new Date(s).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'2-digit'}) : '—';
+function mlDage(d){ if(!d) return null; return Math.round((new Date(d) - new Date(new Date().toDateString()))/86400000); }
+
+/* ── kursopslag. ML.kurser er det fn_effektive_kurser() gav. ── */
+function mlEff(v){
+  const k = (window.ML&&ML.kurser) || {};
+  if(v==='DKK') return 1;
+  return (k[v] && Number(k[v].effektiv)) || null;
+}
+function mlSalgskurs(){
+  const k = (window.ML&&ML.kurser) || {};
+  return Number(k.salgskurs) || 1;
+}
+/* Kunden betaler i rejsens valuta. Er det DKK, er salgskursen 1. */
+function mlKundeKurs(){
+  const t = (window.ML&&ML.trip)||{};
+  return (t.customer_currency||'DKK')==='DKK' ? 1 : mlSalgskurs();
+}
+/* Købsprisen vi regner med: den valgte fundne pris, ellers tilbuddets. */
+function mlGrundlag(e){
+  const p = mlValgt(e);
+  if(p) return {beloeb:Number(p.amount), valuta:p.currency, lev:p.supplier_name, fundet:true};
+  return {beloeb:Number(e.tilbud_buy_amount)||0, valuta:e.tilbud_buy_currency||e.buy_currency||'DKK',
+          lev:null, fundet:false};
+}
+function mlValgt(e){
+  if(!e.chosen_price_id) return null;
+  return (ML.priser[e.id]||[]).find(p=>p.id===e.chosen_price_id) || null;
+}
+function mlDkk(g){ const k = mlEff(g.valuta); return k ? g.beloeb*k : null; }
+
+/* ══ HENT ══ */
+async function viewMel(id){
+  navTo('sales','trip/'+id);
+  app.innerHTML = '<div class="card">Henter mellemlandingen…</div>';
+  const fejl=(hvor,e)=>{app.innerHTML=`<div class="card"><b style="color:var(--bad)">Fejl (${hvor}):</b> ${escH(e.message)}<br><br><button class="btn ghost" onclick="viewSales()">← Til Salg</button></div>`;};
+
+  const [rt, re, rk, rd, rl] = await Promise.all([
+    db.from('trips').select('*, customers(first_name,last_name,email,phone)').eq('id',id).single(),
+    db.from('trip_elements').select('*, suppliers:supplier_id(name)').eq('trip_id',id).order('start_date'),
+    db.rpc('fn_effektive_kurser'),
+    db.from('fx_pricing_defaults').select('*').limit(1).single(),
+    db.from('leads').select('id,contact_name,offer_url,destination').limit(1)
+  ]);
+  if(rt.error) return fejl('rejse', rt.error);
+  if(re.error) return fejl('elementer', re.error);
+
+  const els = re.data||[];
+  let priser = {};
+  if(els.length){
+    const rp = await db.from('element_prices').select('*')
+      .in('element_id', els.map(e=>e.id)).order('found_at');
+    if(rp.error) return fejl('priser', rp.error);
+    (rp.data||[]).forEach(p=>{ (priser[p.element_id]=priser[p.element_id]||[]).push(p); });
+  }
+  window.ML = { trip: rt.data, els, priser,
+                kurser: (rk&&rk.data)||{}, std: (rd&&rd.data)||{bank_fee_dkk:500,round_to:500,target_dg_pct:20.3},
+                aabne:{} };
+  mlRender();
+}
+
+/* ══ TEGN SIDEN ══ */
+function mlRender(){
+  const t = ML.trip, els = ML.els;
+  const kunde = t.customers ? `${t.customers.last_name||''}${t.customers.first_name?', '+t.customers.first_name:''}` : '—';
+  const val = t.customer_currency || 'DKK';
+  const trin = [['Mellemlanding',1],['Bekræftet',0],['Depositum',0],['Restbetaling',0],['Afsted',0],['Hjemme',0]];
+
+  app.innerHTML = `<div class="ml7">
+  <div class="mlph">
+    <div class="mlh">
+      <div class="mllab">Rejse · ${escH(BRANCH_KORT[t.branch]||t.branch||'')}</div>
+      <h1>${escH(kunde)}</h1>
+      <div class="mlkunde">${escH((t.customers&&t.customers.email)||'')} ·
+        ${mlDato(t.departure_date)}${t.return_date?' → '+mlDato(t.return_date):''} · ${t.pax_count} rejsende</div>
+    </div>
+    <div class="mltilstand">${trin.map((x,i)=>
+      `<div class="mltrin ${i===0?'naa':i===1?'naeste':''}">${x[0]}</div>${i<trin.length-1?'<div class="mlstreg"></div>':''}`).join('')}
+    </div>
+  </div>
+  <p class="mlforkl"><b>Mellemlanding.</b> Kunden har bekræftet, men rejsen er ikke oprettet endnu.
+    Hvert element skal efterprøves: kan det stadig købes til den pris, tilbuddet blev bygget på — og er det ledigt?
+    Ref.nr. dannes først, når rejsen bekræftes.</p>
+
+  <div class="mlsh"><span class="txt">Kan hvert element stadig købes?</span>
+    <span class="r">${t.accepted_offer_ref?'grundlaget er '+escH(t.accepted_offer_ref):'grundlaget er tilbuddet kunden accepterede'}</span></div>
+  <div class="mlkort" id="mlKontrol">${els.length?els.map(mlEl).join(''):
+    '<div class="mltom">Ingen ydelser endnu. Læg rejsens elementer ind herunder, så kan de tjekkes.</div>'}
+    <div class="mltilfoej"><button class="btn ghost" onclick="mlNytElement()">+ Tilføj element</button></div>
+  </div>
+
+  <div class="mlsh"><span class="txt">Kurser</span><span class="r">marked · bankmargin · risikobuffer</span></div>
+  <div class="mlkurskort" id="mlKurser"></div>
+
+  <div class="mlsh"><span class="txt">Prisberegning</span><span class="r">én metode — alt gennem DKK</span></div>
+  <div class="mlregn">
+    <div class="mlrtab" id="mlRegn"></div>
+    <div>
+      <div class="mljbox">
+        <div class="mlhvem">Prisen til kunden</div>
+        ${t.accepted_price ? `<div class="mlaccept">
+          <div class="al">Kunden accepterede</div>
+          <div class="av">${mlNf(t.accepted_price)} <em>${escH(t.accepted_currency||val)}</em></div>
+          <div class="am">${escH(t.accepted_offer_ref||'tilbud')}${t.accepted_at?' · '+new Date(t.accepted_at).toLocaleString('da-DK'):''}</div>
+        </div>` : `<div class="mlaccept"><div class="al">Ingen accepteret pris registreret</div>
+          <div class="am">Skriv den ind herunder — den er målestokken for om rejsen tjener det, den skulle.</div></div>`}
+        <p class="mljforkl"><b>Prisen ændrer sig ikke af sig selv.</b> Vælger du en dyrere leverandør, falder
+          jeres fortjeneste — prisen står stille, til du selv flytter den.</p>
+        <div class="mljrk">
+          <div><label>Pris til kunden</label>
+            <input id="mlPris" value="${t.accepted_price?mlNf(t.accepted_price):''}" oninput="mlFraPris()">
+            <span class="e" id="mlPrisE">${escH(val)}</span></div>
+          <div><label>Dækningsgrad</label><input id="mlDG" value="" oninput="mlFraDG()">
+            <span class="e">% af prisen</span></div>
+        </div>
+        <div class="mlknapper">
+          <button class="btn ghost" onclick="mlBrugMaal()">Sæt til ${mlNf1(ML.std.target_dg_pct)} %</button>
+          <button class="btn ghost" onclick="mlGemPrisTilKunde()">Gem prisen</button>
+        </div>
+      </div>
+      <div class="mldb">
+        <div class="stor" id="mlDbPct">—</div>
+        <div class="u" id="mlDbTxt"></div>
+        <div class="sam" id="mlDbSam"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mlbund">
+    <div class="status" id="mlStatus"></div>
+    <button class="btn ghost" onclick="mlTilbage()">Send tilbage til henvendelsen</button>
+    <button class="btn gold" id="mlBekraeft" disabled onclick="mlBekraeft()">Bekræft og opret rejsen</button>
+  </div>
+  </div>`;
+  mlTegnKurser();
+  /* Saetter daekningsgraden efter den pris kunden har accepteret — ellers
+     staar feltet tomt, selvom tallet allerede kan regnes. */
+  mlFraPris();
+  els.forEach(e=>{ if(ML.aabne[e.id]) mlTegnPriser(e.id); });
+}
+
+/* ── én ydelse ── */
+function mlEl(e){
+  const g = mlGrundlag(e);
+  const tilbud = {beloeb:Number(e.tilbud_buy_amount)||0, valuta:e.tilbud_buy_currency||g.valuta};
+  const tDkk = mlDkk(tilbud), gDkk = mlDkk(g);
+  let pil='vent', pilTxt='Ikke tjekket';
+  if(e.unobtainable){ pil='afv'; pilTxt='Kan ikke skaffes'; }
+  else if(g.fundet && tDkk!=null && gDkk!=null){
+    const d = gDkk - tDkk;
+    if(Math.abs(d)<1){ pil='ok'; pilTxt='Holder'; }
+    else { pil = d>0?'afv':'ok'; pilTxt = (d>0?'Afviger +':'Billigere ')+mlNf(Math.abs(d))+' kr.'; }
+  }
+  const nuKl = !g.fundet ? 'ingen' : (tDkk!=null&&gDkk!=null) ? (gDkk>tDkk+0.5?'op':gDkk<tDkk-0.5?'ned':'lig') : '';
+  const ikon = {hotel:'🏝️',flight:'✈️',transfer:'🚤',excursion:'🗺️',insurance:'🛡️',other:'📦'}[e.element_type]||'📦';
+  return `<div class="mlel ${ML.aabne[e.id]?'aaben':''}" data-el="${e.id}">
+    <div class="mlelh" onclick="mlFold('${e.id}')">
+      <div class="mlikon">${ikon}</div>
+      <div class="mleltxt"><div class="t">${escH(e.description||'—')}</div>
+        <div class="u">${escH([EL_TYPES[e.element_type], e.start_date?mlDato(e.start_date):null,
+           e.end_date?'→ '+mlDato(e.end_date):null].filter(Boolean).join(' · '))}</div></div>
+      <div class="mllev"><div class="n">Leverandør</div><div class="v">${escH(g.lev||(e.suppliers&&e.suppliers.name)||'—')}</div></div>
+      <div class="mlpris2">
+        <div class="kol"><div class="k">Tilbuddet bygget på</div>
+          <div class="v">${tilbud.beloeb?mlNf(tilbud.beloeb)+' '+tilbud.valuta:'—'}</div></div>
+        <div class="pilm">→</div>
+        <div class="kol"><div class="k">Valgt pris nu</div>
+          <div class="v ${nuKl}">${g.fundet?mlNf(g.beloeb)+' '+g.valuta:'—'}</div></div>
+      </div>
+      <div class="mlpil2 ${pil}">${pilTxt}</div>
+      <div class="mlpil">›</div>
+    </div>
+    <div class="mlelbody" id="mlbody-${e.id}"></div>
+  </div>`;
+}
+function mlFold(id){
+  const aaben = !!ML.aabne[id];
+  ML.aabne = {}; if(!aaben) ML.aabne[id]=true;
+  document.querySelectorAll('#mlKontrol .mlel').forEach(n=>{
+    const paa = n.dataset.el===id && !aaben;
+    n.classList.toggle('aaben', paa);
+    if(paa) mlTegnPriser(id); else document.getElementById('mlbody-'+n.dataset.el).innerHTML='';
+  });
+}
+
+/* ══ PRISER VI HAR FUNDET ══
+   Én ydelse kan have flere. Man vælger den, der giver bedst mening — og
+   kan skifte igen. En pris tastet forkert kan rettes eller slettes. */
+function mlTegnPriser(elId){
+  const e = ML.els.find(x=>x.id===elId); if(!e) return;
+  const boks = document.getElementById('mlbody-'+elId); if(!boks) return;
+  const liste = ML.priser[elId]||[];
+  const tilbud = {beloeb:Number(e.tilbud_buy_amount)||0, valuta:e.tilbud_buy_currency||e.buy_currency||'DKK'};
+  const tDkk = mlDkk(tilbud);
+  let h='';
+
+  if(e.unobtainable) h += `<div class="mlfund"><div class="hvem">Kan ikke skaffes</div>
+    Ydelsen kan ikke købes i perioden. Rejsen kan ikke bekræftes, før det er løst eller elementet fjernet.
+    <div class="mlknapper"><button class="btn ghost" onclick="mlSkaffes('${elId}',false)">Fortryd</button></div></div>`;
+
+  h += `<div class="mlplist"><div class="ptop">Priser vi har fundet
+    <em>${tilbud.beloeb?'tilbuddet er bygget på '+mlNf(tilbud.beloeb)+' '+tilbud.valuta+' — det er tallet vi sammenligner med'
+      :'ingen tilbudspris registreret på denne ydelse'}</em></div>`;
+  if(!liste.length){
+    h += `<div class="ptom">Ingen endnu. Slå prisen op — i tilbudseditoren, hos leverandøren eller hvor du nu
+      finder den — og skriv den ind herunder.</div>`;
+  } else {
+    liste.forEach(p=>{
+      /* Forskellen regnes ALTID i DKK. 12.480 USD og 12.480 EUR er ikke
+         «samme pris» — det er 13.728 kr. til forskel. */
+      const pDkk = mlDkk({beloeb:Number(p.amount), valuta:p.currency});
+      const d = (tDkk!=null&&pDkk!=null) ? pDkk-tDkk : null;
+      const kl = d==null?'':Math.abs(d)<1?'lig':d>0?'op':'ned';
+      const dtxt = d==null?'—':Math.abs(d)<1?'samme pris':(d>0?'+':'')+mlNf(d)+' kr.';
+      const valgt = e.chosen_price_id===p.id;
+      h += `<div class="mlpr${valgt?' valgt':''}${p.available===false?' uledig':''}">
+        <div class="vk">${valgt?'✓':''}</div>
+        <div class="plev">${escH(p.supplier_name)}</div>
+        <div class="pbel">${mlNf(p.amount)}<em>${escH(p.currency)}</em></div>
+        <div class="pdif ${kl}">${dtxt}</div>
+        <div class="pmeta"><b>${escH(p.kilde)}</b>${p.reference?' · '+escH(p.reference):''}<br>
+          ${new Date(p.found_at).toLocaleString('da-DK',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+          ${p.found_by?' · '+escH(p.found_by):''}
+          ${p.currency!==tilbud.valuta?' · <span class="uv">tilbuddet var i '+escH(tilbud.valuta)+'</span>':''}
+          ${p.available===false?' · <span style="color:var(--bad)">ikke ledig</span>':''}</div>
+        <div class="pval">${valgt?'<span class="valgtmrk">Valgt</span>'
+          :`<button class="btn ghost sm" onclick="mlVaelg('${elId}','${p.id}')">Vælg denne</button>`}
+          <button class="pmini" onclick="mlNyPris('${elId}','${p.id}')">Ret</button>
+          <button class="pmini slet" onclick="mlSletPris('${elId}','${p.id}')">Slet</button></div>
+      </div>`;
+    });
+  }
+  h += `<div class="pknap">
+    <button class="btn gold sm" onclick="mlNyPris('${elId}',null,'editor')">Hent prisen fra tilbudseditoren</button>
+    <button class="btn ghost sm" onclick="mlNyPris('${elId}')">+ Skriv en pris ind</button>
+    ${e.unobtainable?'':`<button class="btn ghost sm fare" onclick="mlSkaffes('${elId}',true)">Kan ikke skaffes</button>`}
+  </div></div>
+  <div class="mlpny" id="mlpny-${elId}" hidden></div>
+  <div class="mlelgrid">
+    <div><div class="k">Betaling til leverandør</div><div class="v ${e.vendor_due_date?'frist':''}">${
+      e.vendor_due_date?mlDato(e.vendor_due_date)+' · om '+mlDage(e.vendor_due_date)+' dage':'—'}</div></div>
+    <div><div class="k">Udstedelsesfrist</div><div class="v ${e.issue_deadline?'frist':''}">${
+      e.issue_deadline?mlDato(e.issue_deadline):'—'}</div></div>
+    <div><div class="k">Leverandørens ref.</div><div class="v">${escH((mlValgt(e)||{}).reference||'—')}</div></div>
+  </div>`;
+  boks.innerHTML = h;
+}
+
+/* Samme formular til en ny pris og til at rette en tastet forkert. */
+function mlNyPris(elId, prisId, hvor){
+  const e = ML.els.find(x=>x.id===elId); if(!e) return;
+  const p = prisId ? (ML.priser[elId]||[]).find(x=>x.id===prisId) : null;
+  const t = {beloeb:Number(e.tilbud_buy_amount)||0, valuta:e.tilbud_buy_currency||e.buy_currency||'DKK'};
+  const b = document.getElementById('mlpny-'+elId); if(!b) return;
+  b.hidden = false;
+  b.innerHTML = `<div class="hvem">${p?'Ret prisen fra '+escH(p.supplier_name)
+    : hvor==='editor'?'Hentet fra tilbudseditoren — se den efter og gem':'Skriv prisen ind'}</div>
+    <div class="mlpgrid">
+      <div><label>Leverandør</label>
+        <input id="mlf-lev" list="mlSups" value="${escH(p?p.supplier_name:'')}" placeholder="fx Yalago">
+        <datalist id="mlSups">${(window.SUPS||[]).map(s=>`<option value="${escH(s.name)}">`).join('')}</datalist></div>
+      <div><label>Købspris</label><input id="mlf-bel" value="${p?mlNf(p.amount):(t.beloeb?mlNf(t.beloeb):'')}">
+        <span class="hj">${t.beloeb?'tilbuddet: '+mlNf(t.beloeb)+' '+t.valuta:''}</span></div>
+      <div><label>Valuta</label><select id="mlf-val">${ML_VALUTAER.map(v=>
+        `<option${v===(p?p.currency:t.valuta)?' selected':''}>${v}</option>`).join('')}</select></div>
+      <div><label>Hvor fandt du den?</label><select id="mlf-kil">${ML_KILDER.map(k=>
+        `<option${k===(p?p.kilde:(hvor==='editor'?'Tilbudseditoren':'Andet'))?' selected':''}>${k}</option>`).join('')}</select></div>
+      <div class="bred"><label>Reference eller note</label>
+        <input id="mlf-ref" value="${escH(p?(p.reference||''):'')}" placeholder="fx YAC/25553951, tilbud pr. mail, eller hvem du talte med"></div>
+      <div class="bred"><label class="chk"><input type="checkbox" id="mlf-led" ${p&&p.available===false?'':'checked'}>
+        Ledigt i hele perioden</label></div>
+    </div>
+    <div class="mlfejl" id="mlpnyFejl"></div>
+    <div class="mlknapper">
+      <button class="btn gold sm" onclick="mlGemPris('${elId}',${p?`'${p.id}'`:'null'})">${p?'Gem ændringen':'Gem prisen'}</button>
+      <button class="btn ghost sm" onclick="mlLukPris('${elId}')">Fortryd</button>
+    </div>`;
+  const inp = document.getElementById('mlf-bel'); if(inp) inp.focus();
+}
+function mlLukPris(elId){ const b=document.getElementById('mlpny-'+elId); if(b){ b.hidden=true; b.innerHTML=''; } }
+
+async function mlGemPris(elId, prisId){
+  const fejl = document.getElementById('mlpnyFejl');
+  const lev = (document.getElementById('mlf-lev').value||'').trim();
+  const bel = mlTal(document.getElementById('mlf-bel').value);
+  if(!lev){ fejl.textContent='Skriv hvem prisen er fra.'; return; }
+  if(!bel || bel<=0){ fejl.textContent='Skriv en pris.'; return; }
+  const rk = {
+    supplier_name: lev, amount: bel,
+    currency: document.getElementById('mlf-val').value,
+    kilde: document.getElementById('mlf-kil').value,
+    reference: (document.getElementById('mlf-ref').value||'').trim() || null,
+    available: document.getElementById('mlf-led').checked
+  };
+  let res;
+  if(prisId){
+    /* En rettelse bevarer hvornaar prisen oprindeligt blev fundet — ellers ser
+       det ud som om vi har tjekket i dag, og det har vi ikke. */
+    res = await db.from('element_prices').update(rk).eq('id',prisId).select().single();
+  } else {
+    res = await db.from('element_prices').insert(
+      Object.assign({element_id:elId, found_by: window.MYNAME||window.MYEMAIL||null}, rk)).select().single();
+  }
+  if(res.error){ fejl.textContent = res.error.message; return; }
+
+  const liste = ML.priser[elId] = ML.priser[elId]||[];
+  if(prisId){ const i=liste.findIndex(x=>x.id===prisId); if(i>=0) liste[i]=res.data; }
+  else liste.push(res.data);
+
+  /* Første pris på et element vælges automatisk — ellers skal man selv vælge. */
+  const e = ML.els.find(x=>x.id===elId);
+  if(!e.chosen_price_id) await mlVaelg(elId, res.data.id, true);
+  mlLukPris(elId); mlOpdater(elId);
+}
+async function mlSletPris(elId, prisId){
+  const p = (ML.priser[elId]||[]).find(x=>x.id===prisId); if(!p) return;
+  if(!confirm(`Slet prisen fra ${p.supplier_name}? Den forsvinder fra listen, men bliver stående i historikken.`)) return;
+  const e = ML.els.find(x=>x.id===elId);
+  if(e.chosen_price_id===prisId){
+    const rest = (ML.priser[elId]||[]).filter(x=>x.id!==prisId);
+    await db.from('trip_elements').update({chosen_price_id: rest.length?rest[0].id:null,
+      buy_amount: rest.length?rest[0].amount:null, buy_currency: rest.length?rest[0].currency:e.buy_currency})
+      .eq('id',elId);
+    e.chosen_price_id = rest.length?rest[0].id:null;
+    if(rest.length){ e.buy_amount=rest[0].amount; e.buy_currency=rest[0].currency; }
+  }
+  const {error} = await db.from('element_prices').delete().eq('id',prisId);
+  if(error){ alert(error.message); return; }
+  ML.priser[elId] = (ML.priser[elId]||[]).filter(x=>x.id!==prisId);
+  mlOpdater(elId);
+}
+async function mlVaelg(elId, prisId, stille){
+  const p = (ML.priser[elId]||[]).find(x=>x.id===prisId); if(!p) return;
+  const {error} = await db.from('trip_elements')
+    .update({chosen_price_id:prisId, buy_amount:p.amount, buy_currency:p.currency,
+             kontrol:'holder', kontrol_at:new Date().toISOString(),
+             kontrol_af: window.MYNAME||window.MYEMAIL||null,
+             kontrol_kilde:p.kilde, kontrol_reference:p.reference})
+    .eq('id',elId);
+  if(error){ alert(error.message); return; }
+  const e = ML.els.find(x=>x.id===elId);
+  e.chosen_price_id=prisId; e.buy_amount=p.amount; e.buy_currency=p.currency;
+  if(!stille) mlOpdater(elId);
+}
+async function mlSkaffes(elId, kanIkke){
+  const {error} = await db.from('trip_elements').update({unobtainable:kanIkke}).eq('id',elId);
+  if(error){ alert(error.message); return; }
+  ML.els.find(x=>x.id===elId).unobtainable = kanIkke;
+  mlOpdater(elId);
+}
+/* Tegner linjen og regnestykket om — uden at folde ud eller miste plads. */
+function mlOpdater(elId){
+  const n = document.querySelector(`#mlKontrol .mlel[data-el="${elId}"]`);
+  const e = ML.els.find(x=>x.id===elId);
+  if(n && e){ const aaben = n.classList.contains('aaben');
+    n.outerHTML = mlEl(e);
+    if(aaben){ document.querySelector(`#mlKontrol .mlel[data-el="${elId}"]`).classList.add('aaben');
+      mlTegnPriser(elId); } }
+  mlRegn();
+}
+
+/* ══ KURSER ══ */
+function mlTegnKurser(){
+  const k = ML.kurser||{};
+  const raek = ['EUR','USD','NOK'].filter(v=>k[v]).map(v=>{
+    const x = k[v];
+    const erSalg = v==='NOK';
+    const eff = erSalg ? Number(k.salgskurs) : Number(x.effektiv);
+    const marked = erSalg ? Number(k.salgskurs_marked) : Number(x.marked);
+    const hj = {EUR:'ligger fast mod DKK (fastkurspolitik ±2,25 %) — lav risiko',
+                USD:'fri kurs — kan flytte sig meget på få måneder',
+                NOK:'salgskursen til norske kunder — hele salget er eksponeret'}[v];
+    return `<tr><td>${erSalg?'DKK → NOK':v+' → DKK'}${erSalg?' <span class="sml">salgskurs</span>':''}
+      <div class="hj">${hj}</div></td>
+      <td class="marked">${mlNf4(marked)}<em>ECB ${escH(k.dato||'')}</em></td>
+      <td>${mlNf1(x.bankmargin)} %${x.margin_maalt?'':'<span class="skoen">skøn</span>'}</td>
+      <td>${mlNf1(x.buffer)} %</td>
+      <td class="eff">${mlNf4(eff)}</td></tr>`;
+  }).join('');
+  document.getElementById('mlKurser').innerHTML = `
+    <div class="kurstop"><span class="n">Kurser og buffere</span>
+      <span class="sml2">Markedskurser fra ECB ${escH(k.dato||'—')}</span>
+      <span class="hoejre"><button class="btn ghost sm" onclick="mlKurserAaben()">Ret buffere…</button></span></div>
+    <p class="kforkl">Der er kun <b>én vej</b>: alt regnes om til DKK, fortjenesten lægges på i DKK, og først til
+      sidst veksles til kundens valuta. Hver kurs består af tre tal — <b>markedskursen</b> er en kendsgerning,
+      <b>bankmarginen</b> er hvad banken faktisk tager, og <b>risikobufferen</b> er jeres eget valg.</p>
+    <table class="mlktab"><thead><tr><th>Valuta</th><th>Markedskurs</th><th>Bankmargin</th>
+      <th>Risikobuffer</th><th>Effektiv kurs</th></tr></thead><tbody>${raek}</tbody></table>
+    <div class="kfod"><b>Bankmarginerne er skøn</b>, indtil de er målt på jeres egne bankafstemninger.
+      Gem både valutabeløbet og det beløb banken faktisk trak, så falder den realiserede kurs ud af sig selv.</div>`;
+}
+function mlKurserAaben(){
+  alert('Bufferne sættes ét sted for hele systemet — under Indstillinger → Valuta.\n\nDe gælder alle rejser, så de skal ikke rettes pr. rejse. Den skærm er ikke bygget endnu; sig til, så laver jeg den.');
+}
+
+/* ══ REGNESTYKKET — én metode, alt gennem DKK ══ */
+function mlBeregn(){
+  const dele = ML.els.map(e=>{
+    const g = mlGrundlag(e);
+    const t = {beloeb:Number(e.tilbud_buy_amount)||0, valuta:e.tilbud_buy_currency||g.valuta};
+    const dkk = mlDkk(g), tDkk = mlDkk(t);
+    return {e, navn:e.description||'—', lev:g.lev, beloeb:g.beloeb, valuta:g.valuta,
+            fundet:g.fundet, skaffes:!e.unobtainable, kurs:mlEff(g.valuta),
+            dkk: dkk||0, tilbudDkk: tDkk||0, afvig: (dkk!=null&&tDkk!=null)?dkk-tDkk:0};
+  });
+  const sub = dele.reduce((s,d)=>s+d.dkk,0);
+  const tilbudSub = dele.reduce((s,d)=>s+d.tilbudDkk,0);
+  const gebyr = Number(ML.std.bank_fee_dkk)||0;
+  const kost = sub + gebyr, kostTilbud = tilbudSub + gebyr;
+  const kk = mlKundeKurs();
+  const accept = Number(ML.trip.accepted_price)||0;
+  return {dele, sub, kost, kostTilbud, gebyr, kk,
+          dbTilbud: accept ? accept/kk - kostTilbud : null};
+}
+function mlPrisVed(dgPct, kost){
+  const d = dgPct/100, r = Number(ML.std.round_to)||1;
+  return d<0.999 ? Math.ceil((kost/(1-d))/r)*r : 0;
+}
+function mlRegn(){
+  const r = mlBeregn();
+  let h='';
+  r.dele.forEach(d=>{
+    let sub;
+    if(!d.skaffes) sub = '<span class="fl">kan ikke skaffes</span>';
+    else if(!d.fundet) sub = `<span class="uv">ikke tjekket</span> · regnet med tilbuddets ${mlNf(d.beloeb)} ${d.valuta}`;
+    else sub = `<b>${escH(d.lev||'')}</b> · ${mlNf(d.beloeb)} ${d.valuta}${d.valuta==='DKK'?'':' × '+mlNf4(d.kurs)}`
+       + (Math.abs(d.afvig)<1 ? ' · samme som tilbuddet'
+          : d.afvig>0 ? ` · <span class="fl">${mlNf(d.afvig)} kr. dyrere</span>`
+                      : ` · ${mlNf(-d.afvig)} kr. billigere`);
+    h += `<div class="mlrr"><span class="l">${escH(d.navn)}<small>${sub}</small></span>
+      <span class="v">${mlNf(d.dkk)} DKK</span></div>`;
+  });
+  const pris = mlTal((document.getElementById('mlPris')||{}).value);
+  const prisDkk = pris / r.kk;
+  const db = prisDkk - r.kost, dg = prisDkk>0 ? db/prisDkk*100 : 0;
+  const val = ML.trip.customer_currency||'DKK';
+
+  h += `<div class="mlrr sum"><span class="l">Indkøb i alt</span><span class="v">${mlNf(r.sub)} DKK</span></div>
+    <div class="mlrr"><span class="l">+ Bankgebyr</span><span class="v">${mlNf(r.gebyr)} DKK</span></div>
+    <div class="mlrr slut"><span class="l">Rejsen koster os</span><span class="v">${mlNf(r.kost)}</span></div>
+    <div class="mlrr fin"><span class="l">alt i DKK, med bankmargin og risikobuffer</span><span class="v"></span></div>
+    <div class="mlrr"><span class="l">+ Fortjeneste ${mlNf1(dg)} %<small>det I sidder tilbage med</small></span>
+      <span class="v">${mlNf(db)} DKK</span></div>
+    <div class="mlrr nok"><span class="l">Prisen til kunden${val!=='DKK'?`<small>${mlNf(prisDkk)} DKK · vekslet med salgskurs ${mlNf4(r.kk)}</small>`:''}</span>
+      <span class="v">${mlNf(pris)} ${escH(val)}</span></div>`;
+  if(val!=='DKK') h += `<div class="mlbegge"><b>Samme rejse, samme fortjeneste.</b> En dansk kunde ville betale
+    ${mlNf(mlPrisVed(dg, r.kost))} DKK for den samme dækningsgrad. Forskellen er ikke avance — det er
+    bankmarginen og risikobufferen på NOK.</div>`;
+  document.getElementById('mlRegn').innerHTML = h;
+
+  document.getElementById('mlDbPct').innerHTML = mlNf1(dg)+'<small>%</small>';
+  document.getElementById('mlDbTxt').innerHTML = pris
+    ? `Dækningsbidrag <b>${mlNf(db)} DKK</b>. Rejsen koster os ${mlNf(r.kost)} DKK.`
+    : 'Skriv prisen til kunden, så regnes dækningsbidraget.';
+  const sam = document.getElementById('mlDbSam');
+  if(r.dbTilbud!=null && pris){
+    const f = db - r.dbTilbud;
+    sam.innerHTML = (Math.abs(f)<1 ? '<span class="lige">= Præcis det samme som tilbuddet var bygget på.</span>'
+      : f<0 ? `<span class="ned">▼ ${mlNf(-f)} kr. mindre</span> end tilbuddet var bygget på.`
+            : `<span class="op">▲ ${mlNf(f)} kr. mere</span> end tilbuddet var bygget på.`)
+      + `<div class="fin">Da tilbuddet blev bygget: kostpris ${mlNf(r.kostTilbud)} DKK · dækningsbidrag ${mlNf(r.dbTilbud)} DKK</div>`;
+  } else sam.innerHTML='';
+  mlBundstatus(r, dg);
+}
+/* Pris og dækningsgrad er to sider af samme tal. Feltet man skriver i røres aldrig. */
+function mlFraPris(){
+  const r = mlBeregn(), pris = mlTal(document.getElementById('mlPris').value);
+  const prisDkk = pris/r.kk, dg = prisDkk>0 ? (prisDkk-r.kost)/prisDkk*100 : 0;
+  if(document.activeElement.id!=='mlDG') document.getElementById('mlDG').value = pris?mlNf1(dg):'';
+  mlRegn();
+}
+function mlFraDG(){
+  const r = mlBeregn(), dg = mlTal(document.getElementById('mlDG').value)/100;
+  if(document.activeElement.id!=='mlPris')
+    document.getElementById('mlPris').value = dg<0.999 ? mlNf(r.kost/(1-dg)*r.kk) : '';
+  mlRegn();
+}
+function mlBrugMaal(){
+  const r = mlBeregn();
+  document.getElementById('mlPris').value = mlNf(mlPrisVed(Number(ML.std.target_dg_pct)||20, r.kost) * r.kk);
+  mlFraPris();
+}
+async function mlGemPrisTilKunde(){
+  const pris = mlTal(document.getElementById('mlPris').value);
+  if(!pris){ alert('Skriv en pris først.'); return; }
+  const {error} = await db.from('trips').update({accepted_price:pris,
+    accepted_currency: ML.trip.customer_currency}).eq('id',ML.trip.id);
+  if(error){ alert(error.message); return; }
+  ML.trip.accepted_price = pris;
+  mlRegn();
+}
+
+/* ══ BUNDEN ══ */
+function mlBundstatus(r, dg){
+  const s = document.getElementById('mlStatus'), k = document.getElementById('mlBekraeft');
+  if(!s||!k) return;
+  const uskaf = r.dele.filter(d=>!d.skaffes);
+  const vent  = r.dele.filter(d=>d.skaffes && !d.fundet);
+  const pris  = mlTal((document.getElementById('mlPris')||{}).value);
+  if(!r.dele.length){
+    k.disabled = true; s.innerHTML = '<b>Der er ingen ydelser på rejsen endnu.</b> Læg dem ind, før den kan bekræftes.';
+  } else if(uskaf.length){
+    k.disabled = true;
+    s.innerHTML = `<b>Rejsen kan ikke bekræftes.</b> ${uskaf.map(d=>escH(d.navn)).join(' og ')} kan ikke skaffes.`;
+  } else if(vent.length){
+    k.disabled = true;
+    s.innerHTML = `<b>${vent.length} ${vent.length>1?'ydelser mangler':'ydelse mangler'} at blive tjekket:</b> `
+      + vent.map(d=>escH(d.navn)).join(', ') + '.';
+  } else if(!pris){
+    k.disabled = true; s.innerHTML = '<b>Skriv prisen til kunden</b>, før rejsen kan bekræftes.';
+  } else {
+    const steget = r.dele.filter(d=>d.afvig>0);
+    k.disabled = false;
+    s.innerHTML = steget.length
+      ? `<b>${steget.map(d=>escH(d.navn)).join(' og ')} koster ${mlNf(steget.reduce((a,d)=>a+d.afvig,0))} kr.
+         mere end tilbuddet.</b> Dækningsgraden er ${mlNf1(dg)} %. Bekræfter du nu, tager I selv forskellen.`
+      : `<b>Alt kan købes til den pris tilbuddet blev bygget på.</b> Dækningsgraden er ${mlNf1(dg)} %.`;
+  }
+}
+async function mlTilbage(){
+  if(!confirm('Send sagen tilbage til henvendelsen? Rejsen slettes, og henvendelsen åbnes igen.')) return;
+  const t = ML.trip;
+  if(t.lead_id) await db.from('leads').update({status:'open', converted_trip_id:null}).eq('id',t.lead_id);
+  await db.from('element_prices').delete().in('element_id', ML.els.map(e=>e.id));
+  await db.from('trip_elements').delete().eq('trip_id', t.id);
+  const {error} = await db.from('trips').delete().eq('id', t.id);
+  if(error){ alert(error.message); return; }
+  navTo('hv');
+}
+/* Bekræftelsen: ref.nr. dannes, kurserne låses, og rejsen bliver rigtig. */
+async function mlBekraeft(){
+  const t = ML.trip, r = mlBeregn();
+  const pris = mlTal(document.getElementById('mlPris').value);
+  if(!confirm(`Bekræft rejsen?\n\nDen får sit ref.nr., kurserne låses fast, og opgaverne oprettes.\nPris til kunden: ${mlNf(pris)} ${t.customer_currency}`)) return;
+  const k = document.getElementById('mlBekraeft');
+  k.disabled = true; k.textContent = 'Bekræfter…';
+
+  const {data:ref, error:e1} = await db.rpc('next_ref_no', {p_branch: t.branch});
+  if(e1){ alert('Kunne ikke danne ref.nr.: '+e1.message); k.disabled=false; k.textContent='Bekræft og opret rejsen'; return; }
+
+  const {error:e2} = await db.from('trips').update({
+    ref_no: ref, status:'bekraeftet', accepted_price: pris,
+    accepted_currency: t.customer_currency,
+    package_sell_total: pris, package_sell_dkk: Math.round(pris / r.kk)
+  }).eq('id', t.id);
+  if(e2){ alert(e2.message); k.disabled=false; k.textContent='Bekræft og opret rejsen'; return; }
+
+  /* Kurserne låses ÉN gang. Uden dem har kursalarmen ingen målestok. */
+  const {error:e3} = await db.rpc('fn_laas_kurser', {p_trip: t.id});
+  if(e3) alert('Rejsen er oprettet som '+ref+', men kurserne kunne ikke låses:\n'+e3.message
+    +'\n\nSig til — uden dem virker kursalarmen ikke på denne rejse.');
+
+  if(t.lead_id) await db.from('leads').update({status:'won', converted_trip_id:t.id}).eq('id', t.lead_id);
+  viewTrip(t.id);
+}
+
+async function mlNytElement(){
+  const besk = prompt('Hvad er det for en ydelse? (fx «VARU by Atmosphere — Water Villa»)');
+  if(!besk) return;
+  const {data, error} = await db.from('trip_elements').insert({
+    trip_id: ML.trip.id, element_type:'other', description: besk, sell_amount_dkk: 0
+  }).select('*, suppliers:supplier_id(name)').single();
+  if(error){ alert(error.message); return; }
+  ML.els.push(data); mlRender(); mlFold(data.id);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SOLGT — henvendelsen bliver til en mellemlanding.
+   Rejsen oprettes med det samme, men UDEN ref.nr. Den bliver først en rigtig
+   rejse, når hvert element er efterprøvet og rejsen bekræftes. Derfor tæller
+   en mellemlanding heller ikke med i konverteringsraten endnu.
+   ══════════════════════════════════════════════════════════════════════════ */
+function hvSolgtDlg(){
+  const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
+  const val = l.branch==='MN' ? 'NOK' : 'DKK';
+  const ov = document.getElementById('hvOv2'); if(!ov) return;
+  const pax = (Number(l.adults)||0) + (Number(l.kids)||0);
+  ov.innerHTML = `<div class="ldlg" onclick="event.stopPropagation()">
+    <div class="h"><h3>Kunden har sagt ja</h3>
+      <p>Rejsen oprettes som en <b>mellemlanding</b> — uden ref.nr. Først når hvert element er
+         tjekket, og du bekræfter, bliver den en rigtig rejse med nummer.</p></div>
+    <div class="c">
+      <label>Prisen kunden accepterede</label>
+      <div style="display:flex;gap:10px;align-items:baseline">
+        <input id="hvSPris" inputmode="decimal" placeholder="fx ${val==='NOK'?'217.500':'118.400'}"
+               style="flex:1" value="${l.est_value>0?Math.round(l.est_value).toLocaleString('da-DK'):''}">
+        <select id="hvSVal" style="width:90px">${['NOK','DKK','EUR','USD'].map(v=>
+          `<option${v===val?' selected':''}>${v}</option>`).join('')}</select>
+      </div>
+      <label>Hvilket tilbud sagde de ja til?</label>
+      <input id="hvSTilbud" placeholder="fx tilbud v1, eller link/dato" value="${l.offer_url?'tilbudslink':''}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div><label>Afrejse</label><input id="hvSDep" type="date" value="${l.departure_date||''}"></div>
+        <div><label>Hjemrejse</label><input id="hvSRet" type="date" value="${l.return_date||''}"></div>
+      </div>
+      <label>Antal rejsende</label>
+      <input id="hvSPax" inputmode="numeric" value="${pax||2}">
+      <div class="dlgfejl" id="hvSFejl"></div>
+      <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+        <button class="b won" onclick="hvSolgtGem()">Opret mellemlandingen</button></div>
+    </div></div>`;
+  ov.classList.add('on');
+  setTimeout(()=>{ const i=document.getElementById('hvSPris'); if(i) i.focus(); },40);
+}
+
+async function hvSolgtGem(){
+  const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
+  const fejl = document.getElementById('hvSFejl');
+  const pris = parseFloat(String(document.getElementById('hvSPris').value||'').replace(/[.\s]/g,'').replace(',','.'));
+  const dep  = document.getElementById('hvSDep').value;
+  const pax  = parseInt(document.getElementById('hvSPax').value,10);
+  if(!pris || pris<=0){ fejl.textContent = 'Skriv den pris kunden har sagt ja til — den er målestokken for om rejsen tjener det, den skulle.'; return; }
+  if(!dep){ fejl.textContent = 'Afrejsedatoen skal med — uden den kan frister og opgaver ikke regnes.'; return; }
+  if(!pax || pax<1){ fejl.textContent = 'Hvor mange rejser med?'; return; }
+  fejl.textContent = '';
+
+  /* 1. Find kunden, eller opret. Vi matcher paa e-mail — navnematch alene er
+        ikke sikkert nok, og en dublet i kundekartoteket er svaer at rydde op. */
+  let kundeId = null;
+  const mail = (l.contact_email||'').trim().toLowerCase();
+  if(mail){
+    const {data} = await db.from('customers').select('id').ilike('email', mail).limit(1);
+    if(data && data.length) kundeId = data[0].id;
+  }
+  if(!kundeId){
+    const navn = (l.contact_name||'Ukendt').trim();
+    const i = navn.lastIndexOf(' ');
+    const {data, error} = await db.from('customers').insert({
+      first_name: i>0 ? navn.slice(0,i) : navn,
+      last_name:  i>0 ? navn.slice(i+1) : '',
+      email: mail || null, phone: l.contact_phone || null
+    }).select('id').single();
+    if(error){ fejl.textContent = 'Kunden kunne ikke oprettes: '+error.message; return; }
+    kundeId = data.id;
+  }
+
+  /* 2. Rejsen — i mellemlanding, uden ref.nr. */
+  const {data:t, error:e2} = await db.from('trips').insert({
+    branch: l.branch, status:'mellemlanding', customer_id: kundeId,
+    departure_date: dep, return_date: document.getElementById('hvSRet').value || null,
+    pax_count: pax, customer_currency: document.getElementById('hvSVal').value,
+    lead_id: l.id,
+    accepted_price: pris,
+    accepted_currency: document.getElementById('hvSVal').value,
+    accepted_at: new Date().toISOString(),
+    accepted_offer_ref: (document.getElementById('hvSTilbud').value||'').trim() || null,
+    owner: l.owner || null
+  }).select('id').single();
+  if(e2){ fejl.textContent = 'Rejsen kunne ikke oprettes: '+e2.message; return; }
+
+  /* 3. Destinationer foelger med, saa sagen kan genkendes i soegningen. */
+  if(l.destination){
+    const dest = String(l.destination).split(',').map(s=>s.trim()).filter(Boolean);
+    if(dest.length) await db.from('trip_destinations')
+      .insert(dest.map((d,i)=>({trip_id:t.id, destination:d, seq:i})));
+  }
+
+  /* 4. Henvendelsen kobles til rejsen. Den lukkes IKKE som vundet endnu —
+        det sker foerst ved bekraeftelsen, saa konverteringsraten ikke
+        taeller en rejse med, der endnu kan falde fra. */
+  await db.from('leads').update({converted_trip_id: t.id, stage:'confirmed'}).eq('id', l.id);
+  l.converted_trip_id = t.id; l.stage='confirmed';
+
+  hvLukDlg(); hvClose();
+  viewMel(t.id);
+}
+
 </script>
 </body>
 </html>
