@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.43 · 29.08.2026
+<!-- Panda · v0.45 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -663,6 +663,24 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .lc .bud{font-size:15px;margin-top:6px;}
 .hv7 .lc .foot{margin-top:7px;padding-top:6px;}
 .hv7 .col{padding:9px;min-height:220px;}
+/* ══ TABT-DIALOGEN OG DE TABTE KORT ═══════════════════════════════════ */
+.hv7 .reasons button{display:block;width:100%;text-align:left}
+.hv7 .reasons button b{font-weight:600;display:block}
+.hv7 .reasons button .u{display:block;font-size:10.5px;color:var(--mut);margin-top:2px;line-height:1.4}
+.hv7 .reasons button.on .u{color:#8d6a34}
+.hv7 .ldlg .c{max-height:min(74vh,720px);overflow-y:auto}
+.hv7 .ldlg textarea{min-height:56px;resize:vertical}
+/* Egne klasser med vilje: .mini findes flere steder i Pandas stilark med
+   flex og polstring, og de sivede ind i dialogen sidst. */
+.hv7 .ldlg .dlgfejl{display:block;font-size:11.5px;line-height:1.5;color:#a3512f;
+  min-height:17px;margin:0 0 10px;padding:0;background:none;border:0}
+/* aarsagen paa et tabt kort */
+.hv7 .lc .tabtgrund{font-size:10.5px;line-height:1.45;color:#a3512f;background:rgba(163,81,47,.07);
+  border-radius:2px;padding:5px 8px;margin-top:7px;overflow-wrap:anywhere}
+.hv7 .lc.er-tabt{opacity:.86;border-left-color:#e3c4b3}
+.hv7 .hint.kvit{border-color:var(--gold);color:var(--ink)}
+.hv7 .hint.kvit b{color:#4f7a5f}
+
 /* ══ SØGNING ══════════════════════════════════════════════════════════
    Samme udseende de to steder den bruges. Ligger uden for .hv7, fordi
    feltet også skal virke på dashboardet.                              */
@@ -683,8 +701,25 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   border-top:0;border-radius:0 0 3px 3px;max-height:60vh;overflow-y:auto;
   box-shadow:0 14px 40px rgba(120,105,75,.16)}
 .sogres[hidden]{display:none}
-.soggrp{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:#c1975a;font-weight:600;
-  padding:12px 16px 6px;border-bottom:1px solid #f0e9dc;background:#f2ebe0}
+.soggrp{display:flex;align-items:center;gap:8px;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;
+  color:#c1975a;font-weight:600;padding:12px 16px 10px;border-bottom:1px solid #f0e9dc;background:#f2ebe0}
+/* Foldbare kategorier i «Se alle resultater». Leder man efter et hotel,
+   skal man ikke scrolle 58 henvendelser forbi for at naa det. */
+.soggrp.klik{cursor:pointer;user-select:none;transition:.13s}
+.soggrp.klik:hover{background:#e8ddcb}
+.soggrp .chv{margin-left:auto;color:#c1975a;font-size:11px;letter-spacing:0;transition:.18s;transform:rotate(90deg)}
+.soggrp .lukket{display:none;font-size:9px;letter-spacing:1px;color:#8b8370;text-transform:none}
+.grpblok.foldet .chv{transform:rotate(0deg)}
+.grpblok.foldet .sogrw{display:none}
+.grpblok.foldet .soggrp .lukket{display:inline}
+.grpvis{display:flex;align-items:center;gap:10px;padding:9px 16px;background:#f2ebe0;
+  border-bottom:1px solid #f0e9dc;font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:#8b8370}
+.grpvis button{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;
+  background:#fff;border:1px solid #e7dfd1;border-radius:2px;padding:4px 11px;cursor:pointer;color:#4f544b}
+.grpvis button:hover{border-color:#e0c9a3;color:#2e332e}
+/* Soegefeltet i overlayet: man skal kunne skrive videre uden at lukke ned */
+.sogalleh .sogfelt{flex:1;min-width:180px;background:#fff}
+.sogalleh .sogfelt input{font-size:14px;padding:9px 0}
 .sogrw{display:flex;align-items:center;gap:14px;min-width:0;padding:11px 16px;border-bottom:1px solid #f0e9dc;cursor:pointer;transition:.13s}
 .sogrw:hover{background:rgba(242,235,224,.7)}
 .sogrw:last-child{border-bottom:0}
@@ -947,7 +982,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.43';
+const APP_VERSION = 'v0.45';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -5458,6 +5493,7 @@ function sogFremhaev(txt, q){
 }
 
 function sogTegn(id, alle){
+  if(id==='alle') alle = true;   // overlayet viser altid hele listen
   const d = (window._sogSidste||{})[id];
   const boks = document.getElementById('sogres_'+id);
   if(!d || !boks) return;
@@ -5469,11 +5505,18 @@ function sogTegn(id, alle){
     return;
   }
   let vist = 0, html = '';
+  /* I «Se alle» kan hver kategori foldes sammen for sig. */
+  if(alle) html += `<div class="grpvis"><span>${antal} træf i ${d.raek.filter(r=>r[1].length).length} kategorier</span>
+    <button onclick="sogAlleGrupper(false)">Fold alle ud</button>
+    <button onclick="sogAlleGrupper(true)">Fold alle sammen</button></div>`;
   d.raek.forEach(([navn, raekker])=>{
     const del = alle ? raekker : raekker.slice(0, Math.max(0, SOG_GRAENSE - vist));
     if(!del.length) return;
     vist += del.length;
-    html += `<div class="soggrp">${escH(navn)} · ${raekker.length}</div>`;
+    html += `<div class="grpblok"><div class="soggrp${alle?' klik" onclick="sogFoldGrp(this)':''}">`
+          + `${escH(navn)} · ${raekker.length}`
+          + (alle ? '<span class="lukket">skjult</span><span class="chv">›</span>' : '')
+          + `</div>`;
     del.forEach(x=>{
       html += `<div class="sogrw" onclick="sogAabn('${x.t}','${x.id}')">
         <div class="sogik">${x.ik}</div>
@@ -5485,19 +5528,21 @@ function sogTegn(id, alle){
           <div class="sogtid">${escH(x.tid)}</div></div>
       </div>`;
     });
+    html += `</div>`;
   });
   html += `<div class="sogbund">${
     (!alle && antal > SOG_GRAENSE)
       ? `Viser de ${SOG_GRAENSE} bedste af <b>${antal}</b> træf
-         <button class="sogflere" onclick="sogSeAlle('${id}')">Se alle ${antal} resultater →</button>`
+         <button class="sogflere" onclick="sogSeAlle('${id}',${id==='hv'})">Se alle ${antal} resultater →</button>`
       : `${antal} træf`
   }<span class="sogtaster"><b>Esc</b> lukker</span></div>`;
   boks.hidden = false;
   boks.innerHTML = html;
 }
 
-function sogSeAlle(id){
+function sogSeAlle(id, kunSager){
   const d = (window._sogSidste||{})[id]; if(!d) return;
+  if(kunSager===undefined) kunSager = (id==='hv');
   const antal = d.raek.reduce((n,g)=>n+g[1].length,0);
   let ov = document.getElementById('sogAlleOv');
   if(!ov){
@@ -5506,18 +5551,32 @@ function sogSeAlle(id){
     ov.onclick = e => { if(e.target===ov) sogLukAlle(); };
     document.body.appendChild(ov);
   }
+  /* Soegefeltet foelger med ind i overlayet, saa man kan skrive videre og se
+     listen snaevre ind — i stedet for at lukke ned og starte forfra. */
+  window._sogAlleKilde = {id:id, kunSager:!!kunSager};
   ov.innerHTML = `<div class="sogalle">
-    <div class="sogalleh"><h3>${antal} resultater for «${escH(d.q)}»</h3>
-      <button class="sogryd" onclick="sogLukAlle()">×</button></div>
+    <div class="sogalleh">
+      <div class="sogfelt"><span class="lup">⌕</span>
+        <input id="sogq_alle" autocomplete="off" spellcheck="false" value="${escH(d.q)}"
+          placeholder="Skriv videre for at snævre ind…"
+          oninput="sogTast('alle',${!!kunSager})" onkeydown="sogTaster(event,'alle')">
+        <button class="sogryd" onclick="sogLukAlle()" title="Luk">×</button></div>
+    </div>
     <div class="sogalleb" id="sogAlleListe"></div></div>`;
   ov.classList.add('on');
-  const gem = document.getElementById('sogres_'+id);
   const midl = document.createElement('div'); midl.id='sogres_alle';
   document.getElementById('sogAlleListe').appendChild(midl);
   window._sogSidste['alle'] = d;
   sogTegn('alle', true);
+  const inp = document.getElementById('sogq_alle');
+  if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
 }
 function sogLukAlle(){ const o=document.getElementById('sogAlleOv'); if(o) o.classList.remove('on'); }
+/* Foldning af én kategori, og af dem alle paa én gang. */
+function sogFoldGrp(h){ const b=h.closest('.grpblok'); if(b) b.classList.toggle('foldet'); }
+function sogAlleGrupper(fold){
+  document.querySelectorAll('#sogAlleListe .grpblok').forEach(g=>g.classList.toggle('foldet', fold));
+}
 
 /* Én sag, ét forløb: er henvendelsen blevet til en rejse, åbnes rejsen. */
 function sogAabn(type, id){
@@ -5662,14 +5721,19 @@ async function viewHenvendelser(){
 /* Filtret ligger i hukommelsen, ikke i basen — det aendrer kun hvad man SER.
    Samme to knapraekker som paa den gamle side: branche og ansvarlig. */
 function hvFilter(k,v){
-  window._hvFilter=Object.assign({branch:'',owner:''},window._hvFilter);
+  window._hvFilter=Object.assign({branch:'',owner:'',vis:'aabne'},window._hvFilter);
   window._hvFilter[k]=v;
   hvBoardRender();
 }
 function hvBoardRender(){
-  const f=Object.assign({branch:'',owner:''}, window._hvFilter);
+  const f=Object.assign({branch:'',owner:'',vis:'aabne'}, window._hvFilter);
   const passer=l=>(!f.branch||l.branch===f.branch)&&(!f.owner||l.owner===f.owner);
-  const leads=(window._leads||[]).filter(l=>l.status==='open' && passer(l));
+  // Tabte forsvinder fra boardet, men ikke ud af systemet — de kan hentes frem
+  // her, i det trin de naaede, saa moenstret i aarsagerne kan ses.
+  const statusOk = l => f.vis==='tabte' ? l.status==='lost'
+                      : f.vis==='alle'  ? true
+                      : l.status==='open';
+  const leads=(window._leads||[]).filter(l=>statusOk(l) && passer(l));
   const cols=HV_RAIL.map(k=>[k, leads.filter(l=>l.stage===k)]);
   // Henvendelser paa et trin uden kolonne laegges IKKE i foerste kolonne - det skjulte
   // dem tidligere. De faar deres egen kolonne til sidst, saa de kan ses og ryddes op.
@@ -5694,6 +5758,7 @@ function hvBoardRender(){
     <button class="navbtn pv" onclick="hvStep(-1)">‹</button>
     <button class="navbtn nx" onclick="hvStep(1)">›</button>
     <div class="ov3" id="hvOv3" onclick="if(event.target===this)hvCloseDest()">${hvDestPicker()}</div>
+    <div class="ov2" id="hvOv2" onclick="if(event.target===this)hvLukDlg()"></div>
   </div>`;
   if(!window._hvKeys){ window._hvKeys=true; document.addEventListener('keydown',hvKey); }
 }
@@ -5703,7 +5768,7 @@ function hvBoardRender(){
    «Solgt for» er faktisk booket omsaetning fra rejserne i indevaerende maaned —
    ikke budgettet paa henvendelserne, som er et skoen. */
 function hvFilterOgTal(f){
-  const knap=(k,v,tekst)=>`<button class="${(f[k]||'')===v?'on':''}" onclick="hvFilter('${k}','${v}')">${escH(tekst)}</button>`;
+  const knap=(k,v,tekst)=>`<button class="${((k==='vis'?(f.vis||'aabne'):(f[k]||'')))===v?'on':''}" onclick="hvFilter('${k}','${v}')">${escH(tekst)}</button>`;
   const mdr=(window._leadMdrSalg||[]).filter(t=>{
     if(f.branch){ const ok=TRIP_BRANCH[f.branch]||[f.branch]; if(!ok.includes(t.branch)) return false; }
     if(f.owner && t.owner!==f.owner) return false;
@@ -5719,6 +5784,9 @@ function hvFilterOgTal(f){
     <span class="skel"></span>
     <span class="lbl">Ansvarlig</span>
     ${knap('owner','','Alle')}${(window._TEAM||[]).map(([ini,nm])=>knap('owner',ini,nm)).join('')}
+    <span class="skel"></span>
+    <span class="lbl">Vis</span>
+    ${knap('vis','aabne','Åbne')}${knap('vis','tabte','Tabte')}${knap('vis','alle','Alle')}
     <div class="hvsog">${sogFelt('hv', true)}</div>
   </div>
   <div class="hvkpis">
@@ -5750,7 +5818,7 @@ function hvCard(l){
   const koeb=+(l._koeb||0);
   const hjerte = koeb>=2 ? `<span class="ik gengang skin" title="Trofast kunde — ${koeb} rejser købt hos os">💛</span>`
     : (koeb===1?'<span class="ik gengang" title="Genganger — kunden har købt én rejse hos os før">💛</span>':'');
-  return `<div class="lc ${brc}" data-id="${l.id}" onclick="hvOpen('${l.id}')"
+  return `<div class="lc ${brc}${l.status==='lost'?' er-tabt':''}" data-id="${l.id}" onclick="hvOpen('${l.id}')"
     draggable="true" ondragstart="hvDragStart(event,'${l.id}')" ondragend="hvDragEnd(event)">
     <div class="nm"><span class="navn">${escH(l.contact_name||l.title||'Uden navn')}</span>${hjerte}</div>
     <div class="scorerow">${tr.complete?`<span class="tri good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}
@@ -5760,6 +5828,7 @@ function hvCard(l){
     <div class="meta dates"><span>${escH(datoer)}</span><span>${nn!=null&&nn>0?nn+(nn===1?' nat':' nætter'):''}</span></div>
     ${ferier.length?`<div class="ferie">${ferier.map(f=>`<span class="fchip">${escH(f)}</span>`).join('')}</div>`:''}
     ${bud}
+    ${l.status==='lost'&&l.lost_reason?`<div class="tabtgrund">${escH(l.lost_reason)}</div>`:''}
     <div class="foot"><span class="brch ${brc}">${escH(BRANCH_KORT[l.branch]||l.branch||'')}</span>
       <span class="who"><span class="age">${d==null?'—':d+'d'}</span>${l.owner?`<span class="owner">${escH(l.owner)}</span>`:''}</span></div>
   </div>`;
@@ -5815,6 +5884,100 @@ async function hvDrop(e,k){
     return;
   }
   hvKvit(`${l.contact_name||l.title||'Henvendelsen'} flyttet til «${STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k}»`);
+}
+/* Kort kvittering nede i hjaelpelinjen — forsvinder af sig selv igen. */
+function hvKvit(tekst){
+  const h=document.getElementById('hvHint'); if(!h) return;
+  if(!window._hvHintOrg) window._hvHintOrg=h.innerHTML;
+  clearTimeout(window._hvKvitTimer);
+  h.innerHTML=`<b>✓</b> ${escH(tekst)}`;
+  h.classList.add('kvit');
+  window._hvKvitTimer=setTimeout(()=>{
+    const hh=document.getElementById('hvHint');
+    if(hh){ hh.innerHTML=window._hvHintOrg; hh.classList.remove('kvit'); }
+  },2600);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TABT — hvorfor blev den ikke til noget?
+
+   Aarsagen er OBLIGATORISK, og det er ikke pedanteri: 180 henvendelser
+   staar allerede som tabt, og ikke én af dem har en aarsag, fordi den
+   gamle knap spurgte i en prompt-boks der blev klikket vaek. Uden
+   aarsagen er tallet ligegyldigt, og vi kan ikke se hvorfor salg glipper.
+
+   Tabte henvendelser forsvinder fra boardet, men ikke ud af systemet:
+   filterlinjen har «Aabne · Tabte · Alle», og under Tabte staar de i det
+   trin de naaede, med aarsagen paa kortet. Saa kan moenstret ses.
+   ══════════════════════════════════════════════════════════════════════ */
+const HV_TABT = [
+  ['for_dyrt',      'For dyrt',                'prisen var afgørende'],
+  ['andet_bureau',  'Valgte et andet bureau',  'købte samme type rejse et andet sted'],
+  ['bookede_selv',  'Bookede selv',            'satte rejsen sammen på egen hånd'],
+  ['udskudt',       'Rejsen er udskudt',       'vil gerne — bare ikke nu'],
+  ['svarer_ikke',   'Svarer ikke',             'faldt fra undervejs uden svar'],
+  ['kun_prisinfo',  'Ville kun høre prisen',   'aldrig en reel forespørgsel'],
+  ['andet',         'Andet',                   'skriv hvad der skete']
+];
+
+function hvTabtDlg(){
+  const id = window._hvId; if(!id) return;
+  const l = (window._leads||[]).find(x=>x.id===id) || {};
+  window._hvTabtValg = null;
+  const ov = document.getElementById('hvOv2'); if(!ov) return;
+  ov.innerHTML = `<div class="ldlg">
+    <div class="h"><h3>Marker som tabt</h3>
+      <p>${escH(l.contact_name||l.title||'Henvendelsen')} lukkes og forsvinder fra boardet — men kan altid findes frem igen under «Tabte».</p></div>
+    <div class="c">
+      <label>Hvorfor blev den ikke til noget?</label>
+      <div class="reasons" id="hvTabtValgene">
+        ${HV_TABT.map(([k,navn,note])=>`<button type="button" onclick="hvTabtVaelg('${k}')" data-k="${k}">
+          <b>${escH(navn)}</b><span class="u">${escH(note)}</span></button>`).join('')}
+      </div>
+      <label>Uddyb — hvad sagde kunden?</label>
+      <textarea id="hvTabtNote" rows="2" placeholder="Valgfrit, men guld værd om et halvt år"></textarea>
+      <p class="dlgfejl" id="hvTabtFejl"></p>
+      <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+        <button class="b lost" onclick="hvTabtGem()">Marker tabt</button></div>
+    </div></div>`;
+  ov.classList.add('on');
+}
+function hvTabtVaelg(k){
+  window._hvTabtValg = k;
+  document.querySelectorAll('#hvTabtValgene button').forEach(b=>b.classList.toggle('on', b.dataset.k===k));
+  const f=document.getElementById('hvTabtFejl'); if(f) f.textContent='';
+}
+async function hvTabtGem(){
+  const id = window._hvId; if(!id) return;
+  const k = window._hvTabtValg;
+  const fejl = document.getElementById('hvTabtFejl');
+  if(!k){ if(fejl) fejl.textContent = 'Vælg en årsag — det er hele pointen med at registrere den.'; return; }
+  const note = ((document.getElementById('hvTabtNote')||{}).value||'').trim();
+  if(k==='andet' && !note){ if(fejl) fejl.textContent = 'Skriv hvad der skete — ellers siger «Andet» os ingenting.'; return; }
+  const navn = (HV_TABT.find(x=>x[0]===k)||[])[1] || k;
+  const aarsag = note ? `${navn} — ${note}` : navn;
+
+  const {error} = await db.from('leads').update({status:'lost', lost_reason:aarsag}).eq('id',id);
+  if(error){ if(fejl) fejl.textContent = error.message; return; }
+
+  const l=(window._leads||[]).find(x=>x.id===id);
+  if(l){ l.status='lost'; l.lost_reason=aarsag; }
+  hvLukDlg(); hvClose(); hvBoardRender();
+  hvKvit(`${(l&&l.contact_name)||'Henvendelsen'} markeret tabt — ${navn.toLowerCase()}`);
+}
+/* Fortryd: en tabt sag kan aabnes igen. Aarsagen bliver staaende i
+   historikken, saa vi kan se at den var lukket én gang. */
+async function hvGenaabn(){
+  const id = window._hvId; if(!id) return;
+  const {error} = await db.from('leads').update({status:'open'}).eq('id',id);
+  if(error){ alert(error.message); return; }
+  const l=(window._leads||[]).find(x=>x.id===id); if(l) l.status='open';
+  hvClose(); hvBoardRender();
+  hvKvit(`${(l&&l.contact_name)||'Henvendelsen'} er åben igen`);
+}
+function hvLukDlg(){
+  const ov=document.getElementById('hvOv2');
+  if(ov){ ov.classList.remove('on'); ov.innerHTML=''; }
 }
 /* Kort kvittering nede i hjaelpelinjen — forsvinder af sig selv igen. */
 function hvKvit(tekst){
@@ -5982,7 +6145,10 @@ function hvRender(l, acts, offers){
     <div class="foot"><span class="saved" id="hvSaved"></span><span class="sp"></span>
       <span class="kbd">Esc</span><span style="font-size:10px;color:var(--mut)">luk</span>
       <span class="kbd">← →</span><span style="font-size:10px;color:var(--mut)">skift kort</span>
-      <button class="b gh" onclick="hvClose()">Luk</button></div>`;
+      <button class="b gh" onclick="hvClose()">Luk</button>
+      ${l.status==='lost'
+        ? `<button class="b gh" onclick="hvGenaabn()">Åbn igen</button>`
+        : `<button class="b lost" onclick="hvTabtDlg()">Tabt</button>`}</div>`;
   hvKids();
 }
 
