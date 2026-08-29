@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.45 · 29.08.2026
+<!-- Panda · v0.46 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -697,9 +697,12 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   border-radius:2px;padding:3px 7px;color:#98937f}
 .sogryd{background:none;border:0;color:#98937f;cursor:pointer;font-size:17px;padding:0 2px;line-height:1}
 .sogryd:hover{color:#2e332e}
-.sogres{position:absolute;left:0;right:0;top:100%;z-index:40;background:#fffefb;border:1px solid var(--line);
+.sogres{position:absolute;left:auto;right:0;top:100%;z-index:40;background:#fffefb;border:1px solid var(--line);
   border-top:0;border-radius:0 0 3px 3px;max-height:60vh;overflow-y:auto;
-  box-shadow:0 14px 40px rgba(120,105,75,.16)}
+  box-shadow:0 14px 40px rgba(120,105,75,.16);
+  /* Mindst saa bred som feltet (dashboardet), men aldrig smallere end 620px
+     (filterlinjen paa henvendelsessiden), ellers klippes navne og beloeb. */
+  width:max(100%, min(620px, calc(100vw - 48px)))}
 .sogres[hidden]{display:none}
 .soggrp{display:flex;align-items:center;gap:8px;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;
   color:#c1975a;font-weight:600;padding:12px 16px 10px;border-bottom:1px solid #f0e9dc;background:#f2ebe0}
@@ -741,7 +744,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .sogbel{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#2e332e}
 .sogtid{font-size:10.5px;color:#8b8370;margin-top:2px}
 .sogmrk{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;padding:3px 8px;border-radius:2px;
-  font-weight:600;white-space:nowrap;flex:0 1 auto;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+  font-weight:600;white-space:nowrap;flex:0 0 auto}
 .sogmrk.aaben{background:rgba(224,201,163,.45);color:#8d6a34}
 .sogmrk.vundet{background:rgba(123,164,136,.22);color:#4f7a5f}
 .sogmrk.tabt{background:rgba(163,81,47,.1);color:#a3512f}
@@ -749,7 +752,13 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .sogmrk.kunde{background:#e4f0ef;color:#4c7f77}
 .sogtom{padding:20px 16px;font-size:12.5px;color:#8b8370;line-height:1.6}
 .sogbund{padding:10px 16px;font-size:11px;color:#8b8370;background:#f2ebe0;border-top:1px solid #f0e9dc;
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  /* Listen kan rulle. Bunden med «Se hele listen» skal alligevel altid
+     kunne naas — ellers ligger knappen under folden og virker som om
+     den ikke findes. */
+  position:sticky;bottom:0;z-index:2}
+/* I overlayet ruller hele boksen, saa dér skal bunden ikke klaebe. */
+.sogalleb .sogbund{position:static}
 .sogbund b{color:#4f544b}
 .sogflere{font-family:'Inter',sans-serif;font-size:11px;background:#fff;border:1px solid #e0c9a3;
   border-radius:2px;padding:5px 12px;cursor:pointer;color:#8d6a34;font-weight:500;transition:.15s}
@@ -982,7 +991,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.45';
+const APP_VERSION = 'v0.46';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -5444,8 +5453,8 @@ function sogSamlSager(leads, rejser, kunder, kunSager, q){
   const sorter = a => a.sort((x,y)=>r(x)-r(y));
 
   const ud = [];
-  if(sorter(rejst).length) ud.push(['Blevet til rejser', rejst]);
-  if(sorter(ikke).length)  ud.push(['Henvendelser — endnu ikke rejser', ikke]);
+  if(sorter(rejst).length) ud.push(['Solgte rejser', rejst]);
+  if(sorter(ikke).length)  ud.push(['Henvendelser', ikke]);
   if(!kunSager && kunder.length) ud.push(['Kunder', sorter(kunder.map(sogRaekkeKunde))]);
   return ud;
 }
@@ -5531,10 +5540,14 @@ function sogTegn(id, alle){
     html += `</div>`;
   });
   html += `<div class="sogbund">${
-    (!alle && antal > SOG_GRAENSE)
-      ? `Viser de ${SOG_GRAENSE} bedste af <b>${antal}</b> træf
-         <button class="sogflere" onclick="sogSeAlle('${id}',${id==='hv'})">Se alle ${antal} resultater →</button>`
-      : `${antal} træf`
+    alle ? `${antal} træf`
+    : (antal > SOG_GRAENSE
+        ? `Viser de ${SOG_GRAENSE} bedste af <b>${antal}</b> træf
+           <button class="sogflere" onclick="sogSeAlle('${id}',${id==='hv'})">Se alle ${antal} resultater →</button>`
+        /* Ogsaa naar alt er vist, skal hele listen kunne aabnes — det er dér
+           man kan folde kategorier sammen og se det i fuld bredde. */
+        : `<b>${antal}</b> træf
+           <button class="sogflere" onclick="sogSeAlle('${id}',${id==='hv'})">Se hele listen →</button>`)
   }<span class="sogtaster"><b>Esc</b> lukker</span></div>`;
   boks.hidden = false;
   boks.innerHTML = html;
