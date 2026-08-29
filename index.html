@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.42 · 29.08.2026
+<!-- Panda · v0.43 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -685,20 +685,28 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .sogres[hidden]{display:none}
 .soggrp{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:#c1975a;font-weight:600;
   padding:12px 16px 6px;border-bottom:1px solid #f0e9dc;background:#f2ebe0}
-.sogrw{display:flex;align-items:center;gap:14px;padding:11px 16px;border-bottom:1px solid #f0e9dc;cursor:pointer;transition:.13s}
+.sogrw{display:flex;align-items:center;gap:14px;min-width:0;padding:11px 16px;border-bottom:1px solid #f0e9dc;cursor:pointer;transition:.13s}
 .sogrw:hover{background:rgba(242,235,224,.7)}
 .sogrw:last-child{border-bottom:0}
 .sogik{width:28px;height:28px;border-radius:50%;background:#e4f0ef;display:grid;place-items:center;font-size:13px;flex:0 0 auto}
-.sogm{flex:1;min-width:0}
-.sogn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;line-height:1.25;color:#2e332e}
-.sogd{font-size:11.5px;color:#4f544b;margin-top:2px}
-.sogfra{font-size:10.5px;color:#8b8370;margin-top:3px;font-style:italic}
+/* Én linje pr. felt. Navnet skal ikke braekke i seks stumper, fordi
+   statuspillen og beloebet ikke vil give plads — de er de foerste der
+   viger, og teksten klippes med prikker i stedet for at vikle sig. */
+.sogm{flex:1 1 auto;min-width:0;overflow:hidden}
+.sogn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;line-height:1.3;color:#2e332e;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sogd{font-size:11.5px;color:#4f544b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sogfra{font-size:10.5px;color:#8b8370;margin-top:3px;font-style:italic;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sogh{background:rgba(224,201,163,.5);border-radius:2px;padding:0 2px}
-.soghoej{flex:0 0 auto;text-align:right}
+.soghoej{flex:0 1 auto;text-align:right;min-width:0;white-space:nowrap}
+/* paa smalle vinduer viger beloebet foerst — navnet er vigtigere */
+@media(max-width:860px){ .soghoej{display:none} .sogrw{gap:10px} }
+@media(max-width:640px){ .sogmrk{display:none} }
 .sogbel{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#2e332e}
 .sogtid{font-size:10.5px;color:#8b8370;margin-top:2px}
 .sogmrk{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;padding:3px 8px;border-radius:2px;
-  font-weight:600;white-space:nowrap;flex:0 0 auto}
+  font-weight:600;white-space:nowrap;flex:0 1 auto;max-width:120px;overflow:hidden;text-overflow:ellipsis}
 .sogmrk.aaben{background:rgba(224,201,163,.45);color:#8d6a34}
 .sogmrk.vundet{background:rgba(123,164,136,.22);color:#4f7a5f}
 .sogmrk.tabt{background:rgba(163,81,47,.1);color:#a3512f}
@@ -939,7 +947,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.42';
+const APP_VERSION = 'v0.43';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
