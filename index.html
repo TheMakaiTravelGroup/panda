@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.47 · 29.08.2026
+<!-- Panda · v0.48 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -1197,7 +1197,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.47';
+const APP_VERSION = 'v0.48';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -5665,8 +5665,10 @@ function sogSamlSager(leads, rejser, kunder, kunSager, q){
   const sorter = a => a.sort((x,y)=>r(x)-r(y));
 
   const ud = [];
-  if(sorter(rejst).length) ud.push(['Solgte rejser', rejst]);
-  if(sorter(ikke).length)  ud.push(['Henvendelser', ikke]);
+  const gRejser = ['Solgte rejser', sorter(rejst)];
+  const gHenv   = ['Henvendelser',  sorter(ikke)];
+  if(kunSager){ if(gHenv[1].length) ud.push(gHenv); if(gRejser[1].length) ud.push(gRejser); }
+  else        { if(gRejser[1].length) ud.push(gRejser); if(gHenv[1].length) ud.push(gHenv); }
   if(!kunSager && kunder.length) ud.push(['Kunder', sorter(kunder.map(sogRaekkeKunde))]);
   return ud;
 }
@@ -6252,8 +6254,12 @@ function hvRender(l, acts, offers){
         <div><div class="lab">Henvendelse${l.pipedrive_deal_id?' · '+escH(String(l.pipedrive_deal_id)):''}</div>
           <h2>${escH(l.title||l.contact_name||'Uden navn')}</h2></div>
         <div class="acts"><span class="pos">${pos>=0?(pos+1)+' / '+window._hvOrder.length:''}</span>
-          <button class="b won" disabled title="Bygges i næste trin — jf. R104">Solgt</button>
-          <button class="b lost" disabled title="Bygges i næste trin — jf. R104">Tabt</button>
+          ${l.status==='lost'
+            ? `<button class="b gh" onclick="hvGenaabn()" title="Åbn sagen igen">Åbn igen</button>`
+            : l.converted_trip_id
+              ? `<button class="b won" onclick="hvClose();viewTrip('${l.converted_trip_id}')" title="Sagen er blevet til en rejse">Åbn rejsen →</button>`
+              : `<button class="b won" onclick="hvSolgtDlg()" title="Kunden har sagt ja">Solgt</button>
+                 <button class="b lost" onclick="hvTabtDlg()" title="Sagen blev ikke til noget">Tabt</button>`}
           <button class="xb" onclick="hvClose()" title="Luk (Esc)">✕</button></div>
       </div>
       <div class="chips">
@@ -6370,13 +6376,7 @@ function hvRender(l, acts, offers){
     <div class="foot"><span class="saved" id="hvSaved"></span><span class="sp"></span>
       <span class="kbd">Esc</span><span style="font-size:10px;color:var(--mut)">luk</span>
       <span class="kbd">← →</span><span style="font-size:10px;color:var(--mut)">skift kort</span>
-      <button class="b gh" onclick="hvClose()">Luk</button>
-      ${l.status==='lost'
-        ? `<button class="b gh" onclick="hvGenaabn()">Åbn igen</button>`
-        : l.converted_trip_id
-          ? `<button class="b won" onclick="hvClose();viewTrip('${l.converted_trip_id}')">Åbn rejsen →</button>`
-          : `<button class="b lost" onclick="hvTabtDlg()">Tabt</button>
-             <button class="b won" onclick="hvSolgtDlg()">Solgt</button>`}</div>`;
+      <button class="b gh" onclick="hvClose()">Luk</button></div>`;
   hvKids();
 }
 
