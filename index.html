@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.50 · 29.08.2026
+<!-- Panda · v0.53 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -779,7 +779,30 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .sogalleh h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin:0;flex:1;color:#2e332e}
 .sogalleb{overflow-y:auto}
 .sogalleb .sogres{position:static;border:0;box-shadow:none;max-height:none}
-.card.sogkort{padding:0;border:0;background:none;box-shadow:none;overflow:visible}
+.card/* Nye bookinger — det foerste man skal se, for en kunde venter paa svar. */
+.bkkort{padding:0;overflow:hidden;border-color:#cfe3e0}
+.bkh{display:flex;align-items:center;gap:10px;padding:13px 18px;background:var(--mist);
+  border-bottom:1px solid #cfe3e0}
+.bkh .t{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;flex:1;color:#2e332e}
+.bkh .ct{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:#4c7f77;font-weight:600;
+  background:rgba(255,255,255,.75);border-radius:2px;padding:4px 9px}
+.bkr{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--hair);
+  font-size:12.5px;cursor:pointer;transition:.13s}
+.bkr:hover{background:rgba(242,235,224,.6)}
+.bkr:last-of-type{border-bottom:0}
+.bkik{width:28px;height:28px;border-radius:50%;background:var(--mist);display:grid;place-items:center;
+  font-size:13px;flex:0 0 auto}
+.bkm{flex:1;min-width:0}
+.bkn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;line-height:1.25}
+.bkd{font-size:11.5px;color:var(--ink2);margin-top:2px;overflow-wrap:anywhere}
+.bkk{font-size:11px;color:var(--mut);margin-top:3px}
+.bkk .advar{color:var(--bad);font-weight:600}
+.bkh2{flex:0 0 auto;text-align:right}
+.bkp{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.bke{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin-top:3px}
+.bkfod{padding:10px 18px;font-size:11px;color:var(--mut);background:var(--sand);
+  border-top:1px solid var(--hair);line-height:1.6}
+.sogkort{padding:0;border:0;background:none;box-shadow:none;overflow:visible}
 .hv7 .hvsog{margin-left:auto;min-width:270px;position:relative}
 .hv7 .hvsog .sogfelt{padding:0 13px}
 .hv7 .hvsog .sogfelt input{font-size:13px;padding:8px 0}
@@ -1089,6 +1112,23 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .ml7 .mlelgrid .v.frist{color:var(--mladvar)}
 
 /* ── kurser ── */
+.ml7 .mlpaxr{display:flex;align-items:flex-end;gap:14px;padding:13px 18px;border-bottom:1px solid var(--mlhair)}
+.ml7 .mlpaxr:last-of-type{border-bottom:0}
+.ml7 .mlpaxr .nr{flex:0 0 26px;height:26px;border-radius:50%;border:1px solid var(--mlline);
+  display:grid;place-items:center;font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--mlmut);
+  margin-bottom:3px}
+.ml7 .mlpaxr .f{flex:1;min-width:0}
+.ml7 .mlpaxr .f.sm{flex:0 0 160px}
+.ml7 .mlpaxr label{display:block;font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--mlmut);margin-bottom:4px}
+.ml7 .mlpaxr input{width:100%;font-family:'Inter',sans-serif;font-size:13.5px;padding:6px 0;border:0;
+  border-bottom:1px solid var(--mlhair);background:transparent;color:var(--mlink);border-radius:0}
+.ml7 .mlpaxr input:focus{outline:none;border-bottom-color:var(--mlgold)}
+.ml7 .mlpaxr .alder{flex:0 0 128px;font-size:12.5px;color:var(--mlink2);padding-bottom:5px}
+.ml7 .mlpaxr .alder small{display:block;font-size:10.5px;color:var(--mlmut);margin-top:2px}
+.ml7 .mlpaxr .alder .mgl{color:var(--mladvar);font-size:11.5px}
+.ml7 .mlpaxr .pmini{margin-bottom:5px}
+.ml7 .mlpaxhj{font-size:11px;color:var(--mlmut);align-self:center}
 .ml7 .mlkurskort{background:var(--mlcard);border:1px solid var(--mlline);border-radius:3px;padding:16px 18px}
 .ml7 .kurstop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
 .ml7 .kurstop .n{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mlmut);font-weight:600}
@@ -1202,7 +1242,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.50';
+const APP_VERSION = 'v0.53';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -1855,7 +1895,7 @@ async function viewDash(){
   navTo('dash');
   app.innerHTML = '<div class="card">Gør dagen klar…</div>';
   const t0=today(), t7=plusDays(7), t1=plusDays(1), tm7=plusDays(-7);
-  const [trips, rk, rb, rd, re, _vp, dashLeads] = await Promise.all([
+  const [trips, rk, rb, rd, re, _vp, dashLeads, nyeBookinger] = await Promise.all([
     fetchTrips(),
     db.from('tasks').select('*, trips(ref_no)').eq('status','aaben').order('due_date').then(r=>r.data||[]),
     // Brief: fælles brief (for_email = null) er basen; en personlig række (for_email = mig)
@@ -1870,7 +1910,14 @@ async function viewDash(){
     db.from('documents').select('id',{count:'exact',head:true}),
     db.from('trip_elements').select('id,element_type,description,details,start_date,end_date,status,suppliers:supplier_id(name),trips!inner(id,ref_no,status,pax_count,customers(last_name,first_name),trip_destinations(destination))').lte('start_date',t0).or(`end_date.gte.${t0},and(end_date.is.null,start_date.eq.${t0})`).then(r=>r.data||[]),
     vpLoadRecon(),
-    db.from('leads').select('created_at,status,owner,stage,contact_name,est_value,currency').then(r=>r.data||[])
+    db.from('leads').select('created_at,status,owner,stage,contact_name,est_value,currency').then(r=>r.data||[]),
+    /* Bookinger fra tilbudssiden, der endnu ikke er blevet til en rejse.
+       Uden dem sker der INTET synligt i Panda, naar en kunde trykker book —
+       og saa ligger en solgt rejse og venter, uden at nogen ved det. */
+    db.from('booking_requests')
+      .select('id,modtaget_at,kontakt_navn,kontakt_email,hotel,destination,afrejse,pris,valuta,branch,lead_id,match_metode,parse_ok,parse_note')
+      .is('trip_id', null).order('modtaget_at',{ascending:false}).limit(20)
+      .then(r=>r.data||[])
   ]);
   const brief = rb;
   const act = trips.filter(active);
@@ -2131,6 +2178,31 @@ async function viewDash(){
     </details>`}
   </div>
 
+  ${(nyeBookinger||[]).length ? `
+  <div class="card bkkort" style="margin-bottom:12px">
+    <div class="bkh"><span class="t">Nye bookinger fra tilbudssiden</span>
+      <span class="ct">${nyeBookinger.length} venter</span></div>
+    ${nyeBookinger.map(b=>{
+      const naar = new Date(b.modtaget_at);
+      const timer = Math.round((Date.now()-naar)/3600000);
+      const alder = timer < 1 ? 'lige nu' : timer < 24 ? `for ${timer} timer siden`
+                  : `for ${Math.round(timer/24)} dage siden`;
+      return `<div class="bkr"${b.lead_id?` onclick="navTo('hv');setTimeout(()=>hvOpen('${b.lead_id}'),350)"`:''}>
+        <div class="bkik">📩</div>
+        <div class="bkm"><div class="bkn">${escH(b.kontakt_navn||'Uden navn')}</div>
+          <div class="bkd">${escH([b.hotel, b.destination, b.afrejse?('afrejse '+fmtDY(b.afrejse)):null]
+             .filter(Boolean).join(' · '))}</div>
+          <div class="bkk">${alder} · ${escH(b.kontakt_email||'')}${
+             b.lead_id ? '' : ` · <b class="advar">ingen henvendelse fundet${
+               b.match_metode==='flere navne passer - vaelg selv' ? ' (flere navne passer)' : ''}</b>`}${
+             b.parse_ok ? '' : ` · <b class="advar">noget mangler i beskeden</b>`}</div></div>
+        <div class="bkh2"><div class="bkp">${b.pris?fval(b.pris)+' '+escH(b.valuta||''):'—'}</div>
+          <div class="bke">${b.lead_id?'åbn henvendelsen →':'kobl den selv'}</div></div>
+      </div>`;
+    }).join('')}
+    <div class="bkfod">Tryk på en booking for at åbne henvendelsen — derfra trykker du <b>Solgt</b>,
+      og alt fra bookingen følger med over på rejsen.</div>
+  </div>` : ''}
   <div class="card sogkort" style="margin-bottom:12px">${sogFelt('dash', false)}</div>
 
   ${(hasPerm('economy') && ['WEN','RAS'].includes(window.ME))?`<div class="card rev-card" style="margin-bottom:12px">
@@ -7147,7 +7219,7 @@ async function viewMel(id){
     db.from('trip_elements').select('*, suppliers:supplier_id(name)').eq('trip_id',id).order('start_date'),
     db.rpc('fn_effektive_kurser'),
     db.from('fx_pricing_defaults').select('*').limit(1).single(),
-    db.from('leads').select('id,contact_name,offer_url,destination').limit(1)
+    db.from('trip_travelers').select('id,note,travelers(id,full_name,date_of_birth,is_lead)').eq('trip_id',id)
   ]);
   if(rt.error) return fejl('rejse', rt.error);
   if(re.error) return fejl('elementer', re.error);
@@ -7161,6 +7233,7 @@ async function viewMel(id){
     (rp.data||[]).forEach(p=>{ (priser[p.element_id]=priser[p.element_id]||[]).push(p); });
   }
   window.ML = { trip: rt.data, els, priser,
+                rejsende: (rl&&rl.data)||[],
                 kurser: (rk&&rk.data)||{}, std: (rd&&rd.data)||{bank_fee_dkk:500,round_to:500,target_dg_pct:20.3},
                 aabne:{} };
   mlRender();
@@ -7195,6 +7268,10 @@ function mlRender(){
     '<div class="mltom">Ingen ydelser endnu. Læg rejsens elementer ind herunder, så kan de tjekkes.</div>'}
     <div class="mltilfoej"><button class="btn ghost" onclick="mlNytElement()">+ Tilføj element</button></div>
   </div>
+
+  <div class="mlsh"><span class="txt">Rejsende</span>
+    <span class="r">navnet skal stå som i passet, før rejsen bekræftes</span></div>
+  <div class="mlkort" id="mlPax"></div>
 
   <div class="mlsh"><span class="txt">Kurser</span><span class="r">marked · bankmargin · risikobuffer</span></div>
   <div class="mlkurskort" id="mlKurser"></div>
@@ -7239,7 +7316,7 @@ function mlRender(){
     <button class="btn gold" id="mlBekraeft" disabled onclick="mlBekraeft()">Bekræft og opret rejsen</button>
   </div>
   </div>`;
-  mlTegnKurser();
+  mlTegnKurser(); mlTegnPax();
   /* Saetter daekningsgraden efter den pris kunden har accepteret — ellers
      staar feltet tomt, selvom tallet allerede kan regnes. */
   mlFraPris();
@@ -7464,6 +7541,75 @@ function mlOpdater(elId){
     if(aaben){ document.querySelector(`#mlKontrol .mlel[data-el="${elId}"]`).classList.add('aaben');
       mlTegnPriser(elId); } }
   mlRegn();
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   REJSENDE
+   Kommer fra kundens booking med navn og foedselsdato. De SKAL kunne rettes:
+   folk taster forkert i en formular, og navnet skal staa praecis som i
+   passet, foer rejsen bekraeftes og billetterne udstedes. Den oprindelige
+   tekst bliver staaende i bookingen, saa man altid kan se hvad kunden skrev.
+   ══════════════════════════════════════════════════════════════════════ */
+function mlAlder(dob, paa){
+  if(!dob || !paa) return null;
+  const d = new Date(dob), r = new Date(paa);
+  let a = r.getFullYear() - d.getFullYear();
+  const m = r.getMonth() - d.getMonth();
+  if(m < 0 || (m === 0 && r.getDate() < d.getDate())) a--;
+  return a;
+}
+function mlTegnPax(){
+  const boks = document.getElementById('mlPax'); if(!boks) return;
+  const dep = ML.trip.departure_date;
+  const raek = (ML.rejsende||[]).map((tt,i)=>{
+    const p = tt.travelers || {};
+    const a = mlAlder(p.date_of_birth, dep);
+    const gruppe = a==null ? '' : a>=18 ? 'voksen' : a>=12 ? 'ungdom' : a>=2 ? 'barn' : 'spædbarn';
+    return `<div class="mlpaxr" data-tt="${tt.id}">
+      <div class="nr">${i+1}</div>
+      <div class="f"><label>Navn som i passet</label>
+        <input value="${escH(p.full_name||'')}" onchange="mlPaxGem('${p.id}','full_name',this.value)"></div>
+      <div class="f sm"><label>Fødselsdato</label>
+        <input type="date" value="${escH(p.date_of_birth||'')}" onchange="mlPaxGem('${p.id}','date_of_birth',this.value)"></div>
+      <div class="alder">${a==null?'<span class="mgl">mangler fødselsdato</span>'
+        :`${a} år<small>${gruppe} på afrejsedagen</small>`}</div>
+      <button class="pmini slet" onclick="mlPaxFjern('${tt.id}')">Fjern</button>
+    </div>`;
+  }).join('');
+  boks.innerHTML = (raek || `<div class="mltom">Ingen rejsende endnu. Kom bookingen fra tilbudssiden,
+      lægges de ind af sig selv — ellers tilføj dem her.</div>`)
+    + `<div class="mltilfoej"><button class="btn ghost" onclick="mlPaxTilfoej()">+ Tilføj rejsende</button>
+       <span class="mlpaxhj">${(ML.rejsende||[]).length} af ${ML.trip.pax_count} rejsende er skrevet ind</span></div>`;
+}
+async function mlPaxGem(travelerId, felt, vaerdi){
+  const v = felt==='date_of_birth' ? (vaerdi||null) : String(vaerdi||'').trim();
+  if(felt==='full_name' && !v){ alert('Navnet må ikke være tomt.'); mlTegnPax(); return; }
+  const {error} = await db.from('travelers').update({[felt]: v}).eq('id', travelerId);
+  if(error){ alert(error.message); return; }
+  const tt = (ML.rejsende||[]).find(x=>x.travelers && x.travelers.id===travelerId);
+  if(tt) tt.travelers[felt] = v;
+  mlTegnPax();
+}
+async function mlPaxTilfoej(){
+  const navn = prompt('Navn som i passet');
+  if(!navn || !navn.trim()) return;
+  const {data:tr, error:e1} = await db.from('travelers')
+    .insert({customer_id: ML.trip.customer_id, full_name: navn.trim()}).select('id,full_name,date_of_birth,is_lead').single();
+  if(e1){ alert(e1.message); return; }
+  const {data:tt, error:e2} = await db.from('trip_travelers')
+    .insert({trip_id: ML.trip.id, traveler_id: tr.id}).select('id,note').single();
+  if(e2){ alert(e2.message); return; }
+  ML.rejsende.push({id: tt.id, note: null, travelers: tr});
+  mlTegnPax();
+}
+async function mlPaxFjern(ttId){
+  const tt = (ML.rejsende||[]).find(x=>x.id===ttId); if(!tt) return;
+  const navn = (tt.travelers||{}).full_name || 'den rejsende';
+  if(!confirm(`Fjern ${navn} fra rejsen?`)) return;
+  const {error} = await db.from('trip_travelers').delete().eq('id', ttId);
+  if(error){ alert(error.message); return; }
+  ML.rejsende = ML.rejsende.filter(x=>x.id!==ttId);
+  mlTegnPax();
 }
 
 /* ══ KURSER ══ */
@@ -7715,12 +7861,11 @@ async function hvSolgtDlg(){
   const pax  = (bk && Array.isArray(bk.rejsende) && bk.rejsende.length) ? bk.rejsende.length
                : ((Number(l.adults)||0) + (Number(l.kids)||0)) || 2;
   const tilb = (bk && bk.tilbud_url) || l.offer_url || '';
+  /* Budgettet fra henvendelsen naevnes ikke her. Paa dette trin har kunden
+     faaet et tilbud og sagt ja til en pris — hvad de oprindeligt haabede paa,
+     er uden betydning og kan kun forvirre tallet. */
   const kilde = bk ? 'fra kundens booking — det kunden faktisk trykkede ja til'
-              : 'skriv prisen fra det tilbud kunden har accepteret'
-                + (Number(l.est_value)>0
-                   ? ' · til orientering var budgettet på henvendelsen '
-                     + Math.round(Number(l.est_value)).toLocaleString('da-DK') + ' ' + (l.currency||'')
-                   : '');
+                   : 'skriv prisen fra det tilbud kunden har accepteret';
 
   ov.innerHTML = `<div class="ldlg" onclick="event.stopPropagation()">
     <div class="h"><h3>Kunden har sagt ja</h3>
@@ -7811,6 +7956,27 @@ async function hvSolgtGem(){
   /* 4. Kom bookingen fra tilbudssiden, laegges hotellet ind som ydelse med det
         samme. Saa skal det ikke tastes igen, og kontrollen kan gaa i gang. */
   const bk = window._hvBooking;
+
+  /* Kunden har skrevet de rejsende ind i bookingformularen med navn og
+     foedselsdato. De skal med over med det samme — men de skal ogsaa kunne
+     rettes: folk taster forkert, og navnet skal staa som i passet, foer
+     rejsen bekraeftes. (R135) */
+  if(bk && Array.isArray(bk.rejsende) && bk.rejsende.length){
+    for(const r of bk.rejsende){
+      const navn = String(r.navn||'').trim(); if(!navn) continue;
+      const {data:tr, error:et} = await db.from('travelers').insert({
+        customer_id: kundeId, full_name: navn,
+        date_of_birth: r.foedt || null,
+        is_lead: bk.rejsende.indexOf(r)===0
+      }).select('id').single();
+      if(et || !tr) continue;
+      await db.from('trip_travelers').insert({
+        trip_id: t.id, traveler_id: tr.id,
+        note: r.type==='barn' ? 'barn ifølge bookingen' : null
+      });
+    }
+  }
+
   if(bk && bk.hotel){
     await db.from('trip_elements').insert({
       trip_id: t.id, element_type:'hotel', sell_amount_dkk: 0,
