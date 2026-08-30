@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.53 · 29.08.2026
+<!-- Panda · v0.54 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -779,30 +779,37 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .sogalleh h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin:0;flex:1;color:#2e332e}
 .sogalleb{overflow-y:auto}
 .sogalleb .sogres{position:static;border:0;box-shadow:none;max-height:none}
-.card/* Nye bookinger — det foerste man skal se, for en kunde venter paa svar. */
-.bkkort{padding:0;overflow:hidden;border-color:#cfe3e0}
-.bkh{display:flex;align-items:center;gap:10px;padding:13px 18px;background:var(--mist);
-  border-bottom:1px solid #cfe3e0}
-.bkh .t{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;flex:1;color:#2e332e}
-.bkh .ct{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:#4c7f77;font-weight:600;
-  background:rgba(255,255,255,.75);border-radius:2px;padding:4px 9px}
-.bkr{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--hair);
-  font-size:12.5px;cursor:pointer;transition:.13s}
-.bkr:hover{background:rgba(242,235,224,.6)}
-.bkr:last-of-type{border-bottom:0}
-.bkik{width:28px;height:28px;border-radius:50%;background:var(--mist);display:grid;place-items:center;
-  font-size:13px;flex:0 0 auto}
-.bkm{flex:1;min-width:0}
-.bkn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;line-height:1.25}
-.bkd{font-size:11.5px;color:var(--ink2);margin-top:2px;overflow-wrap:anywhere}
-.bkk{font-size:11px;color:var(--mut);margin-top:3px}
-.bkk .advar{color:var(--bad);font-weight:600}
-.bkh2{flex:0 0 auto;text-align:right}
-.bkp{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
-.bke{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin-top:3px}
-.bkfod{padding:10px 18px;font-size:11px;color:var(--mut);background:var(--sand);
-  border-top:1px solid var(--hair);line-height:1.6}
-.sogkort{padding:0;border:0;background:none;box-shadow:none;overflow:visible}
+/* Nye bookinger — det foerste man skal se, for en kunde venter paa svar.
+   Bygget som dashboardets oevrige kort (.card + h3-etiket + rejseplanens
+   raekker), men med guldkant og varm bund, saa den springer i oejnene uden
+   at tale et andet sprog end resten af siden. */
+.bkkort{border-left:3px solid var(--gold);background:linear-gradient(90deg,rgba(224,201,163,.16),var(--card) 40%);margin-bottom:12px;}
+.bkkort h3{color:var(--gold);}
+.bkkort h3 .r{color:var(--ink2);}
+.bkkort h3 .r .bkct{font-family:'Playfair Display',serif;font-size:15px;color:var(--forest);
+  font-weight:600;font-variant-numeric:tabular-nums;}
+.bkr{display:flex;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--hair);
+  cursor:pointer;font-size:12.5px;transition:.13s;}
+.bkr:last-of-type{border-bottom:0;}
+.bkr:hover{background:rgba(224,201,163,.14);border-radius:6px;padding-left:8px;padding-right:8px;margin:0 -8px;}
+.bkr .dag{flex:0 0 74px;font-size:11px;color:var(--mut);letter-spacing:.4px;}
+.bkr .nvn{flex:0 0 172px;font-weight:600;color:var(--ink);overflow-wrap:anywhere;}
+.bkr .det{flex:1;min-width:0;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bkr .bel{flex:0 0 auto;font-family:'Playfair Display',serif;font-size:15px;font-weight:500;
+  color:var(--forest);font-variant-numeric:tabular-nums;}
+.bkr .hvad{flex:0 0 168px;text-align:right;font-size:11px;color:var(--mut);}
+.bkr .hvad .advar{color:var(--bad);font-weight:700;}
+.bkr.uro .nvn{color:var(--bad);}
+/* Varslet naar en booking lander mens Panda er aaben. */
+.bktoast{position:fixed;right:18px;bottom:18px;z-index:120;max-width:360px;background:var(--card);
+  border:1px solid var(--gold);border-left:3px solid var(--gold);border-radius:10px;padding:14px 16px;
+  box-shadow:0 18px 50px rgba(80,70,55,.28);cursor:pointer;animation:bkind .34s cubic-bezier(.2,.8,.3,1);}
+@keyframes bkind{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.bktoast .t{font-size:9.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.bktoast .n{font-family:'Playfair Display',serif;font-size:17px;margin-top:5px;color:var(--ink);}
+.bktoast .d{font-size:11.5px;color:var(--ink2);margin-top:3px;line-height:1.5;}
+.bktoast .x{position:absolute;top:8px;right:11px;color:var(--mut);font-size:14px;}
+.card.sogkort{padding:0;border:0;background:none;box-shadow:none;overflow:visible}
 .hv7 .hvsog{margin-left:auto;min-width:270px;position:relative}
 .hv7 .hvsog .sogfelt{padding:0 13px}
 .hv7 .hvsog .sogfelt input{font-size:13px;padding:8px 0}
@@ -1242,7 +1249,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.53';
+const APP_VERSION = 'v0.54';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -2097,10 +2104,35 @@ async function viewDash(){
   const qMax=Math.max(1,...qAgg.map(x=>x.total));
   const pctI=(a,b)=> b?Math.round(100*a/b):0;
 
+  bkOvervaag();
   const __dashHtml = `
   <div class="pagehead"><h2>${greet}, <i style="color:var(--gold)">${window.MYNAME}</i>.</h2>
   <span class="sub">${new Date().toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'})}</span>
   <span class="sub" style="margin-left:auto">${depToday.length?depToday.length+' afrejser i dag':'ingen afrejser i dag'} · ${paxOut} gæster ude · ${tasksDue.length?tasksDue.length+' opgaver til forfald':'alt ajour'} <span class="livedot" title="Opdaterer automatisk">● live</span></span></div>
+
+  ${(nyeBookinger||[]).length ? `
+  <div class="card bkkort" id="bkKort">
+    <h3>Nye bookinger fra tilbudssiden
+      <span class="r"><b class="bkct">${nyeBookinger.length}</b> venter på at blive til en rejse</span></h3>
+    ${nyeBookinger.map(b=>{
+      const timer = Math.round((Date.now()-new Date(b.modtaget_at))/3600000);
+      const alder = timer < 1 ? 'lige nu' : timer < 24 ? 'for '+timer+' timer siden'
+                  : 'for '+Math.round(timer/24)+' dage siden';
+      const uro = !b.lead_id || !b.parse_ok;
+      return `<div class="bkr${uro?' uro':''}" onclick="bkAabn('${b.id}','${b.lead_id||''}')">
+        <span class="dag">${b.afrejse?escH(fmtD(b.afrejse)):'—'}</span>
+        <span class="nvn">${escH(b.kontakt_navn||'Uden navn')}</span>
+        <span class="det">${escH([b.hotel,b.destination].filter(Boolean).join(' · '))||'—'}</span>
+        <span class="bel">${b.pris?fval(b.pris)+' '+escH(b.valuta||''):'—'}</span>
+        <span class="hvad">${uro
+          ? '<b class="advar">'+(!b.lead_id?'ingen henvendelse fundet':'noget mangler')+'</b>'
+          : alder}</span>
+      </div>`;
+    }).join('')}
+    <p class="foldlink" style="margin:10px 0 0">Tryk på en booking for at åbne henvendelsen — derfra
+      trykker du <b>Solgt</b>, og alt fra bookingen følger med over på rejsen.
+      <a href="#" onclick="bkVarslerTil();return false" id="bkVarsel"></a></p>
+  </div>` : ''}
 
   <!-- Morgenbriefen er taget ud af dashboardet 24.08.2026 (Wendie): for lang og
        klumpet, og indholdet var bygget til ét login. Hilsenen bliver. Briefen selv
@@ -2178,31 +2210,6 @@ async function viewDash(){
     </details>`}
   </div>
 
-  ${(nyeBookinger||[]).length ? `
-  <div class="card bkkort" style="margin-bottom:12px">
-    <div class="bkh"><span class="t">Nye bookinger fra tilbudssiden</span>
-      <span class="ct">${nyeBookinger.length} venter</span></div>
-    ${nyeBookinger.map(b=>{
-      const naar = new Date(b.modtaget_at);
-      const timer = Math.round((Date.now()-naar)/3600000);
-      const alder = timer < 1 ? 'lige nu' : timer < 24 ? `for ${timer} timer siden`
-                  : `for ${Math.round(timer/24)} dage siden`;
-      return `<div class="bkr"${b.lead_id?` onclick="navTo('hv');setTimeout(()=>hvOpen('${b.lead_id}'),350)"`:''}>
-        <div class="bkik">📩</div>
-        <div class="bkm"><div class="bkn">${escH(b.kontakt_navn||'Uden navn')}</div>
-          <div class="bkd">${escH([b.hotel, b.destination, b.afrejse?('afrejse '+fmtDY(b.afrejse)):null]
-             .filter(Boolean).join(' · '))}</div>
-          <div class="bkk">${alder} · ${escH(b.kontakt_email||'')}${
-             b.lead_id ? '' : ` · <b class="advar">ingen henvendelse fundet${
-               b.match_metode==='flere navne passer - vaelg selv' ? ' (flere navne passer)' : ''}</b>`}${
-             b.parse_ok ? '' : ` · <b class="advar">noget mangler i beskeden</b>`}</div></div>
-        <div class="bkh2"><div class="bkp">${b.pris?fval(b.pris)+' '+escH(b.valuta||''):'—'}</div>
-          <div class="bke">${b.lead_id?'åbn henvendelsen →':'kobl den selv'}</div></div>
-      </div>`;
-    }).join('')}
-    <div class="bkfod">Tryk på en booking for at åbne henvendelsen — derfra trykker du <b>Solgt</b>,
-      og alt fra bookingen følger med over på rejsen.</div>
-  </div>` : ''}
   <div class="card sogkort" style="margin-bottom:12px">${sogFelt('dash', false)}</div>
 
   ${(hasPerm('economy') && ['WEN','RAS'].includes(window.ME))?`<div class="card rev-card" style="margin-bottom:12px">
@@ -2225,6 +2232,7 @@ async function viewDash(){
     <div class="insgrid" id="insgrid"></div>
   </div>`;
   app.innerHTML = __dashHtml;
+  bkVarselLink();
   // Indsigterne regnes paa de rejser der allerede er hentet — og vises tilfaeldigt
   window.__DASHTRIPS = trips;
   window.__INDSIGTER = byggIndsigter(trips, dashLeads);
@@ -7151,6 +7159,94 @@ async function usrLogin(email){
 function alertUsr(error){ app.insertAdjacentHTML('afterbegin','<div class="card" style="border-color:var(--bad)"><p style="color:var(--bad);margin:0">Kunne ikke gemme: '+error.message+'</p></div>'); }
 
 init();
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   VARSEL OM NYE BOOKINGER
+   En kunde der trykker «book» venter paa svar. Uden et varsel opdages det
+   foerst, naar nogen tilfaeldigvis kigger paa dashboardet — og det kan vaere
+   dagen efter. Realtime giver besked i samme sekund raekken lander.
+
+   To lag, fordi de daekker hver sin situation:
+     · en seddel i Panda   naar appen er aaben
+     · en browserbesked    naar Panda ligger i en anden fane
+   Browserbeskeden kraever brugerens tilladelse, og den beder vi kun om,
+   naar hun selv trykker paa linket — aldrig uopfordret.
+   ══════════════════════════════════════════════════════════════════════════ */
+let _bkKanal = null;
+
+function bkVarslerTil(){
+  if(!('Notification' in window)){
+    alert('Din browser kan ikke vise beskeder uden for Panda. Sedlen i Panda virker stadig.');
+    return;
+  }
+  Notification.requestPermission().then(()=>bkVarselLink());
+}
+/* Linket viser kun sig selv, naar der er noget at goere ved det. */
+function bkVarselLink(){
+  const a = document.getElementById('bkVarsel'); if(!a) return;
+  if(!('Notification' in window)){ a.textContent=''; return; }
+  if(Notification.permission === 'granted'){
+    a.textContent = ''; a.style.display='none';
+  } else {
+    a.style.display='';
+    a.textContent = Notification.permission === 'denied'
+      ? ' · beskeder er slået fra i browseren'
+      : ' · slå besked til, når en booking lander';
+  }
+}
+
+function bkOvervaag(){
+  if(_bkKanal || !window.db || !db.channel) return;
+  _bkKanal = db.channel('nye-bookinger')
+    .on('postgres_changes',
+        {event:'INSERT', schema:'public', table:'booking_requests'},
+        (m)=>bkNyBooking(m.new))
+    .subscribe();
+}
+
+function bkNyBooking(b){
+  if(!b) return;
+  const navn  = b.kontakt_navn || 'En kunde';
+  const hvad  = [b.hotel, b.destination].filter(Boolean).join(' · ');
+  const belob = b.pris ? fval(b.pris)+' '+(b.valuta||'') : '';
+
+  /* 1. Seddel i Panda. Bliver staaende, til den lukkes eller aabnes —
+        en booking maa ikke forsvinde, mens man kigger den anden vej. */
+  const gl = document.getElementById('bkToast'); if(gl) gl.remove();
+  const d = document.createElement('div');
+  d.id = 'bkToast'; d.className = 'bktoast';
+  d.innerHTML = `<span class="x" onclick="event.stopPropagation();this.parentNode.remove()">✕</span>
+    <div class="t">Ny booking fra tilbudssiden</div>
+    <div class="n">${escH(navn)}</div>
+    <div class="d">${escH(hvad)}${belob?'<br>'+escH(belob):''}<br>Tryk for at åbne</div>`;
+  d.onclick = ()=>{ d.remove(); bkAabn(b.id, b.lead_id||''); };
+  document.body.appendChild(d);
+
+  /* 2. Besked uden for Panda — kun hvis hun selv har sagt ja til det. */
+  if(('Notification' in window) && Notification.permission === 'granted'){
+    try{
+      const n = new Notification('Ny booking · ' + navn, {
+        body: [hvad, belob].filter(Boolean).join('\n') || 'Åbn Panda for at se den',
+        tag: 'booking-' + b.id
+      });
+      n.onclick = ()=>{ window.focus(); bkAabn(b.id, b.lead_id||''); n.close(); };
+    }catch(e){ /* browseren ville ikke - sedlen i Panda staar der stadig */ }
+  }
+
+  /* 3. Er dashboardet fremme, opdateres listen med det samme. */
+  if(window.__view === 'dash') viewDash();
+}
+
+/* Aabner henvendelsen bag bookingen. Er der ingen kobling, aabnes
+   henvendelsessiden, saa den kan findes i haanden. */
+async function bkAabn(bookingId, leadId){
+  const t = document.getElementById('bkToast'); if(t) t.remove();
+  navTo('hv');
+  await viewHenvendelser();
+  if(leadId) setTimeout(()=>hvOpen(leadId), 60);
+  else alert('Denne booking kunne ikke kobles sikkert til en henvendelse.\n\nFind den selv i listen — søgefeltet i filterlinjen finder også lukkede sager.');
+}
 
 /* ══════════ MELLEMLANDING OG SOLGT ══════════ */
 /* ══════════════════════════════════════════════════════════════════════════
