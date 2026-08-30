@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.48 · 29.08.2026
+<!-- Panda · v0.50 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -672,6 +672,11 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .ldlg textarea{min-height:56px;resize:vertical}
 /* Egne klasser med vilje: .mini findes flere steder i Pandas stilark med
    flex og polstring, og de sivede ind i dialogen sidst. */
+.hv7 .hvbk{background:var(--mist);border:1px solid #cfe3e0;border-radius:3px;padding:11px 13px;
+  font-size:12px;line-height:1.6;color:#4c7f77;margin-bottom:16px;}
+.hv7 .hvbk.mangler{background:rgba(224,201,163,.24);border-color:var(--gold-l);color:var(--advar);}
+.hv7 .hvbk .sml{font-size:10.5px;color:var(--mut);}
+.hv7 .hvhj{font-size:10.5px;color:var(--mut);margin:-9px 0 14px;}
 .hv7 .ldlg .dlgfejl{display:block;font-size:11.5px;line-height:1.5;color:#a3512f;
   min-height:17px;margin:0 0 10px;padding:0;background:none;border:0}
 /* aarsagen paa et tabt kort */
@@ -1197,7 +1202,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.48';
+const APP_VERSION = 'v0.50';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -7637,7 +7642,9 @@ async function mlBekraeft(){
   const k = document.getElementById('mlBekraeft');
   k.disabled = true; k.textContent = 'Bekræfter…';
 
-  const {data:ref, error:e1} = await db.rpc('next_ref_no', {p_branch: t.branch});
+  /* next_ref_no giver «MN-2026-0001». Den rigtige er next_dolphin_ref, som
+     fortsaetter Dolphin-serien (MN1765) — og det tal er ogsaa fakturanummeret. */
+  const {data:ref, error:e1} = await db.rpc('next_dolphin_ref', {p_branch: t.branch});
   if(e1){ alert('Kunne ikke danne ref.nr.: '+e1.message); k.disabled=false; k.textContent='Bekræft og opret rejsen'; return; }
 
   const {error:e2} = await db.from('trips').update({
@@ -7672,36 +7679,80 @@ async function mlNytElement(){
    rejse, når hvert element er efterprøvet og rejsen bekræftes. Derfor tæller
    en mellemlanding heller ikke med i konverteringsraten endnu.
    ══════════════════════════════════════════════════════════════════════════ */
-function hvSolgtDlg(){
+/* Henvendelser bruger branchekoden NO, rejser og ref.numre bruger MN.
+   Samme branche, to koder — og den forskel har allerede kostet en forkert
+   valuta i dialogen. Ét sted at oversætte, ikke fem. */
+const HV_BRANCHE_REJSE  = {NO:'MN', MN:'MN', MD:'MD', HQ:'HQ', IT:'IT'};
+const HV_BRANCHE_VALUTA = {NO:'NOK', MN:'NOK', MD:'DKK', HQ:'DKK', IT:'EUR'};
+
+async function hvSolgtDlg(){
   const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
-  const val = l.branch==='MN' ? 'NOK' : 'DKK';
   const ov = document.getElementById('hvOv2'); if(!ov) return;
-  const pax = (Number(l.adults)||0) + (Number(l.kids)||0);
+  ov.innerHTML = '<div class="ldlg" onclick="event.stopPropagation()"><div class="c">'
+    + '<div style="padding:30px 0;text-align:center;color:var(--mut)">Ser efter kundens booking…</div></div></div>';
+  ov.classList.add('on');
+
+  /* Kunden har trykket «book» paa sit eget tilbud. Den besked indeholder alt
+     det, vi ellers taster i haanden — hotel, vaerelse, periode, pris og
+     rejsende. Findes den, bruges den; ellers falder vi tilbage paa
+     henvendelsens egne felter. */
+  let bk = null;
+  try{
+    let r = await db.from('booking_requests').select('*').eq('lead_id', l.id)
+              .order('modtaget_at',{ascending:false}).limit(1);
+    if((!r.data || !r.data.length) && l.contact_email){
+      r = await db.from('booking_requests').select('*')
+            .ilike('kontakt_email', String(l.contact_email).trim())
+            .order('modtaget_at',{ascending:false}).limit(1);
+    }
+    if(r.data && r.data.length) bk = r.data[0];
+  }catch(e){ /* ingen booking - saa taster vi selv */ }
+
+  const val  = (bk && bk.valuta) || l.currency || HV_BRANCHE_VALUTA[l.branch] || 'DKK';
+  const pris = (bk && bk.pris) ? Number(bk.pris) : null;
+  const dep  = (bk && bk.afrejse) || l.departure_date || '';
+  const ret  = (bk && bk.hjemrejse) || l.return_date || '';
+  const pax  = (bk && Array.isArray(bk.rejsende) && bk.rejsende.length) ? bk.rejsende.length
+               : ((Number(l.adults)||0) + (Number(l.kids)||0)) || 2;
+  const tilb = (bk && bk.tilbud_url) || l.offer_url || '';
+  const kilde = bk ? 'fra kundens booking — det kunden faktisk trykkede ja til'
+              : 'skriv prisen fra det tilbud kunden har accepteret'
+                + (Number(l.est_value)>0
+                   ? ' · til orientering var budgettet på henvendelsen '
+                     + Math.round(Number(l.est_value)).toLocaleString('da-DK') + ' ' + (l.currency||'')
+                   : '');
+
   ov.innerHTML = `<div class="ldlg" onclick="event.stopPropagation()">
     <div class="h"><h3>Kunden har sagt ja</h3>
       <p>Rejsen oprettes som en <b>mellemlanding</b> — uden ref.nr. Først når hvert element er
          tjekket, og du bekræfter, bliver den en rigtig rejse med nummer.</p></div>
     <div class="c">
+      ${bk ? `<div class="hvbk"><b>Hentet fra kundens booking</b> ${new Date(bk.modtaget_at).toLocaleString('da-DK')}
+        ${bk.hotel?`<br>${escH(bk.hotel)}${bk.vaerelsestype?' · '+escH(bk.vaerelsestype):''}${bk.forplejning?' · '+escH(bk.forplejning):''}`:''}
+        <br><span class="sml">Hotellet lægges ind som ydelse på rejsen, så det ikke skal tastes igen.</span></div>`
+        : `<div class="hvbk mangler">Der er ingen booking fra tilbudssiden på denne henvendelse.
+           <br><span class="sml">Når Formspree-webhooken er slået til hos Rasmus, udfyldes felterne herunder af sig selv.</span></div>`}
       <label>Prisen kunden accepterede</label>
       <div style="display:flex;gap:10px;align-items:baseline">
-        <input id="hvSPris" inputmode="decimal" placeholder="fx ${val==='NOK'?'217.500':'118.400'}"
-               style="flex:1" value="${l.est_value>0?Math.round(l.est_value).toLocaleString('da-DK'):''}">
+        <input id="hvSPris" inputmode="decimal" style="flex:1"
+               value="${pris?Math.round(pris).toLocaleString('da-DK'):''}"
+               placeholder="fx ${val==='NOK'?'217.500':'118.400'}">
         <select id="hvSVal" style="width:90px">${['NOK','DKK','EUR','USD'].map(v=>
           `<option${v===val?' selected':''}>${v}</option>`).join('')}</select>
       </div>
+      ${kilde?`<div class="hvhj">${escH(kilde)}</div>`:''}
       <label>Hvilket tilbud sagde de ja til?</label>
-      <input id="hvSTilbud" placeholder="fx tilbud v1, eller link/dato" value="${l.offer_url?'tilbudslink':''}">
+      <input id="hvSTilbud" placeholder="fx tilbud v1, eller link/dato" value="${escH(tilb)}">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div><label>Afrejse</label><input id="hvSDep" type="date" value="${l.departure_date||''}"></div>
-        <div><label>Hjemrejse</label><input id="hvSRet" type="date" value="${l.return_date||''}"></div>
+        <div><label>Afrejse</label><input id="hvSDep" type="date" value="${escH(dep)}"></div>
+        <div><label>Hjemrejse</label><input id="hvSRet" type="date" value="${escH(ret)}"></div>
       </div>
-      <label>Antal rejsende</label>
-      <input id="hvSPax" inputmode="numeric" value="${pax||2}">
+      <label>Antal rejsende</label><input id="hvSPax" inputmode="numeric" value="${pax}">
       <div class="dlgfejl" id="hvSFejl"></div>
       <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
         <button class="b won" onclick="hvSolgtGem()">Opret mellemlandingen</button></div>
     </div></div>`;
-  ov.classList.add('on');
+  window._hvBooking = bk;
   setTimeout(()=>{ const i=document.getElementById('hvSPris'); if(i) i.focus(); },40);
 }
 
@@ -7711,7 +7762,7 @@ async function hvSolgtGem(){
   const pris = parseFloat(String(document.getElementById('hvSPris').value||'').replace(/[.\s]/g,'').replace(',','.'));
   const dep  = document.getElementById('hvSDep').value;
   const pax  = parseInt(document.getElementById('hvSPax').value,10);
-  if(!pris || pris<=0){ fejl.textContent = 'Skriv den pris kunden har sagt ja til — den er målestokken for om rejsen tjener det, den skulle.'; return; }
+  if(!pris || pris<=0){ fejl.textContent = 'Skriv den pris, kunden har fået tilbudt og sagt ja til. Ikke budgettet — det er den aftalte pris, regnskabet og dækningsgraden bygger på.'; return; }
   if(!dep){ fejl.textContent = 'Afrejsedatoen skal med — uden den kan frister og opgaver ikke regnes.'; return; }
   if(!pax || pax<1){ fejl.textContent = 'Hvor mange rejser med?'; return; }
   fejl.textContent = '';
@@ -7738,7 +7789,7 @@ async function hvSolgtGem(){
 
   /* 2. Rejsen — i mellemlanding, uden ref.nr. */
   const {data:t, error:e2} = await db.from('trips').insert({
-    branch: l.branch, status:'mellemlanding', customer_id: kundeId,
+    branch: HV_BRANCHE_REJSE[l.branch] || l.branch, status:'mellemlanding', customer_id: kundeId,
     departure_date: dep, return_date: document.getElementById('hvSRet').value || null,
     pax_count: pax, customer_currency: document.getElementById('hvSVal').value,
     lead_id: l.id,
@@ -7757,7 +7808,20 @@ async function hvSolgtGem(){
       .insert(dest.map((d,i)=>({trip_id:t.id, destination:d, seq:i})));
   }
 
-  /* 4. Henvendelsen kobles til rejsen. Den lukkes IKKE som vundet endnu —
+  /* 4. Kom bookingen fra tilbudssiden, laegges hotellet ind som ydelse med det
+        samme. Saa skal det ikke tastes igen, og kontrollen kan gaa i gang. */
+  const bk = window._hvBooking;
+  if(bk && bk.hotel){
+    await db.from('trip_elements').insert({
+      trip_id: t.id, element_type:'hotel', sell_amount_dkk: 0,
+      description: [bk.hotel, bk.vaerelsestype, bk.forplejning].filter(Boolean).join(' — '),
+      start_date: bk.afrejse || null, end_date: bk.hjemrejse || null
+    });
+    await db.from('booking_requests').update({trip_id: t.id, status:'omdannet'}).eq('id', bk.id);
+  }
+  window._hvBooking = null;
+
+  /* 5. Henvendelsen kobles til rejsen. Den lukkes IKKE som vundet endnu —
         det sker foerst ved bekraeftelsen, saa konverteringsraten ikke
         taeller en rejse med, der endnu kan falde fra. */
   await db.from('leads').update({converted_trip_id: t.id, stage:'confirmed'}).eq('id', l.id);
