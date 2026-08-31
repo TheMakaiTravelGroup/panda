@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.75 · 29.08.2026
+<!-- Panda · v0.79 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -782,15 +782,40 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .hvbrik em{font-style:normal;color:var(--mut);font-size:13px;line-height:1;cursor:pointer;}
 .hv7 .hvbrik em:hover{color:var(--bad);}
 
-.hv7 .vlab{margin-top:16px;}
-.hv7 .vvalg{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
-.hv7 .vvalg label{display:grid;grid-template-columns:auto 1fr;gap:3px 9px;align-items:start;
-  font-size:12px;color:var(--ink2);cursor:pointer;padding:9px 11px;border:1px solid var(--line);
-  text-transform:none;letter-spacing:0;margin:0;}
-.hv7 .vvalg label:hover{border-color:var(--gold-l);}
-.hv7 .vvalg input{width:auto;margin:2px 0 0;grid-row:span 2;}
-.hv7 .vvalg b{color:var(--ink);font-weight:600;}
-.hv7 .vvalg span{font-size:11px;color:var(--mut);line-height:1.45;}
+/* Boksene arvede «.hv7 .ldlg label», som er en lille guld-etiket i versaler.
+   Derfor stod baade overskrift og forklaring med spaerret versal og loeb
+   sammen. Reglerne her vejer tungere og nulstiller det hele eksplicit. */
+.hv7 .ldlg .vlab{margin-top:16px;}
+.hv7 .mltypevalg{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.hv7 .mltypevalg button{display:grid;gap:3px;text-align:left;font-family:'Inter',sans-serif;
+  background:#fff;border:1px solid var(--line);border-radius:0;padding:12px 14px;cursor:pointer;transition:.14s;}
+.hv7 .mltypevalg button:hover{border-color:var(--gold);background:#fffdf8;}
+.hv7 .mltypevalg .tn{font-family:'Playfair Display',serif;font-size:15px;color:var(--ink);}
+.hv7 .mltypevalg .tu{font-size:10.5px;color:var(--mut);line-height:1.4;}
+.hv7 .mlnyto{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.hv7 .mlnyskel{font-size:8px;letter-spacing:1.9px;text-transform:uppercase;color:var(--gold);
+  font-weight:700;margin:16px 0 8px;padding-top:12px;border-top:1px solid var(--hair);}
+.hv7 .mlnyg{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;}
+.hv7 .kpidaek{display:flex;flex-direction:column;justify-content:center;gap:2px;
+  padding:0 4px 0 8px;font-size:11px;color:var(--mut);line-height:1.4;}
+.hv7 .kpidaek b{color:var(--ink2);font-weight:600;}
+.hv7 .kpidaek span{font-size:10px;color:var(--gold);font-style:italic;}
+.hv7 .ldlg .vsamme{font-size:11px;color:var(--ok);margin:2px 0 4px;}
+.hv7 .ldlg .vnyt{font-size:11px;color:var(--gold);margin:6px 0 2px;line-height:1.5;}
+.hv7 .ldlg .vvalg{display:flex;flex-direction:column;gap:8px;margin:0 0 4px;}
+.hv7 .ldlg label.vopt{display:grid;grid-template-columns:17px 1fr;gap:3px 11px;
+  align-items:start;margin:0;padding:11px 13px;border:1px solid var(--line);
+  cursor:pointer;transition:.14s;
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:400;color:var(--ink2);
+  letter-spacing:0;text-transform:none;}
+.hv7 .ldlg label.vopt:hover{border-color:var(--gold-l);background:#fffdf8;}
+.hv7 .ldlg label.vopt.flad{margin-top:12px;grid-template-rows:auto;align-items:center;}
+.hv7 .ldlg label.vopt input{grid-row:1/3;width:auto;margin:2px 0 0;accent-color:var(--forest);}
+.hv7 .ldlg label.vopt.flad input{grid-row:auto;margin:0;}
+.hv7 .ldlg label.vopt .vt{font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+  color:var(--ink);letter-spacing:0;text-transform:none;line-height:1.3;}
+.hv7 .ldlg label.vopt .vu{font-family:'Inter',sans-serif;font-size:11px;font-weight:400;
+  color:var(--mut);letter-spacing:0;text-transform:none;line-height:1.5;}
 
 .hv7 .opretter{padding:34px 24px;text-align:center;color:var(--mut);font-size:13px;}
 .hv7 .opretter.fejl{color:var(--bad);}
@@ -1508,7 +1533,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.75';
+const APP_VERSION = 'v0.79';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -2117,7 +2142,7 @@ function setupRealtime(){
 async function fetchTrips(){
   /* v0.9.3: paginering — Supabase returnerer max 1000 rækker pr. kald, og efter
      Dolphin-importen af historiske rejser er der langt flere. */
-  const COLS='id, ref_no, branch, status, customer_id, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, customers(first_name,last_name), trip_destinations(destination)';
+  const COLS='id, ref_no, branch, status, customer_id, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, accepted_price, accepted_currency, created_at, customers(first_name,last_name), trip_destinations(destination)';
   let all=[], from=0;
   while(true){
     const { data } = await db.from('trips').select(COLS).not('status','in','("voided")').order('departure_date').range(from, from+999);
@@ -2369,11 +2394,28 @@ async function viewDash(){
   <span class="sub">${new Date().toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'})}</span>
   <span class="sub" style="margin-left:auto">${depToday.length?depToday.length+' afrejser i dag':'ingen afrejser i dag'} · ${paxOut} gæster ude · ${tasksDue.length?tasksDue.length+' opgaver til forfald':'alt ajour'} <span class="livedot" title="Opdaterer automatisk">● live</span></span></div>
 
-  ${(nyeBookinger||[]).length ? `
+  ${(()=>{ const mel=(trips||[]).filter(t=>t.status==='mellemlanding');
+    const antal=mel.length+(nyeBookinger||[]).length;
+    return antal ? `
   <div class="card bkkort" id="bkKort">
-    <h3>Solgt<span class="r">${nyeBookinger.length===1?'én kunde har sagt ja'
-      :nyeBookinger.length+' kunder har sagt ja'}<a href="#" onclick="bkVarslerTil();return false" id="bkVarsel"></a></span></h3>
-    <div class="bkgrid">${nyeBookinger.map(b=>{
+    <h3>Solgt<span class="r">${antal===1?'én kunde har sagt ja':antal+' kunder har sagt ja'
+      }<a href="#" onclick="bkVarslerTil();return false" id="bkVarsel"></a></span></h3>
+    <div class="bkgrid">${mel.map(t=>{
+      const timer=Math.round((Date.now()-new Date(t.created_at||t.booking_date||Date.now()))/3600000);
+      const dage=Math.round(timer/24);
+      const alder = timer<1?'lige nu' : timer<24?timer+(timer===1?' time':' timer')+' siden'
+                  : dage+(dage===1?' dag':' dage')+' siden';
+      return `<div class="bkt" onclick="viewMel('${t.id}')">
+        <div class="naar">${alder}<em>mellemlanding</em></div>
+        <div class="top"><span class="hvem">${escH(t.customers
+            ? ((t.customers.last_name||'')+(t.customers.first_name?', '+t.customers.first_name:'')).replace(/^, /,'')
+            : 'Uden navn')}</span>
+          <span class="p">${t.accepted_price?fval(t.accepted_price)+' '+escH(t.accepted_currency||t.customer_currency||''):'—'}</span></div>
+        <div class="hvor">${escH((t.trip_destinations||[]).map(d=>d.destination).join(' · ')||'—')}</div>
+        <div class="hvornaar">${t.departure_date?escH(fmtD(t.departure_date)):'dato mangler'}${
+          t.return_date?' → '+escH(fmtD(t.return_date)):''}</div>
+      </div>`;
+    }).join('')}${(nyeBookinger||[]).map(b=>{
       const timer = Math.round((Date.now()-new Date(b.modtaget_at))/3600000);
       const dage  = Math.round(timer/24);
       const alder = timer < 1 ? 'lige nu'
@@ -2390,7 +2432,7 @@ async function viewDash(){
           b.naetter?' · '+b.naetter+' '+(b.naetter===1?'nat':'nætter'):''}</div>
       </div>`;
     }).join('')}</div>
-  </div>` : ''}
+  </div>` : ''; })()}
 
   <!-- Morgenbriefen er taget ud af dashboardet 24.08.2026 (Wendie): for lang og
        klumpet, og indholdet var bygget til ét login. Hilsenen bliver. Briefen selv
@@ -6322,12 +6364,15 @@ function hvGemVisningDlg(){
       <div class="vhusk">Husker: <b>${escH(stk.join(' · ')||'ingenting')}</b></div>
       <label class="vlab">Hvem skal have den?</label>
       <div class="vvalg">
-        <label><input type="radio" name="vdelt" value="privat" checked>
-          <b>Kun mig</b><span>Ingen andre ser den. Den følger dig fra maskine til maskine.</span></label>
-        <label><input type="radio" name="vdelt" value="delt">
-          <b>Hele holdet</b><span>Alle kan bruge den. Kun du kan rette eller fjerne den igen.</span></label>
+        <label class="vopt"><input type="radio" name="vdelt" value="privat" checked>
+          <span class="vt">Kun mig</span>
+          <span class="vu">Ingen andre ser den. Den følger dig fra maskine til maskine.</span></label>
+        <label class="vopt"><input type="radio" name="vdelt" value="delt">
+          <span class="vt">Hele holdet</span>
+          <span class="vu">Alle kan bruge den. Kun du kan rette eller fjerne den igen.</span></label>
       </div>
-      <label class="vstd"><input type="checkbox" id="hvVStd">Åbn siden med denne visning</label>
+      <label class="vopt flad"><input type="checkbox" id="hvVStd">
+        <span class="vt">Åbn siden med denne visning</span></label>
     </div>
     <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
       <button class="b gold" onclick="hvGemVisning()">Gem visning</button></div></div>`;
@@ -6349,12 +6394,80 @@ async function hvGemVisning(){
   if(error){ alert(error.code==='23505' ? 'Du har allerede en visning med det navn.' : error.message); return; }
   await hvHentVisninger(); hvLukDlg(); hvBoardRender(); hvKvit('Visningen «'+navn.trim()+'» er gemt');
 }
+/* ══ Redigér en gemt visning ═══════════════════════════════════════════
+   Wendie 31.08.2026: «hvordan kan jeg slette eller opdatere en gemt visning».
+   Der var kun et lille kryds der slettede med det samme. Her kan navnet
+   rettes, den kan skiftes mellem privat og delt, saettes som standard — og
+   vigtigst: FILTRET kan opdateres til det man staar med nu, saa man ikke skal
+   slette og gemme forfra, hver gang en visning skal justeres en smule.
+   Kun ejeren kan aabne den; det er ogsaa sikret i basen. */
+function hvRetVisningDlg(id){
+  const v=(window._hvViews||[]).find(x=>x.id===id); if(!v) return;
+  if(v.ejer!==window.MYEMAIL) return;
+  window._hvMenu=null; hvTegnMenuer();
+  const ov=document.getElementById('hvOv2'); if(!ov) return;
+  const gemt=hvFraGammel(v.filter).b.map(hvBetTekst);
+  const nu=hvF().b.map(hvBetTekst);
+  const ens=gemt.join('|')===nu.join('|');
+  ov.innerHTML = `<div class="ldlg">
+    <div class="h"><h3>Redigér visningen</h3>
+      <p>«${escH(v.navn)}» — kun du kan rette eller fjerne den.</p></div>
+    <div class="c">
+      <label>Navn</label>
+      <input id="hvRNavn" value="${escH(v.navn)}">
+
+      <label class="vlab">Hvad den husker</label>
+      <div class="vhusk">${escH(gemt.join(' · ')||'ingenting')}</div>
+      ${ens ? '<div class="vsamme">Det er præcis det filter, du står med nu.</div>'
+            : `<label class="vopt flad"><input type="checkbox" id="hvROpdat">
+                 <span class="vt">Opdatér til mit nuværende filter</span></label>
+               <div class="vnyt">Bliver til: ${escH(nu.join(' · ')||'ingenting')}</div>`}
+
+      <label class="vlab">Hvem skal have den?</label>
+      <div class="vvalg">
+        <label class="vopt"><input type="radio" name="rdelt" value="privat" ${v.delt?'':'checked'}>
+          <span class="vt">Kun mig</span>
+          <span class="vu">Ingen andre ser den. Den følger dig fra maskine til maskine.</span></label>
+        <label class="vopt"><input type="radio" name="rdelt" value="delt" ${v.delt?'checked':''}>
+          <span class="vt">Hele holdet</span>
+          <span class="vu">Alle kan bruge den. Kun du kan rette eller fjerne den igen.</span></label>
+      </div>
+      <label class="vopt flad"><input type="checkbox" id="hvRStd" ${v.er_standard?'checked':''}>
+        <span class="vt">Åbn siden med denne visning</span></label>
+      <div class="nyfejl" id="hvRFejl"></div>
+    </div>
+    <div class="lf"><button class="b lost" onclick="hvSletVisning('${v.id}')">Fjern visningen</button>
+      <span style="flex:1"></span>
+      <button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+      <button class="b gold" onclick="hvGemRettelse('${v.id}')">Gem</button></div></div>`;
+  ov.classList.add('on');
+  setTimeout(()=>{ const i=document.getElementById('hvRNavn'); if(i){ i.focus(); i.select(); } },40);
+}
+async function hvGemRettelse(id){
+  const v=(window._hvViews||[]).find(x=>x.id===id); if(!v) return;
+  const navn=((document.getElementById('hvRNavn')||{}).value||'').trim();
+  const f=document.getElementById('hvRFejl');
+  if(!navn){ if(f) f.textContent='Visningen skal have et navn.'; return; }
+  const valgt=document.querySelector('input[name="rdelt"]:checked');
+  const delt=!!(valgt && valgt.value==='delt');
+  const std=!!(document.getElementById('hvRStd')||{}).checked;
+  const opdat=!!(document.getElementById('hvROpdat')||{}).checked;
+  const raet={navn, delt, er_standard:std};
+  if(opdat) raet.filter={b:hvF().b};
+  /* Kun én standard pr. person — den gamle skrues ned foerst. */
+  if(std && !v.er_standard)
+    await db.from('lead_views').update({er_standard:false}).eq('ejer',window.MYEMAIL);
+  const {error}=await db.from('lead_views').update(raet).eq('id',id);
+  if(error){ if(f) f.textContent = error.code==='23505'
+    ? 'Du har allerede en visning med det navn.' : error.message; return; }
+  await hvHentVisninger(); hvLukDlg(); hvBoardRender(); hvKvit('Visningen «'+navn+'» er gemt');
+}
 async function hvSletVisning(id){
   const v=(window._hvViews||[]).find(x=>x.id===id); if(!v) return;
   if(!confirm('Fjern visningen «'+v.navn+'»?\n\nDet er kun din genvej der forsvinder — ingen henvendelser røres.')) return;
   const {error}=await db.from('lead_views').delete().eq('id',id);
   if(error){ alert(error.message); return; }
-  await hvHentVisninger(); hvBoardRender(); hvKvit('Visningen er fjernet');
+  await hvHentVisninger(); hvLukDlg(); hvBoardRender(); hvKvit('Visningen «'+v.navn+'» er fjernet');
 }
 
 /* ══ Ny henvendelse i haanden — telefon, mail eller en der kommer forbi ══
@@ -6785,7 +6898,7 @@ function hvFilterOgTal(){
   const linje = v=>`<button class="vpost ${akt&&akt.id===v.id?'on':''}" onclick="hvBrugVisning('${v.id}')">
       <span class="n">${escH(v.navn)}</span>${v.er_standard?'<i title="Åbner automatisk">★</i>':''}${
       v.delt?'<span class="dm" title="Delt med holdet">delt</span>':''}${
-      v.ejer===window.MYEMAIL?`<em onclick="event.stopPropagation();hvSletVisning('${v.id}')" title="Fjern">×</em>`
+      v.ejer===window.MYEMAIL?`<em onclick="event.stopPropagation();hvRetVisningDlg('${v.id}')" title="Redigér visningen">⋯</em>`
         :`<span class="ejer" title="${escH(v.ejer||'')}">${escH((v.ejer||'').slice(0,2).toUpperCase())}</span>`}</button>`;
   return `<div class="hvbar">
     <div class="hvknapgrp">
@@ -6817,6 +6930,12 @@ function hvFilterOgTal(){
     ${hasPerm('economy')?`<div class="hvkpi"><b>${fval(oms)} <span class="cur">DKK</span></b><span class="l">solgt for i ${escH(mdrNavn)}</span></div>`:''}
     <div class="hvkpi"><b>${mdr.length}</b><span class="l">solgte rejser i ${escH(mdrNavn)}</span></div>
     <div class="hvkpi"><b>${aabne}</b><span class="l">åbne henvendelser</span></div>
+    <div class="kpidaek">${(()=>{ const d=[];
+      if(bBranch) d.push(BRANCH_LABEL[bBranch.v]||bBranch.v);
+      if(bOwner)  d.push(((window._TEAM||[]).find(t=>t[0]===bOwner.v)||[])[1]||bOwner.v);
+      return d.length ? 'tallene dækker <b>'+escH(d.join(' · '))+'</b>'
+                      : 'tallene dækker <b>hele holdet</b>';
+    })()}<span>de følger branche og ansvarlig — ikke de øvrige filtre</span></div>
   </div>`;
 }
 function hvBetRaekker(f){
@@ -8268,7 +8387,8 @@ function mlRender(){
     <span class="r">${t.accepted_offer_ref?'grundlaget er '+escH(t.accepted_offer_ref):'grundlaget er tilbuddet kunden accepterede'}</span></div>
   <div class="mlkort" id="mlKontrol">${els.length?els.map(mlEl).join(''):
     '<div class="mltom">Ingen ydelser endnu. Læg rejsens elementer ind herunder, så kan de tjekkes.</div>'}
-    <div class="mltilfoej"><button class="btn ghost" onclick="mlNytElement()">+ Tilføj element</button></div>
+    <div class="mltilfoej"><button class="btn ghost" onclick="mlNytElement()">+ Tilføj ydelse</button></div>
+    <div class="hv7"><div class="ov2" id="hvOv2" onclick="if(event.target===this)hvLukDlg()"></div></div>
   </div>
 
   <div class="mlsh"><span class="txt">Rejsende</span>
@@ -8916,10 +9036,98 @@ async function mlBekraeft(){
   viewTrip(t.id);
 }
 
-async function mlNytElement(){
-  const besk = prompt('Hvad er det for en ydelse? (fx «VARU by Atmosphere — Water Villa»)');
+/* ══ Ny ydelse paa mellemlandingen ═══════════════════════════════════════
+   Wendie 31.08.2026: «naar vi opretter ydelser saa skal vi kunne vaelge hvilken
+   ydelse det er foerst — altsaa om det er et hotel, flybilletter, transfer
+   eller andet» og «saa skal der jo udfyldes det som skal bookes — intet skal
+   vaere obligatorisk, men det skal vaere muligt at udfylde».
+
+   Foer var det en enkelt prompt-boks, og ALT blev oprettet som «Andet» —
+   ogsaa hoteller og fly. Derfor kunne kontrollen ikke vide hvad den kiggede
+   paa, og felterne til fx flynummer eller meal plan blev aldrig vist.
+
+   Typerne er talt op i basen foerst, saa raekkefoelgen foelger virkeligheden:
+   fly 5.048, transfer 2.760, hotel 1.921, andet 135. Felterne pr. type er de
+   samme som ydelsen i forvejen bruger (FIELD_DEFS) — ét sted at vedligeholde.
+   Intet er paakraevet: en ydelse maa gerne oprettes tom og udfyldes senere. */
+const ML_TYPER = [
+  ['hotel',    'Hotel',        'Villa, værelse, forplejning'],
+  ['flight',   'Fly',          'Ruter, flynumre, klasse'],
+  ['transfer', 'Transfer',     'Vandfly, speedbåd, bil'],
+  ['ticket',   'Flybillet',    'Billetnummer og skatter'],
+  ['insurance','Forsikring',   'Police og dækning'],
+  ['fee',      'Gebyr',        'Ekspedition og lignende'],
+  ['other',    'Andet',        'Krydstogt, biludlejning, udflugt'],
+];
+function mlNytElement(){
+  const ov=document.getElementById('hvOv2') || document.getElementById('mlOv2');
+  if(!ov) return mlNytFallback();
+  ov.innerHTML = `<div class="ldlg bred">
+    <div class="h"><h3>Ny ydelse</h3><p>Hvad er det for en slags? Så ved kontrollen bagefter, hvad den kigger på.</p></div>
+    <div class="c"><div class="mltypevalg">
+      ${ML_TYPER.map(([k,n,u])=>`<button onclick="mlNytFelter('${k}')">
+        <span class="tn">${escH(n)}</span><span class="tu">${escH(u)}</span></button>`).join('')}
+    </div></div>
+    <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button></div></div>`;
+  ov.classList.add('on');
+}
+function mlNytFelter(type){
+  const ov=document.getElementById('hvOv2'); if(!ov) return;
+  const navn=(ML_TYPER.find(x=>x[0]===type)||[,type])[1];
+  const felter=(window.FIELD_DEFS && FIELD_DEFS[type]) || [];
+  window._mlNyType=type;
+  ov.innerHTML = `<div class="ldlg bred">
+    <div class="h"><h3>Ny ${escH(navn.toLowerCase())}</h3>
+      <p>Udfyld det du ved. <b>Intet er påkrævet</b> — resten kan skrives ind, når det er booket.</p></div>
+    <div class="c">
+      <label>Hvad er det?</label>
+      <input id="mlNyBesk" placeholder="${escH(type==='hotel'?'fx VARU by Atmosphere — Water Villa with Pool'
+        : type==='flight'?'fx Oslo–Malé t/r, Qatar Airways'
+        : type==='transfer'?'fx Vandflyver Malé–VARU t/r' : 'fx Krydstogt, biludlejning, udflugt')}">
+      <div class="mlnyto">
+        <div><label>Fra dato</label><input type="date" id="mlNyFra"></div>
+        <div><label>Til dato</label><input type="date" id="mlNyTil"></div>
+      </div>
+      ${felter.length?`<div class="mlnyskel">Det der skal bookes</div>
+      <div class="mlnyg">${felter.map(([k,l,t,ph])=>`
+        <div><label>${escH(l)}</label>${
+          t==='textarea' ? `<textarea id="mlf_${k}" rows="2" placeholder="${escH(ph||'')}"></textarea>`
+          : `<input id="mlf_${k}" ${t==='date'?'type="date"':t==='number'?'inputmode="decimal"':''} placeholder="${escH(ph||'')}">`
+        }</div>`).join('')}</div>`:''}
+      <div class="nyfejl" id="mlNyFejl"></div>
+    </div>
+    <div class="lf"><button class="b gh" onclick="mlNytElement()">← Vælg anden type</button>
+      <span style="flex:1"></span>
+      <button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+      <button class="b gold" id="mlNyKnap" onclick="mlNytGem()">Opret ydelsen</button></div></div>`;
+  ov.classList.add('on');
+  setTimeout(()=>{ const i=document.getElementById('mlNyBesk'); if(i) i.focus(); },40);
+}
+async function mlNytGem(){
+  const type=window._mlNyType||'other';
+  const v=id=>((document.getElementById(id)||{}).value||'').trim();
+  const felter=(window.FIELD_DEFS && FIELD_DEFS[type]) || [];
+  const details={};
+  felter.forEach(([k])=>{ const x=v('mlf_'+k); if(x!=='') details[k]=x; });
+  const k=document.getElementById('mlNyKnap'); if(k){ k.disabled=true; k.textContent='Opretter…'; }
+  const {data,error}=await db.from('trip_elements').insert({
+    trip_id: ML.trip.id, element_type: type,
+    /* Uden en beskrivelse staar ydelsen som sin type — bedre end en tom linje. */
+    description: v('mlNyBesk') || (ML_TYPER.find(x=>x[0]===type)||[,'Ydelse'])[1],
+    start_date: v('mlNyFra')||null, end_date: v('mlNyTil')||null,
+    details: Object.keys(details).length?details:null,
+    sell_amount_dkk: 0
+  }).select('*, suppliers:supplier_id(name)').single();
+  if(error){ const f=document.getElementById('mlNyFejl');
+    if(f) f.textContent='Kunne ikke oprettes: '+error.message;
+    if(k){ k.disabled=false; k.textContent='Opret ydelsen'; } return; }
+  ML.els.push(data); hvLukDlg(); mlRender(); mlFold(data.id);
+}
+/* Findes dialoglaget ikke (fx paa en aeldre side), falder vi tilbage. */
+async function mlNytFallback(){
+  const besk = prompt('Hvad er det for en ydelse?');
   if(!besk) return;
-  const {data, error} = await db.from('trip_elements').insert({
+  const {data,error}=await db.from('trip_elements').insert({
     trip_id: ML.trip.id, element_type:'other', description: besk, sell_amount_dkk: 0
   }).select('*, suppliers:supplier_id(name)').single();
   if(error){ alert(error.message); return; }
@@ -8965,11 +9173,21 @@ async function hvSolgtDlg(){
      ikke en fejl: sagen kan vaere solgt over telefonen. */
   let bk = null;
   try{
+    /* Foerst den sikre vej: bookingen er UDTRYKKELIGT knyttet til denne sag. */
     let r = await db.from('booking_requests').select('*').eq('lead_id', l.id)
-              .order('modtaget_at',{ascending:false}).limit(1);
+              .is('trip_id', null).order('modtaget_at',{ascending:false}).limit(1);
+
+    /* Ellers e-mailen — men KUN hvis bookingen er uafhaengig: den maa hverken
+       hoere til en anden henvendelse eller allerede vaere blevet til en rejse.
+       Wendie 31.08.2026 fandt fejlen: hendes testsag havde samme e-mail som
+       Holts booking (hun brugte sin egen adresse, da hun testede formularen),
+       og saa blev Holts hotel og Holts rejsende hentet over paa testsagen.
+       En e-mail alene er ikke bevis for at bookingen hoerer til sagen —
+       kun at den kunne. Er den taget, er den taget. */
     if((!r.data || !r.data.length) && l.contact_email){
       r = await db.from('booking_requests').select('*')
             .ilike('kontakt_email', String(l.contact_email).trim())
+            .is('lead_id', null).is('trip_id', null)
             .order('modtaget_at',{ascending:false}).limit(1);
     }
     if(r.data && r.data.length) bk = r.data[0];
