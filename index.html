@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.82 · 29.08.2026
+<!-- Panda · v0.83 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -1547,7 +1547,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.82';
+const APP_VERSION = 'v0.83';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -8725,8 +8725,9 @@ function mlTegnPax(){
       <div class="f"><label>Navn som i passet</label>
         <input value="${escH(p.full_name||'')}" onchange="mlPaxGem('${p.id}','full_name',this.value)"></div>
       <div class="f sm"><label>Fødselsdato</label>
-        <input type="date" value="${escH(p.date_of_birth||'')}" onchange="mlPaxGem('${p.id}','date_of_birth',this.value)"></div>
-      <div class="alder">${a==null?'<span class="mgl">mangler fødselsdato</span>'
+        <input type="date" value="${escH(p.date_of_birth||'')}"
+          onchange="mlPaxDato('${p.id}',this)" onblur="mlPaxDato('${p.id}',this)"></div>
+      <div class="alder" data-alder="${p.id}">${a==null?'<span class="mgl">mangler fødselsdato</span>'
         :`${a} år<small>${gruppe} på afrejsedagen</small>`}</div>
       <button class="pmini slet" onclick="mlPaxFjern('${tt.id}')">Fjern</button>
     </div>`;
@@ -8736,18 +8737,58 @@ function mlTegnPax(){
     + `<div class="mltilfoej"><button class="btn ghost" onclick="mlPaxTilfoej()">+ Tilføj rejsende</button>
        <span class="mlpaxhj">${(ML.rejsende||[]).length} af ${ML.trip.pax_count} rejsende er skrevet ind</span></div>`;
 }
-async function mlPaxGem(travelerId, felt, vaerdi){
+/* ══ Foedselsdatoen ══════════════════════════════════════════════════════
+   Rasmus 31.08.2026: «den her er totalt bugged, naar man proever at tilfoeje
+   en person og skrive deres foedselsdato». Wendie havde sagt det samme:
+   «man kan kun skrive to tal» i aarstallet.
+
+   Audit-loggen viser praecis hvad der skete. Paa tyve sekunder blev Isabels
+   foedselsdato gemt som 0020, 0202, 0002, 0201, 0020, tom, 0002 … igen og
+   igen. Aarsagen er to ting der forstaerker hinanden:
+
+     1. Et datofelt melder «aendret», saa snart datoen er GYLDIG. Taster man
+        aarstallet 2015, er «0002» gyldigt efter det andet ciffer — saa fyrer
+        change, og et aarstal fra oldtiden bliver gemt.
+     2. Vi tegnede hele rejsende-listen om efter hver gemning. Feltet blev
+        dermed erstattet midt i indtastningen, og markoeren forsvandt. Derfor
+        naaede man aldrig laengere end to cifre.
+
+   Nu: et aarstal foer 1900 eller en dato ude i fremtiden er en HALV
+   indtastning, ikke en foedselsdato — den gemmes ikke. Og naar der gemmes,
+   opdateres kun alderen ved siden af, ikke hele listen. */
+function mlPaxDato(travelerId, felt){
+  const v = (felt.value||'').trim();
+  if(!v) return mlPaxGem(travelerId, 'date_of_birth', null, true);
+  const aar = +v.slice(0,4);
+  const idag = new Date().toISOString().slice(0,10);
+  if(!(aar >= 1900) || v > idag) return;   /* stadig ved at skrive */
+  mlPaxGem(travelerId, 'date_of_birth', v, true);
+}
+async function mlPaxGem(travelerId, felt, vaerdi, blidt){
   const v = felt==='date_of_birth' ? (vaerdi||null) : String(vaerdi||'').trim();
   if(felt==='full_name' && !v){ alert('Navnet må ikke være tomt.'); mlTegnPax(); return; }
   const {error} = await db.from('travelers').update({[felt]: v}).eq('id', travelerId);
   if(error){ alert(error.message); return; }
   const tt = (ML.rejsende||[]).find(x=>x.travelers && x.travelers.id===travelerId);
   if(tt) tt.travelers[felt] = v;
+  /* «Blidt» betyder: roer ikke feltet man staar i. Kun alderen opdateres. */
+  if(blidt){
+    const boks = document.querySelector(`.mlpaxr .alder[data-alder="${travelerId}"]`);
+    if(boks){
+      const a = mlAlder(v, ML.trip.departure_date);
+      const g = a==null ? '' : a>=18 ? 'voksen' : a>=12 ? 'ungdom' : a>=2 ? 'barn' : 'spædbarn';
+      boks.innerHTML = a==null ? '<span class="mgl">mangler fødselsdato</span>'
+        : `${a} år<small>${g} på afrejsedagen</small>`;
+    }
+    return;
+  }
   mlTegnPax();
 }
 async function mlPaxTilfoej(){
-  const navn = prompt('Navn som i passet');
-  if(!navn || !navn.trim()) return;
+  /* Rejsende oprettes med tomt navn og udfyldes i raekken. En prompt-boks
+     midt i en formular er et brud paa flowet — og navnet skal alligevel
+     kunne rettes bagefter, saa det staar som i passet. */
+  const navn = 'Ny rejsende';
   const {data:tr, error:e1} = await db.from('travelers')
     .insert({customer_id: ML.trip.customer_id, full_name: navn.trim()}).select('id,full_name,date_of_birth,is_lead').single();
   if(e1){ alert(e1.message); return; }
@@ -8756,6 +8797,10 @@ async function mlPaxTilfoej(){
   if(e2){ alert(e2.message); return; }
   ML.rejsende.push({id: tt.id, note: null, travelers: tr});
   mlTegnPax();
+  /* Saet markoeren i navnefeltet med det samme — raekken er tom og
+     skal udfyldes, saa der er ingen grund til at lede efter den. */
+  const r=document.querySelector('.mlpaxr:last-child input');
+  if(r){ r.focus(); r.select(); }
 }
 async function mlPaxFjern(ttId){
   const tt = (ML.rejsende||[]).find(x=>x.id===ttId); if(!tt) return;
