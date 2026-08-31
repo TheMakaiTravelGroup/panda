@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.54 · 29.08.2026
+<!-- Panda · v0.58 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -779,36 +779,54 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .sogalleh h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;margin:0;flex:1;color:#2e332e}
 .sogalleb{overflow-y:auto}
 .sogalleb .sogres{position:static;border:0;box-shadow:none;max-height:none}
-/* Nye bookinger — det foerste man skal se, for en kunde venter paa svar.
-   Bygget som dashboardets oevrige kort (.card + h3-etiket + rejseplanens
-   raekker), men med guldkant og varm bund, saa den springer i oejnene uden
-   at tale et andet sprog end resten af siden. */
-.bkkort{border-left:3px solid var(--gold);background:linear-gradient(90deg,rgba(224,201,163,.16),var(--card) 40%);margin-bottom:12px;}
-.bkkort h3{color:var(--gold);}
-.bkkort h3 .r{color:var(--ink2);}
-.bkkort h3 .r .bkct{font-family:'Playfair Display',serif;font-size:15px;color:var(--forest);
-  font-weight:600;font-variant-numeric:tabular-nums;}
-.bkr{display:flex;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--hair);
-  cursor:pointer;font-size:12.5px;transition:.13s;}
-.bkr:last-of-type{border-bottom:0;}
-.bkr:hover{background:rgba(224,201,163,.14);border-radius:6px;padding-left:8px;padding-right:8px;margin:0 -8px;}
-.bkr .dag{flex:0 0 74px;font-size:11px;color:var(--mut);letter-spacing:.4px;}
-.bkr .nvn{flex:0 0 172px;font-weight:600;color:var(--ink);overflow-wrap:anywhere;}
-.bkr .det{flex:1;min-width:0;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bkr .bel{flex:0 0 auto;font-family:'Playfair Display',serif;font-size:15px;font-weight:500;
-  color:var(--forest);font-variant-numeric:tabular-nums;}
-.bkr .hvad{flex:0 0 168px;text-align:right;font-size:11px;color:var(--mut);}
-.bkr .hvad .advar{color:var(--bad);font-weight:700;}
-.bkr.uro .nvn{color:var(--bad);}
-/* Varslet naar en booking lander mens Panda er aaben. */
-.bktoast{position:fixed;right:18px;bottom:18px;z-index:120;max-width:360px;background:var(--card);
-  border:1px solid var(--gold);border-left:3px solid var(--gold);border-radius:10px;padding:14px 16px;
-  box-shadow:0 18px 50px rgba(80,70,55,.28);cursor:pointer;animation:bkind .34s cubic-bezier(.2,.8,.3,1);}
+/* ══ NYE BOOKINGER ══
+   En kunde har sagt ja — det er dagens bedste nyhed, og den skal se sådan ud.
+   Derfor FLISER, ikke tabelraekker: med én booking blev navnet, hotellet og
+   beloebet spredt over hele skaermens bredde, og intet hoerte sammen med
+   noget. En flise holder de fire ting taet paa hinanden i den raekkefoelge
+   man laeser dem: hvornaar · hvem · hvor · hvad. Fliserne straekkes ikke —
+   én booking fylder én flise, ikke hele siden.
+   Ingen forklarende tekst: en flise der lyser op under markoeren, fortaeller
+   selv at man kan trykke paa den. */
+.bkkort{border-left:3px solid var(--gold);
+  background:linear-gradient(115deg,rgba(224,201,163,.22),var(--card) 55%);margin-bottom:14px;}
+.bkkort h3{color:var(--gold);margin-bottom:14px;}
+.bkkort h3 .r{color:var(--mut);font-style:italic;}
+.bkkort h3 .r a{margin-left:10px;font-style:normal;color:var(--gold);font-size:10.5px;
+  letter-spacing:.4px;text-decoration:none;border-bottom:1px solid var(--gold-l);}
+.bkgrid{display:flex;flex-wrap:wrap;gap:9px;}
+.bkt{flex:0 1 262px;background:var(--card);border:1px solid var(--gold-l);
+  border-left:3px solid var(--gold);border-radius:7px;padding:9px 13px 11px;
+  cursor:pointer;transition:.16s cubic-bezier(.2,.8,.3,1);}
+.bkt:hover{transform:translateY(-2px);border-color:var(--gold);
+  box-shadow:0 9px 22px rgba(185,154,95,.22);}
+.bkt .naar{display:flex;align-items:baseline;gap:8px;font-size:8.5px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--gold);font-weight:700;}
+.bkt .naar em{margin-left:auto;font-style:normal;color:var(--bad);letter-spacing:.8px;}
+.bkt .top{display:flex;align-items:baseline;gap:10px;margin-top:4px;}
+.bkt .hvem{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;color:var(--ink);
+  line-height:1.15;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bkt .p{margin-left:auto;font-family:'Playfair Display',serif;font-size:15px;font-weight:500;
+  color:var(--forest);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.bkt .hvor{font-size:11px;color:var(--mut);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bkt.uro{border-left-color:var(--bad);border-color:#e3c4b3;}
+.bktoast{position:fixed;right:18px;bottom:18px;z-index:120;width:290px;background:var(--card);
+  border:1px solid var(--gold);border-left:3px solid var(--gold);border-radius:8px;
+  padding:13px 15px 14px;box-shadow:0 18px 50px rgba(80,70,55,.28);cursor:pointer;
+  animation:bkind .34s cubic-bezier(.2,.8,.3,1);}
 @keyframes bkind{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.bktoast .t{font-size:9.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);font-weight:700;}
-.bktoast .n{font-family:'Playfair Display',serif;font-size:17px;margin-top:5px;color:var(--ink);}
-.bktoast .d{font-size:11.5px;color:var(--ink2);margin-top:3px;line-height:1.5;}
-.bktoast .x{position:absolute;top:8px;right:11px;color:var(--mut);font-size:14px;}
+.bktoast .t{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);font-weight:600;}
+.bktoast .n{font-family:'Playfair Display',serif;font-size:20px;font-weight:500;margin-top:7px;color:var(--ink);}
+.bktoast .h{font-size:12px;color:var(--ink2);margin-top:3px;}
+.bktoast .p{font-family:'Playfair Display',serif;font-size:16px;color:var(--forest);
+  margin-top:10px;padding-top:10px;border-top:1px solid var(--hair);}
+.bktoast .x{position:absolute;top:9px;right:12px;color:var(--mut);font-size:13px;}
+/* Rammen om Team Maldivia. Fylder resten af vinduet, saa hans vaerktoejer
+   faar samme plads som de har paa deres egen side. */
+.teamram{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;
+  height:calc(100vh - 132px);min-height:520px;box-shadow:0 1px 3px rgba(120,105,75,.04);}
+.teamram iframe{width:100%;height:100%;border:0;display:block;}
 .card.sogkort{padding:0;border:0;background:none;box-shadow:none;overflow:visible}
 .hv7 .hvsog{margin-left:auto;min-width:270px;position:relative}
 .hv7 .hvsog .sogfelt{padding:0 13px}
@@ -1152,6 +1170,13 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .ml7 .mlktab tr:last-child td{border-bottom:0}
 .ml7 .mlktab .hj{font-weight:400;font-size:10.5px;color:var(--mlmut);margin-top:3px;max-width:300px}
 .ml7 .mlktab .sml{font-weight:400;color:var(--mlmut);font-size:10.5px}
+.ml7 .mlktab input.kf{width:80px;font-family:'Inter',sans-serif;font-size:13px;padding:4px 0;
+  border:0;border-bottom:1px solid var(--mlhair);background:transparent;color:var(--mlink);
+  text-align:right;font-variant-numeric:tabular-nums}
+.ml7 .mlktab input.kf:focus{outline:none;border-bottom-color:var(--mlgold)}
+.ml7 .mlktab input.kf.aendret{color:var(--mladvar);border-bottom-color:var(--mlgold);font-weight:600}
+.ml7 .mlktab .e{font-size:9.5px;color:var(--mlmut);display:block;margin-top:2px}
+.ml7 .kurstom{font-size:12.5px;color:var(--mlmut);line-height:1.6}
 .ml7 .mlktab .marked{font-variant-numeric:tabular-nums;color:var(--mlink2)}
 .ml7 .mlktab .marked em{font-style:normal;display:block;font-size:9.5px;color:var(--mlmut);margin-top:2px}
 .ml7 .mlktab .eff{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -1231,6 +1256,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
     <button data-v="dash" class="on" data-i18n="nav.dash">Dashboard</button>
     <button data-v="leads" data-i18n="nav.leads">Henvendelser</button>
     <button data-v="hv" title="Ny henvendelsesside (v7) — den gamle ligger stadig under «Henvendelser»">Henvendelser (ny)</button>
+    <button data-v="team" title="Rasmus' værktøjer — team.maldivia.dk, vist inde i Panda">Team Maldivia</button>
     <button data-v="sales" data-i18n="nav.sales">Salg</button>
     <button data-v="finance" data-i18n="nav.finance">Økonomi</button>
     <button data-v="tasks" data-i18n="nav.tasks">Opgaver</button>
@@ -1249,7 +1275,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.54';
+const APP_VERSION = 'v0.58';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -1782,7 +1808,7 @@ async function checkTestdata(){
 }
 
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>'+t('g.noaccess')+'</h3><p class="muted">'+t('g.noaccess_txt')+'</p></div>'; }
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,hv:viewHenvendelser,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
 function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   // henvendelses-boardene er brede (10 trin) — slip main fri fra 1280px-loftet.
   // Baade den gamle side ('leads') og den nye ('hv') skal have hele skaermen.
@@ -1799,7 +1825,7 @@ function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button')
    Derfor ignorerer applyRoute() enhver hash der indeholder = eller &, og
    supabase-js har under alle omstændigheder allerede tømt den, når showApp()
    kaldes. */
-const PANDA_ROUTES = {dash:viewDash,leads:viewLeads,hv:viewHenvendelser,sales:viewSales,finance:viewFinance,
+const PANDA_ROUTES = {dash:viewDash,leads:viewLeads,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,
   vendorpay:viewVendorPay,gennemgang:viewGennemgang,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,
   users:viewUsers,new:viewNew,testdata:viewTestdata};
 function setRoute(h){
@@ -2112,26 +2138,23 @@ async function viewDash(){
 
   ${(nyeBookinger||[]).length ? `
   <div class="card bkkort" id="bkKort">
-    <h3>Nye bookinger fra tilbudssiden
-      <span class="r"><b class="bkct">${nyeBookinger.length}</b> venter på at blive til en rejse</span></h3>
-    ${nyeBookinger.map(b=>{
+    <h3>Solgt<span class="r">${nyeBookinger.length===1?'én kunde har sagt ja'
+      :nyeBookinger.length+' kunder har sagt ja'}<a href="#" onclick="bkVarslerTil();return false" id="bkVarsel"></a></span></h3>
+    <div class="bkgrid">${nyeBookinger.map(b=>{
       const timer = Math.round((Date.now()-new Date(b.modtaget_at))/3600000);
-      const alder = timer < 1 ? 'lige nu' : timer < 24 ? 'for '+timer+' timer siden'
-                  : 'for '+Math.round(timer/24)+' dage siden';
-      const uro = !b.lead_id || !b.parse_ok;
-      return `<div class="bkr${uro?' uro':''}" onclick="bkAabn('${b.id}','${b.lead_id||''}')">
-        <span class="dag">${b.afrejse?escH(fmtD(b.afrejse)):'—'}</span>
-        <span class="nvn">${escH(b.kontakt_navn||'Uden navn')}</span>
-        <span class="det">${escH([b.hotel,b.destination].filter(Boolean).join(' · '))||'—'}</span>
-        <span class="bel">${b.pris?fval(b.pris)+' '+escH(b.valuta||''):'—'}</span>
-        <span class="hvad">${uro
-          ? '<b class="advar">'+(!b.lead_id?'ingen henvendelse fundet':'noget mangler')+'</b>'
-          : alder}</span>
+      const dage  = Math.round(timer/24);
+      const alder = timer < 1 ? 'lige nu'
+                  : timer < 24 ? timer+(timer===1?' time':' timer')+' siden'
+                  : dage+(dage===1?' dag':' dage')+' siden';
+      const uro = !b.lead_id ? 'ingen henvendelse' : !b.parse_ok ? 'noget mangler' : '';
+      return `<div class="bkt${uro?' uro':''}" onclick="bkAabn('${b.id}','${b.lead_id||''}')">
+        <div class="naar">${alder}${uro?`<em>${escH(uro)}</em>`:''}</div>
+        <div class="top"><span class="hvem">${escH(b.kontakt_navn||'Uden navn')}</span>
+          <span class="p">${b.pris?fval(b.pris)+' '+escH(b.valuta||''):'—'}</span></div>
+        <div class="hvor">${escH(b.hotel||b.destination||'—')}${
+          b.afrejse?' · '+escH(fmtD(b.afrejse)):''}</div>
       </div>`;
-    }).join('')}
-    <p class="foldlink" style="margin:10px 0 0">Tryk på en booking for at åbne henvendelsen — derfra
-      trykker du <b>Solgt</b>, og alt fra bookingen følger med over på rejsen.
-      <a href="#" onclick="bkVarslerTil();return false" id="bkVarsel"></a></p>
+    }).join('')}</div>
   </div>` : ''}
 
   <!-- Morgenbriefen er taget ud af dashboardet 24.08.2026 (Wendie): for lang og
@@ -7190,9 +7213,8 @@ function bkVarselLink(){
     a.textContent = ''; a.style.display='none';
   } else {
     a.style.display='';
-    a.textContent = Notification.permission === 'denied'
-      ? ' · beskeder er slået fra i browseren'
-      : ' · slå besked til, når en booking lander';
+    if(Notification.permission === 'denied'){ a.textContent=''; a.style.display='none'; }
+    else a.textContent = 'giv mig besked';
   }
 }
 
@@ -7217,16 +7239,17 @@ function bkNyBooking(b){
   const d = document.createElement('div');
   d.id = 'bkToast'; d.className = 'bktoast';
   d.innerHTML = `<span class="x" onclick="event.stopPropagation();this.parentNode.remove()">✕</span>
-    <div class="t">Ny booking fra tilbudssiden</div>
+    <div class="t">Solgt</div>
     <div class="n">${escH(navn)}</div>
-    <div class="d">${escH(hvad)}${belob?'<br>'+escH(belob):''}<br>Tryk for at åbne</div>`;
+    <div class="h">${escH(hvad)}</div>
+    ${belob?`<div class="p">${escH(belob)}</div>`:''}`;
   d.onclick = ()=>{ d.remove(); bkAabn(b.id, b.lead_id||''); };
   document.body.appendChild(d);
 
   /* 2. Besked uden for Panda — kun hvis hun selv har sagt ja til det. */
   if(('Notification' in window) && Notification.permission === 'granted'){
     try{
-      const n = new Notification('Ny booking · ' + navn, {
+      const n = new Notification('Solgt · ' + navn, {
         body: [hvad, belob].filter(Boolean).join('\n') || 'Åbn Panda for at se den',
         tag: 'booking-' + b.id
       });
@@ -7246,6 +7269,32 @@ async function bkAabn(bookingId, leadId){
   await viewHenvendelser();
   if(leadId) setTimeout(()=>hvOpen(leadId), 60);
   else alert('Denne booking kunne ikke kobles sikkert til en henvendelse.\n\nFind den selv i listen — søgefeltet i filterlinjen finder også lukkede sager.');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TEAM MALDIVIA
+   Rasmus' vaerktoejer ligger paa team.maldivia.dk og udvikles videre der.
+   Vi kopierer dem IKKE ind i Panda — saa ville han ikke kunne arbejde. Vi
+   viser hans side som den er, i fuld hoejde, inde i Pandas ramme. Han
+   udgiver som han plejer, og aendringen er her med det samme.
+
+   Efterproevet 31.08.2026: siden saetter hverken X-Frame-Options eller
+   Content-Security-Policy, saa den MAA vises i en ramme. Skulle det aendre
+   sig en dag, staar der en linje om hvorfor, og «Åbn i ny fane» virker altid.
+   ══════════════════════════════════════════════════════════════════════════ */
+const TEAM_URL = 'https://team.maldivia.dk/';
+
+function viewTeam(){
+  navTo('team');
+  app.innerHTML = `
+    <div class="pagehead"><h2>Team Maldivia</h2>
+      <span class="sub">Rasmus' værktøjer</span>
+      <span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center">
+        <button class="btn ghost" onclick="document.getElementById('teamRam').src=TEAM_URL">Forfra</button>
+        <a class="btn ghost" href="${TEAM_URL}" target="_blank" rel="noopener">Åbn i ny fane ↗</a>
+      </span></div>
+    <div class="teamram"><iframe id="teamRam" src="${TEAM_URL}"
+      title="Team Maldivia" referrerpolicy="no-referrer"></iframe></div>`;
 }
 
 /* ══════════ MELLEMLANDING OG SOLGT ══════════ */
@@ -7277,14 +7326,52 @@ const mlDato = s => s ? new Date(s).toLocaleDateString('da-DK',{day:'numeric',mo
 function mlDage(d){ if(!d) return null; return Math.round((new Date(d) - new Date(new Date().toDateString()))/86400000); }
 
 /* ── kursopslag. ML.kurser er det fn_effektive_kurser() gav. ── */
-function mlEff(v){
+/* ══ KURSERNE PAA DENNE REJSE ══
+   fx_settings er systemets standard. Retter man et tal her, gemmes kun
+   AFVIGELSEN paa rejsen (trips.fx_overrides) — saa flytter det ikke alle
+   andre rejser. Den effektive kurs regnes altid forfra af de tre tal, saa
+   marked, bankmargin og buffer aldrig kan komme til at modsige hinanden. */
+function mlTal3(v){
   const k = (window.ML&&ML.kurser) || {};
-  if(v==='DKK') return 1;
-  return (k[v] && Number(k[v].effektiv)) || null;
+  const o = (window.ML&&ML.overrides&&ML.overrides[v]) || {};
+  const b = k[v] || {};
+  return {
+    marked:     o.marked     !=null ? Number(o.marked)     : Number(b.marked)||0,
+    bankmargin: o.bankmargin !=null ? Number(o.bankmargin) : Number(b.bankmargin)||0,
+    buffer:     o.buffer     !=null ? Number(o.buffer)     : Number(b.buffer)||0,
+    rettet:     ['marked','bankmargin','buffer'].filter(f=>o[f]!=null),
+    maalt:      !!b.margin_maalt
+  };
 }
+function mlEff(v){
+  if(v==='DKK') return 1;
+  const k = (window.ML&&ML.kurser)||{};
+  if(!k[v]) return null;
+  const t = mlTal3(v);
+  return t.marked * (1+t.bankmargin/100) * (1+t.buffer/100);
+}
+/* Salgskursen vender modsat: vi MODTAGER kundens valuta i stedet for at
+   betale den, saa forsigtighed betyder at vi faar faerre kroner for den. */
 function mlSalgskurs(){
-  const k = (window.ML&&ML.kurser) || {};
-  return Number(k.salgskurs) || 1;
+  const k = (window.ML&&ML.kurser)||{};
+  if(!k.NOK) return Number((k||{}).salgskurs)||1;
+  const t = mlTal3('NOK');
+  return t.marked>0 ? (1/t.marked) * (1+t.bankmargin/100) * (1+t.buffer/100) : 1;
+}
+/* Hvilke valutaer er faktisk i brug paa DENNE rejse? De oevrige forstyrrer
+   mere end de gavner, saa de vises ikke. */
+function mlValutaerIBrug(){
+  const set = new Set();
+  (ML.els||[]).forEach(e=>{
+    const g = mlGrundlag(e);
+    if(g.valuta && g.valuta!=='DKK') set.add(g.valuta);
+    const t = e.tilbud_buy_currency;
+    if(t && t!=='DKK') set.add(t);
+  });
+  /* Kundens valuta skal altid med — prisen veksles med den. */
+  const kv = (ML.trip.customer_currency||'DKK');
+  if(kv!=='DKK') set.add(kv);
+  return [...set].sort();
 }
 /* Kunden betaler i rejsens valuta. Er det DKK, er salgskursen 1. */
 function mlKundeKurs(){
@@ -7317,6 +7404,8 @@ async function viewMel(id){
     db.from('fx_pricing_defaults').select('*').limit(1).single(),
     db.from('trip_travelers').select('id,note,travelers(id,full_name,date_of_birth,is_lead)').eq('trip_id',id)
   ]);
+  const suppRes = await db.from('suppliers').select('id,name,supplier_type,default_currency').order('name');
+  window.SUPS = (suppRes&&suppRes.data)||[];
   if(rt.error) return fejl('rejse', rt.error);
   if(re.error) return fejl('elementer', re.error);
 
@@ -7329,6 +7418,7 @@ async function viewMel(id){
     (rp.data||[]).forEach(p=>{ (priser[p.element_id]=priser[p.element_id]||[]).push(p); });
   }
   window.ML = { trip: rt.data, els, priser,
+                overrides: (rt.data.fx_overrides)||{},
                 rejsende: (rl&&rl.data)||[],
                 kurser: (rk&&rk.data)||{}, std: (rd&&rd.data)||{bank_fee_dkk:500,round_to:500,target_dg_pct:20.3},
                 aabne:{} };
@@ -7711,35 +7801,76 @@ async function mlPaxFjern(ttId){
 /* ══ KURSER ══ */
 function mlTegnKurser(){
   const k = ML.kurser||{};
-  const raek = ['EUR','USD','NOK'].filter(v=>k[v]).map(v=>{
-    const x = k[v];
-    const erSalg = v==='NOK';
-    const eff = erSalg ? Number(k.salgskurs) : Number(x.effektiv);
-    const marked = erSalg ? Number(k.salgskurs_marked) : Number(x.marked);
-    const hj = {EUR:'ligger fast mod DKK (fastkurspolitik ±2,25 %) — lav risiko',
-                USD:'fri kurs — kan flytte sig meget på få måneder',
-                NOK:'salgskursen til norske kunder — hele salget er eksponeret'}[v];
-    return `<tr><td>${erSalg?'DKK → NOK':v+' → DKK'}${erSalg?' <span class="sml">salgskurs</span>':''}
-      <div class="hj">${hj}</div></td>
-      <td class="marked">${mlNf4(marked)}<em>ECB ${escH(k.dato||'')}</em></td>
-      <td>${mlNf1(x.bankmargin)} %${x.margin_maalt?'':'<span class="skoen">skøn</span>'}</td>
-      <td>${mlNf1(x.buffer)} %</td>
+  const brug = mlValutaerIBrug();
+  const kv = ML.trip.customer_currency||'DKK';
+  const rettet = Object.keys(ML.overrides||{}).length;
+
+  if(!brug.length){
+    document.getElementById('mlKurser').innerHTML =
+      `<div class="kurstom">Alt på denne rejse købes og sælges i DKK — ingen kurser i spil.</div>`;
+    return;
+  }
+  const HJ = {EUR:'fastkurs mod DKK — lav risiko', USD:'fri kurs — kan flytte sig meget',
+              GBP:'fri kurs', CHF:'fri kurs', SEK:'fri kurs', THB:'fri kurs', AUD:'fri kurs',
+              NOK:'kundens valuta — hele salget er eksponeret'};
+  const raek = brug.map(v=>{
+    const t = mlTal3(v);
+    const salg = (v===kv);
+    const eff = salg ? mlSalgskurs() : mlEff(v);
+    const r = f => t.rettet.includes(f) ? ' aendret' : '';
+    return `<tr>
+      <td>${salg?'DKK → '+v:v+' → DKK'}${salg?' <span class="sml">salgskurs</span>':''}
+        <div class="hj">${HJ[v]||''}</div></td>
+      <td><input class="kf${r('marked')}" value="${mlNf4(t.marked)}"
+            oninput="mlSaetKurs('${v}','marked',this.value)"><span class="e">ECB ${escH(k.dato||'')}</span></td>
+      <td><input class="kf${r('bankmargin')}" value="${mlNf1(t.bankmargin)}"
+            oninput="mlSaetKurs('${v}','bankmargin',this.value)"> %${t.maalt?'':'<span class="skoen">skøn</span>'}</td>
+      <td><input class="kf${r('buffer')}" value="${mlNf1(t.buffer)}"
+            oninput="mlSaetKurs('${v}','buffer',this.value)"> %</td>
       <td class="eff">${mlNf4(eff)}</td></tr>`;
   }).join('');
+
   document.getElementById('mlKurser').innerHTML = `
-    <div class="kurstop"><span class="n">Kurser og buffere</span>
-      <span class="sml2">Markedskurser fra ECB ${escH(k.dato||'—')}</span>
-      <span class="hoejre"><button class="btn ghost sm" onclick="mlKurserAaben()">Ret buffere…</button></span></div>
-    <p class="kforkl">Der er kun <b>én vej</b>: alt regnes om til DKK, fortjenesten lægges på i DKK, og først til
-      sidst veksles til kundens valuta. Hver kurs består af tre tal — <b>markedskursen</b> er en kendsgerning,
-      <b>bankmarginen</b> er hvad banken faktisk tager, og <b>risikobufferen</b> er jeres eget valg.</p>
+    <div class="kurstop"><span class="n">Kurser</span>
+      <span class="sml2">${rettet?rettet+' rettet i hånden':'markedskurser fra ECB '+escH(k.dato||'—')}</span>
+      ${rettet?`<span class="hoejre"><button class="btn ghost sm" onclick="mlNulstilKurser()">Nulstil</button></span>`:''}
+    </div>
     <table class="mlktab"><thead><tr><th>Valuta</th><th>Markedskurs</th><th>Bankmargin</th>
-      <th>Risikobuffer</th><th>Effektiv kurs</th></tr></thead><tbody>${raek}</tbody></table>
-    <div class="kfod"><b>Bankmarginerne er skøn</b>, indtil de er målt på jeres egne bankafstemninger.
-      Gem både valutabeløbet og det beløb banken faktisk trak, så falder den realiserede kurs ud af sig selv.</div>`;
+      <th>Risikobuffer</th><th>Effektiv</th></tr></thead><tbody>${raek}</tbody></table>`;
 }
-function mlKurserAaben(){
-  alert('Bufferne sættes ét sted for hele systemet — under Indstillinger → Valuta.\n\nDe gælder alle rejser, så de skal ikke rettes pr. rejse. Den skærm er ikke bygget endnu; sig til, så laver jeg den.');
+/* Retter man et tal, gemmes kun afvigelsen — og kun paa denne rejse. */
+let _mlKursGem = null;
+function mlSaetKurs(valuta, felt, vaerdi){
+  const t = parseFloat(String(vaerdi).replace(/\s/g,'').replace(',','.'));
+  const o = ML.overrides = ML.overrides || {};
+  const std = (ML.kurser||{})[valuta] || {};
+  o[valuta] = o[valuta] || {};
+  if(isNaN(t) || t<0){ return; }
+  /* Er tallet det samme som standarden, er det ikke en afvigelse. */
+  if(Math.abs(t - (Number(std[felt])||0)) < 1e-9) delete o[valuta][felt];
+  else o[valuta][felt] = t;
+  if(!Object.keys(o[valuta]).length) delete o[valuta];
+
+  mlRegn(false); tegnAlle();
+  clearTimeout(_mlKursGem);
+  _mlKursGem = setTimeout(mlGemKurser, 700);
+}
+function tegnAlle(){
+  /* Kun de tal der aendrer sig — kortet tegnes ikke forfra, saa markoeren
+     bliver staaende i feltet man skriver i. */
+  document.querySelectorAll('#mlKurser .eff').forEach((c,i)=>{
+    const v = mlValutaerIBrug()[i]; if(!v) return;
+    c.textContent = mlNf4(v===(ML.trip.customer_currency||'DKK') ? mlSalgskurs() : mlEff(v));
+  });
+}
+async function mlGemKurser(){
+  const o = Object.keys(ML.overrides||{}).length ? ML.overrides : null;
+  await db.from('trips').update({fx_overrides:o}).eq('id', ML.trip.id);
+}
+async function mlNulstilKurser(){
+  ML.overrides = {};
+  await db.from('trips').update({fx_overrides:null}).eq('id', ML.trip.id);
+  mlTegnKurser(); mlRegn(false); mlFraPris();
 }
 
 /* ══ REGNESTYKKET — én metode, alt gennem DKK ══ */
@@ -7765,8 +7896,9 @@ function mlPrisVed(dgPct, kost){
   const d = dgPct/100, r = Number(ML.std.round_to)||1;
   return d<0.999 ? Math.ceil((kost/(1-d))/r)*r : 0;
 }
-function mlRegn(){
+function mlRegn(tegnKurs){
   const r = mlBeregn();
+  if(tegnKurs===true) mlTegnKurser();
   let h='';
   r.dele.forEach(d=>{
     let sub;
