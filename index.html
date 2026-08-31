@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.68 · 29.08.2026
+<!-- Panda · v0.69 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -658,6 +658,16 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .hvviews button:hover em{opacity:1;}
 .hv7 .hvviews button em:hover{color:var(--bad);}
 .hv7 .hvviews .gemny{border-style:dashed;border-color:var(--gold-l);color:var(--gold);}
+.hv7 .hvnavn{font:inherit;color:inherit;background:transparent;border:0;width:100%;
+  padding:1px 4px;margin:0 0 0 -4px;border-radius:3px;transition:.14s;}
+.hv7 .hvnavn:hover{background:rgba(185,154,95,.10);}
+.hv7 .hvnavn:focus{outline:none;background:#fff;box-shadow:inset 0 -2px 0 var(--gold);}
+.hv7 .belob{display:flex;gap:8px;align-items:baseline;}
+.hv7 .belob input{flex:1;min-width:0;}
+.hv7 .belob .valuta{flex:0 0 auto;font-family:'Inter',sans-serif;font-size:11px;
+  color:var(--mut);background:transparent;border:0;border-bottom:1px solid var(--hair);
+  padding:4px 2px;cursor:pointer;}
+.hv7 .belob .valuta:focus{outline:none;border-bottom-color:var(--gold);color:var(--ink);}
 .hv7 .ldlg.bred{max-width:660px;}
 .hv7 .ldlg .lf{padding:14px 22px;border-top:1px solid var(--hair);background:#fdfcf9;}
 .hv7 .nyg{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-bottom:12px;}
@@ -1353,7 +1363,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.68';
+const APP_VERSION = 'v0.69';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -6179,67 +6189,112 @@ async function hvSletVisning(id){
   await hvHentVisninger(); hvBoardRender(); hvKvit('Visningen er fjernet');
 }
 
-/* ══ Ny henvendelse i haanden — telefon, mail eller en der kommer forbi ══ */
+/* ══ Ny henvendelse i haanden — telefon, mail eller en der kommer forbi ══
+   Wendie 31.08.2026: «de felter, vi har inde i henvendelsessiden ... skal vaere
+   lige saa omfattende ... saa jeg kan udfylde alt det, som kan udfyldes derinde,
+   men ikke goere noget obligatorisk, fordi det er traels.»
+
+   Derfor er der IKKE bygget en stor formular ved siden af. Sagen oprettes med
+   det samme og aabnes paa sin egen side, hvor alle felter allerede findes —
+   destinationsvaelgeren, aldre paa boernene, forplejning, budget med valuta.
+   Ét sted at rette, ét sted at vedligeholde, og intet er obligatorisk. */
 function hvNyDlg(){
   const ov=document.getElementById('hvOv2'); if(!ov) return;
   const f=window._hvFilter||{};
-  ov.innerHTML = `<div class="ldlg bred">
+  ov.innerHTML = `<div class="ldlg">
     <div class="h"><h3>Ny henvendelse</h3>
-      <p>Til dem der ringer eller skriver direkte. Den lander i «Ny» — resten kan udfyldes bagefter.</p></div>
+      <p>Til dem der ringer eller skriver direkte. Udfyld resten på selve sagen bagefter — intet er påkrævet.</p></div>
     <div class="c">
       <div class="nyg">
         <div class="fld"><div class="k">Navn</div><input id="nyNavn" placeholder="Fornavn Efternavn"></div>
         <div class="fld"><div class="k">Branche</div><select id="nyBranch">${
           BRANCH_OPTS.map(([k,lab])=>`<option value="${k}" ${f.branch===k?'selected':''}>${escH(lab)}</option>`).join('')}</select></div>
-        <div class="fld"><div class="k">E-mail</div><input id="nyMail" type="email" placeholder="valgfrit"></div>
-        <div class="fld"><div class="k">Telefon</div><input id="nyTlf" placeholder="valgfrit"></div>
         <div class="fld"><div class="k">Ansvarlig</div><select id="nyOwner">${TEAM_OPTS(f.owner||window.ME||'')}</select></div>
         <div class="fld"><div class="k">Kom ind via</div><select id="nyKanal">
           <option value="telefon">Telefon</option><option value="mail">E-mail</option>
           <option value="besoeg">Besøg</option><option value="anbefaling">Anbefaling</option>
           <option value="andet">Andet</option></select></div>
-        <div class="fld"><div class="k">Destination</div><input id="nyDest" placeholder="fx Maldiverne"></div>
-        <div class="fld"><div class="k">Antal nætter</div><input id="nyNaetter" type="number" min="0"></div>
-        <div class="fld"><div class="k">Afrejse</div><input id="nyAfr" type="date"></div>
-        <div class="fld"><div class="k">Hjemrejse</div><input id="nyHjem" type="date"></div>
-        <div class="fld"><div class="k">Voksne</div><input id="nyVoksne" type="number" min="0" value="2"></div>
-        <div class="fld"><div class="k">Børn</div><input id="nyBoern" type="number" min="0" value="0"></div>
       </div>
-      <div class="fld"><div class="k">Hvad spørger de om?</div>
-        <textarea id="nyOnsker" rows="3" placeholder="Ønsker, budget, hvad der blev aftalt …"></textarea></div>
       <div class="nyfejl" id="nyFejl"></div>
     </div>
     <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
-      <button class="b gold" id="nyGem" onclick="hvNyGem()">Opret henvendelse</button></div></div>`;
+      <button class="b gold" id="nyGem" onclick="hvNyGem()">Opret og åbn</button></div></div>`;
   ov.classList.add('on');
   setTimeout(()=>{ const i=document.getElementById('nyNavn'); if(i) i.focus(); },40);
 }
 async function hvNyGem(){
   const v=id=>((document.getElementById(id)||{}).value||'').trim();
-  const t=id=>{ const x=v(id); return x===''?null:+x; };
   const fejl=document.getElementById('nyFejl');
   const navn=v('nyNavn');
-  if(!navn){ if(fejl) fejl.textContent='Henvendelsen skal have et navn — resten kan vente.'; return; }
   const knap=document.getElementById('nyGem'); if(knap){ knap.disabled=true; knap.textContent='Opretter…'; }
+  const branch=v('nyBranch')||'NO';
   const rec={
-    title:navn, contact_name:navn, stage:'new_lead', status:'open',
-    branch:v('nyBranch')||'NO', owner:v('nyOwner')||null,
-    contact_email:v('nyMail')||null, contact_phone:v('nyTlf')||null,
-    destination:v('nyDest')||null, nights:t('nyNaetter'),
-    departure_date:v('nyAfr')||null, return_date:v('nyHjem')||null,
-    adults:t('nyVoksne'), kids:t('nyBoern'),
-    wishes:v('nyOnsker')||null,
-    /* Vi ved praecis hvor den kom fra: et menneske skrev den ind. Det skal
-       ikke forveksles med de automatiske fra hjemmesiden. */
+    title: navn || 'Ny henvendelse', contact_name: navn || null,
+    stage:'new_lead', status:'open', branch, owner:v('nyOwner')||null,
+    /* Valutaen foelger branchen fra start — den kan aendres paa sagen. */
+    currency: branch==='MD' ? 'DKK' : 'NOK',
+    /* Vi ved praecis hvor den kom fra: et menneske skrev den ind. Det maa ikke
+       forveksles med de automatiske fra hjemmesiden. */
     source:'manuel', source_channel:v('nyKanal')||'telefon',
     created_at:new Date().toISOString()
   };
   const {data,error}=await db.from('leads').insert(rec).select(LEAD_FIELDS).single();
   if(error){ if(fejl) fejl.textContent='Kunne ikke oprette: '+error.message;
-    if(knap){ knap.disabled=false; knap.textContent='Opret henvendelse'; } return; }
+    if(knap){ knap.disabled=false; knap.textContent='Opret og åbn'; } return; }
   window._leads=[data].concat(window._leads||[]);
-  hvLukDlg(); hvBoardRender(); hvKvit('«'+navn+'» er oprettet');
+  hvLukDlg(); hvBoardRender(); hvKvit((navn||'Henvendelsen')+' er oprettet — udfyld resten her');
   hvOpen(data.id);
+}
+
+
+/* Valutaer vi handler i. Den foerste der passer til branchen foreslaas, men
+   Wendie skal kunne vaelge en anden: «man skal selv kunne vaelge valuta, men
+   den skal automatisk saettes til det, der passer til branchen». */
+const HV_VALUTAER = ['NOK','DKK','EUR','USD','SEK','GBP','CHF'];
+
+/* Wendie 31.08.2026: «lige saa snart jeg har tastet de informationer ... saa
+   skal det jo forsvinde med det samme». Foer blev lead-scoren kun regnet ud,
+   naar sagen blev aabnet, saa det roede spoergsmaalstegn blev staaende, til man
+   lukkede og aabnede igen. */
+function hvOpdaterScore(){
+  const id=window._hvId; if(!id) return;
+  const l=(window._leads||[]).find(x=>x.id===id); if(!l) return;
+  const boks=document.getElementById('hvIkoner'); if(!boks) return;
+  const tr=triage(l), koeb=l._koeb||0;
+  boks.innerHTML =
+    (koeb?`<span class="ico gold"><b>💛</b>${koeb>=2?'Trofast kunde':'Genganger'} <em>— kunden har købt ${
+        koeb===1?'én rejse':koeb+' rejser'} hos os før</em></span>`:'')
+    + `<span class="ico score"><b>${tr.complete?((kvalitetsTrin(tr.score)||{}).ikon||'🌴'):'❓'}</b>${
+        tr.complete?'Lead-score '+tr.score+' af 100':'Mangler oplysninger'}${
+        tr.complete?'':` <em>— ${escH(tr.missing.join(', '))}</em>`}</span>`;
+}
+
+/* Navnet gemmes paa contact_name. Titlen fra Pipedrive lades urørt — den er
+   deres, ikke vores, og vi viser den alligevel ikke laengere. */
+async function hvGemNavn(felt){
+  const v=(felt.value||'').trim();
+  await hvSave('contact_name', v||null);
+  hvBoardMaerk();
+}
+function hvBoardMaerk(){ window._hvAendret=true; }
+
+/* Wendie 31.08.2026: «hvis man vaelger afrejse, for eksempel den 14. december,
+   saa skal hjemrejsen allerede staa til en uge senere ... og saa kan man jo
+   selvfoelgelig rette det, hvis man vil». Vi skriver KUN, hvis hjemrejsen er
+   tom — ellers ville vi overskrive noget nogen havde valgt med vilje. */
+function hvUgeEfter(dato){
+  if(!dato) return null;
+  const d=new Date(dato+'T12:00:00'); if(isNaN(d)) return null;
+  d.setDate(d.getDate()+7);
+  return d.toISOString().slice(0,10);
+}
+async function hvSaetAfrejse(v){
+  await hvSave('departure_date', v||null);
+  const hj=document.getElementById('hvHjem');
+  if(v && hj && !hj.value){
+    const forslag=hvUgeEfter(v);
+    if(forslag){ hj.value=forslag; await hvSave('return_date', forslag); }
+  }
 }
 function hvNavn(l){
   const n=(l&&l.contact_name||'').trim();
@@ -6637,7 +6692,8 @@ function hvRender(l, acts, offers){
     <div class="hd">
       <div class="top">
         <div><div class="lab">Henvendelse</div>
-          <h2>${escH(hvNavn(l))}</h2></div>
+          <h2><input class="hvnavn" value="${escH(hvNavn(l))}" title="Klik for at rette navnet"
+            onchange="hvGemNavn(this)" placeholder="Uden navn"></h2></div>
         <div class="acts"><span class="pos">${pos>=0?(pos+1)+' / '+window._hvOrder.length:''}</span>
           ${l.status==='lost'
             ? `<button class="b gh" onclick="hvGenaabn()" title="Åbn sagen igen">Åbn igen</button>`
@@ -6651,7 +6707,7 @@ function hvRender(l, acts, offers){
         <label class="chipsel"><span>Branche</span><select onchange="hvSave('branch',this.value)">${BRANCH_OPTS.map(([k,lab])=>`<option value="${k}" ${l.branch===k?'selected':''}>${escH(lab)}</option>`).join('')}</select></label>
         <label class="chipsel"><span>Ansvarlig</span><select onchange="hvSave('owner',this.value)">${TEAM_OPTS(l.owner||'')}</select></label>
       </div>
-      <div class="icons">
+      <div class="icons" id="hvIkoner">
         ${koeb?`<span class="ico gold"><b>💛</b>${koeb>=2?'Trofast kunde':'Genganger'} <em>— kunden har købt ${koeb===1?'én rejse':koeb+' rejser'} hos os før</em></span>`:''}
         <span class="ico score"><b>${tr.complete?((kvalitetsTrin(tr.score)||{}).ikon||'🌴'):'❓'}</b>${tr.complete?'Lead-score '+tr.score+' af 100':'Mangler oplysninger'}${tr.complete?'':` <em>— ${escH(tr.missing.join(', '))}</em>`}</span>
       </div>
@@ -6680,8 +6736,8 @@ function hvRender(l, acts, offers){
             <div class="fld"><div class="k">Destination(er)</div><div class="chipedit" id="hvDests">
               ${dests.map(d=>`<span class="dchip">${escH(d)}<button class="x" onclick="hvDelDest(this)" title="Fjern">×</button></span>`).join('')}
               <button class="addchip" onclick="hvAddDest()">+ Tilføj</button></div></div>
-            <div class="fld two"><div><div class="k">Afrejse</div><input type="date" value="${l.departure_date||''}" onchange="hvSave('departure_date',this.value||null)"></div>
-              <div><div class="k">Hjemrejse</div><input type="date" value="${l.return_date||''}" onchange="hvSave('return_date',this.value||null)"></div></div>
+            <div class="fld two"><div><div class="k">Afrejse</div><input type="date" id="hvAfr" value="${l.departure_date||''}" onchange="hvSaetAfrejse(this.value)"></div>
+              <div><div class="k">Hjemrejse</div><input type="date" id="hvHjem" value="${l.return_date||''}" onchange="hvSave('return_date',this.value||null)"></div></div>
             <div class="fld two"><div><div class="k">Antal nætter</div><input value="${l.nights==null?'':l.nights}" onchange="hvSave('nights',this.value===''?null:+this.value)"></div>
               <div><div class="k">Villaer/værelser</div><input value="${l.villas==null?'':l.villas}" onchange="hvSave('villas',this.value===''?null:+this.value)"></div></div>
             <div class="fld"><div class="k">Afrejselufthavn — der kan være flere</div><div class="chipedit" id="hvAp">
@@ -6693,7 +6749,10 @@ function hvRender(l, acts, offers){
             ${fld('Voksne','adults',l.adults)}
             <div class="fld"><div class="k">Børn</div><input id="hvKc" value="${l.kids==null?'':l.kids}" oninput="hvKids()" onchange="hvSave('kids',this.value===''?null:+this.value)"></div>
             <div class="fld" id="hvKbF"${(tnum(l.kids)||0)>0?'':' style="display:none"'}><div class="k">Alder på børn</div><div class="kids" id="hvKb"></div></div>
-            <div class="fld"><div class="k">Budget (${escH(cur)})</div><input value="${l.est_value==null?'':fval(l.est_value)}" onchange="hvSaveTal(this,'est_value')"></div>
+            <div class="fld"><div class="k">Budget</div>
+              <div class="belob"><input value="${l.est_value==null?'':fval(l.est_value)}" onchange="hvSaveTal(this,'est_value')">
+              <select class="valuta" onchange="hvSave('currency',this.value)" title="Foreslås ud fra branchen — kan altid ændres">${
+                HV_VALUTAER.map(v=>`<option value="${v}" ${cur===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
           </div>
           <div class="fbox"><div class="lab">Kontakt og kilde</div>
             ${fld('Kontaktnavn','contact_name',l.contact_name)}
@@ -6833,6 +6892,7 @@ async function hvSave(felt,val){
   /* Ogsaa almindelige felter kan flytte kortet — skifter man ansvarlig eller
      branche, hoerer det til under et andet filter. */
   window._hvAendret=true;
+  hvOpdaterScore();
   if(s){ s.textContent='Gemt'; s.style.color=''; setTimeout(()=>{ if(s.textContent==='Gemt') s.textContent=''; },1800); }
 }
 function hvTog(btn,felt){
