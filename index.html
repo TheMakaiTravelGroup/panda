@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.64 · 29.08.2026
+<!-- Panda · v0.66 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -623,7 +623,20 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .chipedit .dchip .x{font-size:14px;line-height:1;color:#8fa389;background:none;border:0;
   padding:0;cursor:pointer;}
 .hv7 .chipedit .dchip .x:hover{color:var(--bad);}
-.hv7 .chipedit .addchip{font-size:12px;padding:6px 11px;border-radius:4px;}.hv7 .fld.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}.hv7 .kids{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}.hv7 .kids input{text-align:center;border:1px solid var(--hair);border-radius:2px;padding:5px 2px;}.hv7 .kids input::placeholder{color:var(--gold);font-weight:600;opacity:1;}.hv7 .kids input.tom{border-color:var(--gold-l);background:rgba(224,201,163,.14);}.hv7 .sug input, .hv7 .sug select{border-bottom-style:dashed;border-bottom-color:var(--gold);color:#8d6a34;font-style:italic;}.hv7 .sugbar{display:flex;align-items:center;gap:6px;margin-top:5px;}.hv7 .sugbar .t{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);}.hv7 .mini{border:1px solid var(--line);background:#fff;border-radius:2px;width:19px;height:18px;display:grid;place-items:center;cursor:pointer;font-size:9px;padding:0;transition:.14s;}.hv7 .mini.y{color:var(--ok);}.hv7 .mini.y:hover{background:var(--ok);color:#fff;border-color:var(--ok);}.hv7 .mini.n{color:var(--mut);}.hv7 .mini.n:hover{background:var(--sand);}.hv7 .offer{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:3px;padding:14px 16px;}.hv7 .offer .t{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;}.hv7 .offer .s{font-size:12px;color:var(--mut);margin-top:5px;}.hv7 /* ── tilføj tilbud ── */
+.hv7 .chipedit .addchip{font-size:12px;padding:6px 11px;border-radius:4px;}
+/* Wendie 31.08.2026: sporet fra annoncerne laa gemt bag en sammenklappet
+   «Sporing og teknik» — og felterne blev end ikke hentet fra basen. Det er
+   det, der viser hvilken annonce der skaber henvendelser, saa det staar
+   fremme nu. Kampagne-id er et langt tal og skal kunne braekke. */
+.hv7 .spor{margin:0 0 4px;}
+.hv7 .sprow{display:flex;gap:10px;align-items:baseline;padding:5px 0;
+  border-bottom:1px solid var(--hair);font-size:12px;}
+.hv7 .sprow:last-child{border-bottom:0;}
+.hv7 .sprow .k{flex:0 0 84px;color:var(--mut);font-size:10.5px;letter-spacing:.4px;
+  text-transform:uppercase;}
+.hv7 .sprow .v{flex:1;color:var(--ink);font-weight:500;min-width:0;
+  overflow-wrap:anywhere;word-break:break-word;}
+.hv7 .sprow.tom .v,.hv7 .sprow.tom{color:var(--mut);font-style:italic;font-weight:400;}.hv7 .fld.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}.hv7 .kids{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}.hv7 .kids input{text-align:center;border:1px solid var(--hair);border-radius:2px;padding:5px 2px;}.hv7 .kids input::placeholder{color:var(--gold);font-weight:600;opacity:1;}.hv7 .kids input.tom{border-color:var(--gold-l);background:rgba(224,201,163,.14);}.hv7 .sug input, .hv7 .sug select{border-bottom-style:dashed;border-bottom-color:var(--gold);color:#8d6a34;font-style:italic;}.hv7 .sugbar{display:flex;align-items:center;gap:6px;margin-top:5px;}.hv7 .sugbar .t{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);}.hv7 .mini{border:1px solid var(--line);background:#fff;border-radius:2px;width:19px;height:18px;display:grid;place-items:center;cursor:pointer;font-size:9px;padding:0;transition:.14s;}.hv7 .mini.y{color:var(--ok);}.hv7 .mini.y:hover{background:var(--ok);color:#fff;border-color:var(--ok);}.hv7 .mini.n{color:var(--mut);}.hv7 .mini.n:hover{background:var(--sand);}.hv7 .offer{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:3px;padding:14px 16px;}.hv7 .offer .t{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;}.hv7 .offer .s{font-size:12px;color:var(--mut);margin-top:5px;}.hv7 /* ── tilføj tilbud ── */
 .oadd{display:flex;gap:8px;align-items:center;padding:13px 16px;border-top:1px solid var(--hair);background:var(--card);}.hv7 .oadd input{flex:1;font-family:'Inter',sans-serif;font-size:12.5px;padding:8px 0;border:0;border-bottom:1px dashed var(--gold-l);background:transparent;color:var(--ink);}.hv7 .oadd input:focus{outline:none;border-bottom-color:var(--gold);border-bottom-style:solid;}.hv7 .oadd input::placeholder{color:var(--mut);}.hv7 .oresolve{display:none;align-items:center;gap:10px;padding:11px 16px;background:var(--mist);border-top:1px solid var(--hair);font-size:12px;color:#4d7a72;}.hv7 .oresolve.on{display:flex;}.hv7 .spin{width:12px;height:12px;border:2px solid rgba(93,132,124,.25);border-top-color:#4d7a72;border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0;}@keyframes sp{to{transform:rotate(360deg);}}.hv7 /* ── flervalg ── */
 .multi{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}.hv7 .mopt{font-family:'Inter',sans-serif;font-size:11px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:2px;padding:5px 10px;cursor:pointer;transition:.14s;}.hv7 .mopt:hover{border-color:var(--gold-l);color:var(--ink2);}.hv7 .mopt.on{background:rgba(224,201,163,.34);border-color:var(--gold);color:#8d6a34;font-weight:500;}.hv7 .sug .multi .mopt.on{border-style:dashed;}.hv7 .fld.sug .k{color:var(--gold);}.hv7 /* ── destinationsvælger ── */
 .ov3{position:fixed;inset:0;background:rgba(90,80,64,.42);backdrop-filter:blur(4px);display:none;place-items:center;z-index:70;padding:24px;}.hv7 .ov3.on{display:grid;}.hv7 .dpick{background:var(--card);border-radius:4px;max-width:620px;width:100%;max-height:calc(100vh - 60px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 34px 90px rgba(80,70,55,.36);}.hv7 .dph{display:flex;align-items:flex-start;gap:14px;padding:20px 22px 16px;background:linear-gradient(135deg,var(--mist),var(--sand));border-bottom:1px solid var(--gold-l);}.hv7 .dph h3{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:400;margin:8px 0 0;}.hv7 .xb2{margin-left:auto;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.7);border:1px solid var(--line);color:var(--ink2);cursor:pointer;font-size:13px;}.hv7 .xb2:hover{background:var(--bad);color:#fff;border-color:var(--bad);}.hv7 .dsearch{padding:14px 22px;border-bottom:1px solid var(--hair);}.hv7 .dsearch input{width:100%;font-family:'Inter',sans-serif;font-size:14px;padding:9px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);}.hv7 .dsearch input:focus{outline:none;border-bottom-color:var(--gold);}.hv7 .dbody{overflow-y:auto;padding:6px 22px 22px;}.hv7 .dgrp{border-bottom:1px solid var(--hair);padding:14px 0;}.hv7 .dgrp:last-of-type{border-bottom:0;}.hv7 .dgrp.top{padding-top:16px;}.hv7 .dgh, .hv7 .dgrp>summary{font-size:8.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);margin-bottom:11px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;}.hv7 .dgrp>summary::-webkit-details-marker{display:none;}.hv7 .dgrp>summary::before{content:'+';font-size:13px;}.hv7 .dgrp[open]>summary::before{content:'−';}.hv7 .dwrap{display:flex;flex-wrap:wrap;gap:6px;}.hv7 .dopt{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:2px;padding:8px 13px;cursor:pointer;transition:.14s;}.hv7 .dopt:hover{border-color:var(--gold);color:var(--gold);background:rgba(224,201,163,.14);}.hv7 .dopt.big{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;color:var(--ink);padding:9px 15px;background:var(--mist);border-color:transparent;}.hv7 .dopt.big em{font-style:normal;font-family:'Inter',sans-serif;font-size:9.5px;color:var(--mut);margin-left:8px;}.hv7 .dopt.big:hover{background:rgba(224,201,163,.3);border-color:var(--gold);}.hv7 .dopt.valgt{background:var(--gold);color:#fff;border-color:var(--gold);}.hv7 .dnone{display:none;font-size:12.5px;color:var(--mut);padding:14px 0 0;}.hv7 .dnone.on{display:block;}.hv7 .dopt.add{margin-left:8px;border-style:dashed;border-color:var(--gold-l);color:var(--gold);}.hv7 /* ── alt kan rettes og fjernes ── */
@@ -1301,7 +1314,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.64';
+const APP_VERSION = 'v0.66';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -1512,7 +1525,7 @@ const FLOW = ['bekraeftet','bb_sendt','klar_til_afrejse','god_tur','faerdig'];
 // Henvendelses-pipeline — trin kortlagt fra Pipedrive "Leads - Pipeline" (16. jul 2026)
 const LEAD_STAGES = ['new_lead','send_email','email_sent','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation','confirmed'].map(k=>[k, t('ls.'+k)]);
 const LEAD_STAGE_LABEL = Object.fromEntries(LEAD_STAGES);
-const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url,villa_types,meal_plans,occasions,vurdering,vurdering_by,vurdering_at';
+const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url,villa_types,meal_plans,occasions,vurdering,vurdering_by,vurdering_at,utm_source,utm_campaign,pd_origin,pd_channel,pd_channel_id,visitor_device,client_type';
 const EL_TYPES = new Proxy({}, { get:(o,k)=> t('el.'+String(k), String(k)) });
 const SALES_TASKS = ['tjek_rejse','pre_departure','god_tur','hjemkomst','retrieval'];
 const FIN_TASKS = ['restbetaling','leverandoerbetaling','kreditvarsel','dok_sync'];
@@ -6043,6 +6056,15 @@ function hvLinksIFritekst(l){
 /* Pipedrive saetter sit eget sidenavn ind i deal-titlen — «Ann Kristin Solheim
    Maldivia.no». Kundens navn staar rent i contact_name, saa det bruger vi. Har
    vi kun titlen, klipper vi halen af. */
+/* utm_source kommer som kode fra annoncevaerktoejet. «fb» er Facebook for en
+   maskine, men ikke for et menneske. Kender vi ikke koden, viser vi den raa —
+   hellere det end at gaette forkert. */
+const HV_KILDE = {fb:'Facebook', facebook:'Facebook', 'facebook.com':'Facebook',
+  ig:'Instagram', instagram:'Instagram', google:'Google', adwords:'Google Ads',
+  'google.com':'Google', bing:'Bing', tiktok:'TikTok', youtube:'YouTube',
+  newsletter:'Nyhedsbrev', email:'E-mail', mail:'E-mail', direct:'Direkte',
+  organic:'Organisk søgning', referral:'Henvisning fra anden side'};
+function hvKilde(v){ if(!v) return null; return HV_KILDE[String(v).trim().toLowerCase()] || String(v); }
 function hvNavn(l){
   const n=(l&&l.contact_name||'').trim();
   if(n) return n;
@@ -6536,9 +6558,19 @@ function hvRender(l, acts, offers){
           <div class="kpi"><div class="n">${offers.length}</div><div class="l">tilbud<br>hentet</div></div>
         </div>
 
-        <details class="tech"><summary>Sporing og teknik</summary>
-          ${[['utm_source',l.utm_source],['Kampagne',l.utm_campaign],['Kilde',l.source_channel],['Hørt om os',l.heard_about_us],['Oprettet',l.pipedrive_deal_id?('Pipedrive '+l.pipedrive_deal_id):'Panda']]
-            .filter(([,v])=>v).map(([k,v])=>`<div class="techrow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')||'<div class="techrow"><span class="v">Ingen sporingsdata.</span></div>'}
+        <div class="sh"><span class="txt">Hvor kom den fra</span></div>
+        ${(()=>{ const r=[['Kilde',hvKilde(l.utm_source)],['Kampagne',l.utm_campaign],
+              ['Hørt om os',l.heard_about_us],['Enhed',l.visitor_device],
+              ['Kanal',[l.pd_channel,l.pd_channel_id].filter(Boolean).join(' · ')],
+              ['Type',l.client_type]]
+            .filter(([,v])=>v!=null&&v!=='');
+          return `<div class="spor">${r.length
+            ? r.map(([k,v])=>`<div class="sprow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')
+            : '<div class="sprow tom">Denne henvendelse kom ind uden spor.</div>'}</div>`; })()}
+
+        <details class="tech"><summary>Teknik</summary>
+          ${[['Importkilde',l.source_channel],['Oprettet i Pipedrive',l.pd_origin],['Deal-nr.',l.pipedrive_deal_id||'—']]
+            .filter(([,v])=>v).map(([k,v])=>`<div class="techrow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')||'<div class="techrow"><span class="v">Ingenting at vise.</span></div>'}
         </details>
       </div>
     </div>
@@ -6561,7 +6593,12 @@ function foldRejse(el){
 function hvClose(){ window._hvId=null;
   const o=document.getElementById('hvOv'); if(o) o.classList.remove('on');
   const p=document.getElementById('hvPage'); if(p) p.classList.remove('dim');
-  const h=document.getElementById('hvHint'); if(h) h.style.display=''; }
+  const h=document.getElementById('hvHint'); if(h) h.style.display='';
+  /* Wendie 31.08.2026: «naar jeg har aendret statusen inde i henvendelsen ...
+     ligger den stadig i klar-kolonnen». Er der rettet noget mens sagen var
+     aaben, skal tavlen bagved vise det med det samme — ellers staar kortet i
+     den forkerte kolonne, indtil siden tilfaeldigvis hentes forfra. */
+  if(window._hvAendret){ window._hvAendret=false; hvBoardRender(); } }
 function hvStep(d){ const o=document.getElementById('hvOv'); if(!o||!o.classList.contains('on')) return;
   const arr=window._hvOrder||[]; let i=arr.indexOf(window._hvId); if(i<0) return;
   hvOpen(arr[(i+d+arr.length)%arr.length]); }
@@ -6596,6 +6633,9 @@ async function hvSave(felt,val){
   const s=document.getElementById('hvSaved');
   if(error){ if(s){ s.textContent='Kunne ikke gemme: '+error.message; s.style.color='var(--bad)'; } return; }
   const l=(window._leads||[]).find(x=>x.id===id); if(l) l[felt]=val;
+  /* Ogsaa almindelige felter kan flytte kortet — skifter man ansvarlig eller
+     branche, hoerer det til under et andet filter. */
+  window._hvAendret=true;
   if(s){ s.textContent='Gemt'; s.style.color=''; setTimeout(()=>{ if(s.textContent==='Gemt') s.textContent=''; },1800); }
 }
 function hvTog(btn,felt){
@@ -6616,6 +6656,7 @@ async function hvStage(k){
   const id=window._hvId; if(!id) return;
   const {error}=await db.from('leads').update({stage:k}).eq('id',id); if(error){ alert(error.message); return; }
   const l=(window._leads||[]).find(x=>x.id===id); if(l){ l.stage=k; l._stageSince=new Date().toISOString(); }
+  window._hvAendret=true;
   hvOpen(id);
 }
 async function hvAddNote(){
