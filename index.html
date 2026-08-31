@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.69 · 29.08.2026
+<!-- Panda · v0.70 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -658,6 +658,60 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .hvviews button:hover em{opacity:1;}
 .hv7 .hvviews button em:hover{color:var(--bad);}
 .hv7 .hvviews .gemny{border-style:dashed;border-color:var(--gold-l);color:var(--gold);}
+/* ══ Kortet paa tavlen — «D med branchestreg», valgt af Wendie 31.08.2026 ══
+   Fast hoejde, firkantede hjoerner, streg i branchens flagfarve. De afrundede
+   hjoerner er det, der faar noget til at ligne en app frem for noget designet,
+   og de findes ikke ét sted paa den nye hjemmeside. */
+.hv7 .lc{position:relative;background:var(--card);border:1px solid var(--line);
+  border-left:3px solid var(--line);border-radius:0;
+  height:180px;padding:0;margin-bottom:9px;
+  display:flex;flex-direction:column;overflow:hidden;cursor:pointer;
+  transition:.15s cubic-bezier(.2,.8,.3,1);}
+.hv7 .lc:hover{box-shadow:0 8px 22px rgba(90,78,55,.14);transform:translateY(-1px);}
+.hv7 .lc.no{border-left-color:#2b4a80;}   /* norsk blaa, daempet */
+.hv7 .lc.dk{border-left-color:#b3323c;}   /* dansk roed, daempet */
+.hv7 .lc.er-tabt{opacity:.62;}
+.hv7 .lc.dragging{opacity:.4;}
+
+.hv7 .lch{padding:11px 13px 10px;}
+.hv7 .lctop{display:flex;align-items:baseline;gap:9px;}
+.hv7 .lctop .navn{font-family:'Playfair Display',serif;font-size:15px;font-weight:500;
+  line-height:1.2;color:var(--ink);flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hv7 .lctop .bel{font-family:'Playfair Display',serif;font-size:15px;color:var(--forest);
+  font-variant-numeric:tabular-nums;white-space:nowrap;}
+.hv7 .lctop .bel .val{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:.8px;color:var(--mut);}
+.hv7 .lctop .bel.tom,.hv7 .lctop .bel.uklar{color:var(--mut);font-size:13px;}
+.hv7 .lcdest{display:flex;align-items:baseline;gap:8px;font-size:11px;color:var(--gold);
+  letter-spacing:.2px;margin-top:3px;}
+.hv7 .lcdest .hvor{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hv7 .lcdest .fl{color:var(--mut);}
+.hv7 .lcv.ferie{color:#5f8c84;font-size:9.5px;letter-spacing:.2px;}
+.hv7 .lcv.sml{color:var(--mut);font-size:9.5px;letter-spacing:.2px;}
+
+.hv7 .lckrop{display:flex;border-top:1px solid var(--hair);}
+.hv7 .lchalv{flex:1;min-width:0;padding:8px 13px 9px;}
+.hv7 .lchalv+.lchalv{border-left:1px solid var(--hair);}
+.hv7 .lclab{font-size:7.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.hv7 .lcv{font-size:10.5px;color:var(--ink2);line-height:1.5;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.hv7 .lcfod{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:1.1px;
+  color:var(--mut);margin-top:auto;padding:7px 13px 8px;border-top:1px solid var(--hair);}
+.hv7 .lcfod .ini{margin-left:auto;color:var(--ink2);}
+.hv7 .lcfod .prik{flex:0 0 auto;width:5px;height:5px;border-radius:50%;
+  background:var(--bad);display:inline-block;}
+.hv7 .lcfod .tabtgrund{color:var(--mut);font-style:italic;letter-spacing:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* Kolonneoverskrifterne var 8,5 px — for smaa til at holde en kolonne sammen.
+   Wendie 31.08: «overskrifterne for hver kolonne skal vaere stoerre». */
+.hv7 .colh{padding:0 2px 10px;margin-bottom:12px;border-bottom:1px solid var(--gold-l);}
+.hv7 .colh .nm{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;
+  font-weight:700;color:var(--gold);}
+.hv7 .colh .ct{margin-left:auto;font-size:13px;color:var(--mut);
+  font-family:'Playfair Display',serif;letter-spacing:0;}
+
 .hv7 .hvnavn{font:inherit;color:inherit;background:transparent;border:0;width:100%;
   padding:1px 4px;margin:0 0 0 -4px;border-radius:3px;transition:.14s;}
 .hv7 .hvnavn:hover{background:rgba(185,154,95,.10);}
@@ -699,7 +753,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    ruller .boardscroll i stedet for at klemme kortene ulaeselige. */
 .hv7 .boardscroll{overflow-x:auto;padding-bottom:10px;margin-bottom:-2px;}
 .hv7 .board{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px;
-  min-width:calc(var(--kol,10) * 164px + (var(--kol,10) - 1) * 10px);overflow:visible;padding-bottom:0;}
+  min-width:calc(var(--kol,10) * 236px + (var(--kol,10) - 1) * 10px);overflow:visible;padding-bottom:0;}
 .hv7 .board > .col{min-width:0;}
 /* Rullebjaelken skal kunne ses — ellers tror man at boardet stopper midt i det hele */
 .hv7 .boardscroll::-webkit-scrollbar{height:9px;}
@@ -1363,7 +1417,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.69';
+const APP_VERSION = 'v0.70';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -6076,7 +6130,14 @@ const HV_TOP = [['Maldiverne',757],['Mexico',78],['Den Dominikanske Republik',71
    «confirmed» er IKKE et trin i Pipedrive (Wendie 24.08) - vundet er en status, ikke en
    kolonne - saa den er ude. Henvendelser der alligevel staar paa et trin uden kolonne
    skjules ikke: de faar deres egen kolonne til sidst, saa de kan ses og ryddes op. */
-const HV_RAIL = LEAD_STAGES.map(s=>s[0]).filter(k=>k!=='confirmed');
+/* Trin der IKKE faar en kolonne paa tavlen. Selve trinnet bliver i basen, saa
+   historik og gamle sager beholder deres vaerdi — de faar bare ikke en soejle.
+   «confirmed» er en rejse, ikke en henvendelse. «email_sent» droppede Wendie
+   31.08.2026: «vi kan godt fjerne e-mail sendt-kolonnen, den skal vi ikke have
+   mere». En sag der stadig staar der, havner i restkolonnen til hoejre og kan
+   flyttes derfra — den forsvinder ikke. */
+const HV_SKJULTE_TRIN = ['confirmed','email_sent'];
+const HV_RAIL = LEAD_STAGES.map(s=>s[0]).filter(k=>!HV_SKJULTE_TRIN.includes(k));
 /* leads.source staar til 'pipedrive' paa alle 211 - det er importkilden, ikke kundens.
    Den rigtige kanal ligger i source_channel. */
 const HV_KANAL = {'website':'Hjemmesiden','pipedrive-sync':'Overfoert fra Pipedrive','pipedrive-import':'Importeret fra Pipedrive'};
@@ -6458,41 +6519,84 @@ function hvFilterOgTal(f){
   </div>`;
 }
 
+/* ══ Kortet paa tavlen ══════════════════════════════════════════════════
+   Wendie og Rasmus 31.08.2026. Rasmus saa flowet for foerste gang og sagde at
+   det ikke var overskueligt. Han havde ret: kortet bar tretten oplysninger paa
+   én gang — navn, score, hjerte, tre destinationsklodser, rejsende, to datoer,
+   naetter, ferieuge, budget, branche, liggetid og initialer — gange ni
+   kolonner. Der var intet hierarki, saa alt raabte lige hoejt.
+
+   Efter tre runder mockups valgte Wendie udgave «D med branchestreg»:
+     · navn og beloeb oeverst, destinationen under i guld
+     · rejsende og hvornaar i to faste baase
+     · en streg til venstre i norsk blaat eller dansk roedt
+     · FAST HOEJDE — «jeg kan bedst lide naar boksene er lige store, det ser
+       rodet ud hvis de er forskellige stoerrelser». Alt der ikke er plads til
+       klippes; flere destinationer bliver til «+2». Resten staar paa sagen.
+     · ingen emojis. De er tegnet af Apple, ikke af os, og skifter udseende fra
+       maskine til maskine.
+   Lead-scoren er ikke vaek — den staar inde paa sagen, hvor den bruges. */
+function hvDatoKort(fra, til){
+  if(!fra) return '—';
+  const M=['jan.','feb.','mar.','apr.','maj','jun.','jul.','aug.','sep.','okt.','nov.','dec.'];
+  const f=new Date(fra); if(isNaN(f)) return '—';
+  if(!til) return f.getDate()+'. '+M[f.getMonth()];
+  const t=new Date(til); if(isNaN(t)) return f.getDate()+'. '+M[f.getMonth()];
+  /* Samme maaned: «14.–28. dec.» Forskellige: «18. okt.–1. nov.» */
+  return f.getMonth()===t.getMonth() && f.getFullYear()===t.getFullYear()
+    ? f.getDate()+'.–'+t.getDate()+'. '+M[t.getMonth()]
+    : f.getDate()+'. '+M[f.getMonth()]+'–'+t.getDate()+'. '+M[t.getMonth()];
+}
 function hvCard(l){
   const tr=triage(l);
-  const dests=destList(l.destination).slice(0,3);
-  const d=daysSince(l._stageSince||l.created_at);
+  const dests=destList(l.destination);
+  const mn=minutterSiden(l._stageSince||l.created_at);
   const a=tnum(l.adults), k=tnum(l.kids)||0;
   const ages=(l.child_ages||'').split(/\s*,\s*/).filter(x=>x!=='');
-  const pp=[]; if(a) pp.push(a===1?'1 voksen':a+' voksne');
-  if(k>0) pp.push((k===1?'1 barn':k+' børn')+(ages.length?' ('+ages.join(', ')+')':''));
+  const voksne = a ? (a===1?'1 voksen':a+' voksne') : '—';
+  const boern  = k>0 ? (k===1?'1 barn':k+' børn')+(ages.length?' ('+ages.join(', ')+')':'') : '—';
   let nn=tnum(l.nights);
-  if(nn==null && l.departure_date && l.return_date){ const df=Math.round((new Date(l.return_date)-new Date(l.departure_date))/86400000); if(df>0) nn=df; }
-  const datoer = l.departure_date ? fmtDY(l.departure_date)+(l.return_date?' → '+fmtDY(l.return_date):'') : (l.earliest_departure? fmtDY(l.earliest_departure)+' (tidligst)':'—');
+  if(nn==null && l.departure_date && l.return_date){
+    const df=Math.round((new Date(l.return_date)-new Date(l.departure_date))/86400000);
+    if(df>0) nn=df;
+  }
+  const naar = hvDatoKort(l.departure_date||l.earliest_departure, l.return_date||l.latest_return);
+  const naetter = nn!=null&&nn>0 ? nn+(nn===1?' nat':' nætter') : '—';
   const cur=leadCur(l);
   const budFejl = (+l.est_value<0) || (tr.total!=null && tr.total<0) || (tr.perPerson!=null && tr.perPerson<0);
-  const bud = budFejl ? '<div class="bud none" title="Beløbet i data er negativt — se henvendelsen efter">Budget uklart</div>'
-    : (tr.total!=null ? `<div class="bud">${fval(tr.total)} <span class="cur">${cur}</span></div>`
-    : (tr.perPerson!=null ? `<div class="bud">${fval(tr.perPerson)} <span class="cur">${cur}</span> <span class="pp">/pers.</span></div>`
-    : '<div class="bud none">Budget ikke oplyst</div>'));
+  const bel = budFejl ? '<span class="bel uklar" title="Beløbet i data er negativt — se henvendelsen efter">uklart</span>'
+    : (tr.total!=null ? `<span class="bel">${fval(tr.total)} <span class="val">${escH(cur)}</span></span>`
+    : (tr.perPerson!=null ? `<span class="bel">${fval(tr.perPerson)} <span class="val">${escH(cur)}/p</span></span>`
+    : '<span class="bel tom">—</span>'));
   const brc = /^(MN|NO)$/.test(l.branch||'') ? 'no' : (l.branch==='MD'?'dk':'');
-  const ferier = ferieForRejse(l.departure_date||l.earliest_departure, l.return_date||l.latest_return, l.branch, l.departure_airport);
-  const koeb=+(l._koeb||0);
-  const hjerte = koeb>=2 ? `<span class="ik gengang skin" title="Trofast kunde — ${koeb} rejser købt hos os">💛</span>`
-    : (koeb===1?'<span class="ik gengang" title="Genganger — kunden har købt én rejse hos os før">💛</span>':'');
-  return `<div class="lc ${brc}${l.status==='lost'?' er-tabt':''}${l.converted_trip_id?' erblevetrejse':''}" data-id="${l.id}" onclick="hvOpen('${l.id}')"
+  const ferier = ferieForRejse(l.departure_date||l.earliest_departure,
+                               l.return_date||l.latest_return, l.branch, l.departure_airport);
+  /* Mangler der noget, siger vi HVAD der mangler i stedet for liggetiden.
+     Det er den eneste besked paa kortet man skal handle paa. */
+  const nederst = (!tr.complete && tr.missing && tr.missing.length
+      ? `<span class="prik" title="Mangler: ${escH(tr.missing.join(', '))}"></span>` : '')
+    + `<span>${escH(varighed(mn))}</span>`;
+  return `<div class="lc ${brc}${l.status==='lost'?' er-tabt':''}${l.converted_trip_id?' erblevetrejse':''}"
+    data-id="${l.id}" onclick="hvOpen('${l.id}')" title="${escH(l.contact_name||l.title||'')}"
     draggable="true" ondragstart="hvDragStart(event,'${l.id}')" ondragend="hvDragEnd(event)">
-    <div class="nm"><span class="navn">${escH(l.contact_name||l.title||'Uden navn')}</span>${hjerte}</div>
-    <div class="scorerow">${tr.complete?`<span class="tri good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}
-      <span class="ikoner">${tr.complete?(kvalitetsTrin(tr.score)?`<span class="ik" title="${escH((kvalitetsTrin(tr.score)||{}).navn||'')} — lead-score ${tr.score}">${(kvalitetsTrin(tr.score)||{}).ikon||''}</span>`:''):`<span class="ik" title="Mangler oplysninger før den kan vurderes: ${escH(tr.missing.join(', '))}">❓</span>`}</span></div>
-    ${dests.length?`<div class="card-chips">${dests.map(x=>`<span class="dchip">${escH(x)}</span>`).join('')}</div>`:''}
-    ${pp.length?`<div class="meta">${escH(pp.join(', '))}</div>`:''}
-    <div class="meta dates"><span>${escH(datoer)}</span><span>${nn!=null&&nn>0?nn+(nn===1?' nat':' nætter'):''}</span></div>
-    ${ferier.length?`<div class="ferie">${ferier.map(f=>`<span class="fchip">${escH(f)}</span>`).join('')}</div>`:''}
-    ${bud}
-    ${l.status==='lost'&&l.lost_reason?`<div class="tabtgrund">${escH(l.lost_reason)}</div>`:''}
-    <div class="foot"><span class="brch ${brc}">${escH(BRANCH_KORT[l.branch]||l.branch||'')}</span>
-      <span class="who"><span class="age">${d==null?'—':d+'d'}</span>${l.owner?`<span class="owner">${escH(l.owner)}</span>`:''}</span></div>
+    <div class="lch">
+      <div class="lctop"><span class="navn">${escH(hvNavn(l))}</span>${bel}</div>
+      <div class="lcdest"><span class="hvor">${dests.length
+        ? escH(dests[0])+(dests.length>1?` <span class="fl">+${dests.length-1}</span>`:'')
+        : '<span class="fl">Ingen destination</span>'}</span></div>
+    </div>
+    <div class="lckrop">
+      <div class="lchalv"><div class="lclab">Rejsende</div>
+        <div class="lcv">${escH(voksne)}</div><div class="lcv">${escH(boern)}</div>
+        <div class="lcv sml">${l.departure_airport?escH(String(l.departure_airport).split(',')[0]):'&nbsp;'}</div></div>
+      <div class="lchalv"><div class="lclab">Hvornår</div>
+        <div class="lcv">${escH(naar)}</div><div class="lcv">${escH(naetter)}</div>
+        <div class="lcv ferie"${ferier.length?` title="${escH(ferier.join(' · '))}"`:''}>${
+          ferier.length?escH(ferier[0]):'&nbsp;'}</div></div>
+    </div>
+    <div class="lcfod">${nederst}${l.status==='lost'&&l.lost_reason
+      ? `<span class="tabtgrund" title="${escH(l.lost_reason)}">${escH(l.lost_reason)}</span>`:''}
+      <span class="ini">${escH(l.owner||'')}</span></div>
   </div>`;
 }
 
