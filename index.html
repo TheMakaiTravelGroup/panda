@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.81 · 29.08.2026
+<!-- Panda · v0.84 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -1547,7 +1547,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.81';
+const APP_VERSION = 'v0.84';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -2409,7 +2409,13 @@ async function viewDash(){
   <span class="sub" style="margin-left:auto">${depToday.length?depToday.length+' afrejser i dag':'ingen afrejser i dag'} · ${paxOut} gæster ude · ${tasksDue.length?tasksDue.length+' opgaver til forfald':'alt ajour'} <span class="livedot" title="Opdaterer automatisk">● live</span></span></div>
 
   ${(()=>{ const mel=(trips||[]).filter(t=>t.status==='mellemlanding');
-    const antal=mel.length+(nyeBookinger||[]).length;
+    /* Wendie 31.08.2026: «er det ikke de samme henvendelser der ligger herinde?»
+       Jo — en booking fra tilbudssiden og den mellemlanding den er blevet til
+       stod begge to. Er sagen allerede en mellemlanding, er bookingen historik
+       og ikke noget man skal handle paa. */
+    const melLeads=new Set(mel.map(t=>t.lead_id).filter(Boolean));
+    const bk=(nyeBookinger||[]).filter(b=>!(b.lead_id && melLeads.has(b.lead_id)));
+    const antal=mel.length+bk.length;
     return antal ? `
   <div class="card bkkort" id="bkKort">
     <h3>Solgt<span class="r">${antal===1?'én kunde har sagt ja':antal+' kunder har sagt ja'
@@ -2429,7 +2435,7 @@ async function viewDash(){
         <div class="hvornaar">${t.departure_date?escH(fmtD(t.departure_date)):'dato mangler'}${
           t.return_date?' → '+escH(fmtD(t.return_date)):''}</div>
       </div>`;
-    }).join('')}${(nyeBookinger||[]).map(b=>{
+    }).join('')}${bk.map(b=>{
       const timer = Math.round((Date.now()-new Date(b.modtaget_at))/3600000);
       const dage  = Math.round(timer/24);
       const alder = timer < 1 ? 'lige nu'
@@ -6886,10 +6892,23 @@ function hvTegnMenuer(){
 }
 if(!window._hvUdenfor){ window._hvUdenfor=true;
   document.addEventListener('click', e=>{
+    const i = e.target.closest ? e.target : null;
+    /* Leverandoerlisten lukkes, naar man klikker uden for soegefeltet. Uden
+       det kunne den kun lukkes ved at vaelge noget eller slette al tekst. */
+    if(!i || !i.closest('.levsoeg')){
+      document.querySelectorAll('.hv7 .levliste.on').forEach(x=>x.classList.remove('on'));
+    }
     if(!window._hvMenu) return;
-    if(e.target.closest && (e.target.closest('.hvpop')||e.target.closest('.hvknap'))) return;
+    if(i && (i.closest('.hvpop')||i.closest('.hvknap'))) return;
     hvLukMenuer();
   });
+  /* Esc lukker listen foerst — ikke hele dialogen. Ellers mister man det man
+     var i gang med at skrive, fordi man ville af med en rulleliste. */
+  document.addEventListener('keydown', e=>{
+    if(e.key!=='Escape') return;
+    const aabne=document.querySelectorAll('.hv7 .levliste.on');
+    if(aabne.length){ e.stopPropagation(); aabne.forEach(x=>x.classList.remove('on')); }
+  }, true);
 }
 function hvFilterOgTal(){
   const f=hvF();
@@ -9139,19 +9158,27 @@ function mlLevSoeg(q){
   });
   const flere=liste.length-40;
   boks.innerHTML = liste.length
-    ? liste.slice(0,40).map(s=>`<button type="button" onclick="mlLevVaelg('${s.id}',${JSON.stringify(s.name)})">
+    ? liste.slice(0,40).map(s=>`<button type="button" onclick="mlLevVaelg('${s.id}')">
         <span class="ln">${escH(s.name)}</span><span class="lt">${escH(ML_LEV_NAVN[s.supplier_type]||s.supplier_type||'')}</span>
       </button>`).join('') + (flere>0?`<div class="lflere">…og ${flere} mere — skriv videre for at indsnævre</div>`:'')
     : `<div class="lflere">Ingen leverandør hedder noget med «${escH(q)}».
-        <button type="button" class="lny" onclick="mlLevVaelg('',${JSON.stringify(String(q||''))})">Brug «${escH(q)}» alligevel</button></div>`;
+        <button type="button" class="lny" onclick="mlLevEgen()">Brug «${escH(q)}» alligevel</button></div>`;
   boks.classList.add('on');
 }
 const ML_LEV_NAVN = {hotel_direkte:'hotel', bedbank:'bedbank', transfer:'transfer',
   flykonsolidator:'flykonsolidator', flyselskab:'flyselskab', cruise:'krydstogt',
   biludlejning:'biludlejning', oevrig:'øvrig', konsolidator:'konsolidator'};
-function mlLevVaelg(id, navn){
-  const i=document.getElementById('mlNyLev'); if(i) i.value=navn;
+/* Kun id'et gaar gennem attributten. Navnet slaas op — saa kan det indeholde
+   baade stjerner, apostroffer og anfoerselstegn uden at noget braekker. */
+function mlLevVaelg(id){
+  const s=(window.SUPS||[]).find(x=>String(x.id)===String(id));
+  const i=document.getElementById('mlNyLev'); if(i && s) i.value=s.name;
   window._mlNyLev = id || null;
+  const boks=document.getElementById('mlLevListe'); if(boks) boks.classList.remove('on');
+}
+/* «Brug navnet alligevel» — leverandoeren findes ikke i listen endnu. */
+function mlLevEgen(){
+  window._mlNyLev = null;
   const boks=document.getElementById('mlLevListe'); if(boks) boks.classList.remove('on');
 }
 function mlNytElement(){
