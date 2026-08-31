@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.79 · 29.08.2026
+<!-- Panda · v0.80 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -786,6 +786,20 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    Derfor stod baade overskrift og forklaring med spaerret versal og loeb
    sammen. Reglerne her vejer tungere og nulstiller det hele eksplicit. */
 .hv7 .ldlg .vlab{margin-top:16px;}
+.hv7 .levsoeg{position:relative;}
+.hv7 .levliste{display:none;position:absolute;top:100%;left:0;right:0;z-index:70;
+  max-height:246px;overflow-y:auto;background:#fffefb;border:1px solid var(--line);
+  box-shadow:0 14px 36px rgba(80,70,55,.18);}
+.hv7 .levliste.on{display:block;}
+.hv7 .levliste button{display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;
+  font-family:'Inter',sans-serif;font-size:12px;background:transparent;border:0;
+  padding:7px 12px;cursor:pointer;}
+.hv7 .levliste button:hover{background:#f7f2e8;}
+.hv7 .levliste .ln{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);}
+.hv7 .levliste .lt{font-size:9px;letter-spacing:1.1px;text-transform:uppercase;color:var(--mut);}
+.hv7 .levliste .lflere{font-size:11px;color:var(--mut);font-style:italic;padding:8px 12px;line-height:1.5;}
+.hv7 .levliste .lny{display:block;margin-top:6px;font-style:normal;font-size:11px;color:var(--gold);
+  background:transparent;border:1px solid var(--gold-l);padding:5px 10px;cursor:pointer;width:auto;}
 .hv7 .mltypevalg{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
 .hv7 .mltypevalg button{display:grid;gap:3px;text-align:left;font-family:'Inter',sans-serif;
   background:#fff;border:1px solid var(--line);border-radius:0;padding:12px 14px;cursor:pointer;transition:.14s;}
@@ -1533,7 +1547,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.79';
+const APP_VERSION = 'v0.80';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -9001,10 +9015,18 @@ async function mlTilbage(){
       body:'Sendt tilbage fra mellemlandingen', actor:(window.ME||null),
       occurred_at:new Date().toISOString()}).then(()=>{},()=>{});
   }
-  await db.from('element_prices').delete().in('element_id', ML.els.map(e=>e.id));
-  await db.from('trip_elements').delete().eq('trip_id', t.id);
+  /* Rejsens egne dele — destinationer, ydelser og rejsende — foelger nu med i
+     basen (ON DELETE CASCADE), saa de ikke skal ryddes op i haanden. Det var
+     praecis det, der gik galt: koden huskede ydelser og priser, men glemte
+     destinationer, og saa naegtede basen at slette rejsen.
+     Betalinger, dokumenter og opgaver BLOKERER stadig en sletning med vilje —
+     har rejsen penge paa sig, skal den ikke kunne forsvinde ved et uheld. */
   const {error} = await db.from('trips').delete().eq('id', t.id);
-  if(error){ alert(error.message); return; }
+  if(error){
+    alert('Rejsen kunne ikke sendes tilbage:\n\n' + error.message +
+      '\n\nDet sker, hvis der allerede hænger betalinger, dokumenter eller opgaver på den. ' +
+      'De skal fjernes først — sig til, så finder vi ud af hvad det er.');
+    return; }
   navTo('hv');
 }
 /* Bekræftelsen: ref.nr. dannes, kurserne låses, og rejsen bliver rigtig. */
@@ -9050,6 +9072,28 @@ async function mlBekraeft(){
    fly 5.048, transfer 2.760, hotel 1.921, andet 135. Felterne pr. type er de
    samme som ydelsen i forvejen bruger (FIELD_DEFS) — ét sted at vedligeholde.
    Intet er paakraevet: en ydelse maa gerne oprettes tom og udfyldes senere. */
+/* Wendie 31.08.2026 om flyene: «specielt paa mellemlandingen kan det godt vaere
+   man bare skal skrive fly, og hvis der er flere fly, saa skal man selv skrive
+   dem der giver mening. Naar rejsesiden er 100% solgt og bekraeftet, kan vi jo
+   finde en loesning paa hvordan vi laegger flyene ind der.»
+
+   Derfor faa felter her — kun det man har brug for for at kunne TJEKKE prisen
+   og vide hvad der skal bookes. Flynumre, billetnumre, afgangstider og skatter
+   hoerer til paa den bekraeftede rejse, ikke paa mellemlandingen. Ydelsen har
+   dem alle sammen i forvejen (FIELD_DEFS); de vises bare foerst senere. */
+const ML_KORTE_FELTER = {
+  hotel:    [['room_type','Villa-/værelsestype','text','fx Water Villa with Pool'],
+             ['meal_plan','Forplejning','text','fx All-Inclusive'],
+             ['rooms','Antal villaer/værelser','number','']],
+  flight:   [['cabin','Kabineklasse','text','fx Economy'],
+             ['seats','Antal sæder','number','']],
+  transfer: [['transfer_type','Transfertype','text','fx vandflyver, speedbåd, bil'],
+             ['route','Rute','text','fx Malé → VARU t/r']],
+  ticket:   [['ticket_no','Billetnr.','text','']],
+  insurance:[['coverage','Dækning','text','']],
+  fee:      [['fee_type','Gebyrtype','text','']],
+  other:    [['category','Kategori','text','fx krydstogt, biludlejning, udflugt']],
+};
 const ML_TYPER = [
   ['hotel',    'Hotel',        'Villa, værelse, forplejning'],
   ['flight',   'Fly',          'Ruter, flynumre, klasse'],
@@ -9059,6 +9103,56 @@ const ML_TYPER = [
   ['fee',      'Gebyr',        'Ekspedition og lignende'],
   ['other',    'Andet',        'Krydstogt, biludlejning, udflugt'],
 ];
+/* ══ Levende soegning i leverandoerlisten ══════════════════════════════
+   Wendie 31.08.2026: «listen over hoteller eller leverandoerer generelt boer
+   staa paa en liste som man kan live soege i — saa naar jeg begynder at skrive
+   fx VAK, saa bliver listen kortere.»
+
+   Der er 923 leverandoerer i basen. En rulleliste med 923 navne er ubrugelig;
+   en liste der bliver kortere for hvert bogstav er ikke. De der passer til
+   ydelsens type staar oeverst — hoteller naar man opretter et hotel — men
+   alle kan vaelges, for virkeligheden passer ikke altid i baase. */
+const ML_LEV_TIL_TYPE = {
+  hotel:    ['hotel_direkte','bedbank'],
+  flight:   ['flykonsolidator','flyselskab','konsolidator'],
+  ticket:   ['flykonsolidator','flyselskab','konsolidator'],
+  transfer: ['transfer'],
+  other:    ['cruise','biludlejning','oevrig'],
+};
+function mlLevSoeg(q){
+  const boks=document.getElementById('mlLevListe'); if(!boks) return;
+  const alle=(window.SUPS||[]);
+  const type=window._mlNyType||'other';
+  const foretrukne=ML_LEV_TIL_TYPE[type]||[];
+  const n=String(q||'').trim().toLowerCase();
+  let liste = n ? alle.filter(s=>String(s.name||'').toLowerCase().includes(n)) : alle.slice();
+  /* Ydelsens egne leverandoerer foerst, resten under — men alle er der. */
+  liste.sort((a,b)=>{
+    const pa=foretrukne.includes(a.supplier_type)?0:1, pb=foretrukne.includes(b.supplier_type)?0:1;
+    if(pa!==pb) return pa-pb;
+    /* Begynder navnet med det man skriver, er det næsten altid det man mener. */
+    if(n){ const sa=String(a.name||'').toLowerCase().startsWith(n)?0:1,
+                 sb=String(b.name||'').toLowerCase().startsWith(n)?0:1;
+           if(sa!==sb) return sa-sb; }
+    return String(a.name||'').localeCompare(String(b.name||''),'da');
+  });
+  const flere=liste.length-40;
+  boks.innerHTML = liste.length
+    ? liste.slice(0,40).map(s=>`<button type="button" onclick="mlLevVaelg('${s.id}',${JSON.stringify(s.name)})">
+        <span class="ln">${escH(s.name)}</span><span class="lt">${escH(ML_LEV_NAVN[s.supplier_type]||s.supplier_type||'')}</span>
+      </button>`).join('') + (flere>0?`<div class="lflere">…og ${flere} mere — skriv videre for at indsnævre</div>`:'')
+    : `<div class="lflere">Ingen leverandør hedder noget med «${escH(q)}».
+        <button type="button" class="lny" onclick="mlLevVaelg('',${JSON.stringify(String(q||''))})">Brug «${escH(q)}» alligevel</button></div>`;
+  boks.classList.add('on');
+}
+const ML_LEV_NAVN = {hotel_direkte:'hotel', bedbank:'bedbank', transfer:'transfer',
+  flykonsolidator:'flykonsolidator', flyselskab:'flyselskab', cruise:'krydstogt',
+  biludlejning:'biludlejning', oevrig:'øvrig', konsolidator:'konsolidator'};
+function mlLevVaelg(id, navn){
+  const i=document.getElementById('mlNyLev'); if(i) i.value=navn;
+  window._mlNyLev = id || null;
+  const boks=document.getElementById('mlLevListe'); if(boks) boks.classList.remove('on');
+}
 function mlNytElement(){
   const ov=document.getElementById('hvOv2') || document.getElementById('mlOv2');
   if(!ov) return mlNytFallback();
@@ -9072,14 +9166,23 @@ function mlNytElement(){
   ov.classList.add('on');
 }
 function mlNytFelter(type){
+  window._mlNyLev=null;
   const ov=document.getElementById('hvOv2'); if(!ov) return;
   const navn=(ML_TYPER.find(x=>x[0]===type)||[,type])[1];
-  const felter=(window.FIELD_DEFS && FIELD_DEFS[type]) || [];
+  /* FIELD_DEFS er en top-level const — den ligger IKKE paa window, saa
+     «window.FIELD_DEFS» var altid undefined og felterne udeblev helt. */
+  const felter = ML_KORTE_FELTER[type] || [];
   window._mlNyType=type;
   ov.innerHTML = `<div class="ldlg bred">
     <div class="h"><h3>Ny ${escH(navn.toLowerCase())}</h3>
       <p>Udfyld det du ved. <b>Intet er påkrævet</b> — resten kan skrives ind, når det er booket.</p></div>
     <div class="c">
+      <label>Leverandør</label>
+      <div class="levsoeg">
+        <input id="mlNyLev" autocomplete="off" placeholder="skriv fx VAK — listen bliver kortere"
+               oninput="mlLevSoeg(this.value)" onfocus="mlLevSoeg(this.value)">
+        <div class="levliste" id="mlLevListe"></div>
+      </div>
       <label>Hvad er det?</label>
       <input id="mlNyBesk" placeholder="${escH(type==='hotel'?'fx VARU by Atmosphere — Water Villa with Pool'
         : type==='flight'?'fx Oslo–Malé t/r, Qatar Airways'
@@ -9106,12 +9209,17 @@ function mlNytFelter(type){
 async function mlNytGem(){
   const type=window._mlNyType||'other';
   const v=id=>((document.getElementById(id)||{}).value||'').trim();
-  const felter=(window.FIELD_DEFS && FIELD_DEFS[type]) || [];
+  const felter = ML_KORTE_FELTER[type] || [];
   const details={};
   felter.forEach(([k])=>{ const x=v('mlf_'+k); if(x!=='') details[k]=x; });
   const k=document.getElementById('mlNyKnap'); if(k){ k.disabled=true; k.textContent='Opretter…'; }
+  /* Har man skrevet et navn uden at vaelge fra listen, staar det som tekst i
+     bemaerkningen — hellere det end at miste oplysningen. */
+  const levTekst=((document.getElementById('mlNyLev')||{}).value||'').trim();
+  if(levTekst && !window._mlNyLev) details._leverandoer_tekst = levTekst;
   const {data,error}=await db.from('trip_elements').insert({
     trip_id: ML.trip.id, element_type: type,
+    supplier_id: window._mlNyLev || null,
     /* Uden en beskrivelse staar ydelsen som sin type — bedre end en tom linje. */
     description: v('mlNyBesk') || (ML_TYPER.find(x=>x[0]===type)||[,'Ydelse'])[1],
     start_date: v('mlNyFra')||null, end_date: v('mlNyTil')||null,
