@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.80 · 29.08.2026
+<!-- Panda · v0.81 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -1547,7 +1547,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.80';
+const APP_VERSION = 'v0.81';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -8911,9 +8911,10 @@ function mlRegn(tegnKurs){
         value="${mlNf(r.gebyr)}" oninput="mlSaetGebyr(this.value)"> DKK</span></div>
     <div class="mlrr slut"><span class="l">Rejsen koster os</span><span class="v">${mlNf(r.kost)}</span></div>
     <div class="mlrr fin"><span class="l">alt i DKK, med bankmargin og risikobuffer</span><span class="v"></span></div>
-    <div class="mlrr"><span class="l">+ Fortjeneste ${mlNf1(dg)} %<small>det I sidder tilbage med</small></span>
-      <span class="v">${mlNf(db)} DKK</span></div>
-    <div class="mlrr nok"><span class="l">Prisen til kunden${val!=='DKK'?`<small>${mlNf(prisDkk)} DKK · vekslet med salgskurs ${mlNf4(r.kk)}</small>`:''}</span>
+    <div class="mlrr"><span class="l">${pris ? `+ Fortjeneste ${mlNf1(dg)} %<small>det I sidder tilbage med</small>`
+        : `+ Fortjeneste<small>kendes først når prisen til kunden er skrevet ind</small>`}</span>
+      <span class="v">${pris ? mlNf(db)+' DKK' : '—'}</span></div>
+    <div class="mlrr nok"><span class="l">Prisen til kunden${pris&&val!=='DKK'?`<small>${mlNf(prisDkk)} DKK · vekslet med salgskurs ${mlNf4(r.kk)}</small>`:''}</span>
       <span class="v">${mlNf(pris)} ${escH(val)}</span></div>`;
   if(val!=='DKK') h += `<div class="mlbegge"><b>Samme rejse, samme fortjeneste.</b> En dansk kunde ville betale
     ${mlNf(mlPrisVed(dg, r.kost))} DKK for den samme dækningsgrad. Forskellen er ikke avance — det er
