@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.66 · 29.08.2026
+<!-- Panda · v0.68 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -628,7 +628,46 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    «Sporing og teknik» — og felterne blev end ikke hentet fra basen. Det er
    det, der viser hvilken annonce der skaber henvendelser, saa det staar
    fremme nu. Kampagne-id er et langt tal og skal kunne braekke. */
-.hv7 .spor{margin:0 0 4px;}
+/* Wendie 31.08.2026: «jeg mangler mine filtre ... saa jeg ikke hver eneste
+   gang skal ind og trykke paa hvilken branche og ansvarlig». Visningerne staar
+   paa deres egen linje under filtrene, saa filterlinjen ikke bliver rodet. */
+.hv7 .hvtrin{flex:0 0 auto;width:132px;font-family:'Inter',sans-serif;font-size:11px;
+  color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:2px;
+  padding:4px 6px;cursor:pointer;}
+.hv7 .ph{display:flex;align-items:flex-end;gap:18px;}
+.hv7 .ph h1{margin-bottom:0;}
+.hv7 .ph .hvsog{margin-left:auto;margin-bottom:3px;}
+.hv7 .ph .hvny{margin-bottom:4px;}
+.hv7 .hvny{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.3px;color:var(--forest);background:#fff;border:1px solid var(--gold);
+  border-radius:2px;padding:5px 12px;cursor:pointer;transition:.14s;white-space:nowrap;}
+.hv7 .hvny:hover{background:var(--gold);color:#fff;}
+.hv7 .hvviews{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 0;}
+.hv7 .hvviews .lbl{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--mut);font-weight:700;margin-right:4px;}
+.hv7 .hvviews .ingen{font-size:11px;color:var(--mut);font-style:italic;}
+.hv7 .hvviews button{font-family:'Inter',sans-serif;font-size:11px;color:var(--ink2);
+  background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;
+  cursor:pointer;transition:.14s;display:inline-flex;align-items:center;gap:6px;}
+.hv7 .hvviews button:hover{border-color:var(--gold);}
+.hv7 .hvviews button.on{background:var(--forest);border-color:var(--forest);color:#fff;}
+.hv7 .hvviews button i{font-style:normal;color:var(--gold);font-size:9px;}
+.hv7 .hvviews button.on i{color:var(--gold-l);}
+.hv7 .hvviews button em{font-style:normal;color:var(--mut);font-size:13px;line-height:1;
+  opacity:0;transition:.14s;}
+.hv7 .hvviews button:hover em{opacity:1;}
+.hv7 .hvviews button em:hover{color:var(--bad);}
+.hv7 .hvviews .gemny{border-style:dashed;border-color:var(--gold-l);color:var(--gold);}
+.hv7 .ldlg.bred{max-width:660px;}
+.hv7 .ldlg .lf{padding:14px 22px;border-top:1px solid var(--hair);background:#fdfcf9;}
+.hv7 .nyg{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-bottom:12px;}
+.hv7 .nyfejl{color:var(--bad);font-size:11.5px;min-height:16px;margin-top:6px;}
+.hv7 .vhusk{font-size:11px;color:var(--mut);margin:8px 0 4px;}
+.hv7 .vstd{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink2);
+  margin-top:10px;cursor:pointer;}
+.hv7 .vstd input{width:auto;margin:0;}
+.hv7 .spor{margin:2px 0 0;}
+.hv7 .tech summary em{font-style:normal;color:var(--mut);text-transform:none;letter-spacing:0;}
 .hv7 .sprow{display:flex;gap:10px;align-items:baseline;padding:5px 0;
   border-bottom:1px solid var(--hair);font-size:12px;}
 .hv7 .sprow:last-child{border-bottom:0;}
@@ -1314,7 +1353,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.66';
+const APP_VERSION = 'v0.68';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -6065,6 +6104,143 @@ const HV_KILDE = {fb:'Facebook', facebook:'Facebook', 'facebook.com':'Facebook',
   newsletter:'Nyhedsbrev', email:'E-mail', mail:'E-mail', direct:'Direkte',
   organic:'Organisk søgning', referral:'Henvisning fra anden side'};
 function hvKilde(v){ if(!v) return null; return HV_KILDE[String(v).trim().toLowerCase()] || String(v); }
+/* ══ Gemte visninger — personlige filtre paa henvendelsessiden ══ */
+async function hvHentVisninger(){
+  const {data} = await db.from('lead_views').select('*')
+    .order('sortering',{ascending:true}).order('created_at',{ascending:true});
+  window._hvViews = data || [];
+  return window._hvViews;
+}
+/* Er der en standardvisning, aabner siden med den — saa slipper man for at
+   saette de samme tre filtre hver morgen. Kun foerste gang pr. sidevisning;
+   trykker man derefter selv paa et filter, bliver man ikke overrulet. */
+function hvBrugStandard(){
+  if(window._hvStdBrugt) return;
+  window._hvStdBrugt = true;
+  const v = (window._hvViews||[]).find(x=>x.er_standard);
+  if(v) window._hvFilter = Object.assign({branch:'',owner:'',vis:'aabne',stage:''}, v.filter||{});
+}
+function hvFilterErTom(f){
+  return !f.branch && !f.owner && !f.stage && (f.vis||'aabne')==='aabne';
+}
+function hvAktivVisning(){
+  const f = Object.assign({branch:'',owner:'',vis:'aabne',stage:''}, window._hvFilter);
+  return (window._hvViews||[]).find(v=>{
+    const g = Object.assign({branch:'',owner:'',vis:'aabne',stage:''}, v.filter||{});
+    return g.branch===f.branch && g.owner===f.owner && g.stage===f.stage
+        && (g.vis||'aabne')===(f.vis||'aabne');
+  }) || null;
+}
+function hvBrugVisning(id){
+  const v=(window._hvViews||[]).find(x=>x.id===id); if(!v) return;
+  window._hvFilter = Object.assign({branch:'',owner:'',vis:'aabne',stage:''}, v.filter||{});
+  hvBoardRender();
+}
+function hvGemVisningDlg(){
+  const f = Object.assign({branch:'',owner:'',vis:'aabne',stage:''}, window._hvFilter);
+  if(hvFilterErTom(f)) return alert('Vælg først de filtre, visningen skal huske.');
+  const ov=document.getElementById('hvOv2'); if(!ov) return;
+  const stk=[]; 
+  if(f.branch) stk.push(BRANCH_LABEL[f.branch]||f.branch);
+  if(f.owner)  stk.push(((window._TEAM||[]).find(t=>t[0]===f.owner)||[])[1]||f.owner);
+  if(f.stage)  stk.push(LEAD_STAGE_LABEL[f.stage]||f.stage);
+  if((f.vis||'aabne')!=='aabne') stk.push(f.vis==='tabte'?'tabte':'alle');
+  ov.innerHTML = `<div class="ldlg">
+    <div class="h"><h3>Gem denne visning</h3>
+      <p>Den bliver liggende hos dig — ikke hos resten af holdet — og følger dig fra maskine til maskine.</p></div>
+    <div class="c">
+      <label>Hvad skal den hedde?</label>
+      <input id="hvVNavn" placeholder="fx Mine norske" value="${escH(stk.join(' · '))}">
+      <div class="vhusk">Husker: <b>${escH(stk.join(' · ')||'ingenting')}</b></div>
+      <label class="vstd"><input type="checkbox" id="hvVStd">Åbn siden med denne visning</label>
+    </div>
+    <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+      <button class="b gold" onclick="hvGemVisning()">Gem visning</button></div></div>`;
+  ov.classList.add('on');
+  setTimeout(()=>{ const i=document.getElementById('hvVNavn'); if(i){ i.focus(); i.select(); } },40);
+}
+async function hvGemVisning(){
+  const navn=(document.getElementById('hvVNavn')||{}).value||'';
+  if(!navn.trim()) return alert('Visningen skal have et navn.');
+  const std=!!(document.getElementById('hvVStd')||{}).checked;
+  const f=Object.assign({branch:'',owner:'',vis:'aabne',stage:''}, window._hvFilter);
+  /* Kun én standard pr. person — den gamle skrues ned foerst, ellers afviser
+     basen indsaettelsen. */
+  if(std) await db.from('lead_views').update({er_standard:false}).eq('ejer',window.MYEMAIL);
+  const {error}=await db.from('lead_views').insert({ejer:window.MYEMAIL, navn:navn.trim(), filter:f, er_standard:std});
+  if(error){ alert(error.code==='23505' ? 'Du har allerede en visning med det navn.' : error.message); return; }
+  await hvHentVisninger(); hvLukDlg(); hvBoardRender(); hvKvit('Visningen «'+navn.trim()+'» er gemt');
+}
+async function hvSletVisning(id){
+  const v=(window._hvViews||[]).find(x=>x.id===id); if(!v) return;
+  if(!confirm('Fjern visningen «'+v.navn+'»?\n\nDet er kun din genvej der forsvinder — ingen henvendelser røres.')) return;
+  const {error}=await db.from('lead_views').delete().eq('id',id);
+  if(error){ alert(error.message); return; }
+  await hvHentVisninger(); hvBoardRender(); hvKvit('Visningen er fjernet');
+}
+
+/* ══ Ny henvendelse i haanden — telefon, mail eller en der kommer forbi ══ */
+function hvNyDlg(){
+  const ov=document.getElementById('hvOv2'); if(!ov) return;
+  const f=window._hvFilter||{};
+  ov.innerHTML = `<div class="ldlg bred">
+    <div class="h"><h3>Ny henvendelse</h3>
+      <p>Til dem der ringer eller skriver direkte. Den lander i «Ny» — resten kan udfyldes bagefter.</p></div>
+    <div class="c">
+      <div class="nyg">
+        <div class="fld"><div class="k">Navn</div><input id="nyNavn" placeholder="Fornavn Efternavn"></div>
+        <div class="fld"><div class="k">Branche</div><select id="nyBranch">${
+          BRANCH_OPTS.map(([k,lab])=>`<option value="${k}" ${f.branch===k?'selected':''}>${escH(lab)}</option>`).join('')}</select></div>
+        <div class="fld"><div class="k">E-mail</div><input id="nyMail" type="email" placeholder="valgfrit"></div>
+        <div class="fld"><div class="k">Telefon</div><input id="nyTlf" placeholder="valgfrit"></div>
+        <div class="fld"><div class="k">Ansvarlig</div><select id="nyOwner">${TEAM_OPTS(f.owner||window.ME||'')}</select></div>
+        <div class="fld"><div class="k">Kom ind via</div><select id="nyKanal">
+          <option value="telefon">Telefon</option><option value="mail">E-mail</option>
+          <option value="besoeg">Besøg</option><option value="anbefaling">Anbefaling</option>
+          <option value="andet">Andet</option></select></div>
+        <div class="fld"><div class="k">Destination</div><input id="nyDest" placeholder="fx Maldiverne"></div>
+        <div class="fld"><div class="k">Antal nætter</div><input id="nyNaetter" type="number" min="0"></div>
+        <div class="fld"><div class="k">Afrejse</div><input id="nyAfr" type="date"></div>
+        <div class="fld"><div class="k">Hjemrejse</div><input id="nyHjem" type="date"></div>
+        <div class="fld"><div class="k">Voksne</div><input id="nyVoksne" type="number" min="0" value="2"></div>
+        <div class="fld"><div class="k">Børn</div><input id="nyBoern" type="number" min="0" value="0"></div>
+      </div>
+      <div class="fld"><div class="k">Hvad spørger de om?</div>
+        <textarea id="nyOnsker" rows="3" placeholder="Ønsker, budget, hvad der blev aftalt …"></textarea></div>
+      <div class="nyfejl" id="nyFejl"></div>
+    </div>
+    <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+      <button class="b gold" id="nyGem" onclick="hvNyGem()">Opret henvendelse</button></div></div>`;
+  ov.classList.add('on');
+  setTimeout(()=>{ const i=document.getElementById('nyNavn'); if(i) i.focus(); },40);
+}
+async function hvNyGem(){
+  const v=id=>((document.getElementById(id)||{}).value||'').trim();
+  const t=id=>{ const x=v(id); return x===''?null:+x; };
+  const fejl=document.getElementById('nyFejl');
+  const navn=v('nyNavn');
+  if(!navn){ if(fejl) fejl.textContent='Henvendelsen skal have et navn — resten kan vente.'; return; }
+  const knap=document.getElementById('nyGem'); if(knap){ knap.disabled=true; knap.textContent='Opretter…'; }
+  const rec={
+    title:navn, contact_name:navn, stage:'new_lead', status:'open',
+    branch:v('nyBranch')||'NO', owner:v('nyOwner')||null,
+    contact_email:v('nyMail')||null, contact_phone:v('nyTlf')||null,
+    destination:v('nyDest')||null, nights:t('nyNaetter'),
+    departure_date:v('nyAfr')||null, return_date:v('nyHjem')||null,
+    adults:t('nyVoksne'), kids:t('nyBoern'),
+    wishes:v('nyOnsker')||null,
+    /* Vi ved praecis hvor den kom fra: et menneske skrev den ind. Det skal
+       ikke forveksles med de automatiske fra hjemmesiden. */
+    source:'manuel', source_channel:v('nyKanal')||'telefon',
+    created_at:new Date().toISOString()
+  };
+  const {data,error}=await db.from('leads').insert(rec).select(LEAD_FIELDS).single();
+  if(error){ if(fejl) fejl.textContent='Kunne ikke oprette: '+error.message;
+    if(knap){ knap.disabled=false; knap.textContent='Opret henvendelse'; } return; }
+  window._leads=[data].concat(window._leads||[]);
+  hvLukDlg(); hvBoardRender(); hvKvit('«'+navn+'» er oprettet');
+  hvOpen(data.id);
+}
 function hvNavn(l){
   const n=(l&&l.contact_name||'').trim();
   if(n) return n;
@@ -6109,6 +6285,7 @@ async function viewHenvendelser(){
   if(harCache) hvBoardRender();
   else app.innerHTML = '<div class="pagehead"><h2>Henvendelser</h2></div><div class="card">Henter…</div>';
   const pLeads = fetchLeads();
+  const pViews = hvHentVisninger().catch(()=>[]);
   const pBerig = Promise.all([
     db.from('lead_activities').select('lead_id,occurred_at').eq('type','system').not('stage','is',null).order('occurred_at',{ascending:false}),
     db.from('team_members').select('name,initials,active'),
@@ -6118,6 +6295,7 @@ async function viewHenvendelser(){
   ]).catch(()=>null);
   const leads = await pLeads;
   window._leads = leads;
+  await pViews; hvBrugStandard();
   const berig = await pBerig;
   if(berig){
     const [actR, teamR, histR, tripR] = berig;
@@ -6134,13 +6312,14 @@ async function viewHenvendelser(){
 /* Filtret ligger i hukommelsen, ikke i basen — det aendrer kun hvad man SER.
    Samme to knapraekker som paa den gamle side: branche og ansvarlig. */
 function hvFilter(k,v){
-  window._hvFilter=Object.assign({branch:'',owner:'',vis:'aabne'},window._hvFilter);
+  window._hvFilter=Object.assign({branch:'',owner:'',vis:'aabne',stage:''},window._hvFilter);
   window._hvFilter[k]=v;
   hvBoardRender();
 }
 function hvBoardRender(){
-  const f=Object.assign({branch:'',owner:'',vis:'aabne'}, window._hvFilter);
-  const passer=l=>(!f.branch||l.branch===f.branch)&&(!f.owner||l.owner===f.owner);
+  const f=Object.assign({branch:'',owner:'',vis:'aabne',stage:''}, window._hvFilter);
+  const passer=l=>(!f.branch||l.branch===f.branch)&&(!f.owner||l.owner===f.owner)
+                &&(!f.stage||l.stage===f.stage);
   // Tabte forsvinder fra boardet, men ikke ud af systemet — de kan hentes frem
   // her, i det trin de naaede, saa moenstret i aarsagerne kan ses.
   const statusOk = l => f.vis==='tabte' ? l.status==='lost'
@@ -6156,7 +6335,9 @@ function hvBoardRender(){
   window._hvOrder=[].concat(...cols.map(c=>c[1])).map(l=>l.id);
   app.innerHTML = `<div class="hv7">
     <div class="page" id="hvPage">
-      <div class="ph"><div class="lab">Salgspipeline før booking</div><h1>Henvendelser</h1></div>
+      <div class="ph"><div><div class="lab">Salgspipeline før booking</div><h1>Henvendelser</h1></div>
+        <div class="hvsog">${sogFelt('hv', true)}</div>
+        <button class="hvny" onclick="hvNyDlg()" title="Til dem der ringer eller skriver direkte">＋ Ny henvendelse</button></div>
       ${hvFilterOgTal(f)}
       <div class="boardscroll"><div class="board" style="--kol:${cols.length}">
         ${cols.map(([k,ls])=>`<div class="col" data-stage="${k}"${k==='__rest'?'':`
@@ -6200,8 +6381,21 @@ function hvFilterOgTal(f){
     <span class="skel"></span>
     <span class="lbl">Vis</span>
     ${knap('vis','aabne','Åbne')}${knap('vis','tabte','Tabte')}${knap('vis','alle','Alle')}
-    <div class="hvsog">${sogFelt('hv', true)}</div>
+    <span class="skel"></span>
+    <span class="lbl">Trin</span>
+    <select class="hvtrin" onchange="hvFilter('stage',this.value)">
+      <option value="">Alle trin</option>
+      ${HV_RAIL.map(k=>`<option value="${k}" ${f.stage===k?'selected':''}>${escH(LEAD_STAGE_LABEL[k]||k)}</option>`).join('')}
+    </select>
   </div>
+  ${(()=>{ const vs=window._hvViews||[], akt=hvAktivVisning();
+    return `<div class="hvviews">
+      <span class="lbl">Visninger</span>
+      ${vs.length?vs.map(v=>`<button class="${akt&&akt.id===v.id?'on':''}" onclick="hvBrugVisning('${v.id}')">${
+          escH(v.navn)}${v.er_standard?'<i title="Åbner automatisk">★</i>':''}<em onclick="event.stopPropagation();hvSletVisning('${v.id}')" title="Fjern">×</em></button>`).join('')
+        :'<span class="ingen">Du har ingen gemte endnu — sæt filtrene som du vil have dem og gem dem.</span>'}
+      ${!akt&&!hvFilterErTom(f)?`<button class="gemny" onclick="hvGemVisningDlg()">Gem denne visning</button>`:''}
+    </div>`; })()}
   <div class="hvkpis">
     ${hasPerm('economy')?`<div class="hvkpi"><b>${fval(oms)} <span class="cur">DKK</span></b><span class="l">solgt for i ${escH(mdrNavn)}</span></div>`:''}
     <div class="hvkpi"><b>${mdr.length}</b><span class="l">solgte rejser i ${escH(mdrNavn)}</span></div>
@@ -6558,20 +6752,23 @@ function hvRender(l, acts, offers){
           <div class="kpi"><div class="n">${offers.length}</div><div class="l">tilbud<br>hentet</div></div>
         </div>
 
-        <div class="sh"><span class="txt">Hvor kom den fra</span></div>
-        ${(()=>{ const r=[['Kilde',hvKilde(l.utm_source)],['Kampagne',l.utm_campaign],
+        ${(()=>{ /* Wendie 31.08.2026: «Det her skal alt sammen ligge nede i den der
+             hedder teknik og source, saa det bare er gemt vaek — det er jo bare data
+             vi skal bruge senere hen til noget statistik.» Sporet fylder derfor ikke
+             i sidepanelet mere; det staar samlet bag én sammenklappet linje. */
+          const r=[['Kilde',hvKilde(l.utm_source)],['Kampagne',l.utm_campaign],
               ['Hørt om os',l.heard_about_us],['Enhed',l.visitor_device],
               ['Kanal',[l.pd_channel,l.pd_channel_id].filter(Boolean).join(' · ')],
-              ['Type',l.client_type]]
+              ['Type',l.client_type],['Importkilde',l.source_channel],
+              ['Oprettet i Pipedrive',l.pd_origin],['Deal-nr.',l.pipedrive_deal_id]]
             .filter(([,v])=>v!=null&&v!=='');
-          return `<div class="spor">${r.length
-            ? r.map(([k,v])=>`<div class="sprow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')
-            : '<div class="sprow tom">Denne henvendelse kom ind uden spor.</div>'}</div>`; })()}
-
-        <details class="tech"><summary>Teknik</summary>
-          ${[['Importkilde',l.source_channel],['Oprettet i Pipedrive',l.pd_origin],['Deal-nr.',l.pipedrive_deal_id||'—']]
-            .filter(([,v])=>v).map(([k,v])=>`<div class="techrow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')||'<div class="techrow"><span class="v">Ingenting at vise.</span></div>'}
-        </details>
+          const spor = ['Kilde','Kampagne','Hørt om os','Enhed'].filter(k=>r.some(x=>x[0]===k)).length;
+          return `<details class="tech"><summary>Sporing og teknik${
+              spor?'':' <em>— ingen sporing</em>'}</summary>
+            <div class="spor">${r.length
+              ? r.map(([k,v])=>`<div class="sprow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')
+              : '<div class="sprow tom"><span class="v">Denne henvendelse kom ind uden spor.</span></div>'}</div>
+          </details>`; })()}
       </div>
     </div>
 
