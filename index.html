@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.70 · 29.08.2026
+<!-- Panda · v0.72 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -595,7 +595,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 }.hv7 *{box-sizing:border-box;}.hv7{font-family:'Inter',system-ui,sans-serif;margin:0;background:var(--page);color:var(--ink);font-size:13px;-webkit-font-smoothing:antialiased;}.hv7 .ser{font-family:'Cormorant Garamond',Georgia,serif;}.hv7 .num{font-variant-numeric:tabular-nums;}.hv7 /* etiket i referencestil: guld versaler + kort guldstreg */
 .lab{font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:600;}.hv7 .lab::after{content:'';display:block;width:26px;height:1px;background:var(--gold-l);margin-top:6px;}.hv7 /* sektionsoverskrift: tydelig, .hv7 med linje ud til kanten */
 .sh{margin:34px 0 14px;display:flex;align-items:center;gap:14px;}.hv7 .sh:first-child{margin-top:0;}.hv7 .sh .txt{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);letter-spacing:.2px;white-space:nowrap;}.hv7 .sh::after{content:'';flex:1;height:1px;background:var(--line);}.hv7 .side .sh::after{background:var(--sand2);}.hv7 /* ══ BOARD ══ */
-.page{padding:24px 28px 60px;transition:filter .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1);}.hv7 .page.dim{filter:blur(3px) saturate(.85);transform:scale(.995);pointer-events:none;}.hv7 .ph{margin-bottom:20px;}.hv7 .ph h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;margin:6px 0 0;color:var(--ink);letter-spacing:.4px;}.hv7 .board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}.hv7 .col{background:rgba(253,251,247,.6);border:1px solid var(--line);border-radius:3px;padding:10px;min-height:330px;}.hv7 .colh{display:flex;align-items:center;gap:7px;margin-bottom:11px;padding:0 2px 8px;border-bottom:1px solid var(--hair);}.hv7 .colh .nm{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--gold);}.hv7 .colh .ct{margin-left:auto;font-size:10px;color:var(--mut);}.hv7 .lc{background:var(--card);border:1px solid var(--line);border-left:2px solid var(--gold-l);border-radius:3px;padding:0 11px 10px;margin-bottom:9px;cursor:pointer;transition:.18s cubic-bezier(.2,.8,.3,1);overflow-wrap:anywhere;}.hv7 .lc:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(120,105,75,.10);border-color:var(--gold-l);}.hv7 .lc.act{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-l);}.hv7 .lc.erblevetrejse{border-left-color:var(--ok);}.hv7 .lc.erblevetrejse .nm::after{content:'\2192 rejse';margin-left:auto;font-family:'Inter',sans-serif;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:#4f7a5f;align-self:center;}.hv7 .lc .nm{display:flex;align-items:flex-start;gap:6px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);line-height:1.2;margin:0 -11px 0;padding:8px 11px 7px;background:var(--mist);border-radius:0 2px 0 0;}.hv7 .lc.dk .nm{background:rgba(228,196,179,.34);}.hv7 .lc .nm .navn{flex:1;min-width:0;}.hv7 .lc .scorerow{display:flex;align-items:center;gap:6px;margin-top:8px;}.hv7 .lc .tri{font-size:9px;letter-spacing:.6px;border-radius:2px;padding:3px 8px;}.hv7 .lc .tri.good{background:rgba(123,164,136,.18);color:#4f7a5f;}.hv7 .lc .tri.miss{background:rgba(224,201,163,.34);color:#8d6a34;}.hv7 .lc .ikoner{margin-left:auto;display:flex;gap:4px;}.hv7 .lc .ik{font-size:14px;line-height:1;cursor:help;}.hv7 .lc .ik.skin{font-size:15px;filter:drop-shadow(0 0 3px rgba(193,151,90,.85));}.hv7 .lc .card-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}.hv7 .lc .dchip{font-size:9.5px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 7px;margin:0;}.hv7 .lc .ferie{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}.hv7 .lc .fchip{font-size:9px;color:#8d6a34;background:#fff;border:1px solid var(--gold-l);border-radius:2px;padding:2px 7px;white-space:nowrap;}.hv7 .lc .meta.dates{display:flex;flex-wrap:wrap;gap:0 6px;}.hv7 .lc .bud.none{font-size:12px;color:var(--mut);font-family:'Inter',sans-serif;}.hv7 .lc .cur{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1px;color:var(--mut);}.hv7 .lc .brch{font-size:8.5px;letter-spacing:1.2px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 6px;}.hv7 .lc.dk .brch{color:#a35f3e;background:rgba(228,196,179,.34);}.hv7 .lc .who{margin-left:auto;display:flex;align-items:center;gap:6px;}.hv7 .lc .owner{letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .age{color:var(--mut);}.hv7 .lc .meta{font-size:11px;color:var(--ink2);margin-top:6px;}.hv7 .lc .bud{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-top:9px;color:var(--ink);}.hv7 .lc .ft{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid var(--hair);font-size:9px;}.hv7 .lc .ow{margin-left:auto;letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .ag{color:var(--mut);letter-spacing:.6px;}.hv7 .lc .fl{width:3px;height:3px;border-radius:50%;background:var(--mist2);}.hv7 .hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);color:var(--ink2);font-size:11px;padding:9px 18px;border-radius:3px;z-index:5;box-shadow:0 6px 20px rgba(120,105,75,.12);}.hv7 .hint b{color:var(--gold);font-weight:600;}.hv7 /* ══ OVERLAY ══ */
+.page{padding:24px 28px 60px;transition:filter .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1);}.hv7 .page.dim{filter:blur(3px) saturate(.85);transform:scale(.995);pointer-events:none;}.hv7 .ph{margin-bottom:20px;}.hv7 .ph h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;margin:6px 0 0;color:var(--ink);letter-spacing:.4px;}.hv7 .board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}.hv7 .col{background:rgba(253,251,247,.6);border:1px solid var(--line);border-radius:0;padding:10px;min-height:330px;}.hv7 .colh{display:flex;align-items:center;gap:7px;margin-bottom:11px;padding:0 2px 8px;border-bottom:1px solid var(--hair);}.hv7 .colh .nm{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--gold);}.hv7 .colh .ct{margin-left:auto;font-size:10px;color:var(--mut);}.hv7 .lc{background:var(--card);border:1px solid var(--line);border-left:2px solid var(--gold-l);border-radius:3px;padding:0 11px 10px;margin-bottom:9px;cursor:pointer;transition:.18s cubic-bezier(.2,.8,.3,1);overflow-wrap:anywhere;}.hv7 .lc:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(120,105,75,.10);border-color:var(--gold-l);}.hv7 .lc.act{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-l);}.hv7 .lc.erblevetrejse{border-left-color:var(--ok);}.hv7 .lc.erblevetrejse .nm::after{content:'\2192 rejse';margin-left:auto;font-family:'Inter',sans-serif;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:#4f7a5f;align-self:center;}.hv7 .lc .nm{display:flex;align-items:flex-start;gap:6px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);line-height:1.2;margin:0 -11px 0;padding:8px 11px 7px;background:var(--mist);border-radius:0 2px 0 0;}.hv7 .lc.dk .nm{background:rgba(228,196,179,.34);}.hv7 .lc .nm .navn{flex:1;min-width:0;}.hv7 .lc .scorerow{display:flex;align-items:center;gap:6px;margin-top:8px;}.hv7 .lc .tri{font-size:9px;letter-spacing:.6px;border-radius:2px;padding:3px 8px;}.hv7 .lc .tri.good{background:rgba(123,164,136,.18);color:#4f7a5f;}.hv7 .lc .tri.miss{background:rgba(224,201,163,.34);color:#8d6a34;}.hv7 .lc .ikoner{margin-left:auto;display:flex;gap:4px;}.hv7 .lc .ik{font-size:14px;line-height:1;cursor:help;}.hv7 .lc .ik.skin{font-size:15px;filter:drop-shadow(0 0 3px rgba(193,151,90,.85));}.hv7 .lc .card-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}.hv7 .lc .dchip{font-size:9.5px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 7px;margin:0;}.hv7 .lc .ferie{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}.hv7 .lc .fchip{font-size:9px;color:#8d6a34;background:#fff;border:1px solid var(--gold-l);border-radius:2px;padding:2px 7px;white-space:nowrap;}.hv7 .lc .meta.dates{display:flex;flex-wrap:wrap;gap:0 6px;}.hv7 .lc .bud.none{font-size:12px;color:var(--mut);font-family:'Inter',sans-serif;}.hv7 .lc .cur{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1px;color:var(--mut);}.hv7 .lc .brch{font-size:8.5px;letter-spacing:1.2px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 6px;}.hv7 .lc.dk .brch{color:#a35f3e;background:rgba(228,196,179,.34);}.hv7 .lc .who{margin-left:auto;display:flex;align-items:center;gap:6px;}.hv7 .lc .owner{letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .age{color:var(--mut);}.hv7 .lc .meta{font-size:11px;color:var(--ink2);margin-top:6px;}.hv7 .lc .bud{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-top:9px;color:var(--ink);}.hv7 .lc .ft{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid var(--hair);font-size:9px;}.hv7 .lc .ow{margin-left:auto;letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .ag{color:var(--mut);letter-spacing:.6px;}.hv7 .lc .fl{width:3px;height:3px;border-radius:50%;background:var(--mist2);}.hv7 .hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);color:var(--ink2);font-size:11px;padding:9px 18px;border-radius:3px;z-index:5;box-shadow:0 6px 20px rgba(120,105,75,.12);}.hv7 .hint b{color:var(--gold);font-weight:600;}.hv7 /* ══ OVERLAY ══ */
 .ov{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:26px;
   background:rgba(90,80,64,.28);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:opacity .26s ease,visibility .26s;}.hv7 .ov.on{opacity:1;visibility:visible;}.hv7 .ld{width:100%;max-width:1160px;max-height:calc(100vh - 52px);overflow-x:hidden;overflow-y:auto;background:var(--card);
   border-radius:4px;box-shadow:0 40px 110px rgba(80,70,55,.30);
@@ -632,22 +632,22 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    gang skal ind og trykke paa hvilken branche og ansvarlig». Visningerne staar
    paa deres egen linje under filtrene, saa filterlinjen ikke bliver rodet. */
 .hv7 .hvtrin{flex:0 0 auto;width:132px;font-family:'Inter',sans-serif;font-size:11px;
-  color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:2px;
-  padding:4px 6px;cursor:pointer;}
+  color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:0;
+  padding:5px 6px;cursor:pointer;}
 .hv7 .ph{display:flex;align-items:flex-end;gap:18px;}
 .hv7 .ph h1{margin-bottom:0;}
 .hv7 .ph .hvsog{margin-left:auto;margin-bottom:3px;}
 .hv7 .ph .hvny{margin-bottom:4px;}
 .hv7 .hvny{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
   letter-spacing:.3px;color:var(--forest);background:#fff;border:1px solid var(--gold);
-  border-radius:2px;padding:5px 12px;cursor:pointer;transition:.14s;white-space:nowrap;}
+  border-radius:0;padding:6px 14px;cursor:pointer;transition:.14s;white-space:nowrap;}
 .hv7 .hvny:hover{background:var(--gold);color:#fff;}
 .hv7 .hvviews{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 0;}
 .hv7 .hvviews .lbl{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;
   color:var(--mut);font-weight:700;margin-right:4px;}
 .hv7 .hvviews .ingen{font-size:11px;color:var(--mut);font-style:italic;}
 .hv7 .hvviews button{font-family:'Inter',sans-serif;font-size:11px;color:var(--ink2);
-  background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;
+  background:#fff;border:1px solid var(--line);border-radius:0;padding:4px 11px;
   cursor:pointer;transition:.14s;display:inline-flex;align-items:center;gap:6px;}
 .hv7 .hvviews button:hover{border-color:var(--gold);}
 .hv7 .hvviews button.on{background:var(--forest);border-color:var(--forest);color:#fff;}
@@ -722,6 +722,18 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   color:var(--mut);background:transparent;border:0;border-bottom:1px solid var(--hair);
   padding:4px 2px;cursor:pointer;}
 .hv7 .belob .valuta:focus{outline:none;border-bottom-color:var(--gold);color:var(--ink);}
+.hv7 .hvsletlink{display:block;width:100%;margin-top:16px;font-family:'Inter',sans-serif;
+  font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);
+  background:transparent;border:1px solid var(--hair);border-radius:0;padding:7px 0;
+  cursor:pointer;transition:.14s;}
+.hv7 .hvsletlink:hover{color:var(--bad);border-color:#e3c4b3;background:#fdf7f4;}
+.hv7 .sletliste{margin-bottom:14px;}
+.hv7 .sletliste div{font-size:11.5px;color:var(--ink2);padding:4px 0 4px 16px;position:relative;line-height:1.5;}
+.hv7 .sletliste div::before{position:absolute;left:0;top:4px;font-size:11px;}
+.hv7 .sletliste .ja::before{content:'✕';color:var(--bad);}
+.hv7 .sletliste .nej::before{content:'✓';color:var(--ok);}
+.hv7 .sletadv{font-size:11.5px;color:#8a6a37;background:#fffdf8;border:1px solid var(--gold-l);
+  padding:9px 12px;line-height:1.6;margin:0 0 14px;}
 .hv7 .ldlg.bred{max-width:660px;}
 .hv7 .ldlg .lf{padding:14px 22px;border-top:1px solid var(--hair);background:#fdfcf9;}
 .hv7 .nyg{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-bottom:12px;}
@@ -766,11 +778,12 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .hvfilter .lbl{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:600;margin-right:3px;}
 .hv7 .hvfilter .skel{width:1px;height:15px;background:var(--line);margin:0 9px;}
 .hv7 .hvfilter button{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--ink2);background:#fff;
-  border:1px solid var(--line);border-radius:999px;padding:5px 14px;cursor:pointer;transition:.15s;line-height:1.4;}
+  border:1px solid var(--line);border-radius:0;padding:5px 14px;cursor:pointer;transition:.15s;line-height:1.4;}
 .hv7 .hvfilter button:hover{border-color:var(--gold-l);color:var(--ink);}
 .hv7 .hvfilter button.on{background:var(--ink);border-color:var(--ink);color:#fdfbf7;font-weight:500;}
 .hv7 .hvkpis{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px;}
-.hv7 .hvkpi{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:11px 17px;min-width:158px;}
+.hv7 .hvkpi{background:var(--card);border:1px solid var(--line);border-radius:0;
+  border-top:2px solid var(--gold-l);padding:12px 17px 13px;min-width:158px;}
 .hv7 .hvkpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:500;
   color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;}
 .hv7 .hvkpi .cur{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:1.2px;color:var(--mut);font-weight:400;}
@@ -819,7 +832,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    feltet også skal virke på dashboardet.                              */
 .sogboks{position:relative}
 .sogfelt{display:flex;align-items:center;gap:12px;background:#fffefb;border:1px solid var(--line);
-  border-radius:3px;padding:0 16px;transition:.16s}
+  border-radius:0;padding:0 16px;transition:.16s}
 .sogfelt:focus-within{border-color:#e0c9a3;box-shadow:0 0 0 3px rgba(224,201,163,.22)}
 .sogfelt .lup{color:#c1975a;font-size:15px}
 .sogfelt input{flex:1;font-family:'Inter',sans-serif;font-size:14.5px;padding:13px 0;border:0;
@@ -1417,7 +1430,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.70';
+const APP_VERSION = 'v0.72';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -6138,6 +6151,12 @@ const HV_TOP = [['Maldiverne',757],['Mexico',78],['Den Dominikanske Republik',71
    flyttes derfra — den forsvinder ikke. */
 const HV_SKJULTE_TRIN = ['confirmed','email_sent'];
 const HV_RAIL = LEAD_STAGES.map(s=>s[0]).filter(k=>!HV_SKJULTE_TRIN.includes(k));
+/* Hvor en sag paa et skjult trin skal staa paa tavlen. Trinnet i basen roeres
+   ikke — det er kun et spoergsmaal om hvilken soejle kortet tegnes i.
+     · «E-mail sendt» hoerer naturligt hjemme under «Send e-mail».
+     · «Bekraeftet» er i praksis en sag der har faaet tilbud og sagt ja; den
+       staar under «Tilbud sendt», ét klik fra Solgt-knappen. */
+const HV_TRIN_HJEM = {email_sent:'send_email', confirmed:'offer_sent'};
 /* leads.source staar til 'pipedrive' paa alle 211 - det er importkilden, ikke kundens.
    Den rigtige kanal ligger i source_channel. */
 const HV_KANAL = {'website':'Hjemmesiden','pipedrive-sync':'Overfoert fra Pipedrive','pipedrive-import':'Importeret fra Pipedrive'};
@@ -6357,6 +6376,84 @@ async function hvSaetAfrejse(v){
     if(forslag){ hj.value=forslag; await hvSave('return_date', forslag); }
   }
 }
+/* Kom sagen fra en formular, eller skrev vi den ind selv? Det er det foerste
+   man vil vide om et spor, for det afgoer om resten overhovedet betyder noget:
+   en haandskrevet sag har hverken UTM-kilde eller kampagne, og det er ikke en
+   fejl. Wendie 31.08.2026. */
+const HV_INDGANG = {telefon:'Telefon', mail:'E-mail', besoeg:'Besøg',
+  anbefaling:'Anbefaling', andet:'Andet'};
+function hvIndgang(l){
+  if(!l) return null;
+  if(l.source==='manuel')
+    return 'Skrevet ind i hånden' + (HV_INDGANG[l.source_channel] ? ' · '+HV_INDGANG[l.source_channel] : '');
+  const k = HV_KANAL[l.source_channel] || l.source_channel;
+  return k ? 'Formular · '+k : (l.pipedrive_deal_id ? 'Formular' : null);
+}
+
+/* ══ Slet en henvendelse ═══════════════════════════════════════════════
+   Wendie 31.08.2026: «jeg skal kunne slette en henvendelse (f.eks. min egen)
+   hvis jeg vil».
+
+   Efterproevet i basen foerst, saa vi ved hvad der faktisk sker:
+     · lead_activities og lead_offers foelger med (CASCADE) — historikken og
+       linkene til tilbud hoerer til sagen og har ingen mening uden den.
+     · trips og booking_requests bliver STAAENDE (SET NULL). En rejse eller en
+       bookinganmodning slettes ALDRIG af det her; de mister kun henvisningen.
+     · audit-triggeren gemmer den slettede raekke, saa der er et spor tilbage.
+
+   Knappen ligger nede i sidepanelet, langt fra Solgt og Tabt, og kun for
+   administratorer. «Tabt» er naesten altid det rigtige — en tabt sag er viden
+   om hvorfor I ikke vandt. Slet er til testsager og fejloprettelser. */
+function hvSletDlg(){
+  const id=window._hvId; if(!id) return;
+  const l=(window._leads||[]).find(x=>x.id===id)||{};
+  const ov=document.getElementById('hvOv2'); if(!ov) return;
+  if(l.converted_trip_id){
+    ov.innerHTML = `<div class="ldlg">
+      <div class="h"><h3>Kan ikke slettes</h3><p>Denne henvendelse er blevet til en rejse.</p></div>
+      <div class="c"><p class="sletadv">Slet rejsen først, eller send den tilbage fra
+        mellemlandingen. Så bliver henvendelsen åben igen og kan slettes herfra.</p></div>
+      <div class="lf"><button class="b gh" onclick="hvLukDlg()">Luk</button>
+        <button class="b gold" onclick="hvLukDlg();viewTrip('${l.converted_trip_id}')">Åbn rejsen</button></div></div>`;
+    ov.classList.add('on'); return;
+  }
+  ov.innerHTML = `<div class="ldlg">
+    <div class="h"><h3>Slet henvendelsen?</h3>
+      <p>«${escH(hvNavn(l))}» fjernes permanent. Det kan ikke fortrydes.</p></div>
+    <div class="c">
+      <div class="sletliste">
+        <div class="ja">Henvendelsen og alle dens noter og historik forsvinder</div>
+        <div class="ja">Links til tilbud forsvinder — selve tilbudssiden består</div>
+        <div class="nej">Rejser og bookinger røres <b>ikke</b> — de mister kun henvisningen</div>
+      </div>
+      <p class="sletadv"><b>Overvej «Tabt» i stedet.</b> En tabt sag bliver liggende med sin årsag,
+        og om et halvt år kan I se mønstret i hvorfor I ikke vandt. Slet er til testsager
+        og noget der er oprettet ved en fejl.</p>
+      <label>Skriv <b>SLET</b> for at bekræfte</label>
+      <input id="hvSletOrd" autocomplete="off" placeholder="SLET" oninput="hvSletTjek()">
+      <div class="nyfejl" id="hvSletFejl"></div>
+    </div>
+    <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+      <button class="b red" id="hvSletKnap" disabled onclick="hvSletUdfoer()">Slet permanent</button></div></div>`;
+  ov.classList.add('on');
+  setTimeout(()=>{ const i=document.getElementById('hvSletOrd'); if(i) i.focus(); },40);
+}
+function hvSletTjek(){
+  const v=((document.getElementById('hvSletOrd')||{}).value||'').trim().toUpperCase();
+  const k=document.getElementById('hvSletKnap'); if(k) k.disabled = (v!=='SLET');
+}
+async function hvSletUdfoer(){
+  const id=window._hvId; if(!id) return;
+  const l=(window._leads||[]).find(x=>x.id===id)||{};
+  const k=document.getElementById('hvSletKnap'), f=document.getElementById('hvSletFejl');
+  if(k){ k.disabled=true; k.textContent='Sletter…'; }
+  const {error}=await db.from('leads').delete().eq('id',id);
+  if(error){ if(f) f.textContent='Kunne ikke slette: '+error.message;
+    if(k){ k.disabled=false; k.textContent='Slet permanent'; } return; }
+  const navn=hvNavn(l);
+  window._leads=(window._leads||[]).filter(x=>x.id!==id);
+  hvLukDlg(); hvClose(); hvBoardRender(); hvKvit('«'+navn+'» er slettet');
+}
 function hvNavn(l){
   const n=(l&&l.contact_name||'').trim();
   if(n) return n;
@@ -6442,12 +6539,16 @@ function hvBoardRender(){
                       : f.vis==='alle'  ? true
                       : l.status==='open';
   const leads=(window._leads||[]).filter(l=>statusOk(l) && passer(l));
-  const cols=HV_RAIL.map(k=>[k, leads.filter(l=>l.stage===k)]);
-  // Henvendelser paa et trin uden kolonne laegges IKKE i foerste kolonne - det skjulte
-  // dem tidligere. De faar deres egen kolonne til sidst, saa de kan ses og ryddes op.
+  /* Wendie 31.08.2026: «den kolonne der hedder udenfor flowet, den skal ikke med».
+     Kolonnen fandtes for at en sag aldrig skulle forsvinde lydloest, naar dens
+     trin ikke laengere har en soejle — og den fangede faktisk to rigtige sager.
+     I stedet for at fjerne den og lade dem forsvinde, faar hvert skjult trin nu
+     en RIGTIG soejle at staa i. Saa er der ingen restkolonne, og ingen sag
+     kan gemme sig. Kendes trinnet slet ikke, lander sagen i foerste kolonne —
+     hellere et forkert sted man kan se, end intet sted. */
   const kendte=new Set(HV_RAIL);
-  const rest=leads.filter(l=>!kendte.has(l.stage));
-  if(rest.length) cols.push(['__rest', rest]);
+  const hjem = st => kendte.has(st) ? st : (HV_TRIN_HJEM[st] || HV_RAIL[0]);
+  const cols=HV_RAIL.map(k=>[k, leads.filter(l=>hjem(l.stage)===k)]);
   window._hvOrder=[].concat(...cols.map(c=>c[1])).map(l=>l.id);
   app.innerHTML = `<div class="hv7">
     <div class="page" id="hvPage">
@@ -6456,9 +6557,9 @@ function hvBoardRender(){
         <button class="hvny" onclick="hvNyDlg()" title="Til dem der ringer eller skriver direkte">＋ Ny henvendelse</button></div>
       ${hvFilterOgTal(f)}
       <div class="boardscroll"><div class="board" style="--kol:${cols.length}">
-        ${cols.map(([k,ls])=>`<div class="col" data-stage="${k}"${k==='__rest'?'':`
-          ondragover="hvDragOver(event)" ondragleave="hvDragLeave(event)" ondrop="hvDrop(event,'${k}')"`}>
-          <div class="colh"><span class="nm" ${k==='__rest'?'title="Disse henvendelser står på et trin der ikke findes på boardet — typisk «Vundet», som ikke længere er en kolonne i Pipedrive. De skal enten markeres solgt eller flyttes til et rigtigt trin."':''}>${k==='__rest'?'Uden for flowet':escH(STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k)}</span><span class="ct">${ls.length}</span></div>
+        ${cols.map(([k,ls])=>`<div class="col" data-stage="${k}"
+          ondragover="hvDragOver(event)" ondragleave="hvDragLeave(event)" ondrop="hvDrop(event,'${k}')">
+          <div class="colh"><span class="nm">${escH(STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k)}</span><span class="ct">${ls.length}</span></div>
           ${ls.map(hvCard).join('')}
         </div>`).join('')}
       </div></div>
@@ -6611,7 +6712,7 @@ function hvDragStart(e,id){
   _hvDrag=id;
   try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',id); }catch(_){}
   e.currentTarget.classList.add('dragging');
-  document.querySelectorAll('.hv7 .col[data-stage]:not([data-stage="__rest"])').forEach(c=>c.classList.add('kandrop'));
+  document.querySelectorAll('.hv7 .col[data-stage]').forEach(c=>c.classList.add('kandrop'));
 }
 function hvDragEnd(e){
   _hvDrag=null;
@@ -6635,7 +6736,7 @@ async function hvDrop(e,k){
   if(!id){ try{ id=e.dataTransfer.getData('text/plain'); }catch(_){} }
   _hvDrag=null;
   document.querySelectorAll('.hv7 .col').forEach(c=>c.classList.remove('kandrop','over'));
-  if(!id||!k||k==='__rest') return;
+  if(!id||!k) return;
   const l=(window._leads||[]).find(x=>x.id===id);
   if(!l || l.stage===k) return;
   const fra=l.stage, fraTid=l._stageSince;
@@ -6919,10 +7020,11 @@ function hvRender(l, acts, offers){
              hedder teknik og source, saa det bare er gemt vaek — det er jo bare data
              vi skal bruge senere hen til noget statistik.» Sporet fylder derfor ikke
              i sidepanelet mere; det staar samlet bag én sammenklappet linje. */
-          const r=[['Kilde',hvKilde(l.utm_source)],['Kampagne',l.utm_campaign],
+          const r=[['Kom ind via',hvIndgang(l)],
+              ['Kilde',hvKilde(l.utm_source)],['Kampagne',l.utm_campaign],
               ['Hørt om os',l.heard_about_us],['Enhed',l.visitor_device],
               ['Kanal',[l.pd_channel,l.pd_channel_id].filter(Boolean).join(' · ')],
-              ['Type',l.client_type],['Importkilde',l.source_channel],
+              ['Type',l.client_type],
               ['Oprettet i Pipedrive',l.pd_origin],['Deal-nr.',l.pipedrive_deal_id]]
             .filter(([,v])=>v!=null&&v!=='');
           const spor = ['Kilde','Kampagne','Hørt om os','Enhed'].filter(k=>r.some(x=>x[0]===k)).length;
@@ -6932,6 +7034,8 @@ function hvRender(l, acts, offers){
               ? r.map(([k,v])=>`<div class="sprow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')
               : '<div class="sprow tom"><span class="v">Denne henvendelse kom ind uden spor.</span></div>'}</div>
           </details>`; })()}
+        ${hasPerm('manage_users')?`<button class="hvsletlink" onclick="hvSletDlg()"
+          title="Fjerner henvendelsen permanent — kun for administratorer">Slet henvendelsen</button>`:''}
       </div>
     </div>
 
@@ -8510,10 +8614,32 @@ function mlBundstatus(r, dg){
       : `<b>Alt kan købes til den pris tilbuddet blev bygget på.</b> Dækningsgraden er ${mlNf1(dg)} %.`;
   }
 }
+/* Hvilket trin stod sagen paa, FOER den blev sat til solgt? Vi laeser
+   historikken bagfra og tager det foerste trin der ikke er «Bekraeftet».
+   Findes der ingen historik, er «Tilbud sendt» det rigtige gaet: man saelger
+   sjaeldent noget, kunden ikke har faaet et tilbud paa. */
+async function mlForrigeTrin(leadId){
+  if(!leadId) return 'offer_sent';
+  const {data} = await db.from('lead_activities')
+    .select('stage,occurred_at').eq('lead_id', leadId).eq('type','system')
+    .not('stage','is',null).order('occurred_at',{ascending:false}).limit(20);
+  const forrige = (data||[]).map(a=>a.stage).find(st => st && st!=='confirmed');
+  return forrige || 'offer_sent';
+}
 async function mlTilbage(){
   if(!confirm('Send sagen tilbage til henvendelsen? Rejsen slettes, og henvendelsen åbnes igen.')) return;
   const t = ML.trip;
-  if(t.lead_id) await db.from('leads').update({status:'open', converted_trip_id:null}).eq('id',t.lead_id);
+  if(t.lead_id){
+    /* Wendie 31.08.2026: «der skal den jo bare komme tilbage paa det stadie hvor
+       den var, inden den blev sat til solgt og havnede paa mellemlandingen».
+       Foer blev status sat tilbage, men trinnet stod stadig paa «Bekraeftet»,
+       og sagen havnede i en kolonne der ikke findes. */
+    const trin = await mlForrigeTrin(t.lead_id);
+    await db.from('leads').update({status:'open', converted_trip_id:null, stage:trin}).eq('id', t.lead_id);
+    await db.from('lead_activities').insert({lead_id:t.lead_id, type:'system', stage:trin,
+      body:'Sendt tilbage fra mellemlandingen', actor:(window.ME||null),
+      occurred_at:new Date().toISOString()}).then(()=>{},()=>{});
+  }
   await db.from('element_prices').delete().in('element_id', ML.els.map(e=>e.id));
   await db.from('trip_elements').delete().eq('trip_id', t.id);
   const {error} = await db.from('trips').delete().eq('id', t.id);
