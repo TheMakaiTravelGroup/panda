@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.58 · 29.08.2026
+<!-- Panda · v0.62 · 29.08.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -595,7 +595,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 }.hv7 *{box-sizing:border-box;}.hv7{font-family:'Inter',system-ui,sans-serif;margin:0;background:var(--page);color:var(--ink);font-size:13px;-webkit-font-smoothing:antialiased;}.hv7 .ser{font-family:'Cormorant Garamond',Georgia,serif;}.hv7 .num{font-variant-numeric:tabular-nums;}.hv7 /* etiket i referencestil: guld versaler + kort guldstreg */
 .lab{font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:600;}.hv7 .lab::after{content:'';display:block;width:26px;height:1px;background:var(--gold-l);margin-top:6px;}.hv7 /* sektionsoverskrift: tydelig, .hv7 med linje ud til kanten */
 .sh{margin:34px 0 14px;display:flex;align-items:center;gap:14px;}.hv7 .sh:first-child{margin-top:0;}.hv7 .sh .txt{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);letter-spacing:.2px;white-space:nowrap;}.hv7 .sh::after{content:'';flex:1;height:1px;background:var(--line);}.hv7 .side .sh::after{background:var(--sand2);}.hv7 /* ══ BOARD ══ */
-.page{padding:24px 28px 60px;transition:filter .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1);}.hv7 .page.dim{filter:blur(3px) saturate(.85);transform:scale(.995);pointer-events:none;}.hv7 .ph{margin-bottom:20px;}.hv7 .ph h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;margin:6px 0 0;color:var(--ink);letter-spacing:.4px;}.hv7 .board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}.hv7 .col{background:rgba(253,251,247,.6);border:1px solid var(--line);border-radius:3px;padding:10px;min-height:330px;}.hv7 .colh{display:flex;align-items:center;gap:7px;margin-bottom:11px;padding:0 2px 8px;border-bottom:1px solid var(--hair);}.hv7 .colh .nm{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--gold);}.hv7 .colh .ct{margin-left:auto;font-size:10px;color:var(--mut);}.hv7 .lc{background:var(--card);border:1px solid var(--line);border-left:2px solid var(--gold-l);border-radius:3px;padding:0 11px 10px;margin-bottom:9px;cursor:pointer;transition:.18s cubic-bezier(.2,.8,.3,1);overflow-wrap:anywhere;}.hv7 .lc:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(120,105,75,.10);border-color:var(--gold-l);}.hv7 .lc.act{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-l);}.hv7 .lc .nm{display:flex;align-items:flex-start;gap:6px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);line-height:1.2;margin:0 -11px 0;padding:8px 11px 7px;background:var(--mist);border-radius:0 2px 0 0;}.hv7 .lc.dk .nm{background:rgba(228,196,179,.34);}.hv7 .lc .nm .navn{flex:1;min-width:0;}.hv7 .lc .scorerow{display:flex;align-items:center;gap:6px;margin-top:8px;}.hv7 .lc .tri{font-size:9px;letter-spacing:.6px;border-radius:2px;padding:3px 8px;}.hv7 .lc .tri.good{background:rgba(123,164,136,.18);color:#4f7a5f;}.hv7 .lc .tri.miss{background:rgba(224,201,163,.34);color:#8d6a34;}.hv7 .lc .ikoner{margin-left:auto;display:flex;gap:4px;}.hv7 .lc .ik{font-size:14px;line-height:1;cursor:help;}.hv7 .lc .ik.skin{font-size:15px;filter:drop-shadow(0 0 3px rgba(193,151,90,.85));}.hv7 .lc .card-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}.hv7 .lc .dchip{font-size:9.5px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 7px;margin:0;}.hv7 .lc .ferie{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}.hv7 .lc .fchip{font-size:9px;color:#8d6a34;background:#fff;border:1px solid var(--gold-l);border-radius:2px;padding:2px 7px;white-space:nowrap;}.hv7 .lc .meta.dates{display:flex;flex-wrap:wrap;gap:0 6px;}.hv7 .lc .bud.none{font-size:12px;color:var(--mut);font-family:'Inter',sans-serif;}.hv7 .lc .cur{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1px;color:var(--mut);}.hv7 .lc .brch{font-size:8.5px;letter-spacing:1.2px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 6px;}.hv7 .lc.dk .brch{color:#a35f3e;background:rgba(228,196,179,.34);}.hv7 .lc .who{margin-left:auto;display:flex;align-items:center;gap:6px;}.hv7 .lc .owner{letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .age{color:var(--mut);}.hv7 .lc .meta{font-size:11px;color:var(--ink2);margin-top:6px;}.hv7 .lc .bud{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-top:9px;color:var(--ink);}.hv7 .lc .ft{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid var(--hair);font-size:9px;}.hv7 .lc .ow{margin-left:auto;letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .ag{color:var(--mut);letter-spacing:.6px;}.hv7 .lc .fl{width:3px;height:3px;border-radius:50%;background:var(--mist2);}.hv7 .hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);color:var(--ink2);font-size:11px;padding:9px 18px;border-radius:3px;z-index:5;box-shadow:0 6px 20px rgba(120,105,75,.12);}.hv7 .hint b{color:var(--gold);font-weight:600;}.hv7 /* ══ OVERLAY ══ */
+.page{padding:24px 28px 60px;transition:filter .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1);}.hv7 .page.dim{filter:blur(3px) saturate(.85);transform:scale(.995);pointer-events:none;}.hv7 .ph{margin-bottom:20px;}.hv7 .ph h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;margin:6px 0 0;color:var(--ink);letter-spacing:.4px;}.hv7 .board{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}.hv7 .col{background:rgba(253,251,247,.6);border:1px solid var(--line);border-radius:3px;padding:10px;min-height:330px;}.hv7 .colh{display:flex;align-items:center;gap:7px;margin-bottom:11px;padding:0 2px 8px;border-bottom:1px solid var(--hair);}.hv7 .colh .nm{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--gold);}.hv7 .colh .ct{margin-left:auto;font-size:10px;color:var(--mut);}.hv7 .lc{background:var(--card);border:1px solid var(--line);border-left:2px solid var(--gold-l);border-radius:3px;padding:0 11px 10px;margin-bottom:9px;cursor:pointer;transition:.18s cubic-bezier(.2,.8,.3,1);overflow-wrap:anywhere;}.hv7 .lc:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(120,105,75,.10);border-color:var(--gold-l);}.hv7 .lc.act{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-l);}.hv7 .lc.erblevetrejse{border-left-color:var(--ok);}.hv7 .lc.erblevetrejse .nm::after{content:'\2192 rejse';margin-left:auto;font-family:'Inter',sans-serif;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;color:#4f7a5f;align-self:center;}.hv7 .lc .nm{display:flex;align-items:flex-start;gap:6px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);line-height:1.2;margin:0 -11px 0;padding:8px 11px 7px;background:var(--mist);border-radius:0 2px 0 0;}.hv7 .lc.dk .nm{background:rgba(228,196,179,.34);}.hv7 .lc .nm .navn{flex:1;min-width:0;}.hv7 .lc .scorerow{display:flex;align-items:center;gap:6px;margin-top:8px;}.hv7 .lc .tri{font-size:9px;letter-spacing:.6px;border-radius:2px;padding:3px 8px;}.hv7 .lc .tri.good{background:rgba(123,164,136,.18);color:#4f7a5f;}.hv7 .lc .tri.miss{background:rgba(224,201,163,.34);color:#8d6a34;}.hv7 .lc .ikoner{margin-left:auto;display:flex;gap:4px;}.hv7 .lc .ik{font-size:14px;line-height:1;cursor:help;}.hv7 .lc .ik.skin{font-size:15px;filter:drop-shadow(0 0 3px rgba(193,151,90,.85));}.hv7 .lc .card-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}.hv7 .lc .dchip{font-size:9.5px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 7px;margin:0;}.hv7 .lc .ferie{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}.hv7 .lc .fchip{font-size:9px;color:#8d6a34;background:#fff;border:1px solid var(--gold-l);border-radius:2px;padding:2px 7px;white-space:nowrap;}.hv7 .lc .meta.dates{display:flex;flex-wrap:wrap;gap:0 6px;}.hv7 .lc .bud.none{font-size:12px;color:var(--mut);font-family:'Inter',sans-serif;}.hv7 .lc .cur{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1px;color:var(--mut);}.hv7 .lc .brch{font-size:8.5px;letter-spacing:1.2px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 6px;}.hv7 .lc.dk .brch{color:#a35f3e;background:rgba(228,196,179,.34);}.hv7 .lc .who{margin-left:auto;display:flex;align-items:center;gap:6px;}.hv7 .lc .owner{letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .age{color:var(--mut);}.hv7 .lc .meta{font-size:11px;color:var(--ink2);margin-top:6px;}.hv7 .lc .bud{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-top:9px;color:var(--ink);}.hv7 .lc .ft{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:8px;border-top:1px solid var(--hair);font-size:9px;}.hv7 .lc .ow{margin-left:auto;letter-spacing:1.4px;color:var(--gold);font-weight:600;}.hv7 .lc .ag{color:var(--mut);letter-spacing:.6px;}.hv7 .lc .fl{width:3px;height:3px;border-radius:50%;background:var(--mist2);}.hv7 .hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);color:var(--ink2);font-size:11px;padding:9px 18px;border-radius:3px;z-index:5;box-shadow:0 6px 20px rgba(120,105,75,.12);}.hv7 .hint b{color:var(--gold);font-weight:600;}.hv7 /* ══ OVERLAY ══ */
 .ov{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:26px;
   background:rgba(90,80,64,.28);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:opacity .26s ease,visibility .26s;}.hv7 .ov.on{opacity:1;visibility:visible;}.hv7 .ld{width:100%;max-width:1160px;max-height:calc(100vh - 52px);overflow-x:hidden;overflow-y:auto;background:var(--card);
   border-radius:4px;box-shadow:0 40px 110px rgba(80,70,55,.30);
@@ -788,10 +788,10 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    én booking fylder én flise, ikke hele siden.
    Ingen forklarende tekst: en flise der lyser op under markoeren, fortaeller
    selv at man kan trykke paa den. */
-.bkkort{border-left:3px solid var(--gold);
-  background:linear-gradient(115deg,rgba(224,201,163,.22),var(--card) 55%);margin-bottom:14px;}
-.bkkort h3{color:var(--gold);margin-bottom:14px;}
-.bkkort h3 .r{color:var(--mut);font-style:italic;}
+.card.bkkort{border-left:3px solid var(--gold);
+  background:linear-gradient(115deg,rgba(224,201,163,.24),var(--card) 55%);margin-bottom:14px;}
+.card.bkkort h3{color:var(--gold);margin-bottom:14px;}
+.card.bkkort h3 .r{color:var(--mut);font-style:italic;}
 .bkkort h3 .r a{margin-left:10px;font-style:normal;color:var(--gold);font-size:10.5px;
   letter-spacing:.4px;text-decoration:none;border-bottom:1px solid var(--gold-l);}
 .bkgrid{display:flex;flex-wrap:wrap;gap:9px;}
@@ -808,7 +808,9 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   line-height:1.15;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .bkt .p{margin-left:auto;font-family:'Playfair Display',serif;font-size:15px;font-weight:500;
   color:var(--forest);font-variant-numeric:tabular-nums;white-space:nowrap;}
-.bkt .hvor{font-size:11px;color:var(--mut);margin-top:2px;
+.bkt .hvor{font-size:11.5px;color:var(--ink2);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bkt .hvornaar{font-size:11px;color:var(--mut);margin-top:2px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .bkt.uro{border-left-color:var(--bad);border-color:#e3c4b3;}
 .bktoast{position:fixed;right:18px;bottom:18px;z-index:120;width:290px;background:var(--card);
@@ -906,6 +908,13 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 #app.dashskin .card h3{font-size:8.5px;letter-spacing:2.2px;text-transform:uppercase;color:#c1975a;font-weight:600;
   font-family:'Inter',sans-serif;margin:0 0 12px;display:flex;align-items:center;gap:10px;}
 #app.dashskin .card h3 .r{margin-left:auto;font-weight:400;letter-spacing:.4px;text-transform:none;font-size:10.5px;color:#a09884;}
+/* Solgt-kortet skal beholde sin guldkant paa dashboardet. «#app.dashskin
+   .card» vejer 1,2,0 og staar her — derfor skal vores veje 1,3,0, ellers
+   vinder den almindelige kortstil, og kanten forsvinder. */
+#app.dashskin .card.bkkort{border-left:3px solid var(--gold);border-radius:3px;
+  background:linear-gradient(115deg,rgba(224,201,163,.26),#fdfbf7 55%);}
+#app.dashskin .card.bkkort h3{color:var(--gold);margin-bottom:13px;}
+#app.dashskin .card.bkkort h3 .r{color:#8b8370;font-style:italic;}
 #app.dashskin .pagehead h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:29px;color:#3d403a;}
 #app.dashskin .pagehead h2 i{color:#c1975a;}
 #app.dashskin .pagehead .sub{color:#a09884;}
@@ -1175,7 +1184,13 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   text-align:right;font-variant-numeric:tabular-nums}
 .ml7 .mlktab input.kf:focus{outline:none;border-bottom-color:var(--mlgold)}
 .ml7 .mlktab input.kf.aendret{color:var(--mladvar);border-bottom-color:var(--mlgold);font-weight:600}
-.ml7 .mlktab .e{font-size:9.5px;color:var(--mlmut);display:block;margin-top:2px}
+.ml7 .mlgf{width:74px;text-align:right;border:0;border-bottom:1px solid var(--mllin);
+  background:transparent;font:inherit;font-variant-numeric:tabular-nums;color:inherit;
+  padding:0 2px 1px;outline:none}
+.ml7 .mlgf:focus{border-bottom-color:var(--mlgul)}
+.ml7 .mlgf.aendret{border-bottom-color:var(--mlgul);color:var(--mlgul)}
+.ml7 .mlktab .e{font-size:9.5px;color:var(--mlmut);display:block;margin-top:3px;line-height:1.3}
+.ml7 .mlktab .eff .e{font-weight:400;font-family:'Inter',sans-serif}
 .ml7 .kurstom{font-size:12.5px;color:var(--mlmut);line-height:1.6}
 .ml7 .mlktab .marked{font-variant-numeric:tabular-nums;color:var(--mlink2)}
 .ml7 .mlktab .marked em{font-style:normal;display:block;font-size:9.5px;color:var(--mlmut);margin-top:2px}
@@ -1254,8 +1269,7 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   <div class="logo"><h1>MALDIVIA</h1><small>Travel Design · Panda</small></div>
   <nav id="nav">
     <button data-v="dash" class="on" data-i18n="nav.dash">Dashboard</button>
-    <button data-v="leads" data-i18n="nav.leads">Henvendelser</button>
-    <button data-v="hv" title="Ny henvendelsesside (v7) — den gamle ligger stadig under «Henvendelser»">Henvendelser (ny)</button>
+    <button data-v="hv" data-i18n="nav.leads">Henvendelser</button>
     <button data-v="team" title="Rasmus' værktøjer — team.maldivia.dk, vist inde i Panda">Team Maldivia</button>
     <button data-v="sales" data-i18n="nav.sales">Salg</button>
     <button data-v="finance" data-i18n="nav.finance">Økonomi</button>
@@ -1275,7 +1289,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.58';
+const APP_VERSION = 'v0.62';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -1791,7 +1805,7 @@ async function showApp(){
 }
 function hasPerm(p){ return !!(window.PERMS && window.PERMS[p]); }
 function applyNavPerms(){
-  const vis = {leads:hasPerm('leads'), finance:hasPerm('finance'), reports:hasPerm('reports'), users:hasPerm('manage_users')};
+  const vis = {hv:hasPerm('leads'), finance:hasPerm('finance'), reports:hasPerm('reports'), users:hasPerm('manage_users')};
   document.querySelectorAll('#nav button').forEach(b=>{ if(b.dataset.v in vis) b.style.display = vis[b.dataset.v]?'':'none'; });
 }
 /* Testrejser-menupunktet vises KUN hvis der faktisk findes TEST--rejser i basen.
@@ -1808,7 +1822,7 @@ async function checkTestdata(){
 }
 
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>'+t('g.noaccess')+'</h3><p class="muted">'+t('g.noaccess_txt')+'</p></div>'; }
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewLeads,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewHenvendelser,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
 function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   // henvendelses-boardene er brede (10 trin) — slip main fri fra 1280px-loftet.
   // Baade den gamle side ('leads') og den nye ('hv') skal have hele skaermen.
@@ -1825,7 +1839,7 @@ function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button')
    Derfor ignorerer applyRoute() enhver hash der indeholder = eller &, og
    supabase-js har under alle omstændigheder allerede tømt den, når showApp()
    kaldes. */
-const PANDA_ROUTES = {dash:viewDash,leads:viewLeads,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,
+const PANDA_ROUTES = {dash:viewDash,leads:viewHenvendelser,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,
   vendorpay:viewVendorPay,gennemgang:viewGennemgang,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,
   users:viewUsers,new:viewNew,testdata:viewTestdata};
 function setRoute(h){
@@ -1948,7 +1962,7 @@ async function viewDash(){
        Uden dem sker der INTET synligt i Panda, naar en kunde trykker book —
        og saa ligger en solgt rejse og venter, uden at nogen ved det. */
     db.from('booking_requests')
-      .select('id,modtaget_at,kontakt_navn,kontakt_email,hotel,destination,afrejse,pris,valuta,branch,lead_id,match_metode,parse_ok,parse_note')
+      .select('id,modtaget_at,kontakt_navn,kontakt_email,hotel,destination,afrejse,hjemrejse,naetter,pris,valuta,branch,lead_id,match_metode,parse_ok,parse_note')
       .is('trip_id', null).order('modtaget_at',{ascending:false}).limit(20)
       .then(r=>r.data||[])
   ]);
@@ -2151,8 +2165,10 @@ async function viewDash(){
         <div class="naar">${alder}${uro?`<em>${escH(uro)}</em>`:''}</div>
         <div class="top"><span class="hvem">${escH(b.kontakt_navn||'Uden navn')}</span>
           <span class="p">${b.pris?fval(b.pris)+' '+escH(b.valuta||''):'—'}</span></div>
-        <div class="hvor">${escH(b.hotel||b.destination||'—')}${
-          b.afrejse?' · '+escH(fmtD(b.afrejse)):''}</div>
+        <div class="hvor">${escH(b.hotel||b.destination||'—')}</div>
+        <div class="hvornaar">${b.afrejse?escH(fmtD(b.afrejse)):'—'}${
+          b.hjemrejse?' → '+escH(fmtD(b.hjemrejse)):''}${
+          b.naetter?' · '+b.naetter+' '+(b.naetter===1?'nat':'nætter'):''}</div>
       </div>`;
     }).join('')}</div>
   </div>` : ''}
@@ -6025,7 +6041,7 @@ function hvSaveKids(){
 function hvArr(v){ if(Array.isArray(v)) return v; if(v==null||v==='') return []; if(typeof v==='string'){ const s=v.replace(/^\{|\}$/g,''); return s? s.split(',').map(x=>x.replace(/^"|"$/g,'').trim()).filter(Boolean):[]; } return []; }
 
 async function viewHenvendelser(){
-  if(!hasPerm('leads')) return noAccess('leads');
+  if(!hasPerm('leads')) return noAccess('hv');
   navTo('hv');
   const harCache = !!(window._leads && window._leads.length && window._TEAM);
   if(harCache) hvBoardRender();
@@ -6153,7 +6169,7 @@ function hvCard(l){
   const koeb=+(l._koeb||0);
   const hjerte = koeb>=2 ? `<span class="ik gengang skin" title="Trofast kunde — ${koeb} rejser købt hos os">💛</span>`
     : (koeb===1?'<span class="ik gengang" title="Genganger — kunden har købt én rejse hos os før">💛</span>':'');
-  return `<div class="lc ${brc}${l.status==='lost'?' er-tabt':''}" data-id="${l.id}" onclick="hvOpen('${l.id}')"
+  return `<div class="lc ${brc}${l.status==='lost'?' er-tabt':''}${l.converted_trip_id?' erblevetrejse':''}" data-id="${l.id}" onclick="hvOpen('${l.id}')"
     draggable="true" ondragstart="hvDragStart(event,'${l.id}')" ondragend="hvDragEnd(event)">
     <div class="nm"><span class="navn">${escH(l.contact_name||l.title||'Uden navn')}</span>${hjerte}</div>
     <div class="scorerow">${tr.complete?`<span class="tri good" title="Foreløbig lead-score">Score ${tr.score}</span>`:`<span class="tri miss" title="Mangler: ${escH(tr.missing.join(', '))}">Mangler info</span>`}
@@ -6330,6 +6346,11 @@ function hvKvit(tekst){
 /* ── detaljevisningen ───────────────────────────────────────────────── */
 async function hvOpen(id){
   const l=(window._leads||[]).find(x=>x.id===id); if(!l) return;
+  /* Wendie 31.08.2026: er sagen blevet til en rejse, aabner vi rejsen i
+     stedet. Arbejdet foregaar dér fra det oejeblik, og to steder at rette de
+     samme oplysninger er den sikreste vej til at de kommer til at staa
+     forskelligt. Henvendelsen er fra da af historik. */
+  if(l.converted_trip_id){ hvClose(); return viewTrip(l.converted_trip_id); }
   window._hvId=id;
   document.getElementById('hvOv').classList.add('on');
   document.getElementById('hvPage').classList.add('dim');
@@ -7265,6 +7286,12 @@ function bkNyBooking(b){
    henvendelsessiden, saa den kan findes i haanden. */
 async function bkAabn(bookingId, leadId){
   const t = document.getElementById('bkToast'); if(t) t.remove();
+  /* Findes rejsen allerede, gaar vi direkte dertil — ikke omvejen om
+     henvendelsen, som fra da af kun er historik. */
+  if(bookingId){
+    const {data} = await db.from('booking_requests').select('trip_id').eq('id',bookingId).single();
+    if(data && data.trip_id) return viewTrip(data.trip_id);
+  }
   navTo('hv');
   await viewHenvendelser();
   if(leadId) setTimeout(()=>hvOpen(leadId), 60);
@@ -7817,17 +7844,23 @@ function mlTegnKurser(){
     const t = mlTal3(v);
     const salg = (v===kv);
     const eff = salg ? mlSalgskurs() : mlEff(v);
+    /* Salgsraekken vises i retningen DKK → valuta. Markedskursen vendes
+       derfor med, saa den staar samme vej som den effektive. */
+    const markedVist = salg ? (t.marked>0 ? 1/t.marked : 0) : t.marked;
+    const omvendt = x => x>0 ? mlNf4(1/x) : '—';
     const r = f => t.rettet.includes(f) ? ' aendret' : '';
     return `<tr>
       <td>${salg?'DKK → '+v:v+' → DKK'}${salg?' <span class="sml">salgskurs</span>':''}
         <div class="hj">${HJ[v]||''}</div></td>
-      <td><input class="kf${r('marked')}" value="${mlNf4(t.marked)}"
-            oninput="mlSaetKurs('${v}','marked',this.value)"><span class="e">ECB ${escH(k.dato||'')}</span></td>
+      <td><input class="kf${r('marked')}" value="${mlNf4(markedVist)}"
+            oninput="mlSaetKurs('${v}','marked',this.value,${salg})">
+          <span class="e">${salg?v+' → DKK '+omvendt(markedVist):'ECB '+escH(k.dato||'')}</span></td>
       <td><input class="kf${r('bankmargin')}" value="${mlNf1(t.bankmargin)}"
             oninput="mlSaetKurs('${v}','bankmargin',this.value)"> %${t.maalt?'':'<span class="skoen">skøn</span>'}</td>
       <td><input class="kf${r('buffer')}" value="${mlNf1(t.buffer)}"
             oninput="mlSaetKurs('${v}','buffer',this.value)"> %</td>
-      <td class="eff">${mlNf4(eff)}</td></tr>`;
+      <td class="eff"><span class="tal">${mlNf4(eff)}</span>
+        <span class="e">${salg?v+' → DKK '+omvendt(eff):'DKK pr. '+v}</span></td></tr>`;
   }).join('');
 
   document.getElementById('mlKurser').innerHTML = `
@@ -7840,12 +7873,14 @@ function mlTegnKurser(){
 }
 /* Retter man et tal, gemmes kun afvigelsen — og kun paa denne rejse. */
 let _mlKursGem = null;
-function mlSaetKurs(valuta, felt, vaerdi){
-  const t = parseFloat(String(vaerdi).replace(/\s/g,'').replace(',','.'));
+function mlSaetKurs(valuta, felt, vaerdi, vendt){
+  let t = parseFloat(String(vaerdi).replace(/\s/g,'').replace(',','.'));
   const o = ML.overrides = ML.overrides || {};
   const std = (ML.kurser||{})[valuta] || {};
   o[valuta] = o[valuta] || {};
-  if(isNaN(t) || t<0){ return; }
+  if(isNaN(t) || t<=0){ return; }
+  /* Feltet viser DKK → valuta, men basen gemmer den modsatte vej. */
+  if(vendt && felt==='marked') t = 1/t;
   /* Er tallet det samme som standarden, er det ikke en afvigelse. */
   if(Math.abs(t - (Number(std[felt])||0)) < 1e-9) delete o[valuta][felt];
   else o[valuta][felt] = t;
@@ -7858,9 +7893,13 @@ function mlSaetKurs(valuta, felt, vaerdi){
 function tegnAlle(){
   /* Kun de tal der aendrer sig — kortet tegnes ikke forfra, saa markoeren
      bliver staaende i feltet man skriver i. */
+  const kv = ML.trip.customer_currency||'DKK';
   document.querySelectorAll('#mlKurser .eff').forEach((c,i)=>{
     const v = mlValutaerIBrug()[i]; if(!v) return;
-    c.textContent = mlNf4(v===(ML.trip.customer_currency||'DKK') ? mlSalgskurs() : mlEff(v));
+    const salg = (v===kv), eff = salg ? mlSalgskurs() : mlEff(v);
+    const tal = c.querySelector('.tal'), und = c.querySelector('.e');
+    if(tal) tal.textContent = mlNf4(eff);
+    if(und && salg) und.textContent = v+' → DKK '+(eff>0?mlNf4(1/eff):'—');
   });
 }
 async function mlGemKurser(){
@@ -7874,6 +7913,30 @@ async function mlNulstilKurser(){
 }
 
 /* ══ REGNESTYKKET — én metode, alt gennem DKK ══ */
+function mlGebyr(){
+  const o = (window.ML&&ML.overrides) || {};
+  return o._gebyr!=null ? Number(o._gebyr) : (Number(ML.std.bank_fee_dkk)||0);
+}
+let _mlGebyrGem = null;
+function mlSaetGebyr(vaerdi){
+  const t = parseFloat(String(vaerdi).replace(/\s|\./g,'').replace(',','.'));
+  const o = ML.overrides = ML.overrides || {};
+  if(isNaN(t) || t<0) return;
+  if(Math.abs(t - (Number(ML.std.bank_fee_dkk)||0)) < 1e-9) delete o._gebyr;
+  else o._gebyr = t;
+  /* Hele prisblokken tegnes om, saa feltet man skriver i bliver erstattet.
+     Vi husker markoerens plads og den raa tekst, og saetter den tilbage —
+     ellers hopper markoeren til slutningen ved hvert tastetryk. */
+  const a = document.activeElement, raa = vaerdi;
+  const pos = (a && a.classList.contains('mlgf')) ? a.selectionStart : null;
+  mlRegn(false); mlTegnKurser();
+  if(pos!==null){
+    const nyt = document.querySelector('.mlgf');
+    if(nyt){ nyt.value = raa; nyt.focus(); try{ nyt.setSelectionRange(pos,pos); }catch(e){} }
+  }
+  clearTimeout(_mlGebyrGem);
+  _mlGebyrGem = setTimeout(mlGemKurser, 700);
+}
 function mlBeregn(){
   const dele = ML.els.map(e=>{
     const g = mlGrundlag(e);
@@ -7885,7 +7948,7 @@ function mlBeregn(){
   });
   const sub = dele.reduce((s,d)=>s+d.dkk,0);
   const tilbudSub = dele.reduce((s,d)=>s+d.tilbudDkk,0);
-  const gebyr = Number(ML.std.bank_fee_dkk)||0;
+  const gebyr = mlGebyr();
   const kost = sub + gebyr, kostTilbud = tilbudSub + gebyr;
   const kk = mlKundeKurs();
   const accept = Number(ML.trip.accepted_price)||0;
@@ -7917,7 +7980,12 @@ function mlRegn(tegnKurs){
   const val = ML.trip.customer_currency||'DKK';
 
   h += `<div class="mlrr sum"><span class="l">Indkøb i alt</span><span class="v">${mlNf(r.sub)} DKK</span></div>
-    <div class="mlrr"><span class="l">+ Bankgebyr</span><span class="v">${mlNf(r.gebyr)} DKK</span></div>
+    <div class="mlrr"><span class="l">+ Bankgebyr<small>${
+        (ML.overrides||{})._gebyr!=null
+          ? 'rettet på denne rejse · standard '+mlNf(Number(ML.std.bank_fee_dkk)||0)+' DKK'
+          : 'bankens faste gebyr for overførslerne'}</small></span>
+      <span class="v"><input class="mlgf${(ML.overrides||{})._gebyr!=null?' aendret':''}"
+        value="${mlNf(r.gebyr)}" oninput="mlSaetGebyr(this.value)"> DKK</span></div>
     <div class="mlrr slut"><span class="l">Rejsen koster os</span><span class="v">${mlNf(r.kost)}</span></div>
     <div class="mlrr fin"><span class="l">alt i DKK, med bankmargin og risikobuffer</span><span class="v"></span></div>
     <div class="mlrr"><span class="l">+ Fortjeneste ${mlNf1(dg)} %<small>det I sidder tilbage med</small></span>
