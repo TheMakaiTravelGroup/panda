@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.88 · 01.09.2026
+<!-- Panda · v0.89 · 01.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -52,7 +52,15 @@
        med, så et rettet grundlag bliver ved med at være grundlaget.
      · R218: markedskursen er hentet fra kurskilden og kan ikke længere
        rettes — kun bankmargin og risikobuffer. Gamle håndrettelser står,
-       men kan nulstilles. -->
+       men kan nulstilles.
+
+     v0.89 — KURSERNE RAMMER NU BEGGE ENDER AF SIDEN.
+     Wendie: «jeg prøvede at ændre bufferne, og der skete ingenting med
+     prisen på de elementer, der bruger den kurs.» Broen gik kun én vej.
+     Valgte man en anden prislinje, fulgte prisberegneren med — men rettede
+     man en buffer, blev prisstigen stående med de kurser, den fik ved
+     indlæsningen. Nu fyldes den om og tegnes forfra, både når en buffer
+     rettes og når kurserne nulstilles. -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -2682,7 +2690,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.88';
+const APP_VERSION = 'v0.89';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -12404,9 +12412,23 @@ function mlSaetKurs(valuta, felt, vaerdi, vendt){
   else o[valuta][felt] = t;
   if(!Object.keys(o[valuta]).length) delete o[valuta];
 
-  mlRegn(false); tegnAlle();
+  mlRegn(false); tegnAlle(); mlKurserTilStigen();
   clearTimeout(_mlKursGem);
   _mlKursGem = setTimeout(mlGemKurser, 700);
+}
+/* ══ KURSERNE SKAL RAMME BEGGE ENDER AF SIDEN ══
+   Wendie 01.09.2026: «jeg proevede at aendre bufferne, og der skete
+   ingenting med prisen paa de elementer, der bruger den kurs.» Rigtigt —
+   broen gik kun én vej: valgte man en anden prislinje, fulgte beregneren
+   med, men rettede man en buffer, blev prisstigen staaende med de kurser,
+   den fik ved indlaesningen. Nu fyldes den om og tegnes forfra, saa de to
+   ender af siden ALDRIG kan vise to forskellige kroner for det samme. */
+function mlKurserTilStigen(){
+  if(!(window.RS && RS.fyldKurser && window.ML)) return;
+  try {
+    RS.fyldKurser(ML.kurser, ML.overrides);
+    RS.tegnListe();
+  } catch(e){ console.error(e); }
 }
 function tegnAlle(){
   /* Kun de tal der aendrer sig — kortet tegnes ikke forfra, saa markoeren
@@ -12427,7 +12449,7 @@ async function mlGemKurser(){
 async function mlNulstilKurser(){
   ML.overrides = {};
   await db.from('trips').update({fx_overrides:null}).eq('id', ML.trip.id);
-  mlTegnKurser(); mlRegn(false); mlFraPris();
+  mlTegnKurser(); mlRegn(false); mlFraPris(); mlKurserTilStigen();
 }
 
 /* ══ REGNESTYKKET — én metode, alt gennem DKK ══ */
