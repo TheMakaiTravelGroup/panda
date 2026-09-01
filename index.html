@@ -2156,7 +2156,12 @@ function setupRealtime(){
 async function fetchTrips(){
   /* v0.9.3: paginering — Supabase returnerer max 1000 rækker pr. kald, og efter
      Dolphin-importen af historiske rejser er der langt flere. */
-  const COLS='id, ref_no, branch, status, customer_id, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, accepted_price, accepted_currency, created_at, customers(first_name,last_name), trip_destinations(destination)';
+  /* lead_id SKAL vaere med: dashboardets dubletfilter sammenligner
+     mellemlandingernes lead_id med bookingernes. Manglede den, var vaerdien
+     undefined paa hver eneste rejse, saettet blev tomt, og filteret kunne
+     aldrig fjerne noget. Derfor stod Holt to gange under Solgt — baade som
+     mellemlanding og som den booking, den var blevet til. (Wendie 01.09.2026) */
+  const COLS='id, ref_no, branch, status, lead_id, customer_id, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, accepted_price, accepted_currency, created_at, customers(first_name,last_name), trip_destinations(destination)';
   let all=[], from=0;
   while(true){
     const { data } = await db.from('trips').select(COLS).not('status','in','("voided")').order('departure_date').range(from, from+999);
@@ -9375,8 +9380,19 @@ async function hvSolgtDlg(){
   }catch(e){ /* ingen booking — saa bygger vi paa henvendelsen alene */ }
   window._hvBooking = bk;
 
-  const pax = (bk && Array.isArray(bk.rejsende) && bk.rejsende.length) ? bk.rejsende.length
-            : (((Number(l.adults)||0) + (Number(l.kids)||0)) || 2);
+  /* Antal rejsende: bookingen og henvendelsen er ikke altid enige, og saa er
+     det HENVENDELSEN der har ret om stoerrelsen. Familien Gravers 31.08.2026
+     var fire — 3 voksne og 1 barn ifoelge henvendelsen — men kunden naaede
+     kun at skrive tre ind i bookingformularen. Panda tog bookingens tre og
+     sagde ingenting, saa Rasmus opdagede det selv bagefter: «den glemte 1
+     person helt. De er 4. Den har fundet 3.» Nu tages det STOERSTE af de to
+     tal, saa rejsen kender sin rigtige stoerrelse, og der siges til med det
+     samme, at der mangler en at skrive ind. */
+  const iBooking = (bk && Array.isArray(bk.rejsende)) ? bk.rejsende.length : 0;
+  const iHenvend = (Number(l.adults)||0) + (Number(l.kids)||0);
+  const pax = Math.max(iBooking, iHenvend) || 2;
+  if(iBooking && iHenvend && iBooking < iHenvend)
+    window._hvMangler = iHenvend - iBooking;
   window._hvSolgt = {
     pris:   (bk && bk.pris) ? Number(bk.pris) : null,
     valuta: (bk && bk.valuta) || l.currency || HV_BRANCHE_VALUTA[l.branch] || 'DKK',
@@ -9422,6 +9438,19 @@ async function hvSolgtGem(){
     }).select('id').single();
     if(error){ fejl.textContent = 'Kunden kunne ikke oprettes: '+error.message; return; }
     kundeId = data.id;
+  }
+
+  /* Er der ALLEREDE en mellemlanding paa den her henvendelse, skal der ikke
+     laves en til. Wendie 01.09.2026 havde to «test, Wendie» staaende under
+     Solgt — samme henvendelse, to rejser, fordi Solgt kan trykkes igen naar
+     man er gaaet tilbage. Vi aabner den der findes, i stedet for at lave en
+     dublet ingen kan se forskel paa. */
+  const {data:findes} = await db.from('trips').select('id')
+    .eq('lead_id', l.id).eq('status','mellemlanding').limit(1);
+  if(findes && findes.length){
+    hvLukDlg(); hvClose();
+    viewMel(findes[0].id);
+    return;
   }
 
   /* 2. Rejsen — i mellemlanding, uden ref.nr. */
@@ -9475,7 +9504,22 @@ async function hvSolgtGem(){
       description: [bk.hotel, bk.vaerelsestype, bk.forplejning].filter(Boolean).join(' — '),
       start_date: bk.afrejse || null, end_date: bk.hjemrejse || null
     });
-    await db.from('booking_requests').update({trip_id: t.id, status:'omdannet'}).eq('id', bk.id);
+  }
+
+  /* Bookingen stemples som brugt — ALTID naar der er en, ikke kun naar den
+     har et hotel. Stemplingen laa foer inde i hotel-blokken ovenfor, og
+     Gravers-bookingen 31.08.2026 slap forbi: de rejsende og hotellet kom med
+     over paa rejsen, men bookingen stod stadig som «modtaget» med tom
+     lead_id og trip_id. En ustemplet booking er ikke uskyldig — den kan
+     samles op af en HELT anden sag via e-mail-vejen ovenfor. Det var
+     praecis den fejl, der hentede Holts hotel og Holts rejsende over paa
+     Wendies testsag. Derfor tjekkes fejlen ogsaa nu; foer blev den slugt. */
+  if(bk && bk.id){
+    const {error:eb} = await db.from('booking_requests')
+      .update({trip_id: t.id, lead_id: l.id, status:'omdannet'}).eq('id', bk.id);
+    if(eb) alert('Advarsel: rejsen er oprettet, men bookingen kunne ikke '
+      + 'markeres som brugt (' + eb.message + '). Sig det til Wendie — '
+      + 'ellers kan den blive hentet over paa en anden sag.');
   }
   window._hvBooking = null;
 
@@ -9487,6 +9531,12 @@ async function hvSolgtGem(){
 
   hvLukDlg(); hvClose();
   viewMel(t.id);
+  if(window._hvMangler){
+    const n = window._hvMangler; window._hvMangler = 0;
+    alert('Bookingen fra kunden havde ' + (pax - n) + ' rejsende, men henvendelsen '
+      + 'siger ' + pax + '. Der mangler ' + n + (n===1?' person':' personer')
+      + ' at skrive ind under Rejsende — navn som i passet og fødselsdato.');
+  }
 }
 
 </script>
