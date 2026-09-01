@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.86 · 01.09.2026
+<!-- Panda · v0.88 · 01.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -31,7 +31,28 @@
        rigtig ud.
      · «1 elementer» hedder nu «1 element».
      Prøvekørslen bruger nu de RIGTIGE rækker fra basen, ikke opdigtede —
-     det var derfor den første fejl slap igennem. -->
+     det var derfor den første fejl slap igennem.
+
+     v0.87 — FORKLARINGERNE ER VÆK.
+     Wendie 01.09.2026: «drop de her forklaringer alle mulige steder. Hvis
+     der er noget, jeg er i tvivl om, og jeg mener, vi skal have en
+     forklaring på, så skal jeg nok sige til.» Siden skal vise rejsen, ikke
+     forklare sig selv. Fjernet: afsnittene under Rejseplan og Kan hvert
+     element stadig købes, stadiets beskrivelse under chippen, noten om
+     dashboardet, beroligelsen i konfliktboksen, hintet på transferens
+     klokkeslæt og halerne på knapteksterne. Alt der BÆRER data — advarsler,
+     tal, datoer, kilder, antal træf — står uændret.
+
+     v0.88 — TRE RETTELSER FRA KRAVSPECIFIKATIONEN.
+     · R210: villatype og forplejning kunne ikke vælges på en ny prislinje.
+       De to opslag var kopier af hotellisten, taget én gang da modulet
+       blev indlæst — og på det tidspunkt var listen tom. Nu bygges de om,
+       hver gang listerne hentes.
+     · R216: enhver prislinje kan nu rettes, også grundlaget. Slaget følger
+       med, så et rettet grundlag bliver ved med at være grundlaget.
+     · R218: markedskursen er hentet fra kurskilden og kan ikke længere
+       rettes — kun bankmargin og risikobuffer. Gamle håndrettelser står,
+       men kan nulstilles. -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -2661,7 +2682,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.86';
+const APP_VERSION = 'v0.88';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -9540,8 +9561,7 @@ let nu = 0;
 function tegnTrin(){
   trin.innerHTML = STADIER.map((s,i)=>`<div class="${i<nu?'r-gjort':i===nu?'r-nu':''}" onclick="RS.saetTrin(${i})">${s[0]}</div>`).join('');
   chipnavn.textContent = STADIER[nu][0];
-  const t = STADIER[nu][1], p = t.indexOf('.');
-  forkl.innerHTML = '<b>'+t.slice(0,p+1)+'</b>'+t.slice(p+1);
+  forkl.innerHTML = '';
 }
 function saetTrin(i){ nu=i; tegnTrin(); }
 
@@ -9741,8 +9761,6 @@ function tegnPlan(){
      spaerrer ingenting. */
   plan.innerHTML = (antal ? `<div class="r-konfbox">
       <b>${antal === 1 ? 'Ét element' : antal + ' elementer'} ser mærkeligt ud i rækken.</b>
-      Det kan sagtens være meningen — måske køber vi kun en del af rejsen, eller
-      det er midlertidigt, mens noget tjekkes. Rejsen kan både gemmes og bekræftes.
     </div>` : '') +
     PLAN.map(p=>{
     /* planTekst() kan flytte p.fra, naar en anden pris er valgt — saa den
@@ -9952,8 +9970,23 @@ const ANDET = 'Andet — skriv selv';
    Det skal ryddes i selve tabellen, foer det kan bruges i Panda. */
 /* Villatyper og forplejning kommer fra v_hotel_valg og hotel_forplejning. */
 const HOTELLER = {};
-const VILLATYPER  = Object.fromEntries(Object.entries(HOTELLER).map(([k,v])=>[k,v.villaer]));
-const FORPLEJNING = Object.fromEntries(Object.entries(HOTELLER).map(([k,v])=>[k,v.mp]));
+/* Wendie 01.09.2026: «jeg kan jo slet ikke vaelge nogen villatype eller
+   forplejning her og nu.» De to opslag var kopier af HOTELLER, taget ÉN
+   gang da modulet blev indlaest. I mockuppen var HOTELLER udfyldt paa det
+   tidspunkt; i Panda hentes den foerst et oejeblik senere, og kopierne
+   blev derfor staaende tomme for evigt. Nu bygges de om, hver gang
+   hotellisterne kommer ind — se fyldHoteller(). */
+const VILLATYPER  = {};
+const FORPLEJNING = {};
+function fyldOpslag(){
+  Object.keys(VILLATYPER).forEach(k=>delete VILLATYPER[k]);
+  Object.keys(FORPLEJNING).forEach(k=>delete FORPLEJNING[k]);
+  Object.entries(HOTELLER).forEach(([k,v])=>{
+    VILLATYPER[k]  = v.villaer || [];
+    FORPLEJNING[k] = v.mp || [];
+  });
+}
+fyldOpslag();
 
 const kr = (n,v) => n==null ? '—'
   : n.toLocaleString('da-DK',{minimumFractionDigits:0,maximumFractionDigits:0}) + ' ' + v;
@@ -10099,7 +10132,7 @@ function nyLinjeHtml(e){
               : '<span class="r-x"></span>'}
           </div>`).join('')}
         <button class="r-tilfoej" onclick="RS.fVillaNy('${e.id}')">
-          + Tilføj endnu en villatype til den her pris</button>
+          + Tilføj villatype</button>
       </div>`}
     <div class="r-raek">
       <div class="r-sm2"><label>${fly ? 'Ud' : 'Fra'}</label>
@@ -10198,10 +10231,28 @@ const fejlPaa = (id,felt) => (st[id].formFejl||[]).includes(felt) ? ' r-fejlfelt
    ligger inde, og som jeg selv har lagt ind.» Kun de manuelle — grundlaget
    og editorens raekker er hentede vaerdier og skal ikke kunne overskrives
    i haanden. */
+/* Wendie 01.09.2026: «det er vigtigt, at de priser, der ligger inde paa
+   mellemlandingen, alle sammen kan rettes til og justeres.» Ogsaa
+   grundlaget: tilbuddet kan vaere tastet forkert. Linjens SLAG foelger
+   med, saa et rettet grundlag bliver ved med at vaere grundlaget — det er
+   maalestokken, og den maa ikke stille og roligt blive til en manuel
+   linje, fordi nogen rettede et komma. */
 function retLinje(id,i){
   const l = st[id].linjer[i];
-  if(l.slag !== 'manuel') return;
-  st[id].form = {...l.raa,
+  if(!l) return;
+  const e = ELEMENTER.find(x=>x.id===id) || {};
+  /* En manuel linje har sin egen formular gemt i «raa». Grundlaget og de
+     hentede linjer har ikke — de kom fra tilbuddet eller fra arkivet.
+     Formularen bygges derfor fra en tom af slagsen og fyldes med det,
+     linjen faktisk ved. Ellers stod halvdelen af felterne som undefined,
+     og gemningen faldt over dem. */
+  const valgbare = levListe(e.slags, e.hotel).concat(LEVERANDOERER);
+  const kendtLev = l.lev && valgbare.includes(l.lev);
+  st[id].form = { ...tomForm(l.val || e.val || KUNDEVAL), ...(l.raa || {}),
+    lev:    kendtLev ? l.lev : (l.lev ? ANDET : ''),
+    levFri: kendtLev ? '' : (l.lev || ''),
+    pris:   l.pris != null ? String(l.pris) : '',
+    val:    l.val || e.val || KUNDEVAL,
     villaer: (l.villaer||[{a:'1',t:'',mp:''}]).map(v=>({a:String(v.a), t:v.t, mp:v.mp})),
     hold: {...(l.hold||{aktiv:false,dato:'',tid:'17:00',note:''})}};
   st[id].retter = i;
@@ -10305,7 +10356,7 @@ function stigeHtml(e){
       <span class="r-sl3">${krK(valgteIdx(e.id).reduce((a,i)=>{ const l = st[e.id].linjer[i];
         return a + (tilKunde(l.pris,l.val)||0); },0))}</span></div>` : ''}
     ${s.nyLinje ? nyLinjeHtml(e) : ''}
-    <button class="r-tilf" onclick="RS.nyLinje('${e.id}')">+ Tilføj prislinje — en bedbank, et opkald, en direkte aftale</button>
+    <button class="r-tilf" onclick="RS.nyLinje('${e.id}')">+ Tilføj prislinje</button>
   </div>`;
 }
 
@@ -10477,7 +10528,7 @@ function linjeKrop(e, l, i){
     : `<div class="r-bilzone" tabindex="0">
          <button onclick="RS.vaelgFil('${e.id}',${i})">Vælg et billede…</button>
          <span>eller klik her og sæt ind med ⌘V</span>
-         <small>flere kan lægges på — ud og hjem er tit to skærmbilleder</small>
+
        </div>`}
   </div>`;
   const segHtml = (l.segmenter||[]).length ? `<div class="r-pk">
@@ -10498,11 +10549,10 @@ function linjeKrop(e, l, i){
         <div class="r-sl2"><b>To kilder spørges hver gang:</b>
           <div class="r-kil">· <b>Kontrakterne</b> i Team Maldivia —
             ${(st[e.id].fandt||{}).kontrakt || 0} træf.
-            <span class="r-kunen">${KONTRAKT_STATUS}</span></div>
+</div>
           <div class="r-kil">· <b>Prisarkivet</b> i editoren —
             ${(st[e.id].fandt||{}).editor || 0} træf, på tværs af alle leverandører.
-            <span class="r-kunen">I dag har kun Hummingbird priser dér; Yalago er koblet
-            til hotellerne, men har ingen.</span></div>
+</div>
         </div>
       </div></div>` : ''}
     ${e.slags === 'hotel' ? `
@@ -10524,12 +10574,12 @@ function linjeKrop(e, l, i){
             ${kanRette ? `<button class="r-x" onclick="RS.sletVilla('${e.id}',${i},${j})">×</button>` : ''}
           </div>`).join('')}
         ${kanRette ? `<button class="r-tilfoej" onclick="RS.tilfoejVilla('${e.id}',${i})">
-          + Tilføj endnu en villatype til den her pris</button>` : ''}
+          + Tilføj villatype</button>` : ''}
       </div>` : ''}
 
     <div class="r-pk">
       <div class="r-pt2">Delelementer på den her pris
-        <span class="r-n3">samme leverandør — sædereservation, middag, opgradering</span></div>
+</div>
       <div class="r-dele">
         ${(l.subs||[]).map((x,j)=>`<div class="r-sr">
           <span class="r-n">${x.t}</span>
@@ -10727,17 +10777,26 @@ function gemLinje(id){
   /* Formens raa vaerdier foelger med linjen. Uden dem kunne den kun laeses,
      ikke rettes — man ville skulle gaette sig tilbage fra «2 × Beach Villa
      with Pool · Halvpension» til de felter, der lavede teksten. */
-  const ny = { slag:'manuel', lev, hvad, daekker, pris, val: fm.val || e.val,
+  const gammel = st[id].retter >= 0 ? st[id].linjer[st[id].retter] : null;
+  const ny = { slag: gammel ? gammel.slag : 'manuel', lev, hvad, daekker, pris, val: fm.val || e.val,
     st:'skaffet af os', naar:'i dag · WEN', raa:{...fm},
     billeder: (fm.billeder||[]).slice(),
     villaer: e.slags==='hotel' ? (fm._villaer||[]) : null,
     hold:{...fm.hold}, aaben:false };
-  if(st[id].retter >= 0){
-    ny.note = st[id].linjer[st[id].retter].note;      /* noten foelger med */
+  /* Er linjen naaet at blive slettet, mens formularen stod aaben, findes
+     der ingen at rette. Saa laegges den ind som en ny i stedet for at
+     falde over en raekke, der ikke er der. */
+  if(st[id].retter >= 0 && gammel){
+    ny.note = gammel.note;                            /* noten foelger med */
+    ny._id  = gammel._id;                             /* samme raekke i basen */
+    ny.kilde = gammel.kilde; ny.naar = gammel.naar;   /* hvor tallet kom fra staar fast */
+    ny.billeder = gammel.billeder || []; ny.subs = gammel.subs || [];
+    ny.segmenter = gammel.segmenter || null;
     ny.naar = 'rettet i dag · WEN';
     st[id].linjer[st[id].retter] = ny;
     st[id].retter = -1;
   } else {
+    st[id].retter = -1;
     st[id].linjer.push(ny);
   }
   st[id].nyLinje = false;
@@ -10883,7 +10942,6 @@ function tegnFrister(){
           : d === 0 ? 'i dag' : d === 1 ? 'i morgen' : 'om ' + d + ' dage'}</span>
         <span class="r-fo">${h.note||''}</span></div>`;
     }).join('')}
-    <div class="r-fnote">De samme frister skal samles på dashboardet, på tværs af alle rejser.</div>
   </div>`;
 }
 function tael(){
@@ -11386,9 +11444,7 @@ function tegnNy(){
         <div class="r-sm2"><label>Varighed</label>${nyInput('varighed','ca. 120 min.')}</div>
         <div class="r-sm2"><label>Dato</label>${nyInput('fra','','date')}</div>
         <div class="r-sm4"><label>Afgang kl.</label>${nyInput('tid','','time')}</div></div>
-      <div class="r-raek">${prisFelter()}
-        <div class="r-tidshint">Klokkeslættet afgør, hvor transferen lander i rejseplanen —
-          før flyet på afrejsedagen, efter det på ankomstdagen.</div></div>`;
+      <div class="r-raek">${prisFelter()}</div>`;
   } else {
     felter = `
       <div class="r-raek"><div><label>Hvad er det</label>${nyInput('tekst',
@@ -11609,6 +11665,7 @@ function fyldHoteller(hoteller, forplejning){
     if(h && f.forplejning && !h.mp.includes(f.forplejning)) h.mp.push(f.forplejning);
   });
   Object.values(HOTELLER).forEach(h=>{ h.villaer.sort(); h.mp.sort(); });
+  fyldOpslag();          /* R210 — ellers staar villalisterne tomme */
 }
 
 /* ── EN PRISLINJE FRA DATABASEN ──────────────────────────────────────
@@ -11980,7 +12037,6 @@ function sideHtml(d){
     <h2 onclick="RS.foldKort(this)">Rejseplan
       <span class="r-h">hentet fra tilbuddet${sidst ? ' · sidst opdateret ' + dk(sidst) : ''}</span>
       <span class="r-fp2">▼</span></h2>
-    <p class="r-ind">Transferen står med i planen, så man kan se hvordan kunden kommer fra lufthavnen til øen. Som <em>køb</em> hører den under hotelkontrakten — den ligger derfor som delelement nede i tjeklisten.</p>
     <div class="r-plan" id="plan"></div>
   </div>
 
@@ -11992,7 +12048,6 @@ function sideHtml(d){
         <button onclick="event.stopPropagation();RS.foldAlle(false)">Fold alt ind</button>
       </span>
       <span class="r-fp2" onclick="RS.foldKort(this.parentNode)">▼</span></h2>
-    <p class="r-ind">Prisen til højre er den, der regnes med lige nu, og forskellen fra grundlaget. Fold ud for at se hele prisstigen.</p>
     <div id="frister"></div>
     <div class="r-raekker" id="liste"></div>
     <!-- Wendie 01.09.2026: «det kan godt vaere, det ikke giver mening at
@@ -12046,18 +12101,18 @@ return {
   elementFra, erStoej, erValgt, fHold, fVilla, fVillaNy, fVillaSlet,
   fejlPaa, fjernBillede, fjernFormBillede, flyGrupper, flyHtml, fold,
   foldAlle, foldEl, foldKort, foldLinje, formBillede, fortrydLinje,
-  fravaelg, fristKort, fyldHoteller, fyldKurser, gem, gemBilleder,
-  gemElement, gemLSub, gemLinje, gemSub, gemTilBasen, genberegnTil,
-  grundPris, grundlag, hent, hentArkiv, hentDagens, hotelFraNavn, iDag,
-  klikLinje, kortDato, kortNavn, kr, krK, kvitter, laegTil, laegTilValg,
-  laesBillede, laesFlyplan, levListe, levValuta, linjeBillede, linjeFra,
-  linjeKrop, linjePris, linjeTil, linkBilleder, lukNy, maerk, md, mpGruppe,
-  naetterMellem, nu, nuPris, nyElement, nyInput, nyLSub, nyLinje,
-  nyLinjeHtml, nySub, nyTilstand, nyVaelg, nyVilla, nyVillaNy, nyVillaSlet,
-  opdaterBeregner, planAfElement, planEl, planFra, planFraDb,
-  planKonflikter, planNaetter, planTekst, planTid, planTil, prisFelter,
-  retElement, retKilde, retLinje, retNote, roert, ryddHotel, saet,
-  saetFokus, saetForm, saetFra, saetHold, saetKilde, saetLinjeHold,
+  fravaelg, fristKort, fyldHoteller, fyldKurser, fyldOpslag, gem,
+  gemBilleder, gemElement, gemLSub, gemLinje, gemSub, gemTilBasen,
+  genberegnTil, grundPris, grundlag, hent, hentArkiv, hentDagens,
+  hotelFraNavn, iDag, klikLinje, kortDato, kortNavn, kr, krK, kvitter,
+  laegTil, laegTilValg, laesBillede, laesFlyplan, levListe, levValuta,
+  linjeBillede, linjeFra, linjeKrop, linjePris, linjeTil, linkBilleder,
+  lukNy, maerk, md, mpGruppe, naetterMellem, nu, nuPris, nyElement, nyInput,
+  nyLSub, nyLinje, nyLinjeHtml, nySub, nyTilstand, nyVaelg, nyVilla,
+  nyVillaNy, nyVillaSlet, opdaterBeregner, planAfElement, planEl, planFra,
+  planFraDb, planKonflikter, planNaetter, planTekst, planTid, planTil,
+  prisFelter, retElement, retKilde, retLinje, retNote, roert, ryddHotel,
+  saet, saetFokus, saetForm, saetFra, saetHold, saetKilde, saetLinjeHold,
   saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla, sideHtml,
   sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot, soegHotel,
   soegeTekst, sorterPlan, st, start, stigeHtml, tael, tegnFrister,
@@ -12304,9 +12359,9 @@ function mlTegnKurser(){
     return `<tr>
       <td>${salg?'DKK → '+v:v+' → DKK'}${salg?' <span class="sml">salgskurs</span>':''}
         <div class="hj">${HJ[v]||''}</div></td>
-      <td><input class="kf${r('marked')}" value="${mlNf4(markedVist)}"
-            oninput="mlSaetKurs('${v}','marked',this.value,${salg})">
-          <span class="e">${salg?v+' → DKK '+omvendt(markedVist):'ECB '+escH(k.dato||'')}</span></td>
+      <td><input class="kf${r('marked')}" value="${mlNf4(markedVist)}" readonly
+            title="Markedskursen er hentet fra kurskilden og kan ikke rettes">
+          <span class="e">${salg?v+' → DKK '+omvendt(markedVist):'hentet '+escH(k.dato||'')}</span></td>
       <td><input class="kf${r('bankmargin')}" value="${mlNf1(t.bankmargin)}"
             oninput="mlSaetKurs('${v}','bankmargin',this.value)"> %${t.maalt?'':'<span class="skoen">skøn</span>'}</td>
       <td><input class="kf${r('buffer')}" value="${mlNf1(t.buffer)}"
@@ -12317,7 +12372,7 @@ function mlTegnKurser(){
 
   document.getElementById('mlKurser').innerHTML = `
     <div class="kurstop"><span class="n">Kurser</span>
-      <span class="sml2">${rettet?rettet+' rettet i hånden':'markedskurser fra ECB '+escH(k.dato||'—')}</span>
+      <span class="sml2">${rettet?rettet+' rettet i hånden':'markedskurser hentet '+escH(k.dato||'—')}</span>
       ${rettet?`<span class="hoejre"><button class="btn ghost sm" onclick="mlNulstilKurser()">Nulstil</button></span>`:''}
     </div>
     <table class="mlktab"><thead><tr><th>Valuta</th><th>Markedskurs</th><th>Bankmargin</th>
@@ -12325,7 +12380,18 @@ function mlTegnKurser(){
 }
 /* Retter man et tal, gemmes kun afvigelsen — og kun paa denne rejse. */
 let _mlKursGem = null;
+/* ══ MARKEDSKURSEN RETTES IKKE ══
+   Wendie 01.09.2026: «den kurs, der er fetchet, skal ikke korrigeres, kun
+   bufferne.» Markedskursen er en kendsgerning fra kurskilden; bankmargin
+   og risikobuffer er vores egne skoen. Feltet er skrivebeskyttet i
+   skaermbilledet, og her lukkes doeren ogsaa for et kald udefra. Gamle
+   rejser, hvor kursen ÉR rettet i haanden, beholder rettelsen — den er
+   truffet dengang — men den kan nulstilles. */
 function mlSaetKurs(valuta, felt, vaerdi, vendt){
+  if(felt === 'marked'){
+    console.warn('Markedskursen kan ikke rettes — kun bankmargin og buffer.');
+    return;
+  }
   let t = parseFloat(String(vaerdi).replace(/\s/g,'').replace(',','.'));
   const o = ML.overrides = ML.overrides || {};
   const std = (ML.kurser||{})[valuta] || {};
