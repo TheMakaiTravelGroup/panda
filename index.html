@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.85 · 01.09.2026
+<!-- Panda · v0.86 · 01.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -15,7 +15,23 @@
      dobbeltsøgning i kontrakter og prisarkiv, og planen der følger det valgte
      helt af sig selv. Prisberegneren og bekræftelsen nedenunder regner på de
      samme valgte linjer. Den gamle elementkontrol og «Tilføj ydelse» er taget
-     ud — prisstigen har afløst dem. -->
+     ud — prisstigen har afløst dem.
+
+     v0.86 — RETTELSER EFTER FØRSTE PRØVE PÅ ÆGTE DATA.
+     · Kunden hentede felterne address/postal_code/city, som ikke findes:
+       adressen ligger som ét jsonb-felt, postal_address. Siden brød ned
+       på hver eneste rejse. Fundet af Wendie ved første klik.
+     · Rejser fra før prisstigen har ingen planlinjer. De bygges nu af
+       elementerne, første gang siden åbnes, og gemmes — så rejseplanen
+       ikke står tom og ligner en fejl.
+     · Rejseplanen tålte ikke en linje uden detaljer eller flyplan.
+     · Hotellets navn genkendes i beskrivelsen, men KUN hvis det står ord
+       for ord i vores egen hotelliste. Villatype og forplejning gættes
+       ikke: et forkert gæt ville give en forkert prissøgning, der ser
+       rigtig ud.
+     · «1 elementer» hedder nu «1 element».
+     Prøvekørslen bruger nu de RIGTIGE rækker fra basen, ikke opdigtede —
+     det var derfor den første fejl slap igennem. -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -2645,7 +2661,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.85';
+const APP_VERSION = 'v0.86';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -9774,9 +9790,9 @@ function tegnPlan(){
                  : 'Fold prislinjen ud og læg et skærmbillede på, så står den her.'}
              </div></div>`
         : p.fly
-        ? `<div class="r-fp">${flyHtml(p.fly)}<div class="r-flymeta">${p.meta.map(([k,v])=>
+        ? `<div class="r-fp">${flyHtml(p.fly)}<div class="r-flymeta">${(p.meta||[]).map(([k,v])=>
             `<span>${k}: <b class="${v==='—'||v==='ikke udstedt'?'r-mangler':''}">${v}</b></span>`).join('')}</div></div>`
-        : `<div class="r-hdetalje">${p.detalje.map(([k,v])=>
+        : `<div class="r-hdetalje">${(p.detalje||[]).map(([k,v])=>
             `<div class="r-f"><label>${k}</label><div class="r-v">${v}</div></div>`).join('')}
            <div class="r-fuld"><span class="r-kilde ${p.kilde==='manuel'?'manuel':''}">${
              p.kilde==='manuel' ? 'Tastet manuelt' : 'Hentet fra tilbuddet'}</span></div></div>`}
@@ -10871,7 +10887,9 @@ function tegnFrister(){
   </div>`;
 }
 function tael(){
-  nOk.textContent = ELEMENTER.length;
+  /* «1 elementer» er noget rod. Ét element er ét element. */
+  nOk.parentNode.innerHTML = '<b id="nOk">' + ELEMENTER.length + '</b>&nbsp;'
+    + (ELEMENTER.length === 1 ? 'element på rejsen' : 'elementer på rejsen');
   const total = ELEMENTER.reduce((a,e)=>a + nuPris(e), 0);
   document.getElementById('ialt').textContent = krK(total);
   document.getElementById('tael').textContent = ELEMENTER.length
@@ -11517,6 +11535,8 @@ function gemElement(){
 
 const SLAGS_AF_TYPE = { flight:'fly', hotel:'hotel', transfer:'transfer',
                         ticket:'billet', other:'andet', fee:'andet', insurance:'andet' };
+const ART_AF_TYPE  = { flight:'Fly', hotel:'Hotel', transfer:'Transfer',
+                       ticket:'Billet', other:'Andet', fee:'Andet', insurance:'Andet' };
 
 let TUR = null;          /* raekken fra trips */
 let GEMMER = false;      /* saa to gemninger ikke koerer oven i hinanden */
@@ -11531,7 +11551,7 @@ const beholder = () => document.getElementById('rsside');
    siden maa ikke vente seks gange i traek. */
 async function hent(tripId){
   const [rt, re, rp, rk, rh, rf, rs, rd] = await Promise.all([
-    db.from('trips').select('*, customers(first_name,last_name,email,phone,address,postal_code,city,country)')
+    db.from('trips').select('*, customers(first_name,last_name,email,phone,country,postal_address)')
       .eq('id', tripId).single(),
     db.from('trip_elements').select('*').eq('trip_id', tripId).order('sort').order('start_date'),
     db.from('trip_plan_items').select('*').eq('trip_id', tripId).order('sort'),
@@ -11623,7 +11643,7 @@ function elementFra(e, mine){
   return { id: e.id, slags: SLAGS_AF_TYPE[e.element_type] || 'andet',
     navn: e.description || '', sub: d.sub || '', lev: d.lev || '',
     val: (e.buy_currency || e.tilbud_buy_currency || KUNDEVAL || 'DKK').trim(),
-    hotel: d.hotel || null, soeg: e.soeg || null,
+    hotel: d.hotel || hotelFraNavn(e.description), soeg: e.soeg || null,
     stdSpan: e.std_span || undefined, spandNavn: d.spandNavn || undefined,
     kilde: d.kilde || 'tilbud', type: d.type || null, raa: d.raa || null,
     linjer: mine.map(linjeFra), subs: d.subs || [] };
@@ -11642,6 +11662,65 @@ function planFraDb(r){
     detalje: r.detalje || null };
 }
 
+/* ── REJSEPLANEN FOR EN REJSE DER ALDRIG HAR HAFT EN ─────────────────
+   Rejser fra før prisstigen har elementer, men ingen planlinjer. Uden
+   dem står rejseplanen tom, og det ligner en fejl. Derfor bygges de af
+   elementerne, første gang siden åbnes, og gemmes — så de kan rettes.
+   Der opdigtes ingenting: datoerne, typen og teksten kommer fra
+   elementet selv. Et fly bliver til ÉN linje, ikke to, for vi ved ikke
+   hvornår der flyves hjem, før nogen har lagt flyplanen ind. */
+const STD_KL = { Fly:'12:00', Transfer:'10:00', Hotel:'14:00', Billet:'12:00', Andet:'12:00' };
+function planAfElement(e, i){
+  const art = ART_AF_TYPE[e.element_type] || 'Andet';
+  const d = e.description || '';
+  const skil = d.indexOf(' · ') >= 0 ? ' · ' : (d.indexOf(' — ') >= 0 ? ' — ' : null);
+  /* Kender vi hotellet, hedder linjen hotellet — ikke «Ayada Maldives
+     (Gaafu Dhaalu Atoll)». Resten af beskrivelsen staar som undertekst. */
+  const kendt = hotelFraNavn(d);
+  const titel = kendt || (skil ? d.slice(0, d.indexOf(skil)).trim() : d.trim());
+  const sub   = kendt ? d.slice(kendt.length).replace(/^[\s·—-]+/, '').trim()
+                      : (skil ? d.slice(d.indexOf(skil) + skil.length).trim() : '');
+  /* Kun det, elementet selv siger. Der opdigtes ingen villatype,
+     forplejning eller transfertid — står det ikke i basen, står det
+     heller ikke her. */
+  const n = (e.start_date && e.end_date)
+    ? Math.round((Date.parse(e.end_date) - Date.parse(e.start_date)) / 86400000) : null;
+  const detalje = [['Beskrivelse', d || '—']];
+  if(e.element_type === 'hotel' && n) detalje.push(['Nætter', String(n)]);
+  if(e.status) detalje.push(['Status', String(e.status)]);
+  return { trip_id: e.trip_id, element_id: e.id, vej: 0, art,
+    fra: e.start_date, til: e.end_date, tid: STD_KL[art] || '12:00',
+    ophold: e.element_type === 'hotel', kilde: 'tilbud',
+    titel: titel || 'Uden navn', sub: sub || null, lev: (e.details && e.details.lev) || null,
+    detalje, sort: i };
+}
+async function sikrPlan(data){
+  if(data.plan.length || !data.els.length) return;
+  const nye = data.els.map(planAfElement);
+  const r = await db.from('trip_plan_items').insert(nye).select('*');
+  if(r.error){ console.error(r.error); return; }
+  data.plan = r.data || [];
+}
+
+/* ── HOTELLET BAG BESKRIVELSEN ───────────────────────────────────────
+   Beskrivelsen ser forskellig ud alt efter hvor elementet kom fra:
+   «Ayada Maldives (5*) · BEVPP · 10 nætter» fra Dolphin, og
+   «Ayada Maldives (Gaafu Dhaalu Atoll) — Sunset Family Lagoon Suite …»
+   fra tilbuddet. Vi gætter IKKE på villatype og forplejning ud fra dem —
+   et forkert gæt ville give en forkert prissøgning, der ser rigtig ud.
+   Kun hotellets navn tages, og kun hvis det står ORD FOR ORD i vores
+   egen hotelliste. Resten vælges i «Ret element», og gemmes så. */
+function hotelFraNavn(d){
+  const t = String(d || '').trim();
+  if(!t) return null;
+  if(HOTELLER[t]) return t;
+  for(const skil of [' (', ' · ', ' — ', ' - ']){
+    const i = t.indexOf(skil);
+    if(i > 0 && HOTELLER[t.slice(0, i).trim()]) return t.slice(0, i).trim();
+  }
+  return null;
+}
+
 /* ── START ───────────────────────────────────────────────────────────
    Fylder de samme tre beholdere, mockuppen selv arbejder i, og tegner
    siden med mockuppens egne tegnefunktioner. */
@@ -11654,6 +11733,7 @@ async function start(data){
 
   fyldKurser(data.kurser, TUR.fx_overrides);
   fyldHoteller(data.hoteller, data.forplejning);
+  await sikrPlan(data);
 
   LEVERANDOERER.length = 0;
   (data.lev||[]).forEach(s=>{ if(s.name && !LEVERANDOERER.includes(s.name)) LEVERANDOERER.push(s.name); });
@@ -11871,7 +11951,10 @@ function sideHtml(d){
     t.departure_date ? dkk(t.departure_date) + ' → ' + dk(t.return_date) : null,
     naetter ? naetter + ' nætter' : null,
     t.pax_count ? t.pax_count + ' rejsende' : null ].filter(Boolean).join(' · ');
-  const adresse = [k.address, [k.postal_code, k.city].filter(Boolean).join(' ')]
+  /* Adressen ligger som ét jsonb-felt paa kunden — street, postal_code,
+     city, country — ikke som fire kolonner. */
+  const pa = k.postal_address || {};
+  const adresse = [pa.street, [pa.postal_code, pa.city].filter(Boolean).join(' ')]
     .filter(Boolean).join(', ');
   const sidst = (d.plan||[]).map(p=>p.updated_at).sort().slice(-1)[0];
   const felt = (l, v, bred) =>
@@ -11928,13 +12011,13 @@ function sideHtml(d){
   <div class="r-kort r-kontakt r-lukket" id="kontakt">
     <h2 onclick="RS.foldKort(this)">Kunde og kontakt
       <span class="r-h">klik for at folde ud</span><span class="r-fp2">▼</span></h2>
-    <div class="r-stribe">${escH([navn, k.email, k.phone, k.city].filter(Boolean).join(' · '))}</div>
+    <div class="r-stribe">${escH([navn, k.email, k.phone, pa.city].filter(Boolean).join(' · '))}</div>
     <div class="r-felter">
       ${felt('Navn', navn)}
       ${felt('E-mail', k.email, true)}
       ${felt('Telefon', k.phone)}
       ${felt('Adresse', adresse, true)}
-      ${felt('Land', k.country)}
+      ${felt('Land', pa.country || k.country)}
       ${felt('Ansvarlig', t.owner)}
       ${felt('Kom fra', t.lead_id ? 'Bookingformular på tilbud' : 'Oprettet i Panda')}
       ${felt('Tilbud', t.accepted_offer_ref || t.quote_ref)}
@@ -11954,10 +12037,10 @@ async function aabn(tripId, vaerten){
 
 /* Alt hvad markup'en og Panda skal kunne naa ind i skallen. */
 return {
-  ANDET, ARKIV, BILLEDLINK, ELEMENTER, FORPLEJNING, GEMMER, HOTELLER,
-  IATA_SELSKAB, KLASSER, KONTRAKTER, KONTRAKT_STATUS, KUNDEVAL, KURSER,
-  LEVERANDOERER, LEV_LISTE, LEV_VALUTA, MDR_KODE, MP_NAVN, NY, PLAN,
-  SELSKABER, SIDST, SLAGS_AF_TYPE, STADIER, STD_TID, STOEJ, TIMER,
+  ANDET, ARKIV, ART_AF_TYPE, BILLEDLINK, ELEMENTER, FORPLEJNING, GEMMER,
+  HOTELLER, IATA_SELSKAB, KLASSER, KONTRAKTER, KONTRAKT_STATUS, KUNDEVAL,
+  KURSER, LEVERANDOERER, LEV_LISTE, LEV_VALUTA, MDR_KODE, MP_NAVN, NY, PLAN,
+  SELSKABER, SIDST, SLAGS_AF_TYPE, STADIER, STD_KL, STD_TID, STOEJ, TIMER,
   TRANSPORT, TUR, TYPER, VALUTAER, VILLATYPER, _tegnListe, aabn, beholder,
   billedeFraKlip, billeder, billigst, dageTil, difTekst, dk, dkk,
   elementFra, erStoej, erValgt, fHold, fVilla, fVillaNy, fVillaSlet,
@@ -11965,22 +12048,23 @@ return {
   foldAlle, foldEl, foldKort, foldLinje, formBillede, fortrydLinje,
   fravaelg, fristKort, fyldHoteller, fyldKurser, gem, gemBilleder,
   gemElement, gemLSub, gemLinje, gemSub, gemTilBasen, genberegnTil,
-  grundPris, grundlag, hent, hentArkiv, hentDagens, iDag, klikLinje,
-  kortDato, kortNavn, kr, krK, kvitter, laegTil, laegTilValg, laesBillede,
-  laesFlyplan, levListe, levValuta, linjeBillede, linjeFra, linjeKrop,
-  linjePris, linjeTil, linkBilleder, lukNy, maerk, md, mpGruppe,
+  grundPris, grundlag, hent, hentArkiv, hentDagens, hotelFraNavn, iDag,
+  klikLinje, kortDato, kortNavn, kr, krK, kvitter, laegTil, laegTilValg,
+  laesBillede, laesFlyplan, levListe, levValuta, linjeBillede, linjeFra,
+  linjeKrop, linjePris, linjeTil, linkBilleder, lukNy, maerk, md, mpGruppe,
   naetterMellem, nu, nuPris, nyElement, nyInput, nyLSub, nyLinje,
   nyLinjeHtml, nySub, nyTilstand, nyVaelg, nyVilla, nyVillaNy, nyVillaSlet,
-  opdaterBeregner, planEl, planFra, planFraDb, planKonflikter, planNaetter,
-  planTekst, planTid, planTil, prisFelter, retElement, retKilde, retLinje,
-  retNote, roert, ryddHotel, saet, saetFokus, saetForm, saetFra, saetHold,
-  saetKilde, saetLinjeHold, saetNote, saetNyt, saetTil, saetTrin, saetType,
-  saetVilla, sideHtml, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
-  soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
-  tegnFrister, tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin,
-  tilKunde, tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil,
-  vaelgFormFil, vaelgHotel, vaelger, valgtLinje, valgteIdx, villaTekst,
-  visLink, visOm, visOmNy, visStort
+  opdaterBeregner, planAfElement, planEl, planFra, planFraDb,
+  planKonflikter, planNaetter, planTekst, planTid, planTil, prisFelter,
+  retElement, retKilde, retLinje, retNote, roert, ryddHotel, saet,
+  saetFokus, saetForm, saetFra, saetHold, saetKilde, saetLinjeHold,
+  saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla, sideHtml,
+  sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot, soegHotel,
+  soegeTekst, sorterPlan, st, start, stigeHtml, tael, tegnFrister,
+  tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin, tilKunde,
+  tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil, vaelgFormFil,
+  vaelgHotel, vaelger, valgtLinje, valgteIdx, villaTekst, visLink, visOm,
+  visOmNy, visStort
 };
 })();
 /* ══ HENT ══
