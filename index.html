@@ -10732,7 +10732,27 @@ function gemLinje(id){
    naetter, antal rejsende og ankomstdagen. Rammer den ikke, kommer der
    INGEN linjer — hellere tomt end en pris paa en anden villa, som man kan
    naa at regne med, foer man opdager det. */
-function hentDagens(id){
+/* Prisarkivet ligger i editorens EGET projekt, og Panda kan ikke naa det
+   fra browseren. Opslaget gaar derfor gennem edge-funktionen sog-prisarkiv,
+   som laeser — og kun laeser — derovre, med brugerens eget login. Svarer
+   den ikke, siger vi det; vi gaetter aldrig en pris. */
+async function hentArkiv(e, q){
+  if(ARKIV.length) return ARKIV;          /* proevekoersel med faste data */
+  st[e.id].arkivNote = null;
+  try {
+    const {data, error} = await db.functions.invoke('sog-prisarkiv', {body:{
+      hotel: e.hotel || '', villa: q.villa, mp: q.mp, naetter: q.naetter,
+      voksne: q.voksne, boern: q.boern, ankomst: q.ankomst }});
+    if(error) throw error;
+    st[e.id].arkivNote = (data && data.note) || null;
+    return ((data && data.traf) || []).map(r => ({...r, hentet: r.naar}));
+  } catch(err){
+    console.error(err);
+    st[e.id].arkivNote = 'Prisarkivet svarede ikke: ' + (err.message || err);
+    return [];
+  }
+}
+async function hentDagens(id){
   const e = ELEMENTER.find(x=>x.id===id), q = e.soeg;
   st[id].linjer = st[id].linjer.filter(l=>l.slag!=='editor');
   const oensket = mpGruppe(q.mp);
@@ -10740,7 +10760,7 @@ function hentDagens(id){
     r.villa === q.villa && r.naetter === q.naetter &&
     r.voksne === q.voksne && r.boern === q.boern && r.ankomst === q.ankomst &&
     (!oensket || mpGruppe(r.mp) === oensket || r.mp === oensket);
-  const fraArkiv = ARKIV.filter(passer).map(r=>({...r, kilde:'editor'}));
+  const fraArkiv = (await hentArkiv(e, q)).filter(passer).map(r=>({...r, kilde:'editor'}));
   const fraKontrakt = KONTRAKTER.filter(passer).map(r=>({...r, kilde:'kontrakt'}));
   const traf = [...fraKontrakt, ...fraArkiv];     /* vores egne foerst */
   st[id].fandt = { kontrakt: fraKontrakt.length, editor: fraArkiv.length };
@@ -11945,8 +11965,8 @@ return {
   foldAlle, foldEl, foldKort, foldLinje, formBillede, fortrydLinje,
   fravaelg, fristKort, fyldHoteller, fyldKurser, gem, gemBilleder,
   gemElement, gemLSub, gemLinje, gemSub, gemTilBasen, genberegnTil,
-  grundPris, grundlag, hent, hentDagens, iDag, klikLinje, kortDato,
-  kortNavn, kr, krK, kvitter, laegTil, laegTilValg, laesBillede,
+  grundPris, grundlag, hent, hentArkiv, hentDagens, iDag, klikLinje,
+  kortDato, kortNavn, kr, krK, kvitter, laegTil, laegTilValg, laesBillede,
   laesFlyplan, levListe, levValuta, linjeBillede, linjeFra, linjeKrop,
   linjePris, linjeTil, linkBilleder, lukNy, maerk, md, mpGruppe,
   naetterMellem, nu, nuPris, nyElement, nyInput, nyLSub, nyLinje,
