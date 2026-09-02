@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.89 · 01.09.2026
+<!-- Panda · v0.90 · 01.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -60,7 +60,21 @@
      Valgte man en anden prislinje, fulgte prisberegneren med — men rettede
      man en buffer, blev prisstigen stående med de kurser, den fik ved
      indlæsningen. Nu fyldes den om og tegnes forfra, både når en buffer
-     rettes og når kurserne nulstilles. -->
+     rettes og når kurserne nulstilles.
+
+     v0.90 — «HENT DAGENS PRIS» SØGER NU LIVE.
+     Wendie: «den skal bare søge på datoer, de rejsende, hotellet,
+     villatype og forplejning. Ikke mere, ikke mindre — og der skal søges
+     både i bedbanks og i direkte kontrakter.»
+     Før læste knappen i bedbank_price_history. Men den tabel er en LOGBOG:
+     hver række i den er et biprodukt af en søgning, nogen allerede havde
+     lavet. Derfor manglede den 8. oktober på Gravers — ingen havde søgt på
+     den dato. Nu spørges kilderne selv gennem edge-funktionen
+     hent-dagspris: Hummingbird og Yalago, på både rejsens eget marked og
+     GB, fordi GB nogle gange er billigere. Hver prislinje viser hvilken
+     nationalitet prisen blev fundet på. Børnenes alder regnes på
+     ankomstdagen, ikke i dag. Kontrakterne spørges hver gang, så nul
+     betyder nul — ikke «vi spurgte ikke». -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -2690,7 +2704,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.89';
+const APP_VERSION = 'v0.90';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -10819,19 +10833,49 @@ function gemLinje(id){
    fra browseren. Opslaget gaar derfor gennem edge-funktionen sog-prisarkiv,
    som laeser — og kun laeser — derovre, med brugerens eget login. Svarer
    den ikke, siger vi det; vi gaetter aldrig en pris. */
+/* Boernenes alder PAA ANKOMSTDAGEN — ikke i dag. En dreng, der fylder
+   tolv ugen foer afrejse, prissaettes som tolv. */
+function alderVed(dato, ankomst){
+  if(!dato || !ankomst) return null;
+  const f = new Date(dato), a = new Date(ankomst);
+  let n = a.getFullYear() - f.getFullYear();
+  const m = a.getMonth() - f.getMonth();
+  if(m < 0 || (m === 0 && a.getDate() < f.getDate())) n--;
+  return n;
+}
+/* De yngste rejsende er boernene. Hvor mange der er, staar allerede paa
+   elementet; her henter vi bare deres alder. */
+function boernAldre(antal, ankomst){
+  const alle = REJSENDE.map(r => alderVed(r.foedt, ankomst))
+    .filter(a => a != null).sort((a,b)=>a-b);
+  return alle.slice(0, Math.max(0, +antal || 0));
+}
+/* Wendie 01.09.2026: «den skal bare soege paa datoer, de rejsende,
+   hotellet, villatype og forplejning. Ikke mere, ikke mindre — og der
+   skal soeges baade i bedbanks og i direkte kontrakter.»
+   Vi spoerger kilderne LIVE. Arkivet er en logbog over andres soegninger
+   og har derfor huller netop paa de datoer, en konkret booking bruger. */
 async function hentArkiv(e, q){
   if(ARKIV.length) return ARKIV;          /* proevekoersel med faste data */
   st[e.id].arkivNote = null;
+  st[e.id].kilder = null;
+  const p = PLAN.find(x => x.elId === e.id) || {};
+  const fra = q.ankomst || p.fra;
+  const til = p.til || (fra && q.naetter ? laegTil(fra, +q.naetter) : null);
   try {
-    const {data, error} = await db.functions.invoke('sog-prisarkiv', {body:{
-      hotel: e.hotel || '', villa: q.villa, mp: q.mp, naetter: q.naetter,
-      voksne: q.voksne, boern: q.boern, ankomst: q.ankomst }});
+    const {data, error} = await db.functions.invoke('hent-dagspris', {body:{
+      hotel: e.hotel || '', villa: q.villa, mp: q.mp,
+      fra, til, voksne: q.voksne,
+      boernAldre: boernAldre(q.boern, fra), marked: MARKED }});
     if(error) throw error;
     st[e.id].arkivNote = (data && data.note) || null;
-    return ((data && data.traf) || []).map(r => ({...r, hentet: r.naar}));
+    st[e.id].kilder = (data && data.kilder) || null;
+    return ((data && data.traf) || []).map(r => ({...r,
+      hentet: r.naar, naetter: q.naetter, voksne: q.voksne, boern: q.boern,
+      ankomst: fra, kilde: 'editor' }));
   } catch(err){
     console.error(err);
-    st[e.id].arkivNote = 'Prisarkivet svarede ikke: ' + (err.message || err);
+    st[e.id].arkivNote = 'Kilderne svarede ikke: ' + (err.message || err);
     return [];
   }
 }
@@ -10843,12 +10887,17 @@ async function hentDagens(id){
     r.villa === q.villa && r.naetter === q.naetter &&
     r.voksne === q.voksne && r.boern === q.boern && r.ankomst === q.ankomst &&
     (!oensket || mpGruppe(r.mp) === oensket || r.mp === oensket);
-  const fraArkiv = (await hentArkiv(e, q)).filter(passer).map(r=>({...r, kilde:'editor'}));
+  /* Funktionen har allerede matchet paa villatype og forplejning hos hver
+     kilde — de staver dem forskelligt, og et ekstra filter her ville
+     smide rigtige traef vaek. */
+  const fraArkiv = (await hentArkiv(e, q)).map(r=>({...r, kilde:'editor'}));
   const fraKontrakt = KONTRAKTER.filter(passer).map(r=>({...r, kilde:'kontrakt'}));
   const traf = [...fraKontrakt, ...fraArkiv];     /* vores egne foerst */
   st[id].fandt = { kontrakt: fraKontrakt.length, editor: fraArkiv.length };
   traf.forEach(r => st[id].linjer.push({
-    slag: r.kilde === 'kontrakt' ? 'kontrakt' : 'editor', lev:r.lev, hvad:r.villa + ' · ' + (MP_NAVN[r.mp] || r.mp),
+    slag: r.kilde === 'kontrakt' ? 'kontrakt' : 'editor', lev:r.lev,
+    hvad: r.villa + ' · ' + (MP_NAVN[r.mp] || r.mp)
+        + (r.nationalitet ? ' · ' + r.nationalitet + '-pris' : ''),
     villaer:[{a:1, t:r.villa, mp:(MP_NAVN[r.mp] || r.mp)}],
     daekker:`${r.naetter} nætter · ${r.voksne} voksne + ${r.boern} børn · ankomst ${kortDato(r.ankomst)}`,
     pris:r.pris, val:r.val, st:r.st, naar:'hentet ' + r.hentet,
@@ -11603,6 +11652,8 @@ const ART_AF_TYPE  = { flight:'Fly', hotel:'Hotel', transfer:'Transfer',
                        ticket:'Billet', other:'Andet', fee:'Andet', insurance:'Andet' };
 
 let TUR = null;          /* raekken fra trips */
+let MARKED = 'DK';       /* rejsens eget marked — MD giver DK, MN giver NO */
+const REJSENDE = [];     /* navn og foedselsdato, til boernenes alder */
 let GEMMER = false;      /* saa to gemninger ikke koerer oven i hinanden */
 let SIDST = '';          /* sidste gemte oejebliksbillede */
 let TIMER = null;
@@ -11614,7 +11665,7 @@ const beholder = () => document.getElementById('rsside');
    lister villatyper og forplejning skal vaelges fra. Hentes parallelt;
    siden maa ikke vente seks gange i traek. */
 async function hent(tripId){
-  const [rt, re, rp, rk, rh, rf, rs, rd] = await Promise.all([
+  const [rt, re, rp, rk, rh, rf, rs, rd, rj] = await Promise.all([
     db.from('trips').select('*, customers(first_name,last_name,email,phone,country,postal_address)')
       .eq('id', tripId).single(),
     db.from('trip_elements').select('*').eq('trip_id', tripId).order('sort').order('start_date'),
@@ -11623,7 +11674,9 @@ async function hent(tripId){
     db.from('v_hotel_valg').select('hotel_navn,villatyper'),
     db.from('hotel_forplejning').select('hotel_navn,forplejning'),
     db.from('suppliers').select('name').order('name'),
-    db.from('trip_destinations').select('destination').eq('trip_id', tripId)
+    db.from('trip_destinations').select('destination').eq('trip_id', tripId),
+    db.from('trip_travelers')
+      .select('id,note,travelers(id,full_name,date_of_birth,is_lead)').eq('trip_id', tripId)
   ]);
   for(const [hvor, r] of [['rejsen',rt],['elementerne',re],['planen',rp],
                           ['kurserne',rk],['hotellerne',rh],['forplejningen',rf]]){
@@ -11639,7 +11692,8 @@ async function hent(tripId){
   }
   return { tur: rt.data, els, priser, plan: rp.data||[], kurser: rk.data||{},
            hoteller: rh.data||[], forplejning: rf.data||[], lev: (rs&&rs.data)||[],
-           maal: ((rd&&rd.data)||[]).map(x=>x.destination).filter(Boolean) };
+           maal: ((rd&&rd.data)||[]).map(x=>x.destination).filter(Boolean),
+           rejsende: (rj&&rj.data)||[] };
 }
 
 /* ── KURSER ──────────────────────────────────────────────────────────
@@ -11792,6 +11846,12 @@ function hotelFraNavn(d){
 async function start(data){
   TUR = data.tur;
   KUNDEVAL = (TUR.customer_currency || 'DKK').trim();
+  MARKED = TUR.branch === 'MN' ? 'NO' : 'DK';
+  REJSENDE.length = 0;
+  (data.rejsende||[]).forEach(r=>{
+    const t2 = r.travelers || {};
+    if(t2.date_of_birth) REJSENDE.push({navn:t2.full_name, foedt:t2.date_of_birth});
+  });
   const i = STADIER.findIndex(s =>
         s[0].toLowerCase().replace(/æ/g,'ae') === (TUR.stadie||'mellemlanding'));
   nu = i < 0 ? 0 : i;
@@ -12102,32 +12162,32 @@ async function aabn(tripId, vaerten){
 return {
   ANDET, ARKIV, ART_AF_TYPE, BILLEDLINK, ELEMENTER, FORPLEJNING, GEMMER,
   HOTELLER, IATA_SELSKAB, KLASSER, KONTRAKTER, KONTRAKT_STATUS, KUNDEVAL,
-  KURSER, LEVERANDOERER, LEV_LISTE, LEV_VALUTA, MDR_KODE, MP_NAVN, NY, PLAN,
-  SELSKABER, SIDST, SLAGS_AF_TYPE, STADIER, STD_KL, STD_TID, STOEJ, TIMER,
-  TRANSPORT, TUR, TYPER, VALUTAER, VILLATYPER, _tegnListe, aabn, beholder,
-  billedeFraKlip, billeder, billigst, dageTil, difTekst, dk, dkk,
-  elementFra, erStoej, erValgt, fHold, fVilla, fVillaNy, fVillaSlet,
-  fejlPaa, fjernBillede, fjernFormBillede, flyGrupper, flyHtml, fold,
-  foldAlle, foldEl, foldKort, foldLinje, formBillede, fortrydLinje,
-  fravaelg, fristKort, fyldHoteller, fyldKurser, fyldOpslag, gem,
-  gemBilleder, gemElement, gemLSub, gemLinje, gemSub, gemTilBasen,
-  genberegnTil, grundPris, grundlag, hent, hentArkiv, hentDagens,
-  hotelFraNavn, iDag, klikLinje, kortDato, kortNavn, kr, krK, kvitter,
-  laegTil, laegTilValg, laesBillede, laesFlyplan, levListe, levValuta,
-  linjeBillede, linjeFra, linjeKrop, linjePris, linjeTil, linkBilleder,
-  lukNy, maerk, md, mpGruppe, naetterMellem, nu, nuPris, nyElement, nyInput,
-  nyLSub, nyLinje, nyLinjeHtml, nySub, nyTilstand, nyVaelg, nyVilla,
-  nyVillaNy, nyVillaSlet, opdaterBeregner, planAfElement, planEl, planFra,
-  planFraDb, planKonflikter, planNaetter, planTekst, planTid, planTil,
-  prisFelter, retElement, retKilde, retLinje, retNote, roert, ryddHotel,
-  saet, saetFokus, saetForm, saetFra, saetHold, saetKilde, saetLinjeHold,
-  saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla, sideHtml,
-  sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot, soegHotel,
-  soegeTekst, sorterPlan, st, start, stigeHtml, tael, tegnFrister,
-  tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin, tilKunde,
-  tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil, vaelgFormFil,
-  vaelgHotel, vaelger, valgtLinje, valgteIdx, villaTekst, visLink, visOm,
-  visOmNy, visStort
+  KURSER, LEVERANDOERER, LEV_LISTE, LEV_VALUTA, MARKED, MDR_KODE, MP_NAVN,
+  NY, PLAN, REJSENDE, SELSKABER, SIDST, SLAGS_AF_TYPE, STADIER, STD_KL,
+  STD_TID, STOEJ, TIMER, TRANSPORT, TUR, TYPER, VALUTAER, VILLATYPER,
+  _tegnListe, aabn, alderVed, beholder, billedeFraKlip, billeder, billigst,
+  boernAldre, dageTil, difTekst, dk, dkk, elementFra, erStoej, erValgt,
+  fHold, fVilla, fVillaNy, fVillaSlet, fejlPaa, fjernBillede,
+  fjernFormBillede, flyGrupper, flyHtml, fold, foldAlle, foldEl, foldKort,
+  foldLinje, formBillede, fortrydLinje, fravaelg, fristKort, fyldHoteller,
+  fyldKurser, fyldOpslag, gem, gemBilleder, gemElement, gemLSub, gemLinje,
+  gemSub, gemTilBasen, genberegnTil, grundPris, grundlag, hent, hentArkiv,
+  hentDagens, hotelFraNavn, iDag, klikLinje, kortDato, kortNavn, kr, krK,
+  kvitter, laegTil, laegTilValg, laesBillede, laesFlyplan, levListe,
+  levValuta, linjeBillede, linjeFra, linjeKrop, linjePris, linjeTil,
+  linkBilleder, lukNy, maerk, md, mpGruppe, naetterMellem, nu, nuPris,
+  nyElement, nyInput, nyLSub, nyLinje, nyLinjeHtml, nySub, nyTilstand,
+  nyVaelg, nyVilla, nyVillaNy, nyVillaSlet, opdaterBeregner, planAfElement,
+  planEl, planFra, planFraDb, planKonflikter, planNaetter, planTekst,
+  planTid, planTil, prisFelter, retElement, retKilde, retLinje, retNote,
+  roert, ryddHotel, saet, saetFokus, saetForm, saetFra, saetHold, saetKilde,
+  saetLinjeHold, saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla,
+  sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
+  soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
+  tegnFrister, tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin,
+  tilKunde, tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil,
+  vaelgFormFil, vaelgHotel, vaelger, valgtLinje, valgteIdx, villaTekst,
+  visLink, visOm, visOmNy, visStort
 };
 })();
 /* ══ HENT ══
@@ -12145,8 +12205,10 @@ async function viewMel(id){
   try { d = await RS.aabn(id, document.getElementById('rsside')); }
   catch(e){ return fejl('rejsesiden', e); }
 
-  const [rl, rd, rs] = await Promise.all([
-    db.from('trip_travelers').select('id,note,travelers(id,full_name,date_of_birth,is_lead)').eq('trip_id',id),
+  /* De rejsende er allerede hentet af rejsesiden — den bruger deres
+     fødselsdatoer til børnenes alder i prissøgningen. Vi henter dem ikke
+     to gange. */
+  const [rd, rs] = await Promise.all([
     db.from('fx_pricing_defaults').select('*').limit(1).single(),
     db.from('suppliers').select('id,name,supplier_type,default_currency').order('name')
   ]);
@@ -12155,7 +12217,7 @@ async function viewMel(id){
   (d.priser||[]).forEach(p=>{ (priser[p.element_id]=priser[p.element_id]||[]).push(p); });
   window.ML = { trip: d.tur, els: d.els, priser,
                 overrides: (d.tur.fx_overrides)||{},
-                rejsende: (rl&&rl.data)||[],
+                rejsende: d.rejsende||[],
                 kurser: d.kurser||{}, std: (rd&&rd.data)||{bank_fee_dkk:500,round_to:500,target_dg_pct:20.3},
                 aabne:{} };
   mlRenderBund();
