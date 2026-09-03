@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.98 · 03.09.2026
+<!-- Panda · v0.99 · 03.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -177,6 +177,30 @@
      ændrer sig), og koblingen fra rejsen tilbage til henvendelsen siger nu
      højt fra, hvis den fejler — det var dén, der efterlod Holts mellemlanding
      stående på dashboardet, efter at henvendelsen var sat til tabt.
+
+     v0.99 — FRA «SOLGT» TIL MELLEMLANDING, OG MELLEMLANDINGENS TOP.
+     Wendie: «jeg havde valgt en hel masse destinationer inde på henvendelsen,
+     men inde på mellemlandingen skal det jo kun være den rejse, som de rent
+     faktisk har booket.»
+     Kom bookingen fra tilbudssiden, ved vi alt, og der spørges ikke. Ellers
+     spørges der én gang, før rejsen oprettes: destinationer, hotel, villatype,
+     forplejning, datoer, pris og rejsende. Valget går i TRE trin, fordi et
+     tilbud tit har flere villatyper og flere forplejninger på samme hotel —
+     og prisen er kombinationen, ikke det ene eller det andet.
+     Matchet mod Rasmus' editor sker på NAVNET: en henvendelse skrevet ind i
+     hånden har tit hverken e-mail eller datoer. Derfor skrives beviset som
+     det er — hvad der kunne sammenlignes, og hvad der ikke kunne — og der
+     udfyldes aldrig automatisk. Opslaget kalder «tilbuds-opslag», som Rasmus
+     endnu ikke har lagt ud; indtil da svarer det bare «intet fundet».
+
+     Samme version, på mellemlandingen — kun ord og funktion, intet design:
+     «Kan hvert element stadig købes?» hedder nu «Ydelser på rejsen»; «Fold
+     alt ud/ind» er væk (man klikker på ydelsen); «Mellemlanding» stod to
+     gange, så mærkatet er fjernet og beskrivelsen af stadiet står nu under
+     bjælken (teksten lå i STADIER hele tiden — den blev bare tømt igen);
+     antal nætter er ude af overskriften, fordi vi kan sælge flyet 14.–22. og
+     kun have hotel i fire af nætterne; og hjemrejsedatoen følger nu
+     rejseplanen — rejsen varer så længe, som dens ydelser varer.
 -->
 <html lang="da">
 <head>
@@ -1162,6 +1186,48 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .card.indst .sysr{display:flex;gap:16px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:12.5px}
 .card.indst .sysr:last-child{border-bottom:0}
 .card.indst .sysr .k{min-width:170px;color:var(--mut)}
+/* ── «Hvad blev der solgt?» ── */
+.hv7 .ldlg.hvsolgt .c{padding-top:16px}
+.hv7 .hvsf{border:1px solid var(--gold-l);background:rgba(224,201,163,.13);border-radius:2px;
+  padding:11px 13px;margin-bottom:14px}
+.hv7 .hvsf-h{display:flex;align-items:baseline;gap:9px}
+.hv7 .hvsf-h b{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink)}
+.hv7 .hvsf-h span{font-size:10.5px;color:var(--mut);margin-left:auto}
+.hv7 .hvsf-t{font-size:11.5px;color:var(--ink2);line-height:1.5;margin-top:2px}
+.hv7 .hvsf-a{display:inline-block;font-size:10.5px;color:var(--gold);text-decoration:none;margin-top:8px}
+.hv7 .hvsb{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.hv7 .hvsb span{font-size:10px;background:var(--card);border:1px solid var(--line);border-radius:9px;
+  padding:2px 8px;color:var(--ink2)}
+.hv7 .hvsb span.ja::before{content:'✓ ';color:#4f7a5f;font-weight:700}
+.hv7 .hvsb span.nej::before{content:'— ';color:var(--mut)}
+.hv7 .hvsg{display:flex;align-items:center;gap:7px;font-size:8.5px;letter-spacing:1.6px;
+  text-transform:uppercase;color:var(--mut);margin:14px 0 7px}
+.hv7 .hvsg i{font-style:normal;color:var(--gold);font-weight:600}
+.hv7 .hvsg::after{content:'';flex:1;height:1px;background:var(--line)}
+.hv7 .hvsv{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:9px;align-items:center;
+  border:1px solid var(--line);border-radius:2px;padding:7px 10px;margin-bottom:4px;cursor:pointer;
+  background:var(--card);transition:.14s}
+.hv7 .hvsv:hover{border-color:var(--gold-l)}
+.hv7 .hvsv.on{border-color:var(--gold);background:rgba(224,201,163,.10)}
+.hv7 .hvsv .pk{width:11px;height:11px;border-radius:50%;border:1px solid var(--mut)}
+.hv7 .hvsv.on .pk{border-color:var(--gold);border-width:4px}
+.hv7 .hvsv .tx b{display:block;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;
+  line-height:1.25;color:var(--ink)}
+.hv7 .hvsv .tx em{display:block;font-style:normal;font-size:10.5px;color:var(--mut);margin-top:1px}
+.hv7 .hvsv .pr{font-family:'Cormorant Garamond',serif;font-size:14.5px;font-weight:600;
+  color:var(--ink);white-space:nowrap}
+/* label er sat til display:block med versaler inde i .ldlg — chippen skal
+   vinde over den regel, derfor den laengere selektor. */
+.hv7 .ldlg label.hvsd{display:inline-flex;align-items:center;gap:6px;width:auto;
+  font-size:11.5px;letter-spacing:0;text-transform:none;background:var(--card);
+  border:1px solid var(--line);border-radius:2px;padding:5px 10px;margin:0 5px 5px 0;
+  cursor:pointer;color:var(--mut);transition:.14s}
+.hv7 .ldlg label.hvsd.on{color:var(--ink);border-color:var(--gold-l);background:rgba(224,201,163,.10)}
+.hv7 .ldlg label.hvsd input{width:auto;margin:0;accent-color:#c1975a}
+.hv7 .hvsd.on{color:var(--ink);border-color:var(--gold-l);background:rgba(224,201,163,.10)}
+.hv7 .hvsd input{margin:0;accent-color:#c1975a}
+.hv7 .hvsi{font-size:11.5px;color:var(--mut)}
+
 /* fristerne paa indstillingssiden */
 .card.indst .fristr{display:flex;align-items:center;gap:12px;padding:9px 0;
   border-bottom:1px solid var(--line-2)}
@@ -1808,17 +1874,13 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-linje2 em{font-style:italic;color:#7d7867}
 
-#rsside .r-stadie{margin-top:18px;padding-top:16px;border-top:1px solid var(--line-2);display:flex;gap:16px}
+#rsside .r-stadie{margin-top:18px;padding-top:16px;border-top:1px solid var(--line-2)}
 
-#rsside .r-chip{flex:none;display:inline-flex;align-items:center;gap:7px;background:#f3ede0;
-  border:1px solid #e3d9c3;border-radius:2px;padding:6px 12px;font-size:11px;letter-spacing:.09em;
-  text-transform:uppercase;font-weight:600;color:#6b6349;height:fit-content}
 
-#rsside .r-chip .r-prik{width:6px;height:6px;border-radius:50%;background:var(--gold)}
 
-#rsside .r-stadie .r-forkl{color:#66695f;font-size:12.5px;max-width:680px}
+#rsside .r-forkl{margin-top:13px;color:#66695f;font-size:12.5px;line-height:1.65;max-width:720px}
 
-#rsside .r-stadie .r-forkl b{color:var(--ink);font-weight:500}
+#rsside .r-forkl b{color:var(--ink);font-weight:500}
 
 #rsside .r-trin{display:flex;margin-top:16px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
 
@@ -1848,13 +1910,8 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-kort > h2 .r-fp2:hover{color:var(--gold)}
 
-#rsside .r-foldalt{margin-left:auto;display:flex;gap:6px}
 
-#rsside .r-foldalt button{font-family:inherit;font-size:10.5px;letter-spacing:0;text-transform:none;
-  font-weight:400;padding:4px 11px;border:1px solid var(--line);background:#fff;color:#7a745f;
-  border-radius:2px;cursor:pointer}
 
-#rsside .r-foldalt button:hover{background:#f4f0e5;border-color:var(--gold);color:#6f6a58}
 
 #rsside .r-pl{cursor:pointer}
 
@@ -2864,7 +2921,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.98';
+const APP_VERSION = 'v0.99';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -10316,8 +10373,11 @@ const STADIER = [
 let nu = 0;
 function tegnTrin(){
   trin.innerHTML = STADIER.map((s,i)=>`<div class="${i<nu?'r-gjort':i===nu?'r-nu':''}" onclick="RS.saetTrin(${i})">${s[0]}</div>`).join('');
-  chipnavn.textContent = STADIER[nu][0];
-  forkl.innerHTML = '';
+  /* Wendie 03.09.2026: «der stod mellemlanding to gange … der kan hellere
+     staa en beskrivelse af, hvad det her stadie gaar ud paa, nedenunder
+     bjaelken.» Teksten har ligget i STADIER hele tiden — den blev bare
+     toemt igen. Maerkatet ovenover er fjernet. */
+  forkl.textContent = STADIER[nu][1];
 }
 function saetTrin(i){ nu=i; tegnTrin(); }
 
@@ -10591,13 +10651,7 @@ function planNaetter(id, v){
 function foldEl(id){ document.getElementById('el-'+id).classList.toggle('r-aaben'); }
 function foldKort(h){ h.closest('.r-kort').classList.toggle('r-lukket'); }
 /* Alt ind eller alt ud — baade elementerne og prislinjerne under dem. */
-function foldAlle(ud){
-  ELEMENTER.forEach(e => {
-    st[e.id].aaben = ud;
-    st[e.id].linjer.forEach(l => l.aaben = false);   /* linjerne foldes altid ind */
-  });
-  tegnListe();
-}
+
 
 /* ══ PRISSTIGEN ═══════════════════════════════════════════════════════
    Wendie 01.09.2026: «hvad var den indledende pris, som der faktisk blev
@@ -11738,11 +11792,11 @@ function tegnFrister(){
 function tael(){
   /* «1 elementer» er noget rod. Ét element er ét element. */
   nOk.parentNode.innerHTML = '<b id="nOk">' + ELEMENTER.length + '</b>&nbsp;'
-    + (ELEMENTER.length === 1 ? 'element på rejsen' : 'elementer på rejsen');
+    + (ELEMENTER.length === 1 ? 'ydelse på rejsen' : 'ydelser på rejsen');
   const total = ELEMENTER.reduce((a,e)=>a + nuPris(e), 0);
   document.getElementById('ialt').textContent = krK(total);
   document.getElementById('tael').textContent = ELEMENTER.length
-    + (ELEMENTER.length===1?' element':' elementer');
+    + (ELEMENTER.length===1?' ydelse':' ydelser');
   document.getElementById('klar').textContent = 'Rejsen i alt, som den er valgt nu:';
   tegnFrister();
 }
@@ -12806,10 +12860,28 @@ function sideHtml(d){
   const naetter = overnat || ((t.departure_date && t.return_date)
     ? Math.round((Date.parse(t.return_date) - Date.parse(t.departure_date))/86400000) : null);
   const pris = t.accepted_price != null ? t.accepted_price : t.package_sell_total;
+  /* Wendie 03.09.2026: «lad os fjerne syv naetter. Vi kan godt staa for
+     flyet 14.-22., men kun have hotel i fire af naetterne — saa giver det
+     lige pludselig ikke mening, at der staar syv naetter.» Antallet staar
+     paa den enkelte ydelse, hvor det er sandt. */
+  /* Wendie 03.09.2026: «hjemrejsedatoen skal altid trumfe i forhold til
+     rejseplanen — hvad der er den seneste dato dér.» Rigtigt: rejsen varer
+     saa laenge, som dens ydelser varer. Staar der intet i planen endnu,
+     bliver de gemte datoer staaende. */
+  const planDatoer = (d.plan||[]).flatMap(p=>[p.fra, p.til]).filter(Boolean).sort();
+  const ud   = planDatoer[0] || t.departure_date;
+  const hjem = planDatoer[planDatoer.length-1] || t.return_date;
   const linje2 = [ (d.maal||[]).join(' · ') || null,
-    t.departure_date ? dkk(t.departure_date) + ' → ' + dk(t.return_date) : null,
-    naetter ? naetter + ' nætter' : null,
+    ud ? dkk(ud) + (hjem ? ' → ' + dk(hjem) : ' →') : null,
     t.pax_count ? t.pax_count + ' rejsende' : null ].filter(Boolean).join(' · ');
+  /* Og datoerne skrives tilbage, saa resten af Panda siger det samme. Kun
+     paa en mellemlanding — en bekraeftet rejse faar ikke flyttet sine
+     datoer i stilhed. */
+  if(t.status === 'mellemlanding' && (ud !== t.departure_date || hjem !== t.return_date)){
+    t.departure_date = ud; t.return_date = hjem;
+    db.from('trips').update({departure_date: ud, return_date: hjem}).eq('id', t.id)
+      .then(({error}) => { if(error) console.warn('datoer kunne ikke gemmes', error); });
+  }
   /* Adressen ligger som ét jsonb-felt paa kunden — street, postal_code,
      city, country — ikke som fire kolonner. */
   const pa = k.postal_address || {};
@@ -12829,26 +12901,26 @@ function sideHtml(d){
     <div class="r-linje2">${escH(linje2)}${pris ? ` <em>&nbsp;·&nbsp; ${md(pris)} ${
       escH((t.accepted_currency||t.customer_currency||'DKK').trim())}</em>` : ''}</div>
     <div class="r-stadie">
-      <span class="r-chip"><span class="r-prik"></span><span id="chipnavn"></span></span>
-      <div class="r-forkl" id="forkl"></div>
     </div>
     <div class="r-trin" id="trin"></div>
+    <div class="r-forkl" id="forkl"></div>
   </div>
 
   <div class="r-kort">
     <h2 onclick="RS.foldKort(this)">Rejseplan
-      <span class="r-h">hentet fra tilbuddet${sidst ? ' · sidst opdateret ' + dk(sidst) : ''}</span>
+      <span class="r-h">${sidst ? 'sidst opdateret ' + dk(sidst) : ''}</span>
       <span class="r-fp2">▼</span></h2>
     <div class="r-plan" id="plan"></div>
   </div>
 
   <div class="r-kort">
-    <h2>Kan hvert element stadig købes?
+    <!-- Wendie 03.09.2026: «det skal bare staa ydelser paa rejsen — saa
+         forstaar vi selv, at vi skal tjekke om prisen holder. Det staar
+         ogsaa i beskrivelsen af mellemlandingen.» Og: «fold alt ud, fold
+         alt ind fjerner vi, det ser rodet ud — det fungerede fint, at man
+         bare kan trykke paa selve elementet.» -->
+    <h2>Ydelser på rejsen
       <span class="r-h" id="tael"></span>
-      <span class="r-foldalt">
-        <button onclick="event.stopPropagation();RS.foldAlle(true)">Fold alt ud</button>
-        <button onclick="event.stopPropagation();RS.foldAlle(false)">Fold alt ind</button>
-      </span>
       <span class="r-fp2" onclick="RS.foldKort(this.parentNode)">▼</span></h2>
     <div id="frister"></div>
     <div class="r-raekker" id="liste"></div>
@@ -12857,7 +12929,7 @@ function sideHtml(d){
          Enig — planen VISER rejsen, listen er der, hvor den bygges. Nu da
          planen foelger elementerne, hoerer knappen til hernede. -->
     <div id="nyel"></div>
-    <button class="r-nyknap" onclick="RS.nyElement()">+ Tilføj element til rejsen</button>
+    <button class="r-nyknap" onclick="RS.nyElement()">+ Tilføj ydelse til rejsen</button>
     <div class="r-opsum">
       <span class="r-pk2"><b id="nOk">0</b>&nbsp;elementer på rejsen</span>
       <span class="r-hoej"><span id="klar"></span>
@@ -12902,7 +12974,7 @@ return {
   _tegnListe, aabn, alderVed, beholder, billedeFraKlip, billeder, billigst,
   boernAldre, dageTil, difTekst, dk, dkk, elementFra, erStoej, erValgt,
   fHold, fVilla, fVillaNy, fVillaSlet, fejlPaa, fjernBillede,
-  fjernFormBillede, flyGrupper, flyHtml, fold, foldAlle, foldEl, foldKort,
+  fjernFormBillede, flyGrupper, flyHtml, fold, foldEl, foldKort,
   foldLinje, formBillede, fortrydLinje, fravaelg, fristKort, fyldHoteller,
   fyldKurser, fyldOpslag, gem, gemBilleder, gemElement, gemLSub, gemLinje,
   gemSub, gemTilBasen, genberegnTil, grundPris, grundlag, hent, hentArkiv,
@@ -13515,6 +13587,194 @@ const HV_BRANCHE_VALUTA = {NO:'NOK', MN:'NOK', MD:'DKK', HQ:'DKK', IT:'EUR'};
 
    Basen er rettet med, saa en mellemlanding maa mangle afrejsedato — den er
    under opbygning. Datoen kraeves foerst naar rejsen bekraeftes.            */
+/* ══ HVAD BLEV DER SOLGT? ══════════════════════════════════════════════
+   Wendie 03.09.2026: «jeg havde valgt en hel masse destinationer inde paa
+   henvendelsen, men inde paa mellemlandingen skal det jo kun vaere den
+   rejse, som de rent faktisk har booket.»
+
+   Kom bookingen fra tilbudssiden, ved vi allerede alt — saa spoerges der
+   ikke. Ellers spoerges der her, én gang, foer rejsen oprettes.
+
+   Matchet sker paa NAVNET: en henvendelse skrevet ind i haanden har tit
+   hverken e-mail eller datoer. Derfor skrives beviset som det er — hvad
+   der kunne sammenlignes, og hvad der IKKE kunne. Og der udfyldes aldrig
+   automatisk: hun skal se, hvad der blev fundet, og sige god for det.
+
+   Valget gaar i tre trin — hotel, saa villatype, saa forplejning — fordi
+   et tilbud tit indeholder flere af hver, og prisen er KOMBINATIONEN.  */
+const HVS = { fund:null, valgt:{hotel:0, villa:null, mp:null} };
+
+/* Opslaget i Rasmus' editor. Funktionen «tilbuds-opslag» findes endnu ikke —
+   indtil den goer, svarer den her null, og boksen spoerger bare uden fund.
+   Naar den kommer, er det kun det her ene sted, der skal aendres.        */
+async function hvsSoegTilbud(l){
+  const navn = [l.contact_first_name, l.contact_last_name].filter(Boolean).join(' ').trim()
+             || (l.contact_name||'').trim();
+  if(navn.length < 2) return null;
+  try{
+    const {data, error} = await db.functions.invoke('tilbuds-opslag',
+      { body:{ hvad:'sog', navn } });
+    if(error || !data || !data.ok || !(data.kunder||[]).length) return null;
+    /* Præcist navnematch foretrækkes; ellers vises det bedste bud som usikkert. */
+    const ens = s2 => s2.toLowerCase().replace(/\s+/g,' ').trim();
+    const praecis = data.kunder.filter(k=>ens(k.navn)===ens(navn));
+    const k = (praecis[0] || data.kunder[0]);
+    if(!k || !(k.versioner||[]).length) return null;
+    const {data:v} = await db.functions.invoke('tilbuds-opslag',
+      { body:{ hvad:'version', version_id:k.versioner[0].id } });
+    if(!v || !v.ok || !v.version || !(v.version.trips||[]).length) return null;
+    const t = v.version.trips[0];
+    return {
+      navn: k.navn,
+      dato: new Date(k.versioner[0].ts).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'numeric'}),
+      resume: [t.destination, t.dateStart ? dk(t.dateStart)+' → '+dk(t.dateEnd) : null,
+               t.priceTotal ? 'fra '+t.priceTotal+' '+(t.currency||'') : null].filter(Boolean).join(' · '),
+      bevis: [
+        [praecis.length>0, praecis.length>0 ? 'navn stemmer præcist'
+          : 'navnet er ikke ens — henvendelsen siger «'+navn+'»'],
+        [!!l.contact_email, l.contact_email ? 'e-mail står på henvendelsen' : 'henvendelsen har ingen e-mail'],
+        [!!l.departure_date, l.departure_date ? 'henvendelsen har datoer' : 'henvendelsen har ingen datoer'],
+      ],
+      ud: t.dateStart || null, hjem: t.dateEnd || null,
+      valuta: t.currency || null, destination: t.destination || null,
+      voksne: null, boern: null, url: null,
+      hoteller: (t.hotels||[]).map(h=>({
+        navn: h.name, sted: [h.location, h.transferText].filter(Boolean).join(' · '),
+        rater: (h.rates||[]).map(r=>({rum:r.room, mp:r.mealPlan, pris:r.total||null}))
+      })),
+      raa: t
+    };
+  }catch(e){ console.warn('tilbudsopslag', e); return null; }
+}
+
+function hvSolgtBoks(l){
+  const ov = document.getElementById('hvOv2'); if(!ov) return;
+  const f = HVS.fund;                       /* null naar intet blev fundet */
+  const dest = String(l.destination||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const valgtDest = dest.length===1 ? dest.slice() : (f && f.destination ? [f.destination] : []);
+  HVS.dest = new Set(valgtDest);
+
+  const bevis = f ? `<div class="hvsb">${
+      f.bevis.map(([ok,t])=>`<span class="${ok?'ja':'nej'}">${escH(t)}</span>`).join('')}</div>` : '';
+  const fundet = f ? `<div class="hvsf">
+      <div class="hvsf-h"><b>${escH(f.navn)}</b><span>${escH(f.dato)}</span></div>
+      <div class="hvsf-t">${escH(f.resume)}</div>
+      ${bevis}
+      ${f.url?`<a class="hvsf-a" href="${escH(f.url)}" target="_blank" rel="noopener">Se tilbuddet →</a>`:''}
+    </div>` : '';
+
+  ov.innerHTML = `<div class="ldlg hvsolgt">
+    <div class="h"><h3>Hvad blev der solgt?</h3>
+      <p>${f ? 'Vi fandt et tilbud på navnet. Se efter, om det er den rigtige.'
+             : 'Der ligger intet tilbud på navnet i editoren.'}</p></div>
+    <div class="c">
+      ${fundet}
+      <div class="hvsg">Destinationer</div>
+      <div id="hvsDest">${dest.length
+        ? dest.map(d=>`<label class="hvsd${HVS.dest.has(d)?' on':''}">
+            <input type="checkbox" ${HVS.dest.has(d)?'checked':''}
+              onchange="hvsDest('${escH(d).replace(/'/g,"\\'")}',this.checked,this)">${escH(d)}</label>`).join('')
+        : '<span class="hvsi">Henvendelsen har ingen destination — skriv den ind på rejsen bagefter.</span>'}</div>
+      ${f ? hvsTrinHtml() : ''}
+      <div class="nyg" style="margin-top:14px">
+        <div class="fld"><div class="k">Afrejse</div><input type="date" id="hvsUd"
+          value="${escH((f&&f.ud) || l.departure_date || '')}"></div>
+        ${f ? `<div class="fld"><div class="k">Hjemrejse</div><input type="date" id="hvsHjem"
+          value="${escH(f.hjem||'')}"></div>` : ''}
+        <div class="fld"><div class="k">Aftalt pris</div><input id="hvsPris"
+          value="${escH(hvsPrisNu()|| (l.est_value!=null?String(l.est_value):''))}"></div>
+        <div class="fld"><div class="k">Valuta</div><select id="hvsVal">${
+          HV_VALUTAER.map(v=>`<option ${((f&&f.valuta)||l.currency||HV_BRANCHE_VALUTA[l.branch])===v?'selected':''}>${v}</option>`).join('')}</select></div>
+        <div class="fld"><div class="k">Voksne</div><input type="number" min="1" id="hvsVoksne"
+          value="${(f&&f.voksne) || l.adults || 2}"></div>
+        <div class="fld"><div class="k">Børn</div><input type="number" min="0" id="hvsBoern"
+          value="${(f&&f.boern!=null?f.boern:(l.kids||0))}"></div>
+      </div>
+      <div class="fld" style="margin-top:11px"><div class="k">Alder på børnene</div>
+        <input id="hvsAldre" placeholder="fx 6, 9" value="${escH(l.child_ages||'')}"></div>
+      <div class="nyfejl" id="hvsFejl"></div>
+    </div>
+    <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+      <button class="b gold" onclick="hvsOpret()">Opret mellemlandingen</button></div></div>`;
+  ov.classList.add('on');
+}
+/* Hotel → villatype → forplejning. Hvert trin viser kun det, der findes.
+   Der sendes INDEKS videre, ikke navne: et villanavn som «Sunset Ocean
+   Suite with Pool» skulle ellers igennem en HTML-attribut, og den foerste
+   anfoerselstegn lukkede attributten. */
+function hvsTrinHtml(){
+  const f = HVS.fund, v = HVS.valgt;
+  const h = f.hoteller[v.hotel] || {};
+  const rater = h.rater || [];
+  const villaer = [...new Set(rater.map(r=>r.rum))];
+  if(v.villa == null || !villaer.includes(v.villa)) v.villa = villaer[0];
+  const mps = [...new Set(rater.filter(r=>r.rum===v.villa).map(r=>r.mp))];
+  if(v.mp == null || !mps.includes(v.mp)) v.mp = mps[0];
+  HVS.lister = {villaer, mps};
+
+  const raek = (txt, und, valgt, kald, p) => `<div class="hvsv${valgt?' on':''}" onclick="${kald}">
+      <span class="pk"></span><span class="tx"><b>${escH(txt)}</b>${und?`<em>${escH(und)}</em>`:''}</span>
+      <span class="pr">${p?escH(p):''}</span></div>`;
+  let ud = '';
+  if(f.hoteller.length){
+    ud += `<div class="hvsg"><i>1</i> Hotel</div>` + f.hoteller.map((x,i)=>
+      raek(x.navn, x.sted, i===v.hotel, `hvsVaelg('hotel',${i})`, null)).join('');
+  }
+  if(villaer.length > 1 || (villaer.length === 1 && mps.length > 1)){
+    ud += `<div class="hvsg"><i>2</i> Villatype</div>` + villaer.map((r,i)=>{
+      const c = rater.filter(y=>y.rum===r).map(y=>y.pris).filter(Boolean).sort();
+      return raek(r, null, r===v.villa, `hvsVaelg('villa',${i})`, c.length?'fra '+c[0]:null);
+    }).join('');
+  }
+  if(mps.length){
+    ud += `<div class="hvsg"><i>3</i> Forplejning</div>` + mps.map((m,i)=>{
+      const x = rater.find(y=>y.rum===v.villa && y.mp===m);
+      return raek(m, null, m===v.mp, `hvsVaelg('mp',${i})`, x && x.pris ? x.pris : null);
+    }).join('');
+  }
+  return `<div id="hvsTrin">${ud}</div>`;
+}
+function hvsVaelg(hvad, i){
+  const L = HVS.lister || {};
+  if(hvad==='hotel'){ HVS.valgt.hotel = i; HVS.valgt.villa = null; HVS.valgt.mp = null; }
+  else if(hvad==='villa'){ HVS.valgt.villa = (L.villaer||[])[i]; HVS.valgt.mp = null; }
+  else { HVS.valgt.mp = (L.mps||[])[i]; }
+  const boks = document.getElementById('hvsTrin');
+  if(boks) boks.outerHTML = hvsTrinHtml();
+  const p = document.getElementById('hvsPris'), nu = hvsPrisNu();
+  if(p && nu) p.value = nu;
+}
+function hvsPrisNu(){
+  const f = HVS.fund; if(!f) return '';
+  const h = f.hoteller[HVS.valgt.hotel] || {};
+  const r = (h.rater||[]).find(x=>x.rum===HVS.valgt.villa && x.mp===HVS.valgt.mp);
+  return (r && r.pris) ? r.pris : '';
+}
+function hvsDest(d, paa, el){
+  if(paa) HVS.dest.add(d); else HVS.dest.delete(d);
+  if(el && el.parentNode) el.parentNode.classList.toggle('on', paa);
+}
+async function hvsOpret(){
+  const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
+  const v = id => ((document.getElementById(id)||{}).value||'').trim();
+  const tal = t => { const n = parseFloat(String(t).replace(/[.\s]/g,'').replace(',','.')); return isNaN(n)?null:n; };
+  const voksne = parseInt(v('hvsVoksne'),10)||0, boern = parseInt(v('hvsBoern'),10)||0;
+  window._hvSolgt = {
+    pris:   tal(v('hvsPris')),
+    valuta: v('hvsVal') || l.currency || HV_BRANCHE_VALUTA[l.branch] || 'DKK',
+    dep:    v('hvsUd') || null,
+    ret:    v('hvsHjem') || null,
+    pax:    (voksne + boern) || 2,
+    voksne, boern, aldre: v('hvsAldre') || null,
+    dest:   [...HVS.dest],
+    tilbud: (HVS.fund && HVS.fund.url) || l.offer_url || null,
+    fund:   HVS.fund || null,
+  };
+  const ov = document.getElementById('hvOv2');
+  if(ov) ov.innerHTML = '<div class="ldlg"><div class="c"><div class="opretter">Opretter mellemlandingen…</div></div></div>';
+  await hvSolgtGem();
+}
+
 async function hvSolgtDlg(){
   const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
   const ov = document.getElementById('hvOv2'); if(!ov) return;
@@ -13574,15 +13834,23 @@ async function hvSolgtDlg(){
   const pax = Math.max(iBooking, iHenvend) || 2;
   if(iBooking && iHenvend && iBooking < iHenvend)
     window._hvMangler = iHenvend - iBooking;
-  window._hvSolgt = {
-    pris:   (bk && bk.pris) ? Number(bk.pris) : null,
-    valuta: (bk && bk.valuta) || l.currency || HV_BRANCHE_VALUTA[l.branch] || 'DKK',
-    dep:    (bk && bk.afrejse) || l.departure_date || null,
-    ret:    (bk && bk.hjemrejse) || l.return_date || null,
-    pax:    pax,
-    tilbud: (bk && bk.tilbud_url) || l.offer_url || null,
-  };
-  await hvSolgtGem();
+  if(bk){
+    /* Kunden har trykket «book» paa sit eget tilbud — saa staar hotel,
+       vaerelse, periode og pris i den besked, og der er intet at spoerge om. */
+    window._hvSolgt = {
+      pris:   bk.pris != null ? Number(bk.pris) : null,
+      valuta: bk.valuta || l.currency || HV_BRANCHE_VALUTA[l.branch] || 'DKK',
+      dep:    bk.afrejse || l.departure_date || null,
+      ret:    bk.hjemrejse || l.return_date || null,
+      pax:    pax,
+      tilbud: bk.tilbud_url || l.offer_url || null,
+    };
+    return hvSolgtGem();
+  }
+  /* Ellers spoerges der. Foerst slaas der op i editoren paa navnet. */
+  HVS.fund = await hvsSoegTilbud(l);
+  HVS.valgt = {hotel:0, villa:null, mp:null};
+  hvSolgtBoks(l);
 }
 function hvSolgtFortsaet(){
   const l=(window._leads||[]).find(x=>x.id===window._hvId);
@@ -13666,12 +13934,15 @@ async function hvSolgtGem(){
   }).select('id').single();
   if(e2){ fejl.textContent = 'Rejsen kunne ikke oprettes: '+e2.message; return; }
 
-  /* 3. Destinationer foelger med, saa sagen kan genkendes i soegningen. */
-  if(l.destination){
-    const dest = String(l.destination).split(',').map(s=>s.trim()).filter(Boolean);
-    if(dest.length) await db.from('trip_destinations')
-      .insert(dest.map((d,i)=>({trip_id:t.id, destination:d, seq:i})));
-  }
+  /* 3. Destinationer. Har hun valgt dem i boksen, er det DEM der gaelder —
+        ikke oenskelisten fra henvendelsen. Wendie 03.09.2026: «det kan godt
+        vaere, der er flere destinationer paa rejsen, men vi skal ikke have
+        alle oenskedestinationerne med over.» */
+  const dest = Array.isArray(d.dest) && d.dest.length
+    ? d.dest
+    : String(l.destination||'').split(',').map(x=>x.trim()).filter(Boolean);
+  if(dest.length) await db.from('trip_destinations')
+    .insert(dest.map((x,i)=>({trip_id:t.id, destination:x, seq:i})));
 
   /* 4. Kom bookingen fra tilbudssiden, laegges hotellet ind som ydelse med det
         samme. Saa skal det ikke tastes igen, og kontrollen kan gaa i gang. */
