@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.97 · 03.09.2026
+<!-- Panda · v0.98 · 03.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -161,6 +161,22 @@
      bygget til at vokse.
      Og: hjemmesiden er taget af toppen af henvendelsen igen. Den hørte
      hjemme nede i «Sporing og teknik», hvor den også allerede stod.
+
+     v0.98 — HENVENDELSERNE OPDATERER SIG SELV.
+     Wendie: «når Rasmus flytter en henvendelse ind i en ny søjle, så skal det
+     automatisk opdateres hos mig også. Jeg var nødt til at sidde og genopfriske
+     siden.» Det var ikke tilfældigt: leads har aldrig været med i Supabases
+     realtidsudsendelse, og abonnementet dækkede kun dashboardet.
+     Tre hensyn vejer tungere end selve opdateringen: et kort må aldrig flytte
+     sig, mens hun trækker i et andet (ændringer lægges i kø og udføres ved
+     slip); skriver hun i et felt på en åben henvendelse, opdateres data men
+     ikke billedet; og hun får at vide HVAD der skete — for egne ændringer
+     kvitteres der ikke.
+     Samme version: fornavn og efternavn er hver sin linje på en ny henvendelse
+     (contact_name bliver stående som det samlede visningsnavn, så intet andet
+     ændrer sig), og koblingen fra rejsen tilbage til henvendelsen siger nu
+     højt fra, hvis den fejler — det var dén, der efterlod Holts mellemlanding
+     stående på dashboardet, efter at henvendelsen var sat til tabt.
 -->
 <html lang="da">
 <head>
@@ -2848,7 +2864,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.97';
+const APP_VERSION = 'v0.98';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -3059,7 +3075,7 @@ const FLOW = ['bekraeftet','bb_sendt','klar_til_afrejse','god_tur','faerdig'];
 // Henvendelses-pipeline — trin kortlagt fra Pipedrive "Leads - Pipeline" (16. jul 2026)
 const LEAD_STAGES = ['new_lead','send_email','email_sent','make_offer','to_be_sent','offer_sent','followed_up','thinking','negotiation','confirmed'].map(k=>[k, t('ls.'+k)]);
 const LEAD_STAGE_LABEL = Object.fromEntries(LEAD_STAGES);
-const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url,villa_types,meal_plans,occasions,vurdering,vurdering_by,vurdering_at,utm_source,utm_campaign,pd_origin,pd_channel,pd_channel_id,visitor_device,client_type';
+const LEAD_FIELDS = 'id,pipedrive_deal_id,title,stage,status,branch,owner,contact_name,contact_first_name,contact_last_name,contact_email,contact_phone,est_value,currency,destination,adults,kids,child_ages,departure_airport,departure_date,return_date,earliest_departure,latest_return,nights,villas,max_budget,contact_pref,travel_wishes,wishes,highlights,source,heard_about_us,contacted,offers_count,next_action_date,lost_reason,converted_trip_id,notes,created_at,updated_at,source_channel,offer_url,villa_types,meal_plans,occasions,vurdering,vurdering_by,vurdering_at,utm_source,utm_campaign,pd_origin,pd_channel,pd_channel_id,visitor_device,client_type';
 const EL_TYPES = new Proxy({}, { get:(o,k)=> t('el.'+String(k), String(k)) });
 const SALES_TASKS = ['tjek_rejse','pre_departure','god_tur','hjemkomst','retrieval'];
 const FIN_TASKS = ['restbetaling','leverandoerbetaling','kreditvarsel','dok_sync'];
@@ -8047,7 +8063,8 @@ function hvNyDlg(){
       <p>Til dem der ringer eller skriver direkte. Udfyld resten på selve sagen bagefter — intet er påkrævet.</p></div>
     <div class="c">
       <div class="nyg">
-        <div class="fld"><div class="k">Navn</div><input id="nyNavn" placeholder="Fornavn Efternavn"></div>
+        <div class="fld"><div class="k">Fornavn</div><input id="nyFornavn" placeholder="Anne Marie"></div>
+        <div class="fld"><div class="k">Efternavn</div><input id="nyEfternavn" placeholder="Berg Olsen"></div>
         <div class="fld"><div class="k">Branche</div><select id="nyBranch">${
           BRANCH_OPTS.map(([k,lab])=>`<option value="${k}" ${f.branch===k?'selected':''}>${escH(lab)}</option>`).join('')}</select></div>
         <div class="fld"><div class="k">Ansvarlig</div><select id="nyOwner">${TEAM_OPTS(f.owner||window.ME||'')}</select></div>
@@ -8061,16 +8078,22 @@ function hvNyDlg(){
     <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
       <button class="b gold" id="nyGem" onclick="hvNyGem()">Opret og åbn</button></div></div>`;
   ov.classList.add('on');
-  setTimeout(()=>{ const i=document.getElementById('nyNavn'); if(i) i.focus(); },40);
+  setTimeout(()=>{ const i=document.getElementById('nyFornavn'); if(i) i.focus(); },40);
 }
 async function hvNyGem(){
   const v=id=>((document.getElementById(id)||{}).value||'').trim();
   const fejl=document.getElementById('nyFejl');
-  const navn=v('nyNavn');
+  /* Wendie 03.09.2026: fornavn og efternavn hoerer i hver sin linje — ellers
+     kan der ikke sorteres paa efternavn, og konverteringen maa gaette, hvor
+     navnet deler sig. contact_name bliver staaende som det SAMLEDE navn, saa
+     alt det, der allerede laeser det felt, virker uaendret. */
+  const fornavn=v('nyFornavn'), efternavn=v('nyEfternavn');
+  const navn=[fornavn,efternavn].filter(Boolean).join(' ');
   const knap=document.getElementById('nyGem'); if(knap){ knap.disabled=true; knap.textContent='Opretter…'; }
   const branch=v('nyBranch')||'NO';
   const rec={
     title: navn || 'Ny henvendelse', contact_name: navn || null,
+    contact_first_name: fornavn || null, contact_last_name: efternavn || null,
     stage:'new_lead', status:'open', branch, owner:v('nyOwner')||null,
     /* Valutaen foelger branchen fra start — den kan aendres paa sagen. */
     currency: branch==='MD' ? 'DKK' : 'NOK',
@@ -8433,6 +8456,7 @@ async function viewHenvendelser(){
   const leads = await pLeads;
   window._leads = leads;
   await pViews; await pFrist; hvBrugStandard();
+  hvRealtid();
   const berig = await pBerig;
   if(berig){
     const [actR, teamR, histR, tripR] = berig;
@@ -8813,6 +8837,7 @@ function hvDragStart(e,id){
 }
 function hvDragEnd(e){
   _hvDrag=null;
+  setTimeout(hvKoeUd, 0);
   if(e&&e.currentTarget&&e.currentTarget.classList) e.currentTarget.classList.remove('dragging');
   document.querySelectorAll('.hv7 .col').forEach(c=>c.classList.remove('kandrop','over'));
 }
@@ -8833,6 +8858,7 @@ async function hvDrop(e,k){
   if(!id){ try{ id=e.dataTransfer.getData('text/plain'); }catch(_){} }
   _hvDrag=null;
   document.querySelectorAll('.hv7 .col').forEach(c=>c.classList.remove('kandrop','over'));
+  setTimeout(hvKoeUd, 0);
   if(!id||!k) return;
   const l=(window._leads||[]).find(x=>x.id===id);
   if(!l || l.stage===k) return;
@@ -8845,6 +8871,7 @@ async function hvDrop(e,k){
   // flyt kortet med det samme, saa det foles oejeblikkeligt — og rul tilbage hvis gemningen fejler
   l.stage=k; l._stageSince=new Date().toISOString();
   hvBoardRender();
+  hvMinAendring(id);
   const {error}=await db.from('leads').update({stage:k}).eq('id',id);
   if(error){
     l.stage=fra; l._stageSince=fraTid;
@@ -8854,17 +8881,94 @@ async function hvDrop(e,k){
   }
   hvKvit(`${l.contact_name||l.title||'Henvendelsen'} flyttet til «${STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k}»`);
 }
-/* Kort kvittering nede i hjaelpelinjen — forsvinder af sig selv igen. */
-function hvKvit(tekst){
-  const h=document.getElementById('hvHint'); if(!h) return;
-  if(!window._hvHintOrg) window._hvHintOrg=h.innerHTML;
-  clearTimeout(window._hvKvitTimer);
-  h.innerHTML=`<b>✓</b> ${escH(tekst)}`;
-  h.classList.add('kvit');
-  window._hvKvitTimer=setTimeout(()=>{
-    const hh=document.getElementById('hvHint');
-    if(hh){ hh.innerHTML=window._hvHintOrg; hh.classList.remove('kvit'); }
-  },2600);
+
+/* ══ HENVENDELSERNE I REALTID ══════════════════════════════════════════
+   Wendie 03.09.2026: «naar Rasmus flytter en henvendelse ind i en ny soejle,
+   saa skal det automatisk opdateres hos mig ogsaa. Jeg var noedt til at
+   sidde og genopfriske siden.»
+   Det var ikke tilfaeldigt: leads har aldrig vaeret med i udsendelsen, og
+   abonnementet daekkede kun dashboardet.
+
+   Tre hensyn, som er vigtigere end selve opdateringen:
+     · Et kort maa ALDRIG flytte sig, mens hun traekker i et andet. Aendringer,
+       der kommer ind under et traek, laegges i koe og udfoeres ved slip.
+     · Skriver hun i et felt paa en aaben henvendelse, tegner vi ikke panelet
+       om under haenderne paa hende. Data opdateres, billedet ikke.
+     · Hun faar at vide, HVAD der skete. Et kort, der flytter sig af sig selv
+       uden forklaring, er mere foruroligende end nyttigt. For egne aendringer
+       kvitteres der ikke — dem har hun lige lavet selv.                   */
+let __hvChan = null;
+window._hvMine = new Map();
+function hvMinAendring(id){
+  window._hvMine.set(id, Date.now());
+  setTimeout(()=>window._hvMine.delete(id), 8000);
+}
+const hvVarMig = id => window._hvMine.has(id);
+
+function hvRealtid(){
+  if(__hvChan) return;
+  try{
+    __hvChan = db.channel('hv-live')
+      .on('postgres_changes',{event:'*',schema:'public',table:'leads'}, hvUdefra)
+      .subscribe();
+  }catch(e){ console.warn('realtid paa henvendelser fejlede', e); }
+}
+function hvUdefra(p){
+  if(!window._leads) return;
+  if(_hvDrag){ (window._hvKoe = window._hvKoe || []).push(p); return; }
+  hvAnvend(p);
+}
+function hvKoeUd(){
+  const koe = window._hvKoe || []; window._hvKoe = [];
+  koe.forEach(hvAnvend);
+}
+function hvAnvend(p){
+  const liste = window._leads; if(!liste) return;
+  const ny = p.new || {}, gl = p.old || {};
+  const id = ny.id || gl.id; if(!id) return;
+  const i = liste.findIndex(x=>x.id===id);
+  let besked = null;
+
+  if(p.eventType === 'DELETE'){
+    if(i < 0) return;
+    const navn = liste[i].contact_name || liste[i].title || 'En henvendelse';
+    liste.splice(i,1);
+    if(window._hvId === id) hvClose();
+    besked = hvVarMig(id) ? null : navn + ' er slettet';
+  } else if(i < 0){
+    liste.unshift(Object.assign({}, ny, {_stageSince: ny.created_at}));
+    besked = hvVarMig(id) ? null : 'Ny henvendelse: ' + (ny.contact_name || ny.title || 'uden navn');
+  } else {
+    const foer = liste[i];
+    const flyttet = gl.stage && ny.stage && gl.stage !== ny.stage;
+    Object.assign(foer, ny);
+    if(flyttet) foer._stageSince = new Date().toISOString();
+    if(!hvVarMig(id)){
+      const navn = foer.contact_name || foer.title || 'En henvendelse';
+      if(flyttet) besked = navn + ' er flyttet til «' + (STAGE_SHORT[ny.stage]||LEAD_STAGE_LABEL[ny.stage]||ny.stage) + '»';
+      else if(gl.status !== ny.status && ny.status === 'lost') besked = navn + ' er sat til tabt';
+      else if(gl.status !== ny.status && ny.status === 'won')  besked = navn + ' er solgt';
+      else besked = navn + ' er rettet';
+    }
+  }
+
+  if(window.__view !== 'hv') return;   /* data er opdateret; tavlen tegnes naar hun kommer tilbage */
+
+  /* hvBoardRender skriver HELE app.innerHTML om — og panelet ligger deri.
+     Staar markoeren i et felt, ville en genoptegning rive feltet vaek midt i
+     en saetning. Saa venter billedet, til hun slipper; tallene i _leads er
+     allerede rigtige. #hvLd er panelet, #hvOv2 dialogerne ovenpaa. */
+  const aktiv = document.activeElement;
+  if(aktiv && aktiv.closest && aktiv.closest('#hvLd, .ldlg, #hvOv2')){
+    window._hvVenter = true;
+    return;
+  }
+  /* Og var der en sag aaben, skal den aabnes igen bagefter — ogsaa naar det
+     var en ANDEN sag, der blev rettet. Ellers forsvinder den, hun sad med. */
+  const varAaben = window._hvId;
+  hvBoardRender();
+  if(varAaben && (window._leads||[]).some(x=>x.id===varAaben)) hvOpen(varAaben);
+  if(besked) hvKvit(besked);
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -9191,7 +9295,10 @@ function hvClose(){ window._hvId=null;
      ligger den stadig i klar-kolonnen». Er der rettet noget mens sagen var
      aaben, skal tavlen bagved vise det med det samme — ellers staar kortet i
      den forkerte kolonne, indtil siden tilfaeldigvis hentes forfra. */
-  if(window._hvAendret){ window._hvAendret=false; hvBoardRender(); } }
+  /* Kom der ogsaa aendringer udefra, mens hun skrev, indhentes de her. */
+  if(window._hvAendret || window._hvVenter){
+    window._hvAendret=false; window._hvVenter=false; hvBoardRender();
+  } }
 function hvStep(d){ const o=document.getElementById('hvOv'); if(!o||!o.classList.contains('on')) return;
   const arr=window._hvOrder||[]; let i=arr.indexOf(window._hvId); if(i<0) return;
   hvOpen(arr[(i+d+arr.length)%arr.length]); }
@@ -9296,6 +9403,8 @@ async function hvStage(k){
     document.querySelector('.hv7 .vur')?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
+  hvMinAendring(id);
+  hvMinAendring(id);
   const {error}=await db.from('leads').update({stage:k}).eq('id',id); if(error){ alert(error.message); return; }
   const l=(window._leads||[]).find(x=>x.id===id); if(l){ l.stage=k; l._stageSince=new Date().toISOString(); }
   window._hvAendret=true;
@@ -13511,11 +13620,19 @@ async function hvSolgtGem(){
     if(data && data.length) kundeId = data[0].id;
   }
   if(!kundeId){
-    const navn = (l.contact_name||'Ukendt').trim();
-    const i = navn.lastIndexOf(' ');
+    /* Er navnet skrevet ind i to felter, bruger vi dem. Er det en aeldre sag
+       med ét samlet navn, falder vi tilbage til gaettet — men saa er det ogsaa
+       kun dér, der gaettes. */
+    let fornavn = (l.contact_first_name||'').trim();
+    let efternavn = (l.contact_last_name||'').trim();
+    if(!fornavn && !efternavn){
+      const navn = (l.contact_name||'Ukendt').trim();
+      const i = navn.lastIndexOf(' ');
+      fornavn = i>0 ? navn.slice(0,i) : navn;
+      efternavn = i>0 ? navn.slice(i+1) : '';
+    }
     const {data, error} = await db.from('customers').insert({
-      first_name: i>0 ? navn.slice(0,i) : navn,
-      last_name:  i>0 ? navn.slice(i+1) : '',
+      first_name: fornavn, last_name: efternavn,
       email: mail || null, phone: l.contact_phone || null
     }).select('id').single();
     if(error){ fejl.textContent = 'Kunden kunne ikke oprettes: '+error.message; return; }
@@ -13608,7 +13725,19 @@ async function hvSolgtGem(){
   /* 5. Henvendelsen kobles til rejsen. Den lukkes IKKE som vundet endnu —
         det sker foerst ved bekraeftelsen, saa konverteringsraten ikke
         taeller en rejse med, der endnu kan falde fra. */
-  await db.from('leads').update({converted_trip_id: t.id, stage:'confirmed'}).eq('id', l.id);
+  /* Wendie 03.09.2026 fandt en mellemlanding paa Holt, som stod tilbage paa
+     dashboardet, efter at henvendelsen var sat til tabt. Aarsagen var, at
+     leads.converted_trip_id aldrig blev sat: rejsen pegede paa henvendelsen,
+     men ikke omvendt, og saa kunne hverken tabt-knappen eller dubletfilteret
+     se sammenhaengen. Fejler koblingen nu, siger vi det HOEJT — en stille
+     fejl her efterlader en rejse, ingen kan forklare. */
+  const {error: eLink} = await db.from('leads')
+    .update({converted_trip_id: t.id, stage:'confirmed'}).eq('id', l.id);
+  if(eLink){
+    alert('Rejsen er oprettet, men henvendelsen kunne ikke kobles til den:\n\n'
+      + eLink.message + '\n\nSig det til Wendie. Indtil det er rettet, staar '
+      + 'rejsen som en loesreven mellemlanding paa dashboardet.');
+  }
   l.converted_trip_id = t.id; l.stage='confirmed';
 
   hvLukDlg(); hvClose();
