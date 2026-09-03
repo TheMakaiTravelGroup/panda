@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.90 · 01.09.2026
+<!-- Panda · v0.92 · 02.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -74,7 +74,26 @@
      GB, fordi GB nogle gange er billigere. Hver prislinje viser hvilken
      nationalitet prisen blev fundet på. Børnenes alder regnes på
      ankomstdagen, ikke i dag. Kontrakterne spørges hver gang, så nul
-     betyder nul — ikke «vi spurgte ikke». -->
+     betyder nul — ikke «vi spurgte ikke».
+
+     v0.91 — TO NYE ÅRSAGER PÅ TABT, DER SÆTTES TIL TALT MED DET SAMME.
+     Wendie: «dem vi skriver til, fordi de enten mangler info eller har for
+     lavt beløb … som vi skriver til, men ikke forventer at høre fra igen.
+     Derfor sætter vi den til talt med det samme.»
+     «For lidt at gå efter» og «Beløbet er for lavt» er ikke sager, der gled
+     fra os — det er sager, vi selv lukker. De markeres derfor som kontaktet
+     i samme øjeblik, så de ikke ligger og ser ubehandlede ud i
+     statistikken for altid.
+
+     v0.92 — VURDERINGEN ER NU OBLIGATORISK, FØR SAGEN FLYTTER SIG.
+     Wendie: «den skal udfyldes, for ellers så glemmer vi det.»
+     Spærret fire steder: stadiebjælken, træk-og-slip på boardet, Tabt og
+     Solgt. Kun væk FRA «Ny henvendelse» — flytter man mellem de senere
+     trin, er vurderingen der allerede.
+     Grunden til at det skal være FØR: vurderingen findes for at kunne
+     holdes op mod lead-scoren bagefter. Sættes den efter at vi kender
+     udfaldet, er den ikke en vurdering længere — så er den en konklusion,
+     og så måler den ingenting. -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -2704,7 +2723,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.90';
+const APP_VERSION = 'v0.92';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -8294,6 +8313,11 @@ async function hvDrop(e,k){
   if(!id||!k) return;
   const l=(window._leads||[]).find(x=>x.id===id);
   if(!l || l.stage===k) return;
+  if(l.stage==='new_lead' && k!=='new_lead' && !hvHarVurdering(l)){
+    hvKvit(hvVurMangler('henvendelsen flytter sig'));
+    hvOpen(id);
+    return;
+  }
   const fra=l.stage, fraTid=l._stageSince;
   // flyt kortet med det samme, saa det foles oejeblikkeligt — og rul tilbage hvis gemningen fejler
   l.stage=k; l._stageSince=new Date().toISOString();
@@ -8332,6 +8356,16 @@ function hvKvit(tekst){
    filterlinjen har «Aabne · Tabte · Alle», og under Tabte staar de i det
    trin de naaede, med aarsagen paa kortet. Saa kan moenstret ses.
    ══════════════════════════════════════════════════════════════════════ */
+/* Wendie 02.09.2026: «jeg skal lige have en lost cause mere ind — dem vi
+   skriver til, fordi de enten mangler info eller har for lavt beloeb. Vi
+   kan godt dele den op i to. Og som vi skriver til, men ikke forventer at
+   hoere fra igen … saa derfor saetter vi den til talt med det samme.»
+
+   De to nederste er ikke sager, der gled fra os. Det er sager, vi selv
+   lukker med det samme og skriver til. Derfor baerer de et fjerde felt:
+   TALT. Er det sat, markeres henvendelsen som kontaktet i samme
+   oejeblik — vi har jo skrevet, og der kommer ikke mere. Ellers ville de
+   ligge og se ubehandlede ud i statistikken for altid. */
 const HV_TABT = [
   ['for_dyrt',      'For dyrt',                'prisen var afgørende'],
   ['andet_bureau',  'Valgte et andet bureau',  'købte samme type rejse et andet sted'],
@@ -8339,6 +8373,8 @@ const HV_TABT = [
   ['udskudt',       'Rejsen er udskudt',       'vil gerne — bare ikke nu'],
   ['svarer_ikke',   'Svarer ikke',             'faldt fra undervejs uden svar'],
   ['kun_prisinfo',  'Ville kun høre prisen',   'aldrig en reel forespørgsel'],
+  ['mangler_info',  'For lidt at gå efter',    'vi skrev og bad om mere — svar ikke ventet', true],
+  ['for_lavt',      'Beløbet er for lavt',     'vi skrev og takkede nej — svar ikke ventet', true],
   ['andet',         'Andet',                   'skriv hvad der skete']
 ];
 
@@ -8376,16 +8412,26 @@ async function hvTabtGem(){
   if(!k){ if(fejl) fejl.textContent = 'Vælg en årsag — det er hele pointen med at registrere den.'; return; }
   const note = ((document.getElementById('hvTabtNote')||{}).value||'').trim();
   if(k==='andet' && !note){ if(fejl) fejl.textContent = 'Skriv hvad der skete — ellers siger «Andet» os ingenting.'; return; }
+  const lv=(window._leads||[]).find(x=>x.id===id);
+  if(!hvHarVurdering(lv)){ if(fejl) fejl.textContent = hvVurMangler('sagen lukkes'); return; }
   const navn = (HV_TABT.find(x=>x[0]===k)||[])[1] || k;
   const aarsag = note ? `${navn} — ${note}` : navn;
 
-  const {error} = await db.from('leads').update({status:'lost', lost_reason:aarsag}).eq('id',id);
+  /* De to sidste aarsager er sager, vi selv lukker og skriver til. De
+     saettes til kontaktet i samme oejeblik — ellers staar de som
+     ubehandlede resten af deres liv. */
+  const talt = !!(HV_TABT.find(x=>x[0]===k)||[])[3];
+  const felter = {status:'lost', lost_reason:aarsag};
+  if(talt) felter.contacted = true;
+
+  const {error} = await db.from('leads').update(felter).eq('id',id);
   if(error){ if(fejl) fejl.textContent = error.message; return; }
 
   const l=(window._leads||[]).find(x=>x.id===id);
-  if(l){ l.status='lost'; l.lost_reason=aarsag; }
+  if(l){ l.status='lost'; l.lost_reason=aarsag; if(talt) l.contacted = true; }
   hvLukDlg(); hvClose(); hvBoardRender();
-  hvKvit(`${(l&&l.contact_name)||'Henvendelsen'} markeret tabt — ${navn.toLowerCase()}`);
+  hvKvit(`${(l&&l.contact_name)||'Henvendelsen'} markeret tabt — ${navn.toLowerCase()}`
+    + (talt ? ' · sat til talt med' : ''));
 }
 /* Fortryd: en tabt sag kan aabnes igen. Aarsagen bliver staaende i
    historikken, saa vi kan se at den var lukket én gang. */
@@ -8663,6 +8709,22 @@ function hvTog(btn,felt){
   const valgte=[...btn.parentNode.querySelectorAll('.mopt.on')].map(b=>b.textContent.trim());
   hvSave(felt, valgte.length?valgte:null);
 }
+/* ══ VURDERINGEN SKAL VÆRE SAT, FØR SAGEN FLYTTER SIG ══
+   Wendie 02.09.2026: «vi skal have gjort den her obligatorisk at udfylde,
+   når vi enten flytter en henvendelse fra ny henvendelse over til noget
+   andet, eller hvis vi markerer den som tabt eller solgt. Den skal
+   udfyldes, for ellers så glemmer vi det.»
+
+   Pointen med vurderingen er at kunne holde vores egen mavefornemmelse op
+   mod lead-scoren bagefter. Sættes den EFTER at vi kender udfaldet, er den
+   ikke en vurdering længere — så er den en konklusion, og så måler den
+   ingenting. Derfor spærrer vi på de tre steder, hvor sagen forlader sin
+   uskyld: væk fra «Ny henvendelse», til tabt, og til solgt. */
+function hvHarVurdering(l){ return !!(l && l.vurdering); }
+function hvVurMangler(hvad){
+  return 'Sæt «Vores vurdering» først — den skal stå, før ' + hvad
+    + '. Ellers ved vi bagefter ikke, hvad vi troede på forhånd.';
+}
 function hvVur(k){
   const id=window._hvId; if(!id) return;
   document.querySelectorAll('.hv7 .vur button').forEach(b=>b.classList.remove('on'));
@@ -8674,6 +8736,12 @@ function hvVur(k){
 }
 async function hvStage(k){
   const id=window._hvId; if(!id) return;
+  const l0=(window._leads||[]).find(x=>x.id===id);
+  if(l0 && l0.stage==='new_lead' && k!=='new_lead' && !hvHarVurdering(l0)){
+    hvKvit(hvVurMangler('henvendelsen flytter sig'));
+    document.querySelector('.hv7 .vur')?.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
   const {error}=await db.from('leads').update({stage:k}).eq('id',id); if(error){ alert(error.message); return; }
   const l=(window._leads||[]).find(x=>x.id===id); if(l){ l.stage=k; l._stageSince=new Date().toISOString(); }
   window._hvAendret=true;
@@ -12844,6 +12912,7 @@ async function hvSolgtGem(){
   /* Fejl vises i den lille boks der staar «Opretter mellemlandingen…» */
   const fejl = { set textContent(t){ const o=document.querySelector('.hv7 .opretter');
       if(o){ o.textContent=t; o.classList.add('fejl'); } } };
+  if(!hvHarVurdering(l)){ fejl.textContent = hvVurMangler('rejsen oprettes'); return; }
 
 
 
