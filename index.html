@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.92 · 02.09.2026
+<!-- Panda · v0.93 · 02.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -93,7 +93,19 @@
      Grunden til at det skal være FØR: vurderingen findes for at kunne
      holdes op mod lead-scoren bagefter. Sættes den efter at vi kender
      udfaldet, er den ikke en vurdering længere — så er den en konklusion,
-     og så måler den ingenting. -->
+     og så måler den ingenting.
+
+     v0.93 — KUN ÉN BRUGER MÅ SLETTE HENVENDELSER.
+     Wendie: «ellers har Rasmus en tendens til at slette i stedet for at
+     sætte dem til tabt. Han skal slet ikke have den mulighed.»
+     Ny rettighed slet_henvendelser. Den står som falsk på alle roller, så
+     ingen får den ved et uheld — heller ikke en ny administrator — og er
+     givet som personlig undtagelse til wp@maldivia.no.
+     Vigtigt: en skjult knap er ikke en spærring. Derfor er det lukket i
+     BASEN. Politikken «team_rw» gav hele teamet alt, også sletning; den er
+     delt i fire, så læs, opret og ret er uændret, mens sletning kræver
+     rettigheden. Uden den får man ingen rækker at slette — og Panda siger
+     det, i stedet for at lade som om noget forsvandt. -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -2723,7 +2735,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.92';
+const APP_VERSION = 'v0.93';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -7848,9 +7860,23 @@ async function hvSletUdfoer(){
   const id=window._hvId; if(!id) return;
   const l=(window._leads||[]).find(x=>x.id===id)||{};
   const k=document.getElementById('hvSletKnap'), f=document.getElementById('hvSletFejl');
+  /* Knappen er skjult for alle andre, men en skjult knap er ikke en
+     spaerring. Basen afviser ogsaa sletningen — det her er blot for at
+     sige det med ord i stedet for at lade som om der skete noget. */
+  if(!hasPerm('slet_henvendelser')){
+    if(f) f.textContent = 'Du har ikke lov til at slette henvendelser. Brug «Tabt» — '
+      + 'en tabt sag beholder sin årsag, en slettet efterlader ingenting.';
+    if(k) k.disabled = true;
+    return;
+  }
   if(k){ k.disabled=true; k.textContent='Sletter…'; }
-  const {error}=await db.from('leads').delete().eq('id',id);
+  const {data:slettede, error}=await db.from('leads').delete().eq('id',id).select('id');
   if(error){ if(f) f.textContent='Kunne ikke slette: '+error.message;
+    if(k){ k.disabled=false; k.textContent='Slet permanent'; } return; }
+  /* Uden rettigheden faar man ingen raekker at slette — kaldet lykkes, men
+     rammer nul. Det maa ikke ligne, at noget blev slettet. */
+  if(!slettede || !slettede.length){
+    if(f) f.textContent='Henvendelsen blev ikke slettet — du har ikke lov til det.';
     if(k){ k.disabled=false; k.textContent='Slet permanent'; } return; }
   const navn=hvNavn(l);
   window._leads=(window._leads||[]).filter(x=>x.id!==id);
@@ -8635,8 +8661,8 @@ function hvRender(l, acts, offers){
               ? r.map(([k,v])=>`<div class="sprow"><span class="k">${escH(k)}</span><span class="v">${escH(String(v))}</span></div>`).join('')
               : '<div class="sprow tom"><span class="v">Denne henvendelse kom ind uden spor.</span></div>'}</div>
           </details>`; })()}
-        ${hasPerm('manage_users')?`<button class="hvsletlink" onclick="hvSletDlg()"
-          title="Fjerner henvendelsen permanent — kun for administratorer">Slet henvendelsen</button>`:''}
+        ${hasPerm('slet_henvendelser')?`<button class="hvsletlink" onclick="hvSletDlg()"
+          title="Fjerner henvendelsen permanent">Slet henvendelsen</button>`:''}
       </div>
     </div>
 
