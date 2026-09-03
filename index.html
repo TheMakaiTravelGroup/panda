@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.93 · 02.09.2026
+<!-- Panda · v0.94 · 02.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -105,7 +105,13 @@
      BASEN. Politikken «team_rw» gav hele teamet alt, også sletning; den er
      delt i fire, så læs, opret og ret er uændret, mens sletning kræver
      rettigheden. Uden den får man ingen rækker at slette — og Panda siger
-     det, i stedet for at lade som om noget forsvandt. -->
+     det, i stedet for at lade som om noget forsvandt.
+
+     v0.94 — «OK» ER KOMMET TIL SOM VURDERING.
+     Wendie: «en henvendelse kan godt være ok — den er jo lige i midten
+     mellem nederen og god.» Fem trin i stedet for fire: Super god, God,
+     OK, Nederen, Umulig. Med kun fire endte alt, der ikke var godt, i
+     «Nederen», og så siger vurderingen mindre end den kunne. -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -2735,7 +2741,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.93';
+const APP_VERSION = 'v0.94';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -7457,7 +7463,12 @@ const HV_MEAL  = ['Morgenmad','Halvpension','Helpension','All Inclusive','Flere 
 const HV_LUFTHAVNE = ['(OSL) Oslo','(BGO) Bergen','(SVG) Stavanger','(TRD) Trondheim','(TOS) Tromsø','(KRS) Kristiansand','(AES) Aalesund','(BOO) Bodø','(HAU) Haugesund','(TRF) Sandefjord Torp','(CPH) København','(BLL) Billund','(AAL) Aalborg','(AAR) Aarhus','(HAM) Hamborg'];
 const hvSplit = v => (v||'').split(',').map(x=>x.trim()).filter(Boolean);
 const HV_OCC   = ['Familieferie','Bryllupsrejse','Bryllupsdag','Rund fødselsdag','Fødselsdag','Jubilæum','Babymoon','Forlovelse','Vennerejse','Bare ferie'];
-const HV_VUR   = [['super_god','Super god','prioritér'],['god','God','normal'],['nederen','Nederen','lav indsats'],['umulig','Umulig','luk hurtigt']];
+/* Wendie 02.09.2026: «der maa godt komme en vurdering mere paa — en
+   henvendelse kan godt vaere ok. Den er jo lige i midten mellem nederen og
+   god.» Fem trin i stedet for fire, saa der findes et sted at placere det
+   almindelige. Med kun fire endte alt, der ikke var godt, i «Nederen», og
+   saa siger vurderingen mindre end den kunne. */
+const HV_VUR   = [['super_god','Super god','prioritér'],['god','God','normal'],['ok','OK','hverken eller'],['nederen','Nederen','lav indsats'],['umulig','Umulig','luk hurtigt']];
 const HV_DEST_GROUPS = [
   ['Det Indiske Ocean',['Maldiverne','Mauritius','Seychellerne','Sri Lanka','Zanzibar','Réunion']],
   ['Caribien',['Den Dominikanske Republik','Jamaica','Barbados','Grenada','Curaçao','Aruba','St. Lucia','Antigua','St. Martin','Anguilla','Bahamas','Turks & Caicos','St. Barth','Cuba']],
