@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.02 · 03.09.2026
+<!-- Panda · v1.03 · 03.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -201,6 +201,42 @@
      antal nætter er ude af overskriften, fordi vi kan sælge flyet 14.–22. og
      kun have hotel i fire af nætterne; og hjemrejsedatoen følger nu
      rejseplanen — rejsen varer så længe, som dens ydelser varer.
+
+     v1.03 — TIDEN PÅ EN YDELSE ER EN SORTERINGSNØGLE, IKKE EN OPLYSNING.
+     Wendie: «kan man ikke sætte check-in tidspunktet på hotellet automatisk
+     til kl. 15 … det er jo ikke rigtigt noget, vi udfylder — den eneste grund
+     til, at det er med, er for at det lægger sig rigtigt efter.»
+     Præcis. Så standarden skal bare give den rækkefølge, en almindelig
+     ankomstdag har: flyet lander, så transferen, så checker man ind.
+     Før stod transferen kl. 10.00 og flyet kl. 12.00 — så lå transferen FØR
+     flyet på ankomstdagen. Nu: fly 12.00, transfer 13.00, hotel 15.00.
+     Skriver man en rigtig tid ind, vinder den altid over standarden.
+     Og der var TO lister med standardtider, STD_TID og STD_KL, med hver sit
+     navn og de samme tal. To steder at rette er ét for meget — de er slået
+     sammen.
+
+     Og trækket i ydelserne virkede ikke — Wendie: «jeg kan godt trække i
+     elementerne, men jeg kan ikke få dem til at lægge sig over eller under
+     hinanden.» To fejl i min egen v1.01:
+     (1) draggable blev sat INDE i mousedown på grebet. For sent — browseren
+     har allerede afgjort, om rækken kan trækkes, når musen går ned. Nu er
+     rækken altid trækbar, og trækket afvises i stedet, hvis det ikke startede
+     på grebet.
+     (2) listen blev tegnet om ved hvert dragover, så det kort musen holdt i
+     blev slettet, og browseren afbrød trækket. Nu flyttes intet undervejs:
+     der vises kun en gylden streg, hvor ydelsen vil lande, og selve
+     flytningen sker ved slip.
+
+     Og indkøbene står nu i DKK. Wendie: «priserne skal ikke stå i NOK; de
+     skal jo altid stå i DKK.» Ydelseslisten regnede om til KUNDENS valuta,
+     mens prisberegneren lige nedenunder hedder «én metode, alt gennem DKK»
+     og siger «Indkøb i alt … DKK» — de samme indkøb i to mønter på samme
+     side. Indkøb er husets penge og står i DKK; kundens valuta bruges kun
+     ét sted: den pris, kunden skal betale.
+     NB: det er ikke en ændring fra i dag. krK og KUNDEVAL har stået sådan
+     siden v0.85 den 1. september (efterprøvet i repoets historik over fem
+     udgivelser) — fejlen blev bare først synlig på en MN-rejse med rigtige
+     ydelser. tilKunde og krK bruges ikke længere og er fjernet.
 
      v1.02 — EN NY YDELSE BLEV ALDRIG GEMT.
      Wendie: «jeg havde lige lagt en masse ydelser ind, både fly og et hotel …
@@ -1234,12 +1270,16 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .card.indst .sysr{display:flex;gap:16px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:12.5px}
 .card.indst .sysr:last-child{border-bottom:0}
 .card.indst .sysr .k{min-width:170px;color:var(--mut)}
+#rsside .r-hj{font-size:9.5px;color:#a8a290;margin-top:3px;line-height:1.4}
 /* grebet paa en ydelse */
 #rsside .r-greb{flex:none;width:16px;text-align:center;color:#cfc7b4;font-size:13px;line-height:1;
   cursor:grab;user-select:none;transition:color .14s}
 #rsside .r-greb:hover{color:var(--gold)}
 #rsside .r-greb:active{cursor:grabbing}
-#rsside .r-rk.r-traekkes{opacity:.45}
+#rsside .r-rk.r-traekkes{opacity:.4}
+/* stregen viser, hvor ydelsen lander — den flytter sig foerst ved slip */
+#rsside .r-rk.r-foer{box-shadow:inset 0 2px 0 0 var(--gold)}
+#rsside .r-rk.r-efter{box-shadow:inset 0 -2px 0 0 var(--gold)}
 #rsside .r-rk[draggable="true"] .r-hd{background:#fdfaf3}
 
 /* ── «Hvad blev der solgt?» ── */
@@ -3003,7 +3043,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.02';
+const APP_VERSION = 'v1.03';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -10535,7 +10575,15 @@ function flyHtml(f){
    hotel. Det passer paa ankomstdagen og er forkert paa afrejsedagen: der
    koerer man til lufthavnen, FOER man flyver. Typen kan ikke afgoere det;
    kun klokken kan. */
-const STD_TID = { Fly:'12:00', Transfer:'10:00', Hotel:'14:00', Billet:'12:00', Andet:'12:00' };
+/* Wendie 03.09.2026: «kan man ikke saette check-in tidspunktet paa hotellet
+   automatisk til kl. 15 … det er jo ikke rigtigt noget, vi udfylder — den
+   eneste grund til, at det er med, er for at det laegger sig rigtigt efter.»
+   Netop derfor: tiden er en SORTERINGSNOEGLE, ikke en oplysning. Den skal
+   bare give den raekkefoelge, en almindelig ankomstdag har — flyet lander,
+   saa transferen, saa checker man ind. Foer stod transferen kl. 10 og flyet
+   kl. 12, saa transferen laa FOER flyet paa ankomstdagen. Rettet.
+   Skriver man en rigtig tid ind, vinder den altid over standarden. */
+const STD_TID = { Fly:'12:00', Transfer:'13:00', Hotel:'15:00', Billet:'12:00', Andet:'12:00' };
 const planTid = p => p.tid || STD_TID[p.art] || '12:00';
 function sorterPlan(){
   PLAN.sort((a,b)=>{
@@ -10924,12 +10972,18 @@ const kr = (n,v) => n==null ? '—'
   : n.toLocaleString('da-DK',{minimumFractionDigits:0,maximumFractionDigits:0}) + ' ' + v;
 /* Om til kundens valuta. Gaar over DKK, saa en EUR-pris paa en norsk sag
    ogsaa rammer rigtigt. */
-function tilKunde(n, fra){
-  if(n == null) return null;
-  const iDkk = n * (KURSER[fra] ?? 1);
-  return iDkk / (KURSER[KUNDEVAL] ?? 1);
-}
-const krK = n => kr(n, KUNDEVAL);
+/* ══ INDKOEB REGNES I DKK ══════════════════════════════════════════════
+   Wendie 03.09.2026: «priserne skal ikke stå i NOK; de skal jo altid stå i
+   DKK.» Rigtigt — og det stod klart nedenunder hele tiden: prisberegneren
+   hedder «én metode, alt gennem DKK» og siger «Indkøb i alt … DKK».
+   Ydelseslisten regnede derimod om til KUNDENS valuta, saa de samme
+   indkoeb stod i to forskellige moenter paa samme side.
+   Indkoeb er husets penge og staar i DKK. Kundens valuta bruges kun ét
+   sted: den pris, kunden skal betale.
+   (Saadan har det staaet siden 01.09.2026 — det er ikke en aendring fra i
+   dag, men en fejl der foerst blev synlig paa en MN-rejse.) */
+const krD = n => kr(n, 'DKK');
+const tilDkk2 = (n, fra) => n == null ? null : n * (KURSER[fra] ?? 1);
 const grundlag = id => st[id].linjer.find(l=>l.slag==='grundlag');
 /* ══ FLERE VALGTE LINJER ═══════════════════════════════════════════
    Wendie 01.09.2026: «det kan godt vaere, at vi har fundet hele prisen for
@@ -10986,8 +11040,10 @@ function valgtLinje(id){
    har fundet paa Farewise.» Saedereservationer koebes hos den, man koeber
    flyet hos — saa de skal foelge linjen, ikke elementet, og kun taelle med
    naar den linje er valgt. */
-const linjePris = l => (tilKunde(l.pris, l.val)||0)
-  + (l.subs||[]).reduce((a,x)=>a + (tilKunde(+x.p||0, x.val)||0), 0);
+/* Linjen i DKK — grundprisen plus dens delelementer. Regnede foer om til
+   KUNDENS valuta; det er husets penge, og de staar i DKK. */
+const linjePris = l => (tilDkk2(l.pris, l.val)||0)
+  + (l.subs||[]).reduce((a,x)=>a + (tilDkk2(+x.p||0, x.val)||0), 0);
 function nuPris(e){
   return valgteIdx(e.id).reduce((a,i)=>a + linjePris(st[e.id].linjer[i]), 0);
 }
@@ -10995,7 +11051,7 @@ function grundPris(id){ const g = grundlag(id); return g ? linjePris(g) : 0; }
 function difTekst(v, g){
   const d = v - g;
   if(Math.abs(d) < 0.5) return '<span class="r-df r-ens">samme</span>';
-  return `<span class="r-df ${d>0?'r-op':'r-ned'}">${d>0?'+':'−'}${krK(Math.abs(d))}</span>`;
+  return `<span class="r-df ${d>0?'r-op':'r-ned'}">${d>0?'+':'−'}${krD(Math.abs(d))}</span>`;
 }
 /* Billigst maales paa den omregnede pris — ikke paa tallet, for 12.900 EUR
    er dyrere end 14.200 USD, selv om tallet er mindre. */
@@ -11259,12 +11315,12 @@ function stigeHtml(e){
              pris, elementet viste linjen PLUS delelementerne — to tal, der
              ikke stemte, uden forklaring. Nu viser linjen sin fulde pris,
              og delelementerne staar under som regnestykke. */
-          const subs = (l.subs||[]).reduce((a,x)=>a + (tilKunde(+x.p||0, x.val)||0), 0);
+          const subs = (l.subs||[]).reduce((a,x)=>a + (tilDkk2(+x.p||0, x.val)||0), 0);
           const ialt = linjePris(l);
           if(!subs) return `<span class="r-pr">${kr(l.pris, l.val)}
-            ${l.val!==KUNDEVAL ? `<small>≈ ${krK(tilKunde(l.pris,l.val))}</small>` : ''}</span>`;
-          return `<span class="r-pr">${krK(ialt)}
-            <small class="r-opdel">${kr(l.pris, l.val)} + ${krK(subs)} i delelementer</small></span>`;
+            ${l.val!=='DKK' ? `<small>≈ ${krD(tilDkk2(l.pris,l.val))}</small>` : ''}</span>`;
+          return `<span class="r-pr">${krD(ialt)}
+            <small class="r-opdel">${kr(l.pris, l.val)} + ${krD(subs)} i delelementer</small></span>`;
         })()}
         <span class="r-dif">${l.slag==='grundlag' ? ''
           : difTekst(linjePris(l), g)}</span>
@@ -11285,8 +11341,8 @@ function stigeHtml(e){
       <span class="r-sl1">${valgteIdx(e.id).length} linjer lagt sammen</span>
       <span class="r-sl2">${valgteIdx(e.id).map(i=>{ const l = st[e.id].linjer[i];
         return `${l.lev} ${kr(l.pris,l.val)}`; }).join('  +  ')}</span>
-      <span class="r-sl3">${krK(valgteIdx(e.id).reduce((a,i)=>{ const l = st[e.id].linjer[i];
-        return a + (tilKunde(l.pris,l.val)||0); },0))}</span></div>` : ''}
+      <span class="r-sl3">${krD(valgteIdx(e.id).reduce((a,i)=>{ const l = st[e.id].linjer[i];
+        return a + (tilDkk2(l.pris,l.val)||0); },0))}</span></div>` : ''}
     ${s.nyLinje ? nyLinjeHtml(e) : ''}
     <button class="r-tilf" onclick="RS.nyLinje('${e.id}')">+ Tilføj prislinje</button>
   </div>`;
@@ -11311,36 +11367,63 @@ function saetFokus(){
    foerst — den er bare aldrig blevet aendret. Nu kan raekken traekkes.
    REJSEPLANEN foelger stadig datoerne; det er LISTEN, der faar en orden, saa
    ydelser uden dato (og dem der hoerer sammen) kan staa, hvor de giver mening. */
-let _ydTraek = null;
-function ydGreb(el, paa){
-  const rk = el.closest('.r-rk'); if(!rk) return;
-  rk.draggable = paa;                       /* kun grebet goer raekken traekbar */
-}
+let _ydTraek = null, _ydMaal = null, _ydFraGreb = false;
+/* Foerste udgave satte draggable=true INDE i mousedown paa grebet. For sent:
+   browseren har allerede afgjort, om raekken kan traekkes, naar musen gaar
+   ned. Derfor kunne der slet ikke traekkes. Nu er raekken altid traekbar, og
+   traekket afvises i stedet, hvis det ikke startede paa grebet. */
+function ydGreb(paa){ _ydFraGreb = !!paa; }
+document.addEventListener('mouseup', ()=>{ _ydFraGreb = false; });
 function ydStart(ev, id){
-  _ydTraek = id;
+  if(!_ydFraGreb || (ev.target.closest && ev.target.closest('.r-krop'))){
+    ev.preventDefault(); return;         /* kun grebet starter et traek */
+  }
+  _ydTraek = id; _ydMaal = null;
   const rk = ev.target.closest('.r-rk');
   if(rk) rk.classList.add('r-traekkes');
   try{ ev.dataTransfer.effectAllowed='move'; ev.dataTransfer.setData('text/plain', id); }catch(_){}
 }
+/* Foerste udgave tegnede listen om ved hvert dragover — og saa slettede den
+   det kort, musen holdt i. Browseren afbryder trækket i samme oejeblik, og
+   ydelsen kunne derfor traekkes, men aldrig lande. Nu flyttes INTET undervejs:
+   der vises kun en streg, hvor den vil lande, og selve flytningen sker ved
+   slip. (Wendie 03.09.2026: «jeg kan godt traekke i elementerne, men jeg kan
+   ikke faa dem til at laegge sig over eller under hinanden.») */
 function ydOver(ev, over){
-  if(!_ydTraek || over === _ydTraek) return;
+  if(!_ydTraek) return;
   ev.preventDefault();
-  const fra = ELEMENTER.findIndex(x=>x.id===_ydTraek);
-  const til = ELEMENTER.findIndex(x=>x.id===over);
-  if(fra < 0 || til < 0) return;
-  const rk = ev.currentTarget, m = rk.getBoundingClientRect();
-  const efter = ev.clientY > m.top + m.height/2;
-  const maal = efter ? til + (fra < til ? 0 : 1) : til + (fra < til ? -1 : 0);
-  if(maal === fra || maal < 0 || maal >= ELEMENTER.length) return;
-  ELEMENTER.splice(maal, 0, ELEMENTER.splice(fra, 1)[0]);
-  tegnListe();
-  const ny = liste.querySelector('.r-rk[data-id="'+_ydTraek+'"]');
-  if(ny){ ny.classList.add('r-traekkes'); ny.draggable = true; }
+  try{ ev.dataTransfer.dropEffect='move'; }catch(_){}
+  if(over === _ydTraek){ _ydMaal = null; ydStreg(); return; }
+  const m = ev.currentTarget.getBoundingClientRect();
+  _ydMaal = { over, efter: ev.clientY > m.top + m.height/2 };
+  ydStreg();
 }
-function ydDrop(ev){ ev.preventDefault(); ydSlut(); }
+function ydStreg(){
+  liste.querySelectorAll('.r-rk').forEach(r=>r.classList.remove('r-foer','r-efter'));
+  if(!_ydMaal) return;
+  const rk = liste.querySelector('.r-rk[data-id="'+_ydMaal.over+'"]');
+  if(rk) rk.classList.add(_ydMaal.efter ? 'r-efter' : 'r-foer');
+}
+function ydDrop(ev){
+  ev.preventDefault();
+  const id = _ydTraek, maal = _ydMaal;
+  if(id && maal){
+    const fra = ELEMENTER.findIndex(x=>x.id===id);
+    let til = ELEMENTER.findIndex(x=>x.id===maal.over);
+    if(fra >= 0 && til >= 0){
+      const [flyt] = ELEMENTER.splice(fra, 1);
+      til = ELEMENTER.findIndex(x=>x.id===maal.over);   /* indeks efter udtagningen */
+      ELEMENTER.splice(til + (maal.efter ? 1 : 0), 0, flyt);
+      tegnListe();
+    }
+  }
+  ydSlut();
+}
 async function ydSlut(){
-  const id = _ydTraek; _ydTraek = null;
-  liste.querySelectorAll('.r-rk').forEach(r=>{ r.classList.remove('r-traekkes'); r.draggable=false; });
+  const id = _ydTraek; _ydTraek = null; _ydMaal = null;
+  _ydFraGreb = false;
+  liste.querySelectorAll('.r-rk').forEach(r=>
+    r.classList.remove('r-traekkes','r-foer','r-efter'));
   if(!id) return;
   /* Kun de raekker der faktisk har flyttet sig, skrives — og fejler det,
      siges det hoejt i stedet for at listen stille staar forkert naeste gang. */
@@ -11368,7 +11451,8 @@ function tegnListeInd(){
   liste.innerHTML = ELEMENTER.map(e=>{
     const s = st[e.id], g = grundPris(e.id);
     return `
-    <div class="r-rk ${s.aaben?'r-aaben':''}" data-id="${e.id}"
+    <div class="r-rk ${s.aaben?'r-aaben':''}" data-id="${e.id}" draggable="true"
+         ondragstart="RS.ydStart(event,'${e.id}')"
          ondragover="RS.ydOver(event,'${e.id}')" ondrop="RS.ydDrop(event)"
          ondragend="RS.ydSlut()">
       <div class="r-hd" onclick="RS.fold('${e.id}')">
@@ -11377,8 +11461,7 @@ function tegnListeInd(){
              Grebet sidder for sig, saa et traek aldrig forveksles med et klik
              paa raekken — den folder stadig ud, naar man klikker. -->
         <span class="r-greb" title="Træk for at flytte ydelsen"
-          onmousedown="RS.ydGreb(this,true)" onmouseup="RS.ydGreb(this,false)"
-          ondragstart="RS.ydStart(event,'${e.id}')" onclick="event.stopPropagation()">⠿</span>
+          onmousedown="RS.ydGreb(true)" onclick="event.stopPropagation()">⠿</span>
         <span class="r-pil">▶</span>
         <span class="r-navn"><b>${e.navn}</b> <span>· ${e.sub}</span>${(()=>{
           /* Hvad mangler for at elementet giver mening? Vi spaerrer ikke —
@@ -11396,7 +11479,7 @@ function tegnListeInd(){
         <span class="r-levsm">${valgteIdx(e.id).length > 1
           ? valgteIdx(e.id).length + ' leverandører' : valgtLinje(e.id).lev}</span>
         <span class="r-pris">${valgteIdx(e.id).length
-          ? `<div class="r-nu">${krK(nuPris(e))}</div><div>${difTekst(nuPris(e), g)}</div>`
+          ? `<div class="r-nu">${krD(nuPris(e))}</div><div>${difTekst(nuPris(e), g)}</div>`
           : '<div class="r-nu r-tom2">—</div>'}</span>
 
       </div>
@@ -11585,7 +11668,7 @@ function linjeKrop(e, l, i){
           <button class="r-tf" onclick="RS.gemLSub('${e.id}',${i})">Tilføj</button></div>` : ''}
         <button class="r-tilf" onclick="RS.nyLSub('${e.id}',${i})">+ Tilføj delelement under ${l.lev}</button>
         ${(l.subs||[]).length ? `<div class="r-subsum"><span>Linjen i alt, med delelementer</span>
-          <b>${krK(linjePris(l))}</b></div>` : ''}
+          <b>${krD(linjePris(l))}</b></div>` : ''}
       </div>
     </div>
 
@@ -11681,7 +11764,7 @@ function visOm(id){
   const p = +document.getElementById('lp-'+id).value;
   const v = document.getElementById('lv-'+id).value;
   const ud = document.getElementById('lo-'+id);
-  ud.textContent = (p && v !== KUNDEVAL) ? '≈ ' + krK(tilKunde(p, v)) : '';
+  ud.textContent = (p && v !== 'DKK') ? '≈ ' + krD(tilDkk2(p, v)) : '';
 }
 function nyLinje(id){ st[id].nyLinje = true; tegnListe(); }
 const kortDato = d => d ? new Date(d).toLocaleDateString('da-DK',{day:'numeric',month:'short'}) : '';
@@ -11957,8 +12040,8 @@ function tegnFrister(){
         <span class="r-fn"><b>${kortNavn(e)}</b>
           <small>${[villaTekst(l), l.daekker].filter(x=>x && x!=='—').join(' · ')}</small></span>
         <span class="r-fl2">${l.lev}</span>
-        <span class="r-fp3">${kr(l.pris, l.val)}${l.val!==KUNDEVAL
-          ? `<small>≈ ${krK(tilKunde(l.pris,l.val))}</small>` : ''}</span>
+        <span class="r-fp3">${kr(l.pris, l.val)}${l.val!=='DKK'
+          ? `<small>≈ ${krD(tilDkk2(l.pris,l.val))}</small>` : ''}</span>
         <span class="r-fd">${h.dato ? fristKort(h)
           : '<em>ingen frist sat</em>'}</span>
         <span class="r-fk">${d == null ? 'ingen frist' : d < 0 ? 'udløbet'
@@ -11972,7 +12055,7 @@ function tael(){
   nOk.parentNode.innerHTML = '<b id="nOk">' + ELEMENTER.length + '</b>&nbsp;'
     + (ELEMENTER.length === 1 ? 'ydelse på rejsen' : 'ydelser på rejsen');
   const total = ELEMENTER.reduce((a,e)=>a + nuPris(e), 0);
-  document.getElementById('ialt').textContent = krK(total);
+  document.getElementById('ialt').textContent = krD(total);
   document.getElementById('tael').textContent = ELEMENTER.length
     + (ELEMENTER.length===1?' ydelse':' ydelser');
   document.getElementById('klar').textContent = 'Rejsen i alt, som den er valgt nu:';
@@ -12463,7 +12546,8 @@ function tegnNy(){
       <div class="r-raek"><div class="r-sm2"><label>Fra</label>${nyInput('fra','','date')}</div>
         <div class="r-sm2"><label>Til</label>${nyInput('til','','date')}</div>
         <div class="r-sm4"><label>Nætter</label>${nyInput('naetter','','number')}</div>
-        <div class="r-sm4"><label>Ankomst kl.</label>${nyInput('tid','','time')}</div>
+        <div class="r-sm4"><label>Check-ind kl.</label>${nyInput('tid','','time')}
+          <div class="r-hj">tom = 15.00</div></div>
         ${prisFelter()}</div>`;
   } else if(t === 'fly'){
     felter = `
@@ -12517,7 +12601,7 @@ function prisFelter(){
 function visOmNy(){
   const ud = document.getElementById('nyom'); if(!ud) return;
   const p = +NY.f.pris, v = NY.f.val;
-  ud.textContent = (p && v !== KUNDEVAL) ? '≈ ' + krK(tilKunde(p, v)) : '';
+  ud.textContent = (p && v !== 'DKK') ? '≈ ' + krD(tilDkk2(p, v)) : '';
 }
 
 function gemElement(){
@@ -12846,7 +12930,9 @@ function planFraDb(r){
    Der opdigtes ingenting: datoerne, typen og teksten kommer fra
    elementet selv. Et fly bliver til ÉN linje, ikke to, for vi ved ikke
    hvornår der flyves hjem, før nogen har lagt flyplanen ind. */
-const STD_KL = { Fly:'12:00', Transfer:'10:00', Hotel:'14:00', Billet:'12:00', Andet:'12:00' };
+/* Samme tider som STD_TID — der var to lister med hver sit navn og de samme
+   tal. To steder at rette er ét for meget. */
+const STD_KL = STD_TID;
 function planAfElement(e, i){
   const art = ART_AF_TYPE[e.element_type] || 'Andet';
   const d = e.description || '';
@@ -13248,7 +13334,7 @@ return {
   foldLinje, formBillede, fortrydLinje, fravaelg, fristKort, fyldHoteller,
   fyldKurser, fyldOpslag, gem, gemBilleder, gemElement, gemLSub, gemLinje,
   gemSub, gemTilBasen, genberegnTil, grundPris, grundlag, hent, hentArkiv,
-  hentDagens, hotelFraNavn, iDag, klikLinje, kortDato, kortNavn, kr, krK,
+  hentDagens, hotelFraNavn, iDag, klikLinje, kortDato, kortNavn, kr, krD,
   kvitter, laegTil, laegTilValg, laesBillede, laesFlyplan, levListe,
   levValuta, linjeBillede, linjeFra, linjeKrop, linjePris, linjeTil,
   linkBilleder, lukNy, maerk, md, mpGruppe, naetterMellem, nu, nuPris,
@@ -13262,7 +13348,7 @@ return {
   soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
   gemNytElement, ydGreb, ydStart, ydOver, ydDrop, ydSlut,
   tegnFrister, tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin,
-  tilKunde, tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil,
+  tilDkk2, tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil,
   vaelgFormFil, vaelgHotel, vaelger, valgtLinje, valgteIdx, villaTekst,
   visLink, visOm, visOmNy, visStort
 };
