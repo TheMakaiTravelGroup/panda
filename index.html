@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.99 · 03.09.2026
+<!-- Panda · v1.00 · 03.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -201,6 +201,18 @@
      antal nætter er ude af overskriften, fordi vi kan sælge flyet 14.–22. og
      kun have hotel i fire af nætterne; og hjemrejsedatoen følger nu
      rejseplanen — rejsen varer så længe, som dens ydelser varer.
+
+     v1.00 — FELTERNE STÅR, HVOR DE GIVER MENING, OG BELØB SER UD SOM BELØB.
+     Wendie: «destination først, og afrejse ved siden af. Pris og valuta skal
+     stå ud for hinanden — det skal ligne, at man skriver 200.000 NOK. Voksne
+     og børn ud for hinanden, og alder på børnene skal kun dukke op, hvis der
+     rent faktisk bliver skrevet et antal børn.»
+     Og: «alle beløb skal formateres korrekt» — uanset hvor de står. Nu
+     formateres de MENS der skrives, og markøren bliver, hvor den var: der
+     tælles i cifre, ikke i tegn, så de punktummer der kommer til undervejs
+     ikke skubber markøren. Gælder boksen, mellemlandingens pris og gebyret.
+     Destinationen kan nu også vælges med Pandas egen destinationsvælger —
+     også når henvendelsen slet ingen har.
 -->
 <html lang="da">
 <head>
@@ -1216,17 +1228,35 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .hvsv .tx em{display:block;font-style:normal;font-size:10.5px;color:var(--mut);margin-top:1px}
 .hv7 .hvsv .pr{font-family:'Cormorant Garamond',serif;font-size:14.5px;font-weight:600;
   color:var(--ink);white-space:nowrap}
-/* label er sat til display:block med versaler inde i .ldlg — chippen skal
-   vinde over den regel, derfor den laengere selektor. */
-.hv7 .ldlg label.hvsd{display:inline-flex;align-items:center;gap:6px;width:auto;
-  font-size:11.5px;letter-spacing:0;text-transform:none;background:var(--card);
-  border:1px solid var(--line);border-radius:2px;padding:5px 10px;margin:0 5px 5px 0;
-  cursor:pointer;color:var(--mut);transition:.14s}
-.hv7 .ldlg label.hvsd.on{color:var(--ink);border-color:var(--gold-l);background:rgba(224,201,163,.10)}
-.hv7 .ldlg label.hvsd input{width:auto;margin:0;accent-color:#c1975a}
+.hv7 .ldlg .hvsd{display:inline-flex;align-items:center;width:auto;font-size:11.5px;
+  letter-spacing:0;text-transform:none;background:var(--card);border:1px solid var(--line);
+  border-radius:2px;padding:5px 10px;margin:0;cursor:pointer;color:var(--mut);transition:.14s}
+.hv7 .ldlg .hvsd:hover{border-color:var(--gold-l)}
+.hv7 .ldlg .hvsd.on{color:var(--ink);border-color:var(--gold);background:rgba(224,201,163,.14)}
+.hv7 .ldlg .hvsd.on::before{content:'✓';color:var(--gold);font-size:9px;margin-right:6px}
 .hv7 .hvsd.on{color:var(--ink);border-color:var(--gold-l);background:rgba(224,201,163,.10)}
 .hv7 .hvsd input{margin:0;accent-color:#c1975a}
 .hv7 .hvsi{font-size:11.5px;color:var(--mut)}
+.hv7 .ldlg.hvsolgt .hvsrk{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin-top:12px}
+.hv7 .ldlg.hvsolgt .fld.hvsbred{margin-top:12px}
+.hv7 .ldlg.hvsolgt .hvsdw{display:flex;flex-wrap:wrap;gap:5px;align-items:center;
+  min-height:31px;padding:2px 0}
+.hv7 .ldlg.hvsolgt .hvsdplus{font-family:inherit;font-size:12px;line-height:1;color:var(--gold);
+  background:none;border:1px dashed var(--gold-l);border-radius:2px;padding:5px 9px;cursor:pointer}
+.hv7 .ldlg.hvsolgt .hvsdplus:hover{background:rgba(224,201,163,.16)}
+.hv7 .ldlg.hvsolgt .hvsdato{display:flex;align-items:center;gap:6px}
+.hv7 .ldlg.hvsolgt .hvsdato input{margin-bottom:0}
+.hv7 .ldlg.hvsolgt .hvsdato span{color:var(--mut);font-size:12px}
+/* «det skal ligne, at man skriver 200.000 NOK» — beloebet og valutaen
+   staar derfor lige op ad hinanden, ikke i hver sin ende af linjen. */
+.hv7 .ldlg.hvsolgt .hvsbelob{display:inline-flex;align-items:baseline;gap:8px;
+  border-bottom:1px solid var(--hair);padding-bottom:2px}
+.hv7 .ldlg.hvsolgt .hvsbelob input{flex:none;width:132px;text-align:right;
+  font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--ink);
+  margin-bottom:0;border-bottom:0;padding-bottom:4px}
+.hv7 .ldlg.hvsolgt .hvsbelob select{width:auto;flex:none;font-size:12px;letter-spacing:1.4px;
+  color:var(--ink2);border:0;background:none;padding:0 0 4px}
+.hv7 .ldlg.hvsolgt .hvsbelob:focus-within{border-bottom-color:var(--gold)}
 
 /* fristerne paa indstillingssiden */
 .card.indst .fristr{display:flex;align-items:center;gap:12px;padding:9px 0;
@@ -2921,7 +2951,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.99';
+const APP_VERSION = 'v1.00';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -6363,6 +6393,28 @@ function childAgeChanged(silent){ const box=document.getElementById('l_childages
 function parseKr(s){ if(s==null) return null; const d=String(s).replace(/[^\d]/g,''); return d===''?null:parseInt(d,10); }
 function fmtBudget(){ const el=document.getElementById('l_est_value'); if(!el) return; const n=parseKr(el.value); el.value=(n==null?'':n.toLocaleString('da-DK')); autoSaveLead(); }
 function krFmt(n){ return (n==null||n==='')?'':Number(n).toLocaleString('da-DK'); }
+/* ══ BELOEB SKAL SE UD SOM BELOEB ══════════════════════════════════════
+   Wendie 03.09.2026: «alle beløb skal formateres korrekt» — uanset hvor de
+   staar. «300000» er svaert at laese; «300.000» er ikke.
+   Formateres MENS der skrives, og markoeren bliver, hvor den var: der
+   taelles i CIFRE, ikke i tegn, saa de punktummer der kommer til undervejs
+   ikke skubber markoeren.                                                */
+function fmtBelob(el){
+  if(!el) return;
+  const foer = String(el.value||'');
+  const pos  = (el.selectionStart != null) ? el.selectionStart : foer.length;
+  const cifreFoer = (foer.slice(0,pos).match(/\d/g)||[]).length;
+  const rent = foer.replace(/[^\d,.]/g,'').replace(/\./g,'');
+  const dele = rent.split(',');
+  const heltal = dele[0].replace(/\D/g,'');
+  let ud = heltal ? Number(heltal).toLocaleString('da-DK') : '';
+  if(dele.length > 1) ud += ',' + dele.slice(1).join('').replace(/\D/g,'').slice(0,2);
+  if(ud === foer) return;
+  el.value = ud;
+  let i = 0, talt = 0;
+  while(i < ud.length && talt < cifreFoer){ if(/\d/.test(ud[i])) talt++; i++; }
+  try{ el.setSelectionRange(i, i); }catch(_){}
+}
 // opsætning af de dynamiske felter når dialogen åbnes
 function leadFieldsInit(){ renderDestChips(); renderChildAges(); ldOfferPrev();
   const ap=document.getElementById('l_airport_pick'), other=document.getElementById('l_airport_other');
@@ -9520,11 +9572,16 @@ function hvAddDest(){ const q=document.getElementById('hvDq'); if(q){ q.value=''
   const have=hvCurDests();
   document.querySelectorAll('.hv7 .dopt').forEach(o=>o.classList.toggle('valgt', have.includes(o.childNodes[0].nodeValue.trim())));
   document.getElementById('hvOv3').classList.add('on'); setTimeout(()=>{ if(q) q.focus(); },60); }
-function hvCloseDest(){ const o=document.getElementById('hvOv3'); if(o) o.classList.remove('on'); }
-function hvCurDests(){ return [...document.querySelectorAll('#hvDests .dchip')].map(c=>c.childNodes[0].nodeValue.trim()); }
+function hvCloseDest(){ const o=document.getElementById('hvOv3'); if(o) o.classList.remove('on'); HVS.vaelger=false; }
+function hvCurDests(){
+  /* Er «Hvad blev der solgt?» aaben, er det DENS liste, vaelgeren arbejder paa. */
+  if(HVS.vaelger) return [...HVS.dest];
+  return [...document.querySelectorAll('#hvDests .dchip')].map(c=>c.childNodes[0].nodeValue.trim());
+}
 function hvSaveDests(){ hvSave('destination', hvCurDests().join(', ')); }
 function hvDelDest(btn){ btn.parentNode.remove(); hvSaveDests(); }
 function hvInsertDest(v){
+  if(HVS.vaelger){ HVS.dest.add(v); hvsTegnDest(); return; }
   const wrap=document.getElementById('hvDests'); if(!wrap) return;
   if(hvCurDests().includes(v)) return;
   const el=document.createElement('span'); el.className='dchip';
@@ -13062,7 +13119,7 @@ function mlRenderBund(){
           jeres fortjeneste — prisen står stille, til du selv flytter den.</p>
         <div class="mljrk">
           <div><label>Pris til kunden</label>
-            <input id="mlPris" value="${t.accepted_price?mlNf(t.accepted_price):''}" oninput="mlFraPris()">
+            <input id="mlPris" value="${t.accepted_price?mlNf(t.accepted_price):''}" oninput="fmtBelob(this);mlFraPris()">
             <span class="e" id="mlPrisE">${escH(val)}</span></div>
           <div><label>Dækningsgrad</label><input id="mlDG" value="" oninput="mlFraDG()">
             <span class="e">% af prisen</span></div>
@@ -13396,7 +13453,7 @@ function mlRegn(tegnKurs){
           ? 'rettet på denne rejse · standard '+mlNf(Number(ML.std.bank_fee_dkk)||0)+' DKK'
           : 'bankens faste gebyr for overførslerne'}</small></span>
       <span class="v"><input class="mlgf${(ML.overrides||{})._gebyr!=null?' aendret':''}"
-        value="${mlNf(r.gebyr)}" oninput="mlSaetGebyr(this.value)"> DKK</span></div>
+        value="${mlNf(r.gebyr)}" oninput="fmtBelob(this);mlSaetGebyr(this.value)"> DKK</span></div>
     <div class="mlrr slut"><span class="l">Rejsen koster os</span><span class="v">${mlNf(r.kost)}</span></div>
     <div class="mlrr fin"><span class="l">alt i DKK, med bankmargin og risikobuffer</span><span class="v"></span></div>
     <div class="mlrr"><span class="l">${pris ? `+ Fortjeneste ${mlNf1(dg)} %<small>det I sidder tilbage med</small>`
@@ -13653,6 +13710,8 @@ function hvSolgtBoks(l){
   const dest = String(l.destination||'').split(',').map(x=>x.trim()).filter(Boolean);
   const valgtDest = dest.length===1 ? dest.slice() : (f && f.destination ? [f.destination] : []);
   HVS.dest = new Set(valgtDest);
+  HVS.oensker = dest;
+  HVS.vaelger = false;
 
   const bevis = f ? `<div class="hvsb">${
       f.bevis.map(([ok,t])=>`<span class="${ok?'ja':'nej'}">${escH(t)}</span>`).join('')}</div>` : '';
@@ -13669,28 +13728,31 @@ function hvSolgtBoks(l){
              : 'Der ligger intet tilbud på navnet i editoren.'}</p></div>
     <div class="c">
       ${fundet}
-      <div class="hvsg">Destinationer</div>
-      <div id="hvsDest">${dest.length
-        ? dest.map(d=>`<label class="hvsd${HVS.dest.has(d)?' on':''}">
-            <input type="checkbox" ${HVS.dest.has(d)?'checked':''}
-              onchange="hvsDest('${escH(d).replace(/'/g,"\\'")}',this.checked,this)">${escH(d)}</label>`).join('')
-        : '<span class="hvsi">Henvendelsen har ingen destination — skriv den ind på rejsen bagefter.</span>'}</div>
       ${f ? hvsTrinHtml() : ''}
-      <div class="nyg" style="margin-top:14px">
-        <div class="fld"><div class="k">Afrejse</div><input type="date" id="hvsUd"
-          value="${escH((f&&f.ud) || l.departure_date || '')}"></div>
-        ${f ? `<div class="fld"><div class="k">Hjemrejse</div><input type="date" id="hvsHjem"
-          value="${escH(f.hjem||'')}"></div>` : ''}
-        <div class="fld"><div class="k">Aftalt pris</div><input id="hvsPris"
-          value="${escH(hvsPrisNu()|| (l.est_value!=null?String(l.est_value):''))}"></div>
-        <div class="fld"><div class="k">Valuta</div><select id="hvsVal">${
-          HV_VALUTAER.map(v=>`<option ${((f&&f.valuta)||l.currency||HV_BRANCHE_VALUTA[l.branch])===v?'selected':''}>${v}</option>`).join('')}</select></div>
+      <!-- Wendie 03.09.2026: destinationen skal vaelges FOERST, og datoen
+           staa ved siden af. Pris og valuta hoerer sammen paa én linje —
+           «det skal ligne, at man skriver 200.000 NOK». -->
+      <div class="hvsrk">
+        <div class="fld"><div class="k">Destination</div>
+          <div class="hvsdw" id="hvsDest">${hvsDestChips()}</div></div>
+        <div class="fld"><div class="k">${f ? 'Rejsen' : 'Afrejse'}</div>
+          <div class="hvsdato"><input type="date" id="hvsUd"
+            value="${escH((f&&f.ud) || l.departure_date || '')}">${
+            f ? `<span>→</span><input type="date" id="hvsHjem" value="${escH(f.hjem||'')}">` : ''}</div></div>
+      </div>
+      <div class="fld hvsbred"><div class="k">Aftalt pris</div>
+        <div class="hvsbelob"><input id="hvsPris" inputmode="decimal" oninput="fmtBelob(this)"
+            value="${escH(hvsPrisNu() || krFmt(l.est_value))}">
+          <select id="hvsVal">${HV_VALUTAER.map(v=>`<option ${
+            ((f&&f.valuta)||l.currency||HV_BRANCHE_VALUTA[l.branch])===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
+      <div class="hvsrk">
         <div class="fld"><div class="k">Voksne</div><input type="number" min="1" id="hvsVoksne"
           value="${(f&&f.voksne) || l.adults || 2}"></div>
         <div class="fld"><div class="k">Børn</div><input type="number" min="0" id="hvsBoern"
-          value="${(f&&f.boern!=null?f.boern:(l.kids||0))}"></div>
+          value="${(f&&f.boern!=null?f.boern:(l.kids||0))}" oninput="hvsBoernSkiftet(this.value)"></div>
       </div>
-      <div class="fld" style="margin-top:11px"><div class="k">Alder på børnene</div>
+      <div class="fld hvsbred" id="hvsAldreRk" style="display:${
+        ((f&&f.boern) || l.kids || 0) > 0 ? '' : 'none'}"><div class="k">Alder på børnene</div>
         <input id="hvsAldre" placeholder="fx 6, 9" value="${escH(l.child_ages||'')}"></div>
       <div class="nyfejl" id="hvsFejl"></div>
     </div>
@@ -13742,7 +13804,7 @@ function hvsVaelg(hvad, i){
   const boks = document.getElementById('hvsTrin');
   if(boks) boks.outerHTML = hvsTrinHtml();
   const p = document.getElementById('hvsPris'), nu = hvsPrisNu();
-  if(p && nu) p.value = nu;
+  if(p && nu){ p.value = nu; fmtBelob(p); }
 }
 function hvsPrisNu(){
   const f = HVS.fund; if(!f) return '';
@@ -13750,9 +13812,28 @@ function hvsPrisNu(){
   const r = (h.rater||[]).find(x=>x.rum===HVS.valgt.villa && x.mp===HVS.valgt.mp);
   return (r && r.pris) ? r.pris : '';
 }
-function hvsDest(d, paa, el){
-  if(paa) HVS.dest.add(d); else HVS.dest.delete(d);
-  if(el && el.parentNode) el.parentNode.classList.toggle('on', paa);
+/* Destinationerne: dem fra oenskelisten kan slaas til og fra, og der kan
+   vaelges nye med Pandas egen destinationsvaelger. */
+function hvsDestChips(){
+  const liste = [...new Set([...(HVS.oensker||[]), ...HVS.dest])];
+  return liste.map(d=>`<span class="hvsd${HVS.dest.has(d)?' on':''}"
+      onclick="hvsDestSkift(${JSON.stringify(d).replace(/"/g,'&quot;')})">${escH(d)}</span>`).join('')
+    + `<button class="hvsdplus" onclick="hvsVaelgDest()">+</button>`;
+}
+function hvsTegnDest(){
+  const w = document.getElementById('hvsDest');
+  if(w) w.innerHTML = hvsDestChips();
+}
+function hvsDestSkift(d){
+  if(HVS.dest.has(d)) HVS.dest.delete(d); else HVS.dest.add(d);
+  hvsTegnDest();
+}
+function hvsVaelgDest(){ HVS.vaelger = true; hvAddDest(); }
+/* Aldersfeltet giver kun mening, naar der ER boern. */
+function hvsBoernSkiftet(v){
+  const n = parseInt(v,10) || 0;
+  const rk = document.getElementById('hvsAldreRk');
+  if(rk) rk.style.display = n > 0 ? '' : 'none';
 }
 async function hvsOpret(){
   const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
