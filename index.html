@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.00 · 03.09.2026
+<!-- Panda · v1.02 · 03.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -202,6 +202,26 @@
      kun have hotel i fire af nætterne; og hjemrejsedatoen følger nu
      rejseplanen — rejsen varer så længe, som dens ydelser varer.
 
+     v1.02 — EN NY YDELSE BLEV ALDRIG GEMT.
+     Wendie: «jeg havde lige lagt en masse ydelser ind, både fly og et hotel …
+     og det er ikke automatisk blevet gemt. Da jeg gik ud og ind igen, var alt
+     væk.» Hun havde ret, og det var alvorligt.
+     Årsagen: gemTilBasen skrev kun rækker, der ALLEREDE fandtes — den
+     opdaterede på .eq('id', …) og sprang planlinjer uden id over. En ydelse,
+     der lige var tastet ind, havde hverken et element i basen, en prislinje
+     eller en planlinje. Den lå kun i hukommelsen og forsvandt med siden.
+     Der er ikke kommet en gem-knap; ydelsen skrives, i det øjeblik den
+     oprettes — element, grundlagspris og planlinje — og det midlertidige id
+     byttes ud med basens, så alt senere arbejde på den også bliver gemt.
+     Fejler det, siges det højt.
+     Og hotelsøgningen rangerer nu: «varu» giver VARU by Atmosphere først, ikke
+     Ananea Madivaru. Navnet begynder med ordet, så et ord i navnet begynder
+     med det, og til sidst midt i et ord.
+
+     v1.01 — ALDEREN, VURDERINGEN OG RÆKKEFØLGEN.
+     (v1.00 dækkede felternes placering og beløbsformateringen; herunder står
+     begge dele samlet, fordi de blev udgivet lige efter hinanden.)
+
      v1.00 — FELTERNE STÅR, HVOR DE GIVER MENING, OG BELØB SER UD SOM BELØB.
      Wendie: «destination først, og afrejse ved siden af. Pris og valuta skal
      stå ud for hinanden — det skal ligne, at man skriver 200.000 NOK. Voksne
@@ -212,7 +232,23 @@
      tælles i cifre, ikke i tegn, så de punktummer der kommer til undervejs
      ikke skubber markøren. Gælder boksen, mellemlandingens pris og gebyret.
      Destinationen kan nu også vælges med Pandas egen destinationsvælger —
-     også når henvendelsen slet ingen har.
+     også når henvendelsen slet ingen har. Alderen på børnene er ét lille felt
+     pr. barn, som på henvendelsen — ikke ét bredt tekstfelt.
+
+     Og en fejl, der havde ligget siden v0.94: «OK» blev tilføjet som vurdering
+     i skærmbilledet, men CHECK-reglen i basen kendte den ikke. Panda gemte,
+     basen afviste, og valget forsvandt ved næste indlæsning — uden at nogen
+     fik besked. Reglen er rettet, og gemningen siger nu højt fra, hvis den
+     fejler, i stedet for at lade som om alt gik godt.
+
+     Og ydelserne kan flyttes. Wendie: «jeg skal også have mulighed for at
+     kunne rykke rundt på elementerne … så det nogenlunde følger rejseplanen.»
+     trip_elements.sort har ligget der hele tiden og bestemt rækkefølgen — den
+     er bare aldrig blevet ændret. Nu har hver ydelse et greb. Grebet sidder
+     for sig, så et træk aldrig forveksles med et klik: rækken folder stadig ud,
+     når man klikker på den. Kun de rækker, der faktisk har flyttet sig,
+     skrives. REJSEPLANEN følger stadig datoerne — det er listen, der får en
+     orden, så ydelser uden dato kan stå, hvor de giver mening.
 -->
 <html lang="da">
 <head>
@@ -1198,6 +1234,14 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .card.indst .sysr{display:flex;gap:16px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:12.5px}
 .card.indst .sysr:last-child{border-bottom:0}
 .card.indst .sysr .k{min-width:170px;color:var(--mut)}
+/* grebet paa en ydelse */
+#rsside .r-greb{flex:none;width:16px;text-align:center;color:#cfc7b4;font-size:13px;line-height:1;
+  cursor:grab;user-select:none;transition:color .14s}
+#rsside .r-greb:hover{color:var(--gold)}
+#rsside .r-greb:active{cursor:grabbing}
+#rsside .r-rk.r-traekkes{opacity:.45}
+#rsside .r-rk[draggable="true"] .r-hd{background:#fdfaf3}
+
 /* ── «Hvad blev der solgt?» ── */
 .hv7 .ldlg.hvsolgt .c{padding-top:16px}
 .hv7 .hvsf{border:1px solid var(--gold-l);background:rgba(224,201,163,.13);border-radius:2px;
@@ -1257,6 +1301,14 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .ldlg.hvsolgt .hvsbelob select{width:auto;flex:none;font-size:12px;letter-spacing:1.4px;
   color:var(--ink2);border:0;background:none;padding:0 0 4px}
 .hv7 .ldlg.hvsolgt .hvsbelob:focus-within{border-bottom-color:var(--gold)}
+.hv7 .ldlg.hvsolgt .hvspax{display:flex;gap:18px;align-items:flex-start;margin-top:12px;flex-wrap:wrap}
+.hv7 .ldlg.hvsolgt .hvspax > .fld{margin-bottom:0}
+.hv7 .ldlg.hvsolgt .hvspax input[type=number]{width:52px;text-align:center;margin-bottom:0}
+.hv7 .ldlg.hvsolgt .hvsaldre{display:none}
+.hv7 .ldlg.hvsolgt .hvsaldrew{display:flex;flex-wrap:wrap;gap:5px}
+.hv7 .ldlg.hvsolgt .hvsaldrew select{width:auto;min-width:52px;font-size:12.5px;
+  border:0;border-bottom:1px solid var(--hair);background:none;padding:7px 0;color:var(--ink)}
+.hv7 .ldlg.hvsolgt .hvsaldrew select:focus{border-bottom-color:var(--gold)}
 
 /* fristerne paa indstillingssiden */
 .card.indst .fristr{display:flex;align-items:center;gap:12px;padding:9px 0;
@@ -2951,7 +3003,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.00';
+const APP_VERSION = 'v1.02';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -9488,8 +9540,21 @@ async function hvVurHer(id, k){
   if(boks) boks.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.k===k));
   /* Fejlteksten i boksen skal forsvinde, saa snart manglen er rettet. */
   ['hvTabtFejl','hvSolgtFejl'].forEach(f=>{ const e=document.getElementById(f); if(e) e.textContent=''; });
-  await db.from('leads').update({vurdering:k, vurdering_by:window.ME||null,
+  /* Wendie 03.09.2026: «naar man trykker Fortsaet efter at have valgt
+     vurderingen, skal det valg vaere gemt allerede.» Det TRODE vi det var —
+     men basens CHECK-regel kendte ikke «ok», saa gemningen blev afvist i
+     stilhed, og valget forsvandt ved naeste indlaesning. Reglen er rettet,
+     og fejlen bliver aldrig stille igen. */
+  hvMinAendring(id);
+  const {error} = await db.from('leads').update({vurdering:k, vurdering_by:window.ME||null,
     vurdering_at:new Date().toISOString()}).eq('id',id);
+  if(error){
+    l.vurdering = null; l.vurdering_by = null; l.vurdering_at = null;
+    if(boks) boks.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+    const e = document.getElementById('hvTabtFejl') || document.getElementById('hvSolgtFejl');
+    const t = 'Vurderingen kunne ikke gemmes: ' + error.message;
+    if(e) e.textContent = t; else alert(t);
+  }
 }
 function hvVurMangler(hvad){
   return 'Sæt «Vores vurdering» først — den skal stå, før ' + hvad
@@ -11241,6 +11306,53 @@ function saetFokus(){
 }
 /* Gaar tegningen alligevel galt en dag, skal det siges — ikke ende i en
    side, hvor ingenting virker og ingen ved hvorfor. */
+/* ══ REKKEFOELGEN PAA YDELSERNE ════════════════════════════════════════
+   trip_elements.sort har vaeret der hele tiden og bestemmer, hvad der hentes
+   foerst — den er bare aldrig blevet aendret. Nu kan raekken traekkes.
+   REJSEPLANEN foelger stadig datoerne; det er LISTEN, der faar en orden, saa
+   ydelser uden dato (og dem der hoerer sammen) kan staa, hvor de giver mening. */
+let _ydTraek = null;
+function ydGreb(el, paa){
+  const rk = el.closest('.r-rk'); if(!rk) return;
+  rk.draggable = paa;                       /* kun grebet goer raekken traekbar */
+}
+function ydStart(ev, id){
+  _ydTraek = id;
+  const rk = ev.target.closest('.r-rk');
+  if(rk) rk.classList.add('r-traekkes');
+  try{ ev.dataTransfer.effectAllowed='move'; ev.dataTransfer.setData('text/plain', id); }catch(_){}
+}
+function ydOver(ev, over){
+  if(!_ydTraek || over === _ydTraek) return;
+  ev.preventDefault();
+  const fra = ELEMENTER.findIndex(x=>x.id===_ydTraek);
+  const til = ELEMENTER.findIndex(x=>x.id===over);
+  if(fra < 0 || til < 0) return;
+  const rk = ev.currentTarget, m = rk.getBoundingClientRect();
+  const efter = ev.clientY > m.top + m.height/2;
+  const maal = efter ? til + (fra < til ? 0 : 1) : til + (fra < til ? -1 : 0);
+  if(maal === fra || maal < 0 || maal >= ELEMENTER.length) return;
+  ELEMENTER.splice(maal, 0, ELEMENTER.splice(fra, 1)[0]);
+  tegnListe();
+  const ny = liste.querySelector('.r-rk[data-id="'+_ydTraek+'"]');
+  if(ny){ ny.classList.add('r-traekkes'); ny.draggable = true; }
+}
+function ydDrop(ev){ ev.preventDefault(); ydSlut(); }
+async function ydSlut(){
+  const id = _ydTraek; _ydTraek = null;
+  liste.querySelectorAll('.r-rk').forEach(r=>{ r.classList.remove('r-traekkes'); r.draggable=false; });
+  if(!id) return;
+  /* Kun de raekker der faktisk har flyttet sig, skrives — og fejler det,
+     siges det hoejt i stedet for at listen stille staar forkert naeste gang. */
+  const skift = [];
+  ELEMENTER.forEach((e,i)=>{ if(e.sort !== i){ e.sort = i; skift.push({id:e.id, sort:i}); } });
+  if(!skift.length) return;
+  for(const x of skift){
+    const {error} = await db.from('trip_elements').update({sort:x.sort}).eq('id', x.id);
+    if(error){ alert('Rækkefølgen kunne ikke gemmes:\n\n'+error.message); return; }
+  }
+}
+
 function tegnListe(){
   try { tegnListeInd(); }
   catch(e){
@@ -11256,8 +11368,17 @@ function tegnListeInd(){
   liste.innerHTML = ELEMENTER.map(e=>{
     const s = st[e.id], g = grundPris(e.id);
     return `
-    <div class="r-rk ${s.aaben?'r-aaben':''}" data-id="${e.id}">
+    <div class="r-rk ${s.aaben?'r-aaben':''}" data-id="${e.id}"
+         ondragover="RS.ydOver(event,'${e.id}')" ondrop="RS.ydDrop(event)"
+         ondragend="RS.ydSlut()">
       <div class="r-hd" onclick="RS.fold('${e.id}')">
+        <!-- Wendie 03.09.2026: «jeg skal ogsaa have mulighed for at kunne rykke
+             rundt paa elementerne … saa det nogenlunde foelger rejseplanen.»
+             Grebet sidder for sig, saa et traek aldrig forveksles med et klik
+             paa raekken — den folder stadig ud, naar man klikker. -->
+        <span class="r-greb" title="Træk for at flytte ydelsen"
+          onmousedown="RS.ydGreb(this,true)" onmouseup="RS.ydGreb(this,false)"
+          ondragstart="RS.ydStart(event,'${e.id}')" onclick="event.stopPropagation()">⠿</span>
         <span class="r-pil">▶</span>
         <span class="r-navn"><b>${e.navn}</b> <span>· ${e.sub}</span>${(()=>{
           /* Hvad mangler for at elementet giver mening? Vi spaerrer ikke —
@@ -12228,8 +12349,22 @@ function soegHotel(){
   const inp = document.getElementById('hs'), ud = document.getElementById('hforslag');
   if(!inp || !ud) return;
   const q = (inp.value||'').trim().toLowerCase();
+  /* Wendie 03.09.2026: soegte paa «varu» og fik Ananea Madivaru foerst,
+     mens «Varu by Atmosphere» — det oplagte traef — slet ikke var med.
+     En ren includes() rangerer ikke; den finder bare. Nu vaegtes der:
+     navnet begynder med ordet, saa et ORD i navnet begynder med det, og
+     til sidst midt i et ord. Inden for samme vaegt: korteste navn foerst,
+     for det er som regel det, der menes. */
+  const rang = n => {
+    const l = n.toLowerCase();
+    if(l.startsWith(q)) return 0;
+    if(l.split(/[\s\-–&]+/).some(o => o.startsWith(q))) return 1;
+    return 2;
+  };
   const traf = Object.keys(HOTELLER)
     .filter(n => !q || n.toLowerCase().includes(q))
+    .sort((a2,b2) => q ? (rang(a2)-rang(b2)) || (a2.length-b2.length) || a2.localeCompare(b2,'da')
+                       : a2.localeCompare(b2,'da'))
     .slice(0, 8);
   ud.innerHTML = traf.length
     ? traf.map(n=>`<div onmousedown="RS.vaelgHotel('${n.replace(/'/g,"\\'")}')">
@@ -12419,12 +12554,16 @@ function gemElement(){
     undertekst = [f.selskab, f.klasse, f.pax ? f.pax + ' rejsende' : null].filter(Boolean).join(' · ');
     navn = 'Fly · ' + (f.rute||''); sub = undertekst;
   } else if(t === 'transfer'){
-    titel = f.rute || 'Transfer'; art = 'Transfer';
+    /* slags blev aldrig sat paa en transfer eller en billet — den blev
+       liggende som «andet». Det saa man ikke, saa laenge intet blev gemt;
+       nu ville den komme tilbage som en anden slags ydelse. */
+    titel = f.rute || 'Transfer'; art = 'Transfer'; slags = 'transfer';
     undertekst = [f.maade, f.varighed].filter(Boolean).join(' · ');
     navn = 'Transfer · ' + (f.rute||''); sub = undertekst;
   } else {
     titel = f.tekst || (t==='billet' ? 'Billet' : 'Andet');
     art = t==='billet' ? 'Billet' : 'Andet';
+    slags = t==='billet' ? 'billet' : 'andet';
     undertekst = ant > 1 ? ant + ' stk.' : '';
     navn = titel; sub = undertekst;
   }
@@ -12479,6 +12618,77 @@ function gemElement(){
 
   NY.aaben = false;
   tegnPlan(); tegnListe(); tegnNy();
+  /* Wendie 03.09.2026: «jeg havde lige lagt en masse ydelser ind … og det er
+     ikke automatisk blevet gemt. Da jeg gik ud og ind igen, var alt væk.»
+     Hun har ret, og det var alvorligt: gemTilBasen OPDATEREDE kun raekker,
+     der allerede fandtes (.eq('id', …)) og sprang planlinjer uden id over.
+     En ydelse, der lige var tastet ind, havde hverken. Den laa kun i
+     hukommelsen og forsvandt med siden. Nu skrives den med det samme. */
+  gemNytElement(id);
+}
+
+/* ── EN NY YDELSE SKAL LIGGE I BASEN MED DET SAMME ────────────────────
+   Den faar sit rigtige id fra basen, og det byttes ind alle tre steder
+   (ELEMENTER, PLAN og st), saa naeste gemning kan finde raekken igen. */
+const TYPE_AF_SLAGS = { fly:'flight', hotel:'hotel', transfer:'transfer',
+                        billet:'ticket', andet:'other' };
+async function gemNytElement(midlertidigId){
+  if(!TUR) return;
+  const e = ELEMENTER.find(x=>x.id===midlertidigId); if(!e) return;
+  if(!String(midlertidigId).startsWith('x')) { maerk(); return; }  /* allerede i basen */
+  const linjer = (st[midlertidigId]||{}).linjer || [];
+  const g = linjer[0] || {};
+  const pRaek = PLAN.filter(p=>p.id===midlertidigId || p.elId===midlertidigId);
+  const p0 = pRaek[0] || {};
+  try{
+    const {data:ny, error:e1} = await db.from('trip_elements').insert({
+      trip_id: TUR.id,
+      element_type: TYPE_AF_SLAGS[e.slags] || 'other',
+      description: e.navn || p0.titel || '—',
+      /* status udelades med vilje: enum'en kender kun booket/udstedt/cx/
+         refunderet, og der findes ikke et «planlagt». Vi opfinder ikke en
+         vaerdi — basens standard gaelder. */
+      start_date: p0.fra || null,
+      end_date:   p0.til || p0.fra || null,
+      buy_currency: (e.val || KUNDEVAL || 'DKK').slice(0,3),
+      buy_amount: Number(g.pris) || 0,
+      sort: ELEMENTER.length - 1,
+      details: { sub:e.sub||'', lev:e.lev||'', hotel:e.hotel||null,
+                 kilde:'manuel', type:e.type||null, raa:e.raa||null, subs:e.subs||[] }
+    }).select('id').single();
+    if(e1) throw new Error(e1.message);
+
+    const {data:pris, error:e2} = await db.from('element_prices')
+      .insert(linjeTil({...g, _id:undefined}, ny.id, 0)).select('id').single();
+    if(e2) throw new Error(e2.message);
+
+    let planId = null;
+    if(p0.art){
+      const {data:pl, error:e3} = await db.from('trip_plan_items').insert({
+        trip_id: TUR.id, element_id: ny.id, art: p0.art, titel: p0.titel || e.navn || '—',
+        sub: p0.sub || null, lev: p0.lev || null, fra: p0.fra || null,
+        til: p0.til || p0.fra || null, tid: p0.tid || null, vej: p0.vej || 0,
+        ophold: !!p0.ophold, kilde: 'manuel', detalje: p0.detalje || null,
+        sort: PLAN.length - 1
+      }).select('id').single();
+      if(e3) throw new Error(e3.message);
+      planId = pl.id;
+    }
+
+    /* Byt det midlertidige id ud, saa alt herefter peger paa basens raekke. */
+    e.id = ny.id;
+    if(linjer[0]) linjer[0]._id = pris.id;
+    st[ny.id] = st[midlertidigId]; delete st[midlertidigId];
+    pRaek.forEach(p=>{ if(planId) p.id = planId; p.elId = ny.id; });
+    await db.from('trip_elements').update({chosen_price_ids:[pris.id]}).eq('id', ny.id);
+    if(st[ny.id]) st[ny.id].valgte = [0];
+    SIDST = snapshot();
+    tegnPlan(); tegnListe();
+    kvitter('gemt');
+  }catch(err){
+    console.error(err);
+    kvitter('fejl', 'Ydelsen kunne ikke gemmes: ' + err.message);
+  }
 }
 
 
@@ -12610,6 +12820,9 @@ function elementFra(e, mine){
     hotel: d.hotel || hotelFraNavn(e.description), soeg: e.soeg || null,
     stdSpan: e.std_span || undefined, spandNavn: d.spandNavn || undefined,
     kilde: d.kilde || 'tilbud', type: d.type || null, raa: d.raa || null,
+    /* sort foelger med, saa vi kan se HVILKE raekker der faktisk har flyttet
+       sig, naar listen traekkes om — og kun skrive dem. */
+    sort: e.sort == null ? null : Number(e.sort),
     linjer: mine.map(linjeFra), subs: d.subs || [] };
 }
 
@@ -13047,6 +13260,7 @@ return {
   saetLinjeHold, saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla,
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
   soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
+  gemNytElement, ydGreb, ydStart, ydOver, ydDrop, ydSlut,
   tegnFrister, tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin,
   tilKunde, tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil,
   vaelgFormFil, vaelgHotel, vaelger, valgtLinje, valgteIdx, villaTekst,
@@ -13745,20 +13959,23 @@ function hvSolgtBoks(l){
             value="${escH(hvsPrisNu() || krFmt(l.est_value))}">
           <select id="hvsVal">${HV_VALUTAER.map(v=>`<option ${
             ((f&&f.valuta)||l.currency||HV_BRANCHE_VALUTA[l.branch])===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
-      <div class="hvsrk">
-        <div class="fld"><div class="k">Voksne</div><input type="number" min="1" id="hvsVoksne"
+      <!-- Wendie 03.09.2026: «det er jo bare to felter … det skal bare være
+           små felter, man udfylder, på samme måde som i henvendelsen.» -->
+      <div class="hvspax">
+        <div class="fld"><div class="k">Voksne</div><input type="number" min="1" max="30" id="hvsVoksne"
           value="${(f&&f.voksne) || l.adults || 2}"></div>
-        <div class="fld"><div class="k">Børn</div><input type="number" min="0" id="hvsBoern"
-          value="${(f&&f.boern!=null?f.boern:(l.kids||0))}" oninput="hvsBoernSkiftet(this.value)"></div>
+        <div class="fld"><div class="k">Børn</div><input type="number" min="0" max="12" id="hvsBoern"
+          value="${(f&&f.boern!=null?f.boern:(l.kids||0))}" oninput="hvsAldre()"></div>
+        <div class="fld hvsaldre" id="hvsAldreRk"><div class="k">Alder</div>
+          <div class="hvsaldrew" id="hvsAldreW"></div></div>
       </div>
-      <div class="fld hvsbred" id="hvsAldreRk" style="display:${
-        ((f&&f.boern) || l.kids || 0) > 0 ? '' : 'none'}"><div class="k">Alder på børnene</div>
-        <input id="hvsAldre" placeholder="fx 6, 9" value="${escH(l.child_ages||'')}"></div>
+      <input type="hidden" id="hvsAldre" value="${escH(l.child_ages||'')}">
       <div class="nyfejl" id="hvsFejl"></div>
     </div>
     <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
       <button class="b gold" onclick="hvsOpret()">Opret mellemlandingen</button></div></div>`;
   ov.classList.add('on');
+  hvsAldre();
 }
 /* Hotel → villatype → forplejning. Hvert trin viser kun det, der findes.
    Der sendes INDEKS videre, ikke navne: et villanavn som «Sunset Ocean
@@ -13829,11 +14046,31 @@ function hvsDestSkift(d){
   hvsTegnDest();
 }
 function hvsVaelgDest(){ HVS.vaelger = true; hvAddDest(); }
-/* Aldersfeltet giver kun mening, naar der ER boern. */
-function hvsBoernSkiftet(v){
-  const n = parseInt(v,10) || 0;
-  const rk = document.getElementById('hvsAldreRk');
-  if(rk) rk.style.display = n > 0 ? '' : 'none';
+/* Alderen: ét lille felt pr. barn — samme som paa henvendelsen. Ingen boern,
+   ingen felter. Der er sjaeldent mere end en haandfuld med paa en rejse. */
+function hvsAldre(){
+  const rk = document.getElementById('hvsAldreRk'), w = document.getElementById('hvsAldreW');
+  const skjult = document.getElementById('hvsAldre');
+  if(!rk || !w || !skjult) return;
+  const n = Math.max(0, Math.min(12, parseInt((document.getElementById('hvsBoern')||{}).value,10) || 0));
+  /* .hvsaldre er display:none i stylesheetet, saa '' er ikke nok — der skal
+     staa en rigtig vaerdi, ellers falder den tilbage paa reglen. */
+  rk.style.display = n ? 'block' : 'none';
+  if(!n){ skjult.value = ''; w.innerHTML = ''; return; }
+  const har = String(skjult.value||'').split(/\s*,\s*/).filter(x=>x!=='');
+  w.innerHTML = Array.from({length:n}, (_,i)=>{
+    const v = har[i] != null ? har[i] : '';
+    return `<select onchange="hvsAldreGem()">` +
+      ['<option value="">·</option>'].concat(
+        Array.from({length:19},(_,a)=>`<option ${String(a)===String(v)?'selected':''}>${a}</option>`)
+      ).join('') + `</select>`;
+  }).join('');
+  hvsAldreGem();
+}
+function hvsAldreGem(){
+  const w = document.getElementById('hvsAldreW'), skjult = document.getElementById('hvsAldre');
+  if(!w || !skjult) return;
+  skjult.value = [...w.querySelectorAll('select')].map(x=>x.value).filter(x=>x!=='').join(', ');
 }
 async function hvsOpret(){
   const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
