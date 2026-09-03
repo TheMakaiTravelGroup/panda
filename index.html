@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v0.94 · 02.09.2026
+<!-- Panda · v0.96 · 02.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -111,7 +111,36 @@
      Wendie: «en henvendelse kan godt være ok — den er jo lige i midten
      mellem nederen og god.» Fem trin i stedet for fire: Super god, God,
      OK, Nederen, Umulig. Med kun fire endte alt, der ikke var godt, i
-     «Nederen», og så siger vurderingen mindre end den kunne. -->
+     «Nederen», og så siger vurderingen mindre end den kunne.
+
+     v0.95 — HJEMMESIDEN VISES, OG DUBLETTER KAN FLETTES.
+     Wendie: «vi skal kunne se, om en henvendelse kommer fra den norske
+     eller danske hjemmeside» og «kan man ikke flette henvendelser sammen
+     og beholde den info, man gerne vil have?»
+     · Hjemmesiden stod der allerede, bare skjult: webformularen skriver
+       sidens navn i titlen. Målt på alle 250 — 108 af 108 norske bærer
+       maldivia.no, 40 af 40 danske bærer maldivia.dk, ikke ét kryds. Den
+       vises nu på henvendelsen. En telefonhenvendelse får ingen, for den
+       kom ikke fra en hjemmeside.
+     · Ligger der en anden ÅBEN henvendelse med samme mail, siges det
+       øverst med det samme, og de kan flettes felt for felt. Kun felter,
+       hvor de faktisk er forskellige, vises. Er det ene tomt, er det
+       udfyldte valgt på forhånd. Noter og historik følger med.
+     · Den anden slettes ikke — den får status «dublet» og en henvisning
+       til den, den blev flettet ind i. En flettet dublet er hverken
+       vundet eller tabt; lå den i «tabt», ville den forurene præcis den
+       statistik, tabt-årsagerne blev bygget til.
+
+     v0.96 — VURDERINGEN KAN SÆTTES DÉR, HVOR DEN MANGLER.
+     Wendie: «jeg tager mig selv i, at jeg hele tiden trykker tabt, før jeg
+     bliver bedt om at udfylde vores vurdering … så man slipper for at gå
+     ud af boksen og ind igen.»
+     Rigtigt set. En spærring, der sender folk tilbage til noget, de kunne
+     have gjort på stedet, er en dårlig spærring. Mangler vurderingen,
+     står den nu inde i Tabt-boksen selv. Og foran Solgt — som går direkte
+     i gang med at oprette rejsen og derfor ikke har et skærmbillede at
+     sætte den i bagefter — spørges der først, og så fortsættes der samme
+     sted. -->
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -717,7 +746,11 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   border-bottom:1px solid var(--gold-l);}.hv7 .hd>*{position:relative;}.hv7 .hd .top{display:flex;align-items:flex-start;gap:18px;}.hv7 .hd h2{font-family:'Cormorant Garamond',serif;font-size:31px;font-weight:400;margin:9px 0 6px;letter-spacing:.3px;line-height:1.1;}.hv7 .who{display:flex;flex-wrap:wrap;gap:5px 18px;font-size:11.5px;color:var(--ink2);}.hv7 .who b{font-weight:500;}.hv7 .acts{margin-left:auto;display:flex;align-items:center;gap:7px;}.hv7 .pos{font-size:10px;color:var(--mut);letter-spacing:1px;margin-right:4px;}.hv7 .b{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;border-radius:2px;padding:9px 17px;border:1px solid transparent;cursor:pointer;transition:.16s;white-space:nowrap;}.hv7 .b.won{background:var(--ok);color:#fff;}.hv7 .b.won:hover{background:#6b957a;}.hv7 .b.lost{background:transparent;color:var(--bad);border-color:#e3c4b3;}.hv7 .b.lost:hover{background:var(--bad);color:#fff;border-color:var(--bad);}.hv7 .b.gold{background:var(--gold);color:#fff;}.hv7 .b.gold:hover{background:#ad8548;}.hv7 .b.gh{background:transparent;color:var(--ink2);border-color:var(--line);}.hv7 .b.gh:hover{background:var(--sand);}.hv7 .b.red{background:var(--bad);color:#fff;}.hv7 .acts .xb{margin-left:22px;}
 .hv7 .xb{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid var(--line);color:var(--ink2);font-size:14px;cursor:pointer;display:grid;place-items:center;transition:.16s;}.hv7 .xb:hover{background:var(--bad);color:#fff;border-color:var(--bad);}.hv7 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px;}.hv7 .icons{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}.hv7 .ico{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink);background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.9);border-radius:3px;padding:5px 11px 5px 8px;}.hv7 .ico b{font-size:14px;line-height:1;font-weight:400;}.hv7 .ico em{font-style:normal;color:var(--mut);font-size:11px;}.hv7 .ico.gold{border-color:var(--gold-l);background:rgba(224,201,163,.26);}.hv7 .ico.score{position:relative;cursor:help;}.hv7 .tip{position:absolute;left:0;top:calc(100% + 9px);width:340px;background:var(--card);border:1px solid var(--line);
   border-radius:3px;padding:13px 15px;box-shadow:0 14px 40px rgba(80,70,55,.22);opacity:0;visibility:hidden;
-  transform:translateY(-4px);transition:.16s;z-index:9;display:block;}.hv7 .ico.score:hover .tip, .hv7 .ico.score:focus .tip{opacity:1;visibility:visible;transform:none;}.hv7 .tiph{display:block;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:9px;}.hv7 .tr{display:block;font-size:11.5px;color:var(--mut);padding:7px 0;border-bottom:1px solid var(--hair);line-height:1.5;}.hv7 .tr:last-of-type{border-bottom:0;}.hv7 .tr b{display:inline;color:var(--ink);font-weight:600;font-size:12px;margin-right:5px;}.hv7 .tr b::after{content:' —';color:var(--mut);font-weight:400;}.hv7 .tr i{display:inline-block;font-style:normal;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;border-radius:2px;padding:2px 7px;margin-left:6px;vertical-align:1px;}.hv7 .tr i.st{background:rgba(123,164,136,.2);color:#4f7a5f;}.hv7 .tr i.md{background:rgba(224,201,163,.4);color:#8d6a34;}.hv7 .tr i.sv{background:rgba(228,196,179,.35);color:#a35f3e;}.hv7 .trs em{font-style:italic;}.hv7 .trs{display:block;font-family:'Cormorant Garamond',serif;font-size:14.5px;font-style:italic;line-height:1.5;color:var(--ink2);background:var(--mist);border-radius:3px;padding:10px 12px;margin-top:10px;}.hv7 .chip{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;border-radius:2px;padding:4px 10px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.9);color:var(--ink2);}.hv7 .chipsel{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.95);border-radius:2px;padding:3px 5px 3px 10px;transition:.15s;cursor:pointer;}.hv7 .chipsel:hover{border-color:var(--gold-l);background:#fff;}.hv7 .chipsel>span{font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);}.hv7 .chipsel select{font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);border:0;background:transparent;padding:2px 4px;cursor:pointer;font-weight:500;}.hv7 .chipsel select:focus{outline:none;}.hv7 .chip.gold{border-color:var(--gold-l);color:#8d6a34;background:rgba(224,201,163,.3);}.hv7 .chip.warn{border-color:#e3c4b3;color:#a35f3e;background:rgba(228,196,179,.28);}.hv7 /* næste handling */
+  transform:translateY(-4px);transition:.16s;z-index:9;display:block;}.hv7 .ico.score:hover .tip, .hv7 .ico.score:focus .tip{opacity:1;visibility:visible;transform:none;}.hv7 .tiph{display:block;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:9px;}.hv7 .tr{display:block;font-size:11.5px;color:var(--mut);padding:7px 0;border-bottom:1px solid var(--hair);line-height:1.5;}.hv7 .tr:last-of-type{border-bottom:0;}.hv7 .tr b{display:inline;color:var(--ink);font-weight:600;font-size:12px;margin-right:5px;}.hv7 .tr b::after{content:' —';color:var(--mut);font-weight:400;}.hv7 .tr i{display:inline-block;font-style:normal;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;border-radius:2px;padding:2px 7px;margin-left:6px;vertical-align:1px;}.hv7 .tr i.st{background:rgba(123,164,136,.2);color:#4f7a5f;}.hv7 .tr i.md{background:rgba(224,201,163,.4);color:#8d6a34;}.hv7 .tr i.sv{background:rgba(228,196,179,.35);color:#a35f3e;}.hv7 .trs em{font-style:italic;}.hv7 .trs{display:block;font-family:'Cormorant Garamond',serif;font-size:14.5px;font-style:italic;line-height:1.5;color:var(--ink2);background:var(--mist);border-radius:3px;padding:10px 12px;margin-top:10px;}.hv7 .chip{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;border-radius:2px;padding:4px 10px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.9);color:var(--ink2);}.hv7 .chipsel{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.95);border-radius:2px;padding:3px 5px 3px 10px;transition:.15s;cursor:pointer;}.hv7 .chipsel:hover{border-color:var(--gold-l);background:#fff;}.hv7 .chipsel>span{font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);}.hv7 .chipsel select{font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);border:0;background:transparent;padding:2px 4px;cursor:pointer;font-weight:500;}.hv7 .chipsel select:focus{outline:none;}.ldlg .vurher{margin-top:14px;padding-top:12px;border-top:1px solid var(--hair);}.ldlg .vurher>label em{font-style:normal;color:var(--mut);text-transform:none;letter-spacing:0;font-size:11px;margin-left:6px;}.ldlg .vurher .vur{display:grid;gap:6px;margin-top:8px;}.ldlg .vurher .vur button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);background:#fff;border:1px solid var(--hair);border-radius:3px;padding:9px 12px;cursor:pointer;}.ldlg .vurher .vur button:hover{border-color:var(--gold-l);}.ldlg .vurher .vur button.on{border-color:var(--gold);background:rgba(224,201,163,.22);}.ldlg .vurher .vur .dot{width:7px;height:7px;border-radius:50%;background:var(--gold-l);flex:none;}.ldlg .vurher .vur button.on .dot{background:var(--gold);}.ldlg .vurher .vur small{margin-left:auto;font-size:9.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mut);}
+.hv7 .chipfast{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.95);border-radius:2px;padding:5px 10px;}.hv7 .chipfast>span{font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);}.hv7 .chipfast>b{font-size:12px;font-weight:500;color:var(--ink);}
+.hv7 .dubadv{margin:10px 0 0;padding:10px 12px;border-radius:3px;background:rgba(224,201,163,.28);border:1px solid var(--gold-l);font-size:12px;color:#8d6a34;display:flex;align-items:center;gap:10px;}.hv7 .dubadv b{color:var(--ink);}.hv7 .dubadv button{margin-left:auto;font-family:'Inter',sans-serif;font-size:11.5px;padding:5px 12px;border-radius:2px;border:1px solid var(--gold-l);background:#fff;color:#8d6a34;cursor:pointer;white-space:nowrap;}.hv7 .dubadv button:hover{background:rgba(224,201,163,.25);}
+.flet{width:min(760px,94vw);}.flet .fr{display:grid;grid-template-columns:150px 1fr 1fr;gap:8px;align-items:stretch;padding:7px 0;border-bottom:1px solid var(--hair);}.flet .fr:last-of-type{border-bottom:0;}.flet .fk{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);align-self:center;}.flet .fv{text-align:left;font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.45;color:var(--ink);background:#fff;border:1px solid var(--hair);border-radius:2px;padding:8px 10px;cursor:pointer;white-space:pre-wrap;}.flet .fv:hover{border-color:var(--gold-l);}.flet .fv.on{border-color:var(--gold);background:rgba(224,201,163,.22);box-shadow:inset 0 0 0 1px var(--gold);}.flet .fv.tom{color:var(--mut);font-style:italic;}.flet .fhd{display:grid;grid-template-columns:150px 1fr 1fr;gap:8px;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);padding-bottom:6px;}.flet .fens{font-size:11.5px;color:var(--mut);margin:10px 0 0;}
+.hv7 .chip.gold{border-color:var(--gold-l);color:#8d6a34;background:rgba(224,201,163,.3);}.hv7 .chip.warn{border-color:#e3c4b3;color:#a35f3e;background:rgba(228,196,179,.28);}.hv7 /* næste handling */
 .nba{display:flex;align-items:center;gap:11px;padding:11px 26px;background:var(--sand);border-bottom:1px solid var(--line);font-size:12.5px;color:var(--ink2);}.hv7 .pulse{width:6px;height:6px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 0 rgba(196,125,92,.55);animation:pl 2.4s infinite;flex-shrink:0;}@keyframes pl{70%{box-shadow:0 0 0 8px rgba(196,125,92,0);}100%{box-shadow:0 0 0 0 rgba(196,125,92,0);}}.hv7 .nba b{font-weight:600;color:var(--ink);}.hv7 .nba .b{margin-left:auto;}.hv7 /* trin */
 .rail{display:flex;background:var(--card);border-bottom:1px solid var(--hair);}.hv7 .seg{flex:1;padding:11px 6px 0;text-align:center;cursor:pointer;position:relative;transition:.16s;border-right:1px solid var(--hair);}.hv7 .seg:last-child{border-right:0;}.hv7 .seg .d{display:block;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);margin:3px 0 9px;white-space:nowrap;}.hv7 .seg .l{display:block;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);}.hv7 .seg .pb{display:block;height:3px;background:var(--hair);}.hv7 .seg .pb i{display:block;height:100%;background:var(--gold-l);}.hv7 .seg.cur .pb i{background:var(--gold);}.hv7 .seg.done .pb i{background:#9dbfb8;}.hv7 .seg.done{background:var(--mist);}.hv7 .seg.done .d{color:#4d7a72;}.hv7 .seg.done .l{color:#6d8b85;}.hv7 .seg.cur{background:var(--sand2);}.hv7 .seg.cur .d{color:var(--gold);}.hv7 .seg.cur .l{color:#8d6a34;font-weight:600;}.hv7 .seg:hover{background:var(--sand);}.hv7 .rmeta{display:flex;justify-content:space-between;padding:9px 26px;background:var(--card);border-bottom:1px solid var(--line);font-size:11.5px;color:var(--mut);}.hv7 .body{display:grid;grid-template-columns:1fr 232px;align-items:start;}.hv7 .main{padding:24px 26px 32px;min-width:0;}.hv7 .side{background:var(--sand);padding:24px 22px 32px;border-left:1px solid var(--line);align-self:stretch;}.hv7 .ld::-webkit-scrollbar{width:8px;}.hv7 .ld::-webkit-scrollbar-thumb{background:var(--sand2);border-radius:4px;}.hv7 .warn{display:flex;gap:9px;background:rgba(228,196,179,.22);border:1px solid #e8cdbd;border-radius:3px;padding:10px 13px;font-size:11.5px;margin-bottom:18px;color:#8c5738;}.hv7 .wish{border-left:2px solid var(--gold-l);padding:2px 0 2px 16px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;line-height:1.62;color:var(--ink);}.hv7 .wsrc{font-size:11.5px;font-style:italic;color:var(--mut);margin-top:11px;padding-left:18px;}.hv7 .ntadd{display:flex;gap:8px;margin-bottom:10px;}.hv7 .ntadd textarea{flex:1;font-family:'Inter',sans-serif;font-size:12.5px;padding:9px 12px;border:1px solid var(--line);border-radius:3px;background:#fff;resize:vertical;color:var(--ink);}.hv7 .ntadd textarea:focus{outline:none;border-color:var(--gold-l);}.hv7 .nlist{list-style:none;margin:0;padding:0;}.hv7 .nlist li{border:1px solid var(--line);border-radius:3px;padding:11px 13px;margin-bottom:7px;background:#fff;}.hv7 .nlist .h{display:flex;align-items:baseline;gap:9px;font-size:11.5px;margin-bottom:5px;}.hv7 .nlist .au{color:var(--ink);font-weight:600;}.hv7 .nlist .dt{color:var(--mut);}.hv7 .nlist .via{margin-left:auto;color:var(--mut);border:1px solid var(--hair);border-radius:2px;padding:2px 7px;font-size:10px;}.hv7 .nlist .t{font-size:12.5px;line-height:1.6;color:var(--ink2);}.hv7 /* ramme */
 .frame{display:flex;align-items:center;gap:16px;background:var(--mist);border-radius:3px;padding:13px 16px;flex-wrap:wrap;}.hv7 .frame .k{font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:#6d8b85;margin-bottom:3px;}.hv7 .frame .v{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);line-height:1;}.hv7 .fbar{flex:1;min-width:70px;height:2px;background:rgba(255,255,255,.75);position:relative;}.hv7 .fbar i{position:absolute;height:2px;background:var(--gold);}.hv7 .fbar b{position:absolute;top:-3px;width:8px;height:8px;border-radius:50%;background:#fff;border:1.5px solid var(--gold);}.hv7 .flx{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:#5f8c84;border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.6);border-radius:2px;padding:4px 9px;}.hv7 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}.hv7 .fbox{border:1px solid var(--line);border-radius:3px;padding:15px 16px;background:#fff;}.hv7 .fbox .lab{margin-bottom:13px;}.hv7 .fld{margin-bottom:11px;}.hv7 .fld:last-child{margin-bottom:0;}.hv7 .fld .k{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);margin-bottom:4px;}.hv7 .fld input, .hv7 .fld select{width:100%;font-family:'Inter',sans-serif;font-size:12.5px;padding:7px 0;border:0;border-bottom:1px solid var(--hair);background:transparent;color:var(--ink);transition:.15s;border-radius:0;}.hv7 .fld input:focus, .hv7 .fld select:focus{outline:none;border-bottom-color:var(--gold);}.hv7 .dchip{display:inline-block;font-size:10px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:3px 9px;margin:2px 4px 0 0;letter-spacing:.3px;}
@@ -2741,7 +2774,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v0.94';
+const APP_VERSION = 'v0.96';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -7807,12 +7840,159 @@ async function hvSaetAfrejse(v){
    fejl. Wendie 31.08.2026. */
 const HV_INDGANG = {telefon:'Telefon', mail:'E-mail', besoeg:'Besøg',
   anbefaling:'Anbefaling', andet:'Andet'};
+/* ══ HVILKEN HJEMMESIDE KOM DEN FRA? ══
+   Wendie 02.09.2026: «vi skal ogsaa kunne se i Panda, om en henvendelse
+   kommer fra den norske eller danske hjemmeside.»
+
+   Den staar der allerede — bare skjult. Webformularen skriver sidens navn
+   ind i titlen: «Karina Maldivia.no». Maalt paa alle 250: 108 af 108
+   NO-henvendelser baerer maldivia.no, 40 af 40 MD-henvendelser baerer
+   maldivia.dk. Ikke ét kryds. Titlen er derfor kilden, og brancheN er
+   reserven — men kun for dem der FAKTISK kom fra en formular. En
+   telefonhenvendelse kom ikke fra nogen hjemmeside, og saa skal der ikke
+   staa at den gjorde. */
+function hvSide(l){
+  if(!l) return null;
+  const t = String(l.title||'');
+  if(/maldivia\s*\.\s*no/i.test(t)) return 'maldivia.no';
+  if(/maldivia\s*\.\s*dk/i.test(t)) return 'maldivia.dk';
+  if(l.source === 'manuel') return null;          /* skrevet ind i haanden */
+  if(l.pd_origin === 'ManuallyCreated') return null;
+  if(l.source_channel === 'website')              /* formular uden navn i titlen */
+    return l.branch === 'NO' ? 'maldivia.no' : l.branch === 'MD' ? 'maldivia.dk' : null;
+  return null;
+}
 function hvIndgang(l){
   if(!l) return null;
   if(l.source==='manuel')
     return 'Skrevet ind i hånden' + (HV_INDGANG[l.source_channel] ? ' · '+HV_INDGANG[l.source_channel] : '');
   const k = HV_KANAL[l.source_channel] || l.source_channel;
   return k ? 'Formular · '+k : (l.pipedrive_deal_id ? 'Formular' : null);
+}
+
+
+/* ══ FLET TO HENVENDELSER ══════════════════════════════════════════════
+   Wendie 02.09.2026: «kan man ikke faa en mulighed, hvor man kan flette
+   henvendelser sammen? Og saa beholde den info, man gerne vil have. Hun
+   har jo skrevet en kommentar ind paa den ene, som hun ikke har paa den
+   anden.»
+
+   Karina er selve eksemplet: to raekker sendt med tre minutters mellemrum,
+   ens paa ALT — bortset fra at den anden baerer hendes egen tekst om jul
+   og nytaar paa Maldiverne. Den maa ikke gaa tabt, fordi vi rydder op.
+
+   Derfor: felt for felt. Kun de felter, hvor de to FAKTISK er forskellige,
+   vises — resten er der ingen grund til at tage stilling til. Er det ene
+   tomt og det andet udfyldt, er det udfyldte valgt paa forhaand; det er
+   naesten altid det rigtige, og det kan altid laves om.
+
+   Den anden raekke slettes ikke. Den faar status «dublet» og en henvisning
+   til den, den blev flettet ind i. En flettet dublet er hverken vundet
+   eller tabt — laa den i «tabt», ville den forurene praecis den statistik,
+   tabt-aarsagerne blev bygget til. */
+const HV_FLET_FELTER = [
+  ['contact_name','Navn'], ['contact_email','E-mail'], ['contact_phone','Telefon'],
+  ['destination','Destination'], ['departure_date','Afrejse'], ['return_date','Hjemrejse'],
+  ['earliest_departure','Tidligst'], ['latest_return','Senest'],
+  ['nights','Nætter'], ['adults','Voksne'], ['kids','Børn'], ['child_ages','Børns alder'],
+  ['villas','Villaer'], ['est_value','Anslået værdi'], ['max_budget','Maks. budget'],
+  ['currency','Valuta'], ['departure_airport','Afrejselufthavn'],
+  ['wishes','Ønsker'], ['travel_wishes','Rejseønsker'], ['highlights','Højdepunkter'],
+  ['notes','Noter'], ['occasions','Anledning'], ['villa_types','Villatyper'],
+  ['meal_plans','Forplejning'], ['heard_about_us','Hørt om os'],
+  ['contact_pref','Kontaktform'], ['client_type','Kundetype'],
+  ['offer_url','Tilbudslink'], ['owner','Ansvarlig'], ['branch','Branche'],
+  ['vurdering','Vores vurdering'], ['source_channel','Kanal'],
+];
+const hvFletVis = v =>
+  v==null || v==='' ? '' :
+  Array.isArray(v) ? v.join(', ') :
+  typeof v === 'object' ? JSON.stringify(v) : String(v);
+
+/* Findes der en anden aaben henvendelse med samme mail? */
+function hvDublet(l){
+  const m = (l && l.contact_email || '').trim().toLowerCase();
+  if(!m) return null;
+  return (window._leads||[]).find(x => x.id !== l.id && x.status === 'open'
+    && (x.contact_email||'').trim().toLowerCase() === m) || null;
+}
+
+function hvFletDlg(andenId){
+  const id = window._hvId; if(!id) return;
+  const a = (window._leads||[]).find(x=>x.id===id);
+  const b = (window._leads||[]).find(x=>x.id===andenId);
+  if(!a || !b) return;
+  window._hvFlet = { beholdes:a.id, fjernes:b.id, valg:{} };
+  const ov = document.getElementById('hvOv2'); if(!ov) return;
+
+  const raekker = HV_FLET_FELTER
+    .map(([k,navn])=>[k, navn, hvFletVis(a[k]), hvFletVis(b[k])])
+    .filter(([,,va,vb]) => va !== vb);
+  /* Er den ene tom, vaelger vi den udfyldte paa forhaand. Ellers den, vi beholder. */
+  raekker.forEach(([k,,va,vb])=>{ window._hvFlet.valg[k] = (!va && vb) ? 'b' : 'a'; });
+
+  const dato = t => t ? new Date(t).toLocaleString('da-DK',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+  const celle = (k,side,v)=>`<div class="fv ${window._hvFlet.valg[k]===side?'on':''}${v?'':' tom'}"
+      data-k="${k}" data-side="${side}" onclick="hvFletVaelg('${k}','${side}')">${escH(v||'tomt')}</div>`;
+
+  ov.innerHTML = `<div class="ldlg flet">
+    <div class="h"><h3>Flet de to henvendelser</h3>
+      <p>Vælg hvad der skal med. Den anden bliver stående som dublet — den slettes ikke.</p></div>
+    <div class="c">
+      ${raekker.length ? `
+        <div class="fhd"><span></span><span>Denne · ${escH(dato(a.created_at))}</span>
+          <span>Den anden · ${escH(dato(b.created_at))}</span></div>
+        ${raekker.map(([k,navn,va,vb])=>`<div class="fr">
+          <span class="fk">${escH(navn)}</span>${celle(k,'a',va)}${celle(k,'b',vb)}</div>`).join('')}`
+        : '<p class="fens">De to er ens på alle felter. Der er ikke noget at vælge imellem — flet dem bare sammen.</p>'}
+      <p class="fens">Noter og historik fra begge følger med over på den, du beholder.</p>
+      <div class="nyfejl" id="hvFletFejl"></div>
+    </div>
+    <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+      <button class="b gold" onclick="hvFletUdfoer()">Flet sammen</button></div></div>`;
+  ov.classList.add('on');
+}
+function hvFletVaelg(k, side){
+  if(!window._hvFlet) return;
+  window._hvFlet.valg[k] = side;
+  document.querySelectorAll('.flet .fv[data-k="'+k+'"]').forEach(el=>
+    el.classList.toggle('on', el.dataset.side===side));
+}
+async function hvFletUdfoer(){
+  const f = window._hvFlet; if(!f) return;
+  const a = (window._leads||[]).find(x=>x.id===f.beholdes);
+  const b = (window._leads||[]).find(x=>x.id===f.fjernes);
+  const fejl = document.getElementById('hvFletFejl');
+  if(!a || !b) return;
+
+  /* Kun de felter, hvor den ANDEN blev valgt, skal skrives — resten staar
+     allerede rigtigt paa den, vi beholder. */
+  const raet = {};
+  Object.keys(f.valg).forEach(k=>{ if(f.valg[k]==='b') raet[k] = b[k]; });
+
+  if(Object.keys(raet).length){
+    const {error} = await db.from('leads').update(raet).eq('id', a.id);
+    if(error){ if(fejl) fejl.textContent = 'Kunne ikke gemme: '+error.message; return; }
+    Object.assign(a, raet);
+  }
+  /* Historikken flyttes med. Uden det ville noterne blive haengende paa en
+     raekke, ingen kigger paa igen. */
+  const {error:e2} = await db.from('lead_activities').update({lead_id:a.id}).eq('lead_id', b.id);
+  if(e2){ if(fejl) fejl.textContent = 'Noterne kunne ikke flyttes: '+e2.message; return; }
+
+  const {error:e3} = await db.from('leads').update({status:'dublet', flettet_ind_i:a.id,
+    flettet_at:new Date().toISOString(), flettet_af:(window.ME||null)}).eq('id', b.id);
+  if(e3){ if(fejl) fejl.textContent = 'Dubletten kunne ikke lukkes: '+e3.message; return; }
+
+  await db.from('lead_activities').insert({lead_id:a.id, type:'system',
+    body:'Flettet sammen med en dublet oprettet '+new Date(b.created_at).toLocaleString('da-DK'),
+    actor:(window.ME||null), occurred_at:new Date().toISOString()}).then(()=>{},()=>{});
+
+  b.status='dublet'; b.flettet_ind_i=a.id;
+  window._leads=(window._leads||[]).filter(x=>x.id!==b.id);
+  window._hvFlet=null;
+  hvLukDlg(); hvBoardRender(); hvOpen(a.id);
+  hvKvit('De to henvendelser er flettet sammen');
 }
 
 /* ══ Slet en henvendelse ═══════════════════════════════════════════════
@@ -8431,6 +8611,7 @@ function hvTabtDlg(){
       </div>
       <label>Uddyb — hvad sagde kunden?</label>
       <textarea id="hvTabtNote" rows="2" placeholder="Valgfrit, men guld værd om et halvt år"></textarea>
+      ${hvHarVurdering(l)?'':hvVurVaelger(l.id)}
       <p class="dlgfejl" id="hvTabtFejl"></p>
       <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
         <button class="b lost" onclick="hvTabtGem()">Marker tabt</button></div>
@@ -8546,7 +8727,12 @@ function hvRender(l, acts, offers){
                  <button class="b lost" onclick="hvTabtDlg()" title="Sagen blev ikke til noget">Tabt</button>`}
           <button class="xb" onclick="hvClose()" title="Luk (Esc)">✕</button></div>
       </div>
+      ${(()=>{ const d=hvDublet(l); return d ? `<div class="dubadv">
+        <span><b>Der ligger en henvendelse mere med samme mail.</b>
+          Oprettet ${escH(new Date(d.created_at).toLocaleString('da-DK',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}.</span>
+        <button onclick="hvFletDlg('${d.id}')">Flet dem sammen</button></div>` : ''; })()}
       <div class="chips">
+        ${hvSide(l)?`<span class="chipfast" title="Henvendelsen kom fra denne hjemmeside"><span>Hjemmeside</span><b>${escH(hvSide(l))}</b></span>`:''}
         <label class="chipsel"><span>Branche</span><select onchange="hvSave('branch',this.value)">${BRANCH_OPTS.map(([k,lab])=>`<option value="${k}" ${l.branch===k?'selected':''}>${escH(lab)}</option>`).join('')}</select></label>
         <label class="chipsel"><span>Ansvarlig</span><select onchange="hvSave('owner',this.value)">${TEAM_OPTS(l.owner||'')}</select></label>
       </div>
@@ -8658,7 +8844,7 @@ function hvRender(l, acts, offers){
              hedder teknik og source, saa det bare er gemt vaek — det er jo bare data
              vi skal bruge senere hen til noget statistik.» Sporet fylder derfor ikke
              i sidepanelet mere; det staar samlet bag én sammenklappet linje. */
-          const r=[['Kom ind via',hvIndgang(l)],
+          const r=[['Kom ind via',hvIndgang(l)],['Hjemmeside',hvSide(l)],
               ['Kilde',hvKilde(l.utm_source)],['Kampagne',l.utm_campaign],
               ['Hørt om os',l.heard_about_us],['Enhed',l.visitor_device],
               ['Kanal',[l.pd_channel,l.pd_channel_id].filter(Boolean).join(' · ')],
@@ -8758,6 +8944,32 @@ function hvTog(btn,felt){
    ingenting. Derfor spærrer vi på de tre steder, hvor sagen forlader sin
    uskyld: væk fra «Ny henvendelse», til tabt, og til solgt. */
 function hvHarVurdering(l){ return !!(l && l.vurdering); }
+/* Wendie 02.09.2026: «jeg tager mig selv i, at jeg hele tiden trykker tabt,
+   foer jeg bliver bedt om at udfylde vores vurdering. Er der en mulighed
+   for, at man kan faa den op inde i tabt-boksen? Saa man slipper for at gaa
+   ud og ind igen.»
+
+   Rigtigt set. En spaerring, der sender folk tilbage til noget, de kunne
+   have gjort paa stedet, er en daarlig spaerring. Vurderingen vises derfor
+   INDE i boksen, naar den mangler — samme knapper som i sidepanelet. */
+function hvVurVaelger(id){
+  return `<div class="vurher" id="vurher-${id}">
+    <label>Vores vurdering <em>skal sættes, før sagen lukkes</em></label>
+    <div class="vur">${HV_VUR.map(([k,n,u])=>
+      `<button type="button" onclick="hvVurHer('${id}','${k}')" data-k="${k}">
+        <span class="dot"></span>${escH(n)}<small>${escH(u)}</small></button>`).join('')}</div>
+  </div>`;
+}
+async function hvVurHer(id, k){
+  const l=(window._leads||[]).find(x=>x.id===id); if(!l) return;
+  l.vurdering=k; l.vurdering_by=window.ME||''; l.vurdering_at=new Date().toISOString();
+  const boks=document.getElementById('vurher-'+id);
+  if(boks) boks.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.k===k));
+  /* Fejlteksten i boksen skal forsvinde, saa snart manglen er rettet. */
+  ['hvTabtFejl','hvSolgtFejl'].forEach(f=>{ const e=document.getElementById(f); if(e) e.textContent=''; });
+  await db.from('leads').update({vurdering:k, vurdering_by:window.ME||null,
+    vurdering_at:new Date().toISOString()}).eq('id',id);
+}
 function hvVurMangler(hvad){
   return 'Sæt «Vores vurdering» først — den skal stå, før ' + hvad
     + '. Ellers ved vi bagefter ikke, hvad vi troede på forhånd.';
@@ -12889,6 +13101,19 @@ const HV_BRANCHE_VALUTA = {NO:'NOK', MN:'NOK', MD:'DKK', HQ:'DKK', IT:'EUR'};
 async function hvSolgtDlg(){
   const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
   const ov = document.getElementById('hvOv2'); if(!ov) return;
+  /* Solgt gaar direkte i gang med at oprette rejsen, saa der er ikke noget
+     skaermbillede at saette vurderingen i bagefter. Mangler den, spoerges
+     der her — og saa fortsaettes der samme sted. */
+  if(!hvHarVurdering(l)){
+    ov.innerHTML = `<div class="ldlg">
+      <div class="h"><h3>Før vi opretter rejsen</h3>
+        <p>Hvad tænkte I om «${escH(hvNavn(l))}», da den kom ind? Den skal stå nu — bagefter ved vi det ikke længere.</p></div>
+      <div class="c">${hvVurVaelger(l.id)}<p class="dlgfejl" id="hvSolgtFejl"></p></div>
+      <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+        <button class="b won" onclick="hvSolgtFortsaet()">Fortsæt</button></div></div>`;
+    ov.classList.add('on');
+    return;
+  }
   ov.innerHTML = `<div class="ldlg"><div class="c">
     <div class="opretter">Opretter mellemlandingen…</div></div></div>`;
   ov.classList.add('on');
@@ -12941,6 +13166,15 @@ async function hvSolgtDlg(){
     tilbud: (bk && bk.tilbud_url) || l.offer_url || null,
   };
   await hvSolgtGem();
+}
+function hvSolgtFortsaet(){
+  const l=(window._leads||[]).find(x=>x.id===window._hvId);
+  if(!hvHarVurdering(l)){
+    const f=document.getElementById('hvSolgtFejl');
+    if(f) f.textContent='Vælg en vurdering — det tager to sekunder, og den kan ikke sættes bagefter.';
+    return;
+  }
+  hvSolgtDlg();
 }
 async function hvSolgtGem(){
   const l = (window._leads||[]).find(x=>x.id===window._hvId); if(!l) return;
