@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.07 · 04.09.2026
+<!-- Panda · v1.08 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,16 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.08 — RETTELSESBOKSEN LIGGER I DEN YDELSE, DEN RETTER.
+     (Den blev færdig, lige efter v1.07 var lagt op, og står derfor for sig.)
+
+     Og rettelsesboksen ligger nu i den ydelse, den retter. Wendie: «da jeg
+     trykkede, at jeg ville rette noget på det her element, lagde
+     rettelsesboksen sig nede under hotellet.» Den blev altid tegnet i #nyel
+     nederst i listen — rigtigt for en NY ydelse, forkert for en rettelse.
+     Hver ydelse har nu sin egen plads øverst i kroppen, over prisstigen, og
+     ydelsen foldes ud, så man ikke retter i noget sammenklappet.
 
      v1.06 — FLYENE TEGNES SOM FØR I REJSEPLANEN.
      Wendie: «den måde flyene vises på oppe i rejseplanen er jo fuldstændig
@@ -3187,7 +3197,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.07';
+const APP_VERSION = 'v1.08';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -11980,6 +11990,13 @@ function tegnListeInd(){
 
       </div>
       <div class="r-krop">
+        <!-- Wendie 04.09.2026: «da jeg trykkede, at jeg ville rette noget paa
+             det her element, lagde rettelsesboksen sig nede under hotellet …
+             det er jo information, som burde staa over der, hvor flyplanen er.»
+             Rigtigt: boksen blev altid tegnet i #nyel nederst i listen — godt
+             nok til en NY ydelse, forkert til en rettelse. Nu har hver ydelse
+             sin egen plads oeverst i kroppen, og rettelsen sker dér. -->
+        <div id="ret-${e.id}"></div>
 
         <div class="r-blok">
           <div class="r-bt">Priser <span class="r-n">grundlaget øverst · alt måles mod den</span>
@@ -12926,8 +12943,13 @@ function retElement(id){
   NY.aaben = true; NY.type = e.type || 'andet'; NY.retter = id;
   NY.f = {...(e.raa||{}), val:e.val || KUNDEVAL};
   if(!NY.f.villaer) NY.f.villaer = [{a:'1',t:'',mp:''}];
+  /* Ydelsen foldes ud, saa boksen er synlig — ellers retter man i noget,
+     der ligger sammenklappet. */
+  if(st[id]) st[id].aaben = true;
+  tegnListe();
   tegnNy();
-  document.getElementById('nyel').scrollIntoView({behavior:'smooth', block:'center'});
+  const maal = document.getElementById('ret-'+id) || document.getElementById('nyel');
+  if(maal) maal.scrollIntoView({behavior:'smooth', block:'center'});
 }
 function lukNy(){ NY.aaben = false; tegnNy(); }
 function saetType(t){
@@ -13013,7 +13035,12 @@ const nyVaelg = (felt, liste) =>
    </select>`;
 
 function tegnNy(){
-  const boks = document.getElementById('nyel');
+  /* Rettes en ydelse, hoerer boksen til DEN ydelse — ikke nederst i listen.
+     Alle pladser toemmes foerst, saa den ikke kan staa to steder. */
+  document.querySelectorAll('#liste [id^="ret-"]').forEach(x=>x.innerHTML='');
+  const nederst = document.getElementById('nyel');
+  const boks = (NY.retter && document.getElementById('ret-'+NY.retter)) || nederst;
+  if(boks !== nederst && nederst) nederst.innerHTML = '';
   if(!NY.aaben){ boks.innerHTML = ''; return; }
   if(!NY.type){
     boks.innerHTML = `<div class="r-nyboks">
