@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.05 · 04.09.2026
+<!-- Panda · v1.06 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -201,6 +201,20 @@
      antal nætter er ude af overskriften, fordi vi kan sælge flyet 14.–22. og
      kun have hotel i fire af nætterne; og hjemrejsedatoen følger nu
      rejseplanen — rejsen varer så længe, som dens ydelser varer.
+
+     v1.06 — FLYENE TEGNES SOM FØR I REJSEPLANEN.
+     Wendie: «den måde flyene vises på oppe i rejseplanen er jo fuldstændig
+     lavet om … det skal være tilbage til det, vi havde.»
+     Hun så rigtigt — men flyvisningen er IKKE ændret. Både tabellen og det
+     rigtige design har stået urørt siden v0.97; det er efterprøvet i otte
+     udgivelser. Det, der ændrede sig, er hvilken gren der bliver NÅET:
+     tabellen viser sig kun, når den valgte prislinje har segmenter, og det
+     havde ingen linje, før flybilletterne kom ind. En visning, der havde
+     ligget der i en uge uden nogensinde at blive set.
+     Løsningen er ikke at gemme ruten to steder, men at tegne segmenterne med
+     SAMME funktion som alt andet fly — én kilde, ét udseende. Mellemlandingen
+     regnes af tiderne («London Heathrow · 5 t 35 m»), og flynr., bookingref.
+     og klasse står under, som på et fly fra tilbuddet.
 
      v1.05 — BILLETTEN TRÆKKES IND DÉR, HVOR RUTEN HØRER TIL.
      (v1.04 lagde trækfeltet i «nyt element». Herunder står begge dele samlet.)
@@ -3160,7 +3174,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.05';
+const APP_VERSION = 'v1.06';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -10662,6 +10676,41 @@ function saetTrin(i){ nu=i; tegnTrin(); }
 
 /* Rejseplanen fyldes fra trip_plan_items — se start() nederst. */
 const PLAN = [];
+/* ══ SEGMENTER TEGNES SOM ALLE ANDRE FLY ══════════════════════════════
+   Wendie 04.09.2026: «den måde flyene vises på oppe i rejseplanen er jo
+   fuldstændig lavet om … det skal være tilbage til det, vi havde.»
+   Hun har ret i, at det saa anderledes ud — men flyvisningen er IKKE
+   aendret: baade tabellen og det her design har staaet uroert siden v0.97
+   (efterproevet i otte udgivelser). Det, der aendrede sig, er hvilken gren
+   der bliver naaet: tabellen viser sig kun, naar den valgte prislinje har
+   segmenter, og det havde ingen linje foer flybilletterne kom ind.
+   Loesningen er ikke at gemme ruten to steder, men at tegne segmenterne
+   med SAMME funktion som alt andet fly. Én kilde, ét udseende. */
+function segTilFly(seg, retning){
+  if(!seg || !seg.length) return null;
+  const minut = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t||''); return m ? +m[1]*60 + +m[2] : null; };
+  const varighed = min => min == null || min < 0 ? '—'
+    : Math.floor(min/60) + ' t' + (min%60 ? ' ' + (min%60) + ' m' : '');
+  const stop = [];
+  for(let i=0; i<seg.length-1; i++){
+    const an = minut(seg[i].an), ud2 = minut(seg[i+1].ud);
+    let d = (an != null && ud2 != null) ? ud2 - an : null;
+    if(d != null && d < 0) d += 24*60;                 /* over midnat */
+    stop.push({ by: seg[i].tilBy || seg[i].til, tid: varighed(d) });
+  }
+  const f0 = seg[0], fN = seg[seg.length-1];
+  let ialt = null;
+  if(f0.dato && f0.ud && fN.an){
+    const a = Date.parse(f0.dato + 'T' + f0.ud);
+    const b2 = Date.parse((fN.ankomstDato || f0.dato) + 'T' + fN.an);
+    if(isFinite(a) && isFinite(b2) && b2 > a) ialt = Math.round((b2 - a)/60000);
+  }
+  return [{ retning, total: varighed(ialt),
+    dato: f0.dato ? new Date(f0.dato).toLocaleDateString('da-DK',
+            {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : '',
+    legs: seg.map(x=>({ ud:x.ud, an:x.an, fra:x.fra, til:x.til, plus:!!x.plus })),
+    stop }];
+}
 function flyHtml(f){
   return f.map(r=>`<div class="r-ret">
     <div class="r-rethd"><span class="r-r">${r.retning}</span><span class="r-dt">${r.dato}</span>
@@ -10890,14 +10939,16 @@ function tegnPlan(){
              vi lige havde besluttet: planen FOELGER elementerne. Datoerne
              saettes dér, hvor rejsen bygges, ikke to steder. -->
         ${t2.visPlan === 'segmenter'
-        ? `<div class="r-pk" style="padding-top:14px">
-             <div class="r-pt2">Flyplanen på den valgte pris</div>
-             <table class="r-segt r-vis">
-               <tr><th>Rute</th><th>Dato</th><th>Fra</th><th>Afgang</th><th>Til</th><th>Ankomst</th></tr>
-               ${t2.segmenter.map(x=>`<tr><td>${x.nr||'—'}</td>
-                 <td>${x.dato?kortDato(x.dato):'—'}</td><td>${x.fra}</td><td>${x.ud}</td>
-                 <td>${x.til}</td><td>${x.an}${x.plus?'<span class="r-p1">+1</span>':''}</td></tr>`).join('')}
-             </table></div>`
+        ? `<div class="r-fp">${flyHtml(segTilFly(t2.segmenter, p.vej ? 'Hjemrejse' : 'Udrejse'))}
+             ${(()=>{ const nrs = t2.segmenter.map(x=>x.nr||x.flynr).filter(Boolean);
+                const l0 = t2.linje || {}; const pnr = (l0.raa && l0.raa.pnr) || null;
+                const m = [ nrs.length ? ['Flynr.', nrs.join(' · ')] : null,
+                            pnr ? ['Bookingref.', pnr] : null,
+                            t2.segmenter[0].kabine ? ['Klasse', t2.segmenter[0].kabine] : null ]
+                          .filter(Boolean);
+                return m.length ? `<div class="r-flymeta">${m.map(([k,v])=>
+                  `<span>${escH(k)}: <b>${escH(v)}</b></span>`).join('')}</div>` : ''; })()}
+           </div>`
         : (t2.visPlan === 'ingen' && p.art === 'Fly')
         ? `<div class="r-pk" style="padding-top:14px">
              <div class="r-pt2">Flyplanen på den valgte pris</div>
@@ -13839,7 +13890,7 @@ return {
   roert, ryddHotel, saet, saetFokus, saetForm, saetFra, saetHold, saetKilde,
   saetLinjeHold, saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla,
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
-  soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
+  segTilFly, soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
   flyPdf, flyPdfLinje, flyLaesTekst, flyVeje, pdfTekst,
   gemNytElement, gemNavn, gemPax, gemDatoer, opdaterDatoer, nyDest, fjernDest, tegnDest,
   ydGreb, ydStart, ydOver, ydDrop, ydSlut,
