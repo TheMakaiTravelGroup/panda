@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.03 · 03.09.2026
+<!-- Panda · v1.04 · 03.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -202,6 +202,26 @@
      kun have hotel i fire af nætterne; og hjemrejsedatoen følger nu
      rejseplanen — rejsen varer så længe, som dens ydelser varer.
 
+     v1.04 — EN FLYBILLET KAN TRÆKKES IND.
+     Wendie: «hvis man kan trække PDF'en ind, så ville det være fantastisk —
+     direkte ind i Panda, så den kan hente informationen ud.»
+     Nu kan man. Træk en Farewise-billet ind på flyelementet, så læses den i
+     BROWSEREN — filen forlader aldrig maskinen — og selskab, klasse, antal
+     rejsende, rute, datoer og hver enkelt flyvning fyldes ud. Man ser, hvad
+     der blev fundet, før noget gemmes.
+     Ruten lægges på PRISLINJEN, ikke i planen: hvert flytilbud har sin egen
+     rute, så vælger man en anden linje, skifter rejseplanen med. Havde ruten
+     ligget i planen, ville den binding gå i stykker.
+     Er der både en ud- og en hjemrejse, oprettes TO linjer i rejseplanen
+     (vej 0 og 1) — ellers ville hjemrejsen ligge på udrejsedatoen.
+     Flyselskabet læses af flynummerets præfiks, ikke af overskriften: den
+     deler linje med den første passager («Olivia Kirketerp Crosato SAS: …»),
+     og så kan de to ikke skilles ad på navnet alene. SK2692 er SK + 2692,
+     ikke SK2 + 692.
+     Prøvet mod to rigtige billetter: én flyvning, og fire flyvninger med
+     mellemlanding i London og overnatning i luften. pdf.js hentes fra CDN,
+     men først i det øjeblik en PDF faktisk trækkes ind.
+
      v1.03 — TIDEN PÅ EN YDELSE ER EN SORTERINGSNØGLE, IKKE EN OPLYSNING.
      Wendie: «kan man ikke sætte check-in tidspunktet på hotellet automatisk
      til kl. 15 … det er jo ikke rigtigt noget, vi udfylder — den eneste grund
@@ -237,6 +257,33 @@
      siden v0.85 den 1. september (efterprøvet i repoets historik over fem
      udgivelser) — fejlen blev bare først synlig på en MN-rejse med rigtige
      ydelser. tilKunde og krK bruges ikke længere og er fjernet.
+
+     Og prislinjerne ligger nu synligt som et lag under ydelsen. Wendie:
+     «det skal være lidt tydeligere, hvad der er elementlinjen, og hvad der
+     er prislinjen — at det er et lag, der ligger inde under elementet.»
+     Tre greb, ingen nye farver: den åbne ydelse får en tone og en gylden
+     skinne i venstre kant, så hoved og krop læses som ét; en lodret streg
+     løber ned gennem kroppen med en vandret forbindelse over til «Priser»;
+     og prisstigen er rykket ind bag stregen med en anelse mindre skrift.
+     To fejl rettet på vejen: reglen [draggable=true] .r-hd farvede ALLE
+     hoveder, efter at alle rækker blev trækbare (v1.03) — den er væk. Og
+     skinnen var usynlig, fordi den brugte var(--gold-l), som ikke findes i
+     #rsside; en ukendt variabel gør hele erklæringen ugyldig, og CSS siger
+     ikke fra. Den slags ses kun ved at måle den beregnede stil bagefter.
+
+     Og toppen kan endelig rettes. Wendie: «hvad med de ting, der skulle kunne
+     redigeres på mellemlandingen? Det har vi da helt glemt.» Rigtigt — det
+     var nævnt tre gange og aldrig bygget.
+     Navnet, destinationerne og antal rejsende rettes nu direkte i toppen:
+     navnet gemmes på KUNDEN (fornavn og efternavn deles ved sidste mellemrum),
+     destinationerne skrives til trip_destinations, og antallet til trips.
+     Hver af dem kontrollerer sit svar og ruller skærmen tilbage til det, der
+     faktisk står i basen, hvis gemningen bliver afvist — den fejl har vi haft
+     to gange i dag.
+     DATOERNE kan ikke rettes her, når der er ydelser: de følger rejseplanen
+     (R253), og rettes de to steder, kommer de til at modsige hinanden. De er
+     stiplede med en forklaring, og rettes på ydelsen, hvor de kommer fra. Er
+     rejsen tom, kan de skrives.
 
      v1.02 — EN NY YDELSE BLEV ALDRIG GEMT.
      Wendie: «jeg havde lige lagt en masse ydelser ind, både fly og et hotel …
@@ -1271,6 +1318,66 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .card.indst .sysr:last-child{border-bottom:0}
 .card.indst .sysr .k{min-width:170px;color:var(--mut)}
 #rsside .r-hj{font-size:9.5px;color:#a8a290;margin-top:3px;line-height:1.4}
+
+/* traek en flybillet ind */
+#rsside .r-pdf{margin-top:12px;border:1px dashed #ddcba4;border-radius:2px;background:#fdfbf4;
+  padding:14px 16px;text-align:center;font-size:12px;color:#a08a5e;cursor:pointer;transition:.15s}
+#rsside .r-pdf:hover{background:#faf5e9;border-color:var(--gold)}
+#rsside .r-pdf.r-paa{background:#f6efdc;border-color:var(--gold);color:var(--ink)}
+#rsside .r-vent{display:block;margin-top:9px;font-size:12px;color:var(--mut)}
+#rsside .r-fejl{display:block;margin-top:9px;font-size:12px;color:var(--bad)}
+#rsside .r-fund{margin-top:10px;border:1px solid #ddcba4;background:#fdfbf4;border-radius:2px;
+  padding:10px 13px;font-size:12px;color:#5d6157}
+#rsside .r-fund b{color:var(--ink)}
+#rsside .r-vej{margin-top:7px;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+#rsside .r-vej em{font-style:normal;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--gold);min-width:74px}
+#rsside .r-vej span{background:#fff;border:1px solid var(--line);border-radius:2px;
+  padding:2px 8px;font-size:11.5px;white-space:nowrap}
+#rsside .r-advar{margin-top:8px;font-size:11px;color:var(--bad)}
+
+/* toppen kan rettes — felterne skal se ud som tekst, ikke som formularer,
+   men vise sig frem naar musen er der */
+#rsside h1[contenteditable]{outline:none;border-bottom:1px solid transparent;
+  display:inline-block;min-width:120px;padding-bottom:1px}
+#rsside h1[contenteditable]:hover{border-bottom-color:#e6dcc6}
+#rsside h1[contenteditable]:focus{border-bottom-color:var(--gold)}
+#rsside .r-dch{display:inline-flex;align-items:center;gap:5px;background:#f6f2e7;
+  border-radius:2px;padding:2px 5px 2px 9px;margin-right:5px}
+#rsside .r-dch button{border:0;background:none;color:#b8b099;font-size:13px;
+  line-height:1;cursor:pointer;padding:0 2px}
+#rsside .r-dch button:hover{color:var(--bad)}
+#rsside .r-dadd{border:1px dashed #ddcba4;background:none;color:var(--gold);
+  font:inherit;font-size:11px;border-radius:2px;padding:2px 8px;cursor:pointer}
+#rsside .r-dadd:hover{background:#faf5e9}
+#rsside .r-sep{margin:0 7px;color:#c9c3b0}
+#rsside .r-pax[contenteditable],#rsside .r-dato[contenteditable]{outline:none;
+  border-bottom:1px solid transparent}
+#rsside .r-pax[contenteditable]:hover,#rsside .r-dato[contenteditable]:hover{border-bottom-color:#e6dcc6}
+#rsside .r-pax[contenteditable]:focus,#rsside .r-dato[contenteditable]:focus{border-bottom-color:var(--gold)}
+#rsside .r-dato-fast{border-bottom:1px dotted #ddd6c2;cursor:help}
+
+/* ══ PRISLINJERNE ER ET LAG UNDER YDELSEN ═════════════════════════════
+   Wendie 03.09.2026: «det skal vaere lidt tydeligere, hvad der er
+   elementlinjen, og hvad der er prislinjen — at det er et lag, der ligger
+   inde under elementet.»
+   Tre greb, ingen nye farver:
+     · den aabne ydelse faar en tone, saa hoved og krop laeses som ét
+     · en lodret skinne loeber ned gennem kroppen, forankret under navnet
+     · prisstigen rykker ind bag skinnen og faar en mindre skrift          */
+#rsside .r-rk.r-aaben > .r-hd{background:#f7f2e6}
+/* --gold-l findes ikke i #rsside — kun --gold. En ukendt variabel goer
+   hele erklaeringen ugyldig, og skinnen forsvandt lydloest. */
+#rsside .r-rk.r-aaben{box-shadow:inset 2px 0 0 0 #ddcba4}
+#rsside .r-rk.r-aaben > .r-krop{position:relative;background:#fdfbf6}
+#rsside .r-rk.r-aaben > .r-krop::before{
+  content:'';position:absolute;left:22px;top:0;bottom:14px;width:1px;background:#e6dcc6}
+#rsside .r-rk.r-aaben > .r-krop > .r-blok{position:relative;padding-left:14px}
+#rsside .r-rk.r-aaben > .r-krop > .r-blok::before{
+  content:'';position:absolute;left:-16px;top:22px;width:14px;height:1px;background:#e6dcc6}
+#rsside .r-rk.r-aaben > .r-krop > .r-blok > .r-bt{color:#a08a5e}
+#rsside .r-stige .r-pl{font-size:12.5px}
+#rsside .r-stige{box-shadow:0 1px 2px rgba(120,105,75,.05)}
 /* grebet paa en ydelse */
 #rsside .r-greb{flex:none;width:16px;text-align:center;color:#cfc7b4;font-size:13px;line-height:1;
   cursor:grab;user-select:none;transition:color .14s}
@@ -1280,7 +1387,6 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 /* stregen viser, hvor ydelsen lander — den flytter sig foerst ved slip */
 #rsside .r-rk.r-foer{box-shadow:inset 0 2px 0 0 var(--gold)}
 #rsside .r-rk.r-efter{box-shadow:inset 0 -2px 0 0 var(--gold)}
-#rsside .r-rk[draggable="true"] .r-hd{background:#fdfaf3}
 
 /* ── «Hvad blev der solgt?» ── */
 .hv7 .ldlg.hvsolgt .c{padding-top:16px}
@@ -3043,7 +3149,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.03';
+const APP_VERSION = 'v1.04';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -11362,6 +11468,211 @@ function saetFokus(){
 }
 /* Gaar tegningen alligevel galt en dag, skal det siges — ikke ende i en
    side, hvor ingenting virker og ingen ved hvorfor. */
+/* ══ EN FLYBILLET SOM PDF ══════════════════════════════════════════════
+   Wendie 03.09.2026: «hvis man kan traekke PDF'en ind, saa ville det vaere
+   fantastisk — direkte ind i Panda, saa den kan hente informationen ud.»
+   Farewise sender en «Itinerary» med ét afsnit pr. flyvning. Alt vi mangler
+   staar der: dato, afgang, ankomst, lufthavne, flynummer, kabine, flytype —
+   og «(30-06-2027)» efter ankomsttiden, naar man lander dagen efter.
+   Filen forlader ALDRIG maskinen: den laeses i browseren.
+   Flyselskabet laeses af FLYNUMMERETS praefiks, ikke af overskriften — den
+   deler linje med den foerste passager («Olivia Kirketerp Crosato SAS: …»),
+   og saa kan de to ikke skilles ad paa navnet alene.
+   Proevet mod to rigtige Farewise-billetter: én flyvning og fire flyvninger
+   med mellemlanding og overnatning i luften. */
+const FLY_MDR = {januar:1,februar:2,marts:3,april:4,maj:5,juni:6,juli:7,
+  august:8,september:9,oktober:10,november:11,december:12};
+const FLY_KODE = {SK:'SAS',BA:'British Airways',QR:'Qatar Airways',EK:'Emirates',
+  TK:'Turkish Airlines',LH:'Lufthansa',KL:'KLM',AF:'Air France',AY:'Finnair',
+  DY:'Norwegian',EY:'Etihad',SQ:'Singapore Airlines',WY:'Oman Air',UL:'SriLankan',
+  LX:'Swiss',OS:'Austrian',QF:'Qantas',CX:'Cathay Pacific',ET:'Ethiopian'};
+const FLY_UGE = 'mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag';
+let _pdfKlar = null;
+function pdfBibliotek(){
+  if(_pdfKlar) return _pdfKlar;
+  _pdfKlar = new Promise((ok, nej)=>{
+    if(window.pdfjsLib) return ok(window.pdfjsLib);
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    sc.onload = ()=>{ window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      ok(window.pdfjsLib); };
+    sc.onerror = ()=>nej(new Error('Kunne ikke hente PDF-læseren. Er der net?'));
+    document.head.appendChild(sc);
+  });
+  return _pdfKlar;
+}
+async function pdfTekst(fil){
+  const lib = await pdfBibliotek();
+  const doc = await lib.getDocument({data: await fil.arrayBuffer()}).promise;
+  let t = '';
+  for(let i=1; i<=doc.numPages; i++){
+    const s2 = await (await doc.getPage(i)).getTextContent();
+    let y = null, linje = [];
+    s2.items.forEach(it=>{
+      const ny = Math.round(it.transform[5]);
+      if(y !== null && Math.abs(ny - y) > 3){ t += linje.join(' ').replace(/\s+/g,' ') + '\n'; linje = []; }
+      y = ny; linje.push(it.str);
+    });
+    t += linje.join(' ') + '\n';
+  }
+  return t;
+}
+function flyLaesTekst(tekst){
+  const L = tekst.split('\n').map(x=>x.trim());
+  const ud = {ben:[], rejsende:[], advarsler:[]};
+  const m = tekst.match(/^(.*?):\s*([A-Z0-9]{5,7})\s*$/m);
+  const foran = m ? m[1].trim() : '';
+  ud.pnr = m ? m[2] : null;
+  let dato = null;
+  L.forEach((x,i)=>{
+    const d = x.match(new RegExp('^(?:'+FLY_UGE+')\\s+(\\d{1,2})\\.\\s+([a-zæøå]+)\\s+(\\d{4})$','i'));
+    if(d){ const mm = FLY_MDR[d[2].toLowerCase()];
+      if(mm) dato = d[3]+'-'+String(mm).padStart(2,'0')+'-'+String(+d[1]).padStart(2,'0');
+      return; }
+    const a = x.match(/^Afrejse:\s*(\d{2}:\d{2})/); if(!a) return;
+    const blok = L.slice(i, i+14).join('\n');
+    const alle = [...blok.matchAll(/([A-Za-zÆØÅæøå .\-]+)\s\(([A-Z]{3})\)/g)];
+    if(alle.length < 2) return;
+    const nr  = blok.match(/Flynr:\s*([A-Z0-9]{2})\s?(\d{1,4})\b/);
+    const ank = blok.match(/Ankomst:\s*(\d{2}:\d{2})(?:\s*\((\d{2})-(\d{2})-(\d{4})\))?/);
+    const tid = blok.match(/(\d{2}:\d{2})\s+flyvetid/);
+    const typ = blok.match(/(Airbus [\w\- ]+|Boeing [\w\- ]+)/);
+    const kab = blok.match(/Kabine:\s*(\w+)/);
+    const ter = blok.match(/Check-in:\s*terminal\s*(\w+)/);
+    const anDato = (ank && ank[2]) ? ank[4]+'-'+ank[3]+'-'+ank[2] : dato;
+    ud.ben.push({ dato, ud:a[1], an: ank?ank[1]:null, ankomstDato:anDato,
+      plus: !!(anDato && dato && anDato > dato),
+      fra: alle[0][2], til: alle[alle.length-1][2],
+      fraBy: alle[0][1].trim(), tilBy: alle[alle.length-1][1].trim(),
+      kode: nr?nr[1]:null, flynr: nr?(nr[1]+nr[2]):null,
+      flyvetid: tid?tid[1]:null, flytype: typ?typ[1].trim():null,
+      kabine: kab?kab[1]:null, terminal: ter?ter[1]:null });
+  });
+  const koder = [...new Set(ud.ben.map(b=>b.kode).filter(Boolean))];
+  const navne = [...new Set(koder.map(k=>FLY_KODE[k]||k))];
+  ud.selskab = navne.join(' / ') || null;
+  ud.klasse  = [...new Set(ud.ben.map(b=>b.kabine).filter(Boolean))].join(' / ') || null;
+  const i0 = L.findIndex(x=>/^Passagerer/.test(x));
+  const i1 = L.findIndex(x=>new RegExp('^(?:'+FLY_UGE+')\\b','i').test(x));
+  const pax = L.slice(i0+1, i1<0?L.length:i1)
+    .filter(x=>!x.includes(':') && /^[A-ZÆØÅ][\wÆØÅæøå\-]+( [A-ZÆØÅ][\wÆØÅæøå\-]+)+$/.test(x));
+  let f1 = foran;
+  for(const t2 of [...navne, ...koder].sort((a,b)=>b.length-a.length)){
+    if(f1.endsWith(t2)){ f1 = f1.slice(0, -t2.length).trim(); break; }
+  }
+  if(f1 && !pax.includes(f1)) pax.unshift(f1);
+  ud.rejsende = pax;
+  if(!ud.ben.length)                 ud.advarsler.push('Fandt ingen flyvninger i filen.');
+  if(ud.ben.some(b=>!b.flynr))       ud.advarsler.push('En eller flere flyvninger mangler flynummer.');
+  if(!ud.pnr)                        ud.advarsler.push('Fandt ingen bookingreference.');
+  return ud;
+}
+/* Ud og hjem deles, hvor der er mere end et doegn mellem to flyvninger —
+   samme regel som rejseplanen selv bruger i flyGrupper(). */
+function flyVeje(ben){
+  const g = []; let nu = [];
+  ben.forEach((b,i)=>{ if(i && b.dato > ben[i-1].ankomstDato){ g.push(nu); nu = []; } nu.push(b); });
+  if(nu.length) g.push(nu);
+  return g;
+}
+async function flyPdf(filer){
+  const boks = document.getElementById('flyPdfSvar');
+  const vis = h => { if(boks) boks.innerHTML = h; };
+  const f = filer && filer[0];
+  if(!f) return;
+  if(!/\.pdf$/i.test(f.name)){ vis('<span class="r-fejl">Det skal være en PDF.</span>'); return; }
+  vis('<span class="r-vent">Læser ' + escH(f.name) + '…</span>');
+  try{
+    const r = flyLaesTekst(await pdfTekst(f));
+    if(!r.ben.length){
+      vis('<span class="r-fejl">Kunne ikke finde flyvninger i den fil. '
+        + 'Skriv dem ind i hånden i stedet.</span>'); return; }
+    const veje = flyVeje(r.ben), f0 = r.ben[0], fN = r.ben[r.ben.length-1];
+    NY.f.selskab   = r.selskab || NY.f.selskab;
+    NY.f.klasse    = r.klasse  || NY.f.klasse;
+    NY.f.pax       = r.rejsende.length ? String(r.rejsende.length) : NY.f.pax;
+    NY.f.rute      = veje.map(v=>v[0].fra + ' → ' + v[v.length-1].til).join(' · ');
+    NY.f.fra       = f0.dato || NY.f.fra;
+    NY.f.til       = fN.ankomstDato || fN.dato || NY.f.fra;
+    NY.f.tid       = f0.ud || NY.f.tid;
+    NY.f._segmenter = r.ben;
+    NY.f._pnr      = r.pnr || null;
+    tegnNy();
+    const b2 = document.getElementById('flyPdfSvar');
+    if(b2) b2.innerHTML = '<div class="r-fund"><b>' + escH(f.name) + '</b> · '
+      + escH(r.selskab||'ukendt selskab') + (r.pnr ? ' · ' + escH(r.pnr) : '')
+      + (r.rejsende.length ? ' · ' + r.rejsende.length + ' rejsende' : '')
+      + veje.map((v,i)=>'<div class="r-vej"><em>' + (i ? 'Hjemrejse' : 'Udrejse') + '</em>'
+          + v.map(x=>'<span>' + escH(x.flynr||'—') + ' ' + escH(x.fra) + '→' + escH(x.til)
+              + ' ' + escH(x.ud) + '–' + escH(x.an||'') + (x.plus ? ' +1' : '') + '</span>').join('')
+          + '</div>').join('')
+      + (r.advarsler.length ? '<div class="r-advar">' + r.advarsler.map(escH).join(' · ') + '</div>' : '')
+      + '</div>';
+  }catch(e){
+    console.error(e);
+    vis('<span class="r-fejl">Kunne ikke læse filen: ' + escH(e.message) + '</span>');
+  }
+}
+
+/* ══ TOPPEN KAN RETTES ═════════════════════════════════════════════════
+   Wendie 03.09.2026. Tre felter, tre steder i basen — og hver enkelt
+   kontrollerer sit svar, saa en afvist gemning ikke ser ud som om den gik
+   igennem (den fejl har vi haft to gange i dag).                       */
+async function gemNavn(el){
+  const nyt = (el.textContent||'').trim();
+  if(!TUR || !TUR.kundeId || !nyt) { el.textContent = TUR ? TUR.navn : ''; return; }
+  if(nyt === TUR.navn) return;
+  const i = nyt.lastIndexOf(' ');
+  const fornavn = i > 0 ? nyt.slice(0, i) : nyt;
+  const efternavn = i > 0 ? nyt.slice(i + 1) : '';
+  const {error} = await db.from('customers')
+    .update({first_name: fornavn, last_name: efternavn}).eq('id', TUR.kundeId);
+  if(error){ el.textContent = TUR.navn; kvitter('fejl', 'Navnet kunne ikke gemmes: '+error.message); return; }
+  TUR.navn = nyt; kvitter('gemt');
+}
+async function skrivDest(liste){
+  const {error:e1} = await db.from('trip_destinations').delete().eq('trip_id', TUR.id);
+  if(e1){ kvitter('fejl', 'Destinationerne kunne ikke gemmes: '+e1.message); return false; }
+  if(liste.length){
+    const {error:e2} = await db.from('trip_destinations')
+      .insert(liste.map((x,i)=>({trip_id:TUR.id, destination:x, seq:i})));
+    if(e2){ kvitter('fejl', 'Destinationerne kunne ikke gemmes: '+e2.message); return false; }
+  }
+  TUR.maal = liste.slice();
+  tegnDest(); kvitter('gemt'); return true;
+}
+function tegnDest(){
+  const w = document.getElementById('rDest'); if(!w) return;
+  w.innerHTML = (TUR.maal||[]).map((x,i)=>
+    `<span class="r-dch">${escH(x)}<button title="Fjern" onclick="RS.fjernDest(${i})">×</button></span>`).join('')
+    + `<button class="r-dadd" onclick="RS.nyDest()">+</button>`;
+}
+async function fjernDest(i){
+  const liste = (TUR.maal||[]).slice(); liste.splice(i,1); await skrivDest(liste);
+}
+async function nyDest(){
+  const v = (prompt('Hvilken destination?')||'').trim(); if(!v) return;
+  const liste = (TUR.maal||[]).slice();
+  if(liste.some(x=>x.toLowerCase()===v.toLowerCase())) return;
+  liste.push(v); await skrivDest(liste);
+}
+async function gemPax(el){
+  const n = parseInt(String(el.textContent||'').replace(/\D/g,''), 10);
+  if(!TUR || !isFinite(n) || n < 1 || n > 60){ el.textContent = (TUR.pax||0) + ' rejsende'; return; }
+  if(n === TUR.pax){ el.textContent = n + ' rejsende'; return; }
+  const {error} = await db.from('trips').update({pax_count:n}).eq('id', TUR.id);
+  if(error){ el.textContent = (TUR.pax||0)+' rejsende'; kvitter('fejl','Antallet kunne ikke gemmes: '+error.message); return; }
+  TUR.pax = n; el.textContent = n + ' rejsende'; kvitter('gemt');
+}
+async function gemDatoer(el){
+  /* Kun naar rejseplanen er tom — ellers er datoerne afledt, og feltet er
+     ikke skrivbart i foerste omgang. */
+  const m = String(el.textContent||'').match(/(\d{1,2})\.?\s*(\w+)\.?\s*(\d{4})?/g);
+  kvitter('fejl', 'Skriv datoerne på ydelserne — rejsen varer så længe, dens ydelser varer.');
+  el.textContent = TUR.ud ? dkk(TUR.ud) + (TUR.hjem ? ' → ' + dk(TUR.hjem) : ' →') : '— datoer';
+}
+
 /* ══ REKKEFOELGEN PAA YDELSERNE ════════════════════════════════════════
    trip_elements.sort har vaeret der hele tiden og bestemmer, hvad der hentes
    foerst — den er bare aldrig blevet aendret. Nu kan raekken traekkes.
@@ -12557,7 +12868,17 @@ function tegnNy(){
         <div class="r-sm4"><label>Rejsende</label>${nyInput('pax','4','number')}</div></div>
       <div class="r-raek"><div class="r-sm2"><label>Dato</label>${nyInput('fra','','date')}</div>
         <div class="r-sm4"><label>Afgang kl.</label>${nyInput('tid','','time')}</div>
-        ${prisFelter()}</div>`;
+        ${prisFelter()}</div>
+      <div class="r-pdf" ondragover="event.preventDefault();this.classList.add('r-paa')"
+           ondragleave="this.classList.remove('r-paa')"
+           ondrop="event.preventDefault();this.classList.remove('r-paa');RS.flyPdf(event.dataTransfer.files)"
+           onclick="this.querySelector('input').click()">
+        <input type="file" accept="application/pdf" hidden
+               onchange="RS.flyPdf(this.files);this.value=''">
+        Træk flybilletten (PDF) herind — eller klik for at vælge
+      </div>
+      <div id="flyPdfSvar">${NY.f._segmenter && NY.f._segmenter.length
+        ? `<div class="r-fund"><b>${NY.f._segmenter.length} flyvninger hentet fra billetten</b></div>` : ''}</div>`;
   } else if(t === 'transfer'){
     felter = `
       <div class="r-raek"><div><label>Strækning</label>${nyInput('rute','f.eks. Malé → Ayada')}</div>
@@ -12635,7 +12956,9 @@ function gemElement(){
     f._villaer = vv.map(v=>({a:Math.max(1,+v.a||1), t:v.t, mp:v.mp}));
   } else if(t === 'fly'){
     titel = f.rute || 'Fly'; art = 'Fly'; slags = 'fly';
-    undertekst = [f.selskab, f.klasse, f.pax ? f.pax + ' rejsende' : null].filter(Boolean).join(' · ');
+    undertekst = [f.selskab, f.klasse, f.pax ? f.pax + ' rejsende' : null,
+      (f._segmenter||[]).length > 1 ? f._segmenter.length + ' flyvninger' : null]
+      .filter(Boolean).join(' · ');
     navn = 'Fly · ' + (f.rute||''); sub = undertekst;
   } else if(t === 'transfer'){
     /* slags blev aldrig sat paa en transfer eller en billet — den blev
@@ -12661,7 +12984,7 @@ function gemElement(){
   const NAVNE = { hotel:'Hotel', villa:'Villatype', mp:'Forplejning', lev:'Leverandør',
     naetter:'Nætter', antal:'Antal', fra:'Fra', til:'Til', rute:'Rute', selskab:'Selskab',
     klasse:'Klasse', pax:'Rejsende', maade:'Måde', varighed:'Varighed', tekst:'Beskrivelse' };
-  const SKJUL = ['pris','val','villaer','_villaer','hold','tid'];
+  const SKJUL = ['pris','val','villaer','_villaer','hold','tid','_segmenter','_pnr'];
   PLAN.push({ id, art, fra: f.fra || '', til: f.til || f.fra || '',
     tid: f.tid || STD_TID[art] || '12:00',
     ophold: t === 'hotel', titel, sub: undertekst, lev, kilde:'manuel',
@@ -12680,6 +13003,9 @@ function gemElement(){
        rettes. Uden dem kunne en transfer uden straekning aldrig repareres. */
     kilde:'manuel', type:t, raa:{...f},
     linjer:[{ slag:'grundlag', lev, hvad: undertekst || titel,
+      /* Ruten hoerer til PRISLINJEN, ikke til planen: hvert flytilbud har
+         sin egen rute, og vaelger man en anden linje, skifter rejseplanen med. */
+      segmenter: t==='fly' ? ((f._segmenter||[]).length ? f._segmenter : null) : null,
       villaer: t==='hotel' ? (f._villaer||[]) : null,
       hold:{aktiv:false,dato:'',tid:'17:00',note:''}, aaben:false,
       daekker: t==='hotel' && f.naetter ? f.naetter + ' nætter' : (f.pax ? f.pax + ' rejsende' : '—'),
@@ -12700,6 +13026,25 @@ function gemElement(){
     st[id].aaben  = gammelSt.aaben;
   }
 
+  /* Er der bade en ud- og en hjemrejse i billetten, skal de staa som TO
+     linjer i rejseplanen — ellers ligger hjemrejsen paa udrejsedatoen.
+     Rejseplanen kender allerede vej 0 og 1; det er kun raekken, der har
+     manglet. */
+  if(t === 'fly'){
+    const veje = flyVeje(f._segmenter || []);
+    const p0 = PLAN.find(p => p.id === id);
+    if(p0) p0.vej = 0;
+    if(veje.length > 1 && p0){
+      const hjem = veje[1], h0 = hjem[0], hN = hjem[hjem.length-1];
+      PLAN.push({ ...p0, id: id + '#hjem', elId: id, vej: 1,
+        fra: h0.dato || p0.til || p0.fra, til: hN.ankomstDato || h0.dato || p0.til,
+        tid: h0.ud || p0.tid,
+        titel: h0.fra + ' → ' + hN.til,
+        sub: [f.selskab, f.klasse].filter(Boolean).join(' · ') });
+      p0.titel = veje[0][0].fra + ' → ' + veje[0][veje[0].length-1].til;
+      p0.til   = veje[0][veje[0].length-1].ankomstDato || p0.fra;
+    }
+  }
   NY.aaben = false;
   tegnPlan(); tegnListe(); tegnNy();
   /* Wendie 03.09.2026: «jeg havde lige lagt en masse ydelser ind … og det er
@@ -12746,24 +13091,27 @@ async function gemNytElement(midlertidigId){
       .insert(linjeTil({...g, _id:undefined}, ny.id, 0)).select('id').single();
     if(e2) throw new Error(e2.message);
 
-    let planId = null;
-    if(p0.art){
+    /* Et fly kan have TO planlinjer — ud og hjem. Alle skrives, og hver
+       faar sit eget id tilbage. */
+    const planIds = [];
+    for(const [k, px] of pRaek.entries()){
+      if(!px.art) { planIds.push(null); continue; }
       const {data:pl, error:e3} = await db.from('trip_plan_items').insert({
-        trip_id: TUR.id, element_id: ny.id, art: p0.art, titel: p0.titel || e.navn || '—',
-        sub: p0.sub || null, lev: p0.lev || null, fra: p0.fra || null,
-        til: p0.til || p0.fra || null, tid: p0.tid || null, vej: p0.vej || 0,
-        ophold: !!p0.ophold, kilde: 'manuel', detalje: p0.detalje || null,
-        sort: PLAN.length - 1
+        trip_id: TUR.id, element_id: ny.id, art: px.art,
+        titel: px.titel || e.navn || '—', sub: px.sub || null, lev: px.lev || null,
+        fra: px.fra || null, til: px.til || px.fra || null, tid: px.tid || null,
+        vej: px.vej || 0, ophold: !!px.ophold, kilde: 'manuel',
+        detalje: px.detalje || null, sort: (PLAN.length - pRaek.length) + k
       }).select('id').single();
       if(e3) throw new Error(e3.message);
-      planId = pl.id;
+      planIds.push(pl.id);
     }
 
     /* Byt det midlertidige id ud, saa alt herefter peger paa basens raekke. */
     e.id = ny.id;
     if(linjer[0]) linjer[0]._id = pris.id;
     st[ny.id] = st[midlertidigId]; delete st[midlertidigId];
-    pRaek.forEach(p=>{ if(planId) p.id = planId; p.elId = ny.id; });
+    pRaek.forEach((p,k)=>{ if(planIds[k]) p.id = planIds[k]; p.elId = ny.id; });
     await db.from('trip_elements').update({chosen_price_ids:[pris.id]}).eq('id', ny.id);
     if(st[ny.id]) st[ny.id].valgte = [0];
     SIDST = snapshot();
@@ -12989,6 +13337,14 @@ function hotelFraNavn(d){
    siden med mockuppens egne tegnefunktioner. */
 async function start(data){
   TUR = data.tur;
+  /* De vaerdier toppen kan rette, holdes ved siden af raekken, saa et
+     mislykket gem kan rulle skaermen tilbage til det, der faktisk staar
+     i basen — ikke til det, man lige skrev. */
+  TUR.kundeId = TUR.customer_id || null;
+  TUR.navn    = [ (TUR.customers||{}).first_name, (TUR.customers||{}).last_name ]
+                  .filter(Boolean).join(' ') || 'Uden navn';
+  TUR.maal    = (data.maal || []).slice();
+  TUR.pax     = TUR.pax_count || 0;
   KUNDEVAL = (TUR.customer_currency || 'DKK').trim();
   MARKED = TUR.branch === 'MN' ? 'NO' : 'DK';
   REJSENDE.length = 0;
@@ -13253,9 +13609,30 @@ function sideHtml(d){
   <div class="r-top">
     <div class="r-krumme">Rejser · <b>${escH(BRANCH_LABEL[t.branch]||t.branch||'')}</b> · ${
       t.ref_no ? escH(t.ref_no) : 'endnu uden ref.nr.'}</div>
-    <h1>${escH(navn)}</h1>
-    <div class="r-linje2">${escH(linje2)}${pris ? ` <em>&nbsp;·&nbsp; ${md(pris)} ${
-      escH((t.accepted_currency||t.customer_currency||'DKK').trim())}</em>` : ''}</div>
+    <!-- Wendie 03.09.2026: «hvad med de ting, der skulle kunne redigeres paa
+         mellemlandingen?» Navn, destinationer og antal rejsende rettes nu
+         direkte i toppen. Datoerne foelger rejseplanen (R253) og kan derfor
+         kun skrives, saa laenge der ingen ydelser er — ellers rettes de dér,
+         hvor de kommer fra. -->
+    <h1 contenteditable="true" spellcheck="false" id="rNavn"
+        onblur="RS.gemNavn(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+        >${escH(navn)}</h1>
+    <div class="r-linje2">
+      <span class="r-dests" id="rDest">${(d.maal||[]).map((x,i)=>
+        `<span class="r-dch">${escH(x)}<button title="Fjern" onclick="RS.fjernDest(${i})">×</button></span>`).join('')
+        }<button class="r-dadd" onclick="RS.nyDest()">+</button></span>
+      <span class="r-sep">·</span>
+      <span class="${planDatoer.length?'r-dato-fast':'r-dato'}"
+        ${planDatoer.length ? 'title="Datoerne følger rejseplanen — ret dem på ydelsen"'
+          : 'contenteditable="true" onblur="RS.gemDatoer(this)"'}
+        >${ud ? dkk(ud) + (hjem ? ' → ' + dk(hjem) : ' →') : '— datoer'}</span>
+      <span class="r-sep">·</span>
+      <span class="r-pax" contenteditable="true" spellcheck="false"
+        onblur="RS.gemPax(this)"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"
+        >${t.pax_count || 0} rejsende</span>
+      ${pris ? `<em>&nbsp;·&nbsp; ${md(pris)} ${
+        escH((t.accepted_currency||t.customer_currency||'DKK').trim())}</em>` : ''}</div>
     <div class="r-stadie">
     </div>
     <div class="r-trin" id="trin"></div>
@@ -13346,7 +13723,9 @@ return {
   saetLinjeHold, saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla,
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
   soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
-  gemNytElement, ydGreb, ydStart, ydOver, ydDrop, ydSlut,
+  flyPdf, flyLaesTekst, flyVeje, pdfTekst,
+  gemNytElement, gemNavn, gemPax, gemDatoer, nyDest, fjernDest, tegnDest,
+  ydGreb, ydStart, ydOver, ydDrop, ydSlut,
   tegnFrister, tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin,
   tilDkk2, tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil,
   vaelgFormFil, vaelgHotel, vaelger, valgtLinje, valgteIdx, villaTekst,
