@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.08 · 04.09.2026
+<!-- Panda · v1.12 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,163 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.12 — TILBUDSOPSLAGET KOBLET PÅ, MEN IKKE DIREKTE.
+     Rasmus 04.09.2026: «tilbuds-opslag er deployet i Maldivia Editor og
+     virker.» Hans brev nævner to ting, Panda skal håndtere. Den ene er
+     rigtig; den anden er ikke den vigtigste.
+
+     · version_id sendes nu som et TAL. Kolonnen er bigint. Rettet.
+     · MEN: funktionen kan ikke kaldes direkte fra Panda. Den ligger i
+       Rasmus' projekt og beskytter sig med PANDA_KEY i «x-panda-key».
+       Panda er en webapp på GitHub Pages — alt i denne fil kan læses af
+       enhver, der ser sidens kilde. Lægger vi nøglen ind her, er den
+       offentlig, og fordi det er SAMME nøgle som «pris-opslag» bruger,
+       ville vi dermed også åbne prisopslaget for alle.
+       Kaldet går derfor gennem maldivia-core, præcis som «hent-dagspris»
+       gør det i dag: den funktion holder EDITOR_URL og EDITOR_KEY som
+       hemmeligheder og videresender med headeren. Nøglen når aldrig
+       browseren.
+         Panda → maldivia-core/hent-tilbud → editor/tilbuds-opslag
+       «hent-tilbud» AFVENTER Wendies godkendelse. Indtil den er deployet,
+       svarer opslaget null, og boksen spørger bare uden fund — som før.
+     · pricing beholdes navngivet på fundet. Dér ligger husets penge:
+       pricing.hotels[].villas[].cost er INDKØBSprisen, og flightCost,
+       bankFee og margin er resten. h.rates[].total er derimod SALGSprisen
+       i tilbuddet. De to må ikke forveksles — indkøb er DKK og husets.
+
+     v1.11 — FLYVNINGERNE KAN TASTES, OG TIDEN ER RIGTIG.
+
+     · TIDSZONERNE. «I alt» blev regnet som sidste ankomst minus første
+       afgang — men de to klokkeslæt står i LOKAL tid i hver sin zone.
+       OSL 11:15 → MLE 08:55+1 gav 21 t 40 m; det rigtige er 18 t 40 m,
+       for Oslo er UTC+2 og Malé UTC+5 i juni. Tre timer for meget, på et
+       tal en kunde læser. Det kan ikke regnes rigtigt uden at kende hver
+       lufthavns zone — men det kan regnes rigtigt UDEN dem ved at lægge
+       sammen, hvad vi ved: flyvetiderne plus mellemlandingerne.
+       2 t 30 m + 5 t 35 m + 10 t 35 m = 18 t 40 m. Præcist, og det er
+       flyselskabets egne tal. Mangler en flyvetid, siger sumrækken det i
+       stedet for at vise noget forkert.
+       SAMME GRUND til at flyvetiden ikke kan udregnes af afgang og
+       ankomst, som Wendie spurgte om: OSL 18:50 → IST 23:40 ser ud som
+       4 t 50 m og er 3 t 50 m. Se forslaget om en lufthavnstabel.
+     · FLYVNINGERNE KAN TASTES. Klik en flyvning i tabellen, og rækken
+       bliver felter: flynr., dato, fra, afgang, til, ankomst, ankomstdag,
+       flyvetid, flytype, terminal. Ti felter på to linjer — ni kunne ikke
+       stå på én tabelrække; det er målt. «+ Tilføj en flyvning» arver
+       lufthavn og dato fra den forrige, så man kun retter det, der er
+       anderledes. Alt gemmes, når man forlader feltet.
+     · ETAPEN KAN VENDES. Wendie: «måske man skal kunne hakke af eller et
+       eller andet.» Reglen (mere end et døgn imellem) rammer allerede
+       hendes eget eksempel rigtigt — TK1754 lander 23:40, TK734 letter
+       02:10 er en mellemlanding; TK734 den 27. sep. og TK735 den 5. okt.
+       er to etaper. Så vi spørger ikke på forhånd: vi VISER beslutningen
+       og lader den vende med ét klik. `nyEtape` vinder over reglen.
+     · A3 — FLYET VED SIDEN AF. Wendies valg. Flynummer, flytype,
+       flyvetid, klasse og terminal står i deres egen spalte til højre;
+       intet hænger under stregen. Mellemlandingen er centreret over
+       stregen. Bagage og forplejning læses stadig og gemmes på hvert ben
+       — de vises på rejsesiden senere, efter Wendies beslutning.
+     · B1 — FRISTBOKSEN SOM EN TABEL. Overskriftsrækken var sin egen
+       flexboks, hvor hver spalte fik flex:none, mens datarækken har
+       flex:1 på ydelsen — to flexbokse flugter kun ved et tilfælde. Og
+       prisspalten satte Playfair, som overskriften arvede, mens navnet
+       blev klippet til «Econ…». Én fejl, tre virkninger. En tabel deler
+       spalterne mellem overskrift og data, så de KAN ikke komme ud af
+       trit. Intet klippes; fristen har år og klokkeslæt.
+     · EN NY PRISLINJE KAN IKKE FORVEKSLES. «Lige nu blev jeg faktisk
+       lidt forvirret.» Formularen lå uden overskrift lige under den
+       forrige linjes krop. Nu: egen guldkant, egen overskrift, og den
+       siger hvilket nummer linjen bliver.
+
+     En fejl af egen avl undervejs: `linjeKrop` har ikke `s` — det har
+     `stigeHtml`. Tabellen tegnede derfor slet ingenting, og fejlen blev
+     fanget af try/catch omkring listen, så siden så levende ud og manglede
+     bare noget. Fundet fordi prøven TÆLLER rækkerne, ikke fordi den så
+     rigtig ud.
+
+     v1.10 — YDELSEN EJER SINE MENNESKER, PRISLINJEN EJER SIN PRIS.
+     Wendie 04.09.2026, sen eftermiddag. Den samme oplysning stod flere
+     steder, og derfor kunne stederne blive uenige. Nu ejer hvert lag sit:
+
+     · YDELSEN ejer rute, voksne/børn/alder, dato og afgang. Flyselskab,
+       klasse, pris, valuta og leverandør er taget UD — de hører på
+       prislinjen og på flyplanen. «Der skal ligesom være en prislinje,
+       ellers giver det ikke mening med det her ret element.»
+     · PRISLINJEN ejer hvor vi køber og hvad det koster. Felterne ligger
+       fremme, når linjen foldes ud — kuglepennen er væk dér også. «Det
+       skal jo bare være ligesom, når man udfolder den prislinje, der også
+       er for grundlaget.» (Kun på fly indtil videre: hotellinjerne har
+       nætter og villatyper, som ikke er gennemgået endnu.)
+     · Ingen gem-knap. Felterne gemmer, når man forlader dem, og der er
+       ingen kvittering — hun bad udtrykkeligt om, at der ikke står et
+       lille «Gemt ✓».
+     · Antallet af rejsende regnes ÉT sted (paxTekst) og følger derfra til
+       ydelsens overskrift og til grundlagets prislinje. «Da jeg rettede
+       antal rejsende, blev antal rejsende nede på prislinjen ikke rettet.
+       Den bør vel følge den.»
+
+     Flytabellen på prislinjen: ÉN tabel med faste bredder i stedet for én
+     pr. gruppe — «alle kolonner skal følge hinanden, så det ser pænt og
+     ryddeligt ud». Rejsetiden har fået sin egen spalte, mellemlandingernes
+     længde står mellem etaperne, og hver etape har sin samlede rejsetid.
+     Bookingreferencen er flyttet fra overskriften ned over den etape, den
+     gælder — og følger nu hvert ben, så to billetter på samme pris hver
+     kan vise sin. «Erstat»-feltet er væk: man lægger til eller sletter.
+
+     Fristboksen har fået sin egen flade, overskrifter over kolonnerne,
+     fristen med år og klokkeslæt, og noten må fylde den plads, den har —
+     «man kan ikke læse det hele».
+
+     To fejl fundet undervejs, begge af den slags der ikke siger fra:
+     · Prislinjens id i basen hedder `_id`, ikke `id` (linjeFra oversætter
+       kolonnenavnene). To af mine skrivninger ramte `.eq('id', undefined)`
+       — de blev sendt og gjorde ingenting. Fundet ved at TÆLLE
+       skrivningerne i prøven, ikke ved at læse koden.
+     · Planlinjerne følger nu den valgte pris. Før blev antallet sat, da
+       billetten blev trukket ind; valgte man en pris med et andet antal
+       etaper, stod der planlinjer med et vej-nummer, ingen gruppe svarede
+       til — og en Fly-række uden rute i rejseplanen. Reglen stod to
+       steder; nu er der én funktion (synkPlanlinjer), som både valget og
+       billetten går igennem.
+
+     v1.09 — YDELSENS FELTER LIGGER FREMME, OG FLYPLANEN SIGER MERE.
+     Wendie 04.09.2026, fem ting i én omgang:
+
+     · «Man skal stadig trykke på den her kuglepen, som jeg ikke gider trykke
+       på.» Kuglepennen er væk. Folder man en ydelse ud, ligger dens egne
+       felter fremme lige under den blå bjælke — Rute, Flyselskab, Klasse,
+       Voksne/Børn/alder, Dato, Afgang, Leverandør, Pris, Valuta. Dato og
+       afgang bliver, netop fordi de er det eneste rejseplanen kan placere
+       flyet efter, når der ikke er nogen flyplan.
+     · «Rejsende skal deles ind i voksne og børn og alder.» Alderen afgør
+       prisen på et fly lige så meget som på et hotel. «Rejsende» er nu
+       summen — og den er stadig det tal, resten af siden regner med.
+     · «Om noget er afholdt … skal rykkes op, i princippet før flyplanen.»
+       Fristen er det, der haster; den lå nederst under delelementerne.
+     · «Jo mere info vi har i flyplanen deroppe, jo bedre.» Flytype, flyvetid,
+       terminal, bagage og forplejning står nu på HVER flyvning. Flytype,
+       flyvetid og terminal blev læst hele tiden og nåede blot aldrig
+       skærmen; bagage og forplejning læses nu også ud af billetten. Prøvet
+       mod fire rigtige Farewise-billetter: Turkish (MN1731), Emirates
+       (MD2097), Swiss (MD2099) og British.
+     · «Man skal kunne slette planen, og man skal kunne lægge yderligere
+       flyplan ind på samme pris.» Begge dele findes nu ved siden af
+       trækfeltet, og tabellen er delt i Udrejse / Videre til … / Hjemrejse.
+
+     Og «der står for eksempel fire rejsende to gange … prisen står og flyver
+     lidt»: underteksten indeholdt allerede antallet, og «dækker» gentog det.
+     Rækken var desuden centreret, så en høj overskrift skubbede prisen ned
+     midt i ingenting. Begge rettet.
+
+     Fem fejl fandt prøveopstillingen undervejs — alle i noget, der allerede
+     stod i filen: blokken i læseren var kun fjorten linjer, så flytypen på en
+     mellemlanding faldt udenfor; «ingen oplysning» blev læst som en
+     oplysning; billetnummeret bag navnet gjorde passagerlisten tom;
+     flyVeje() og flyGrupper() delte den samme billet på TO forskellige
+     regler, så vej-numrene ikke passede til grupperne — og vejNavn() slog
+     derfor på en gruppe uden ben og stoppede hele rejseplanens tegning.
+     Nu er der én regel: flyGrupper.
 
      v1.08 — RETTELSESBOKSEN LIGGER I DEN YDELSE, DEN RETTER.
      (Den blev færdig, lige efter v1.07 var lagt op, og står derfor for sig.)
@@ -2323,6 +2480,109 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-seg .r-plus{font-size:10px;color:var(--bad);margin-left:3px;vertical-align:super}
 
+/* Flyvningens egen spalte. Bredden er fast, saa alle flyvninger flugter
+   — ogsaa naar «Boeing 777-300ER» er laengere end «Airbus A319». */
+#rsside .r-segfly2{flex:none;width:180px;border-left:1px solid var(--line-2);
+  margin-left:18px;padding-left:18px}
+
+#rsside .r-segfly2 .nr{font-family:'Playfair Display',Georgia,serif;font-size:14.5px;
+  color:var(--ink);line-height:1.1}
+
+#rsside .r-segfly2 .ty{font-size:11px;color:var(--mut);margin-top:3px;line-height:1.35}
+
+#rsside .r-segfly2 .kl{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--gold);margin-top:5px}
+
+/* Wendie 04.09.2026: «mellemlanding … er lidt flottere, hvis den paa en
+   eller anden maade er mere centreret. Den ser lidt malplaceret ud.»
+   Den centreres over STREGEN — ikke over hele raekken — saa den staar
+   midt mellem de to lufthavne, den ligger imellem. 216 px er flyets
+   spalte plus dens margen og indrykning. */
+#rsside .r-mellem{text-align:center;padding:3px 216px 9px 52px}
+
+#rsside .r-segdet{display:flex;flex-wrap:wrap;gap:4px 6px;padding:0 0 9px 66px;margin-top:-5px}
+
+#rsside .r-segdet span{font-size:10.5px;color:#6f6a58;background:#faf7ef;border:1px solid #efe9db;
+  border-radius:2px;padding:2px 8px;white-space:nowrap}
+
+#rsside .r-segdet span i{font-style:normal;color:#a89f86;letter-spacing:.04em;margin-right:5px}
+
+#rsside .r-segg{margin-top:10px}
+
+#rsside .r-seggh{display:flex;align-items:baseline;gap:12px}
+
+#rsside .r-seggh .r-segref{font-size:10px;letter-spacing:.04em;text-transform:none;color:var(--mut)}
+
+#rsside .r-seggh .r-segref b{color:#6f6a58;font-weight:600;letter-spacing:.06em}
+
+/* Tallene er ét eller to cifre. Felterne skal ikke vaere bredere end det. */
+#rsside .r-nyboks .r-flyraek{flex-wrap:wrap;gap:9px 14px}
+
+#rsside .r-nyboks .r-flyraek > div{flex:none}
+
+#rsside .r-nyboks .r-flyraek .r-frute{flex:1 1 180px;min-width:150px}
+
+/* Voksne · Børn · Alder er ÉN klump. Ruten faar det, der er tilbage. */
+#rsside .r-nyboks .r-flyraek .r-fpax{display:flex;gap:8px;flex:none}
+
+#rsside .r-nyboks .r-flyraek .r-fpax > div{flex:none}
+
+#rsside .r-nyboks .r-flyraek .r-ftal input{width:54px;text-align:center;
+  padding-left:2px;padding-right:2px}
+
+#rsside .r-nyboks .r-flyraek .r-fdato input{width:148px}
+
+#rsside .r-nyboks .r-flyraek .r-ftid input{width:96px}
+
+/* Linjens egne felter. Samme sprog som ydelsens, blot uden ramme —
+   den er allerede inde i prislinjens lag. */
+/* .r-raek er kun flex INDE i .r-nyboks — her stod felterne derfor
+   under hinanden. Maalt med getComputedStyle, ikke set paa. */
+#rsside .r-linjefelt .r-raek{display:flex;gap:14px;align-items:flex-start;margin-bottom:0;
+  flex-wrap:wrap}
+
+#rsside .r-linjefelt label{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mut);margin-bottom:4px}
+
+#rsside .r-linjefelt select,#rsside .r-linjefelt input{font-family:inherit;font-size:12.5px;
+  padding:6px 8px;border:1px solid var(--line);border-radius:2px;background:#fff;color:var(--ink)}
+
+#rsside .r-linjefelt .r-lf1{flex:0 0 210px}
+
+#rsside .r-linjefelt .r-lf1 select{width:100%}
+
+#rsside .r-linjefelt .r-lf2 input{width:118px}
+
+#rsside .r-linjefelt .r-lf3 select{width:92px}
+
+#rsside .r-linjefelt .r-lfom{align-self:flex-end;padding-bottom:7px;font-size:11.5px;color:var(--mut)}
+
+#rsside .r-plnyhj{flex:1 1 100%;font-size:11px;color:#a89f86;font-style:italic;margin-top:2px}
+
+#rsside .r-baldre{display:flex;gap:5px}
+
+#rsside .r-baldre input{width:44px;text-align:center;padding-left:2px;padding-right:2px}
+
+#rsside .r-nyboks input[disabled]{background:#f6f3ea;color:#8a8471;border-style:dashed}
+
+#rsside .r-segt .r-segfly{color:var(--mut);font-size:11px}
+
+#rsside .r-segt .r-segfly em{font-style:normal;color:#a89f86}
+
+#rsside .r-seggh{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+  margin:0 0 4px 1px}
+
+#rsside .r-flyzone{display:flex;align-items:stretch;gap:7px;margin-bottom:2px}
+
+#rsside .r-flyzone .r-pdf{flex:1;margin:0}
+
+#rsside .r-flyzone .r-pdf2{flex:0 0 190px}
+
+#rsside .r-sletplan{flex:none;font-family:inherit;font-size:11px;padding:0 13px;cursor:pointer;
+  border:1px dashed #e0cdc4;background:#fdf6f4;color:#a3695a;border-radius:2px}
+
+#rsside .r-sletplan:hover{background:#f8e9e4;border-color:#cfa294;color:#8c4f3f}
+
 #rsside .r-mellem{display:flex;align-items:center;gap:9px;padding:5px 0 5px 62px;font-size:11.5px;color:#8b8571}
 
 #rsside .r-mellem .r-pk{width:5px;height:5px;border-radius:50%;background:#d8d0bc}
@@ -2473,7 +2733,15 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 /* ── PRISSTIGEN ─────────────────────────────────────────────────── */
 #rsside .r-stige{border:1px solid var(--line);border-radius:2px;overflow:hidden;background:#fff}
 
-#rsside .r-pl{display:flex;align-items:center;gap:12px;padding:10px 13px;border-bottom:1px solid var(--line-2)}
+#rsside .r-pl{display:flex;align-items:flex-start;gap:12px;padding:10px 13px;border-bottom:1px solid var(--line-2)}
+
+/* Wendie 04.09.2026: «det ligner bare, at prisen staar og flyver lidt.»
+   Raekken var centreret, saa en hoej overskrift (note + undertekst)
+   skubbede prisen ned midt i ingenting. Spalterne flugter nu med
+   overskriftens foerste linje. */
+#rsside .r-pl .r-mrk,#rsside .r-pl .r-hvem,#rsside .r-pl .r-pil2,
+#rsside .r-pl .r-minihold,#rsside .r-pl .r-intetbil,#rsside .r-pl .r-pr,
+#rsside .r-pl .r-dif,#rsside .r-pl .r-vlg{margin-top:1px}
 
 #rsside .r-pl:last-of-type{border-bottom:0}
 
@@ -2584,6 +2852,19 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   margin-left:6px;vertical-align:1px}
 
 #rsside .r-plny{padding:12px 13px;background:#fbf9f3;border-top:1px solid var(--line-2)}
+
+/* Wendie 04.09.2026: «det skal vaere meget tydeligt, at man er ved at
+   laegge en ny prislinje ind. Lige nu blev jeg faktisk lidt forvirret.»
+   Formularen laa uden overskrift lige under den forrige linjes krop og
+   saa ud som en del af den. */
+#rsside .r-plny{border-left:3px solid var(--gold);background:#fbf7ed;
+  padding-left:15px;padding-top:14px}
+
+#rsside .r-plnyt{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);
+  font-weight:600;margin-bottom:12px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+
+#rsside .r-plnyt .r-plnyn{font-size:11px;letter-spacing:0;text-transform:none;
+  font-weight:400;color:var(--mut)}
 
 #rsside .r-plny .r-raek{display:flex;gap:9px;align-items:flex-end;margin-bottom:9px}
 
@@ -2815,6 +3096,11 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-nyboks .r-raek > div{flex:1}
 
+/* En hjaelpetekst under et felt gjorde raekken hoej, og fordi raekken
+   flugtede NEDERST, blev naboens overskrift skubbet opad. Disse raekker
+   flugter foroven, saa overskrifterne staar paa linje. */
+#rsside .r-nyboks .r-raek.r-toprak{align-items:flex-start}
+
 #rsside .r-nyboks .r-sm2{flex:none;width:150px}
  #rsside .r-nyboks .r-sm4{flex:none;width:74px}
 
@@ -2882,6 +3168,119 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 #rsside .r-segt.r-vis td{padding:5px 6px;border-bottom:1px solid var(--line-2)}
 
 #rsside .r-segt.r-vis tr:last-child td{border-bottom:0}
+
+/* Faste bredder — ellers bestemmer indholdet, og «Airbus A320NEO» skubber
+   spalten bredere end nabogruppens «Airbus A319». */
+#rsside .r-segt.r-segfast{table-layout:fixed}
+
+#rsside .r-segt.r-segfast td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+#rsside .r-segt .r-seggr td{border-bottom:0;padding:11px 6px 3px}
+
+#rsside .r-segt .r-seggrp:first-of-type .r-seggr td{padding-top:5px}
+
+#rsside .r-segt .r-seggr .r-vejnavn{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold)}
+
+#rsside .r-segt .r-seggr .r-segref{margin-left:11px;font-size:10px;color:var(--mut)}
+
+#rsside .r-segt .r-seggr .r-segref b{color:#6f6a58;font-weight:600;letter-spacing:.06em}
+
+/* Regnestykket slutter nederst, ikke i overskriften. Og der skal vaere
+   en tydelig streg mellem udrejse og hjemrejse — «det hele flyder lidt
+   for meget sammen». */
+#rsside .r-segt .r-segsum td{border-bottom:0;padding:4px 6px 12px}
+
+#rsside .r-segt .r-segsum .r-ialtv{font-size:12px;color:#6f6a58;font-weight:600;
+  border-top:1px solid #ddd4bd;padding-top:5px}
+
+#rsside .r-segt .r-segsum .r-ialtl{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:#bdb59d;border-top:1px solid #ddd4bd;padding-top:6px}
+
+#rsside .r-segt .r-seggrp.r-nygruppe .r-seggr td{border-top:1px solid var(--line);
+  padding-top:16px}
+
+/* Rejsetiden har sin egen spalte. Wendie: «det skal ikke staa lige efter
+   flytypen, fordi det flyder alt for meget sammen.» */
+#rsside .r-segt .r-segtid{color:#6f6a58;font-size:11.5px}
+
+#rsside .r-segt .r-mellemr td{padding:2px 6px 6px;border-bottom:1px solid var(--line-2);
+  font-size:11px;color:#a08f63;white-space:nowrap}
+
+/* Beslutningen om etapen kan vendes med ét klik. Den staar diskret —
+   den skal kunne findes, ikke bemaerkes. */
+#rsside .r-segt .r-vend{margin-left:11px;font-size:10.5px;color:#bdb59d;cursor:pointer;
+  border-bottom:1px dotted #ded5be;white-space:nowrap}
+
+#rsside .r-segt .r-vend:hover{color:var(--gold);border-bottom-color:var(--gold)}
+
+#rsside .r-segt .r-benrk{cursor:pointer}
+
+#rsside .r-segt .r-benrk:hover td{background:#f8f4ea}
+
+/* Felterne til én flyvning: to linjer, hele bredden. */
+#rsside .r-segt .r-benret > td{padding:0;border-bottom:1px solid var(--line-2)}
+
+#rsside .r-benfelt{display:flex;flex-wrap:wrap;gap:9px 12px;align-items:flex-start;
+  background:#f8f4ea;border-left:2px solid var(--gold);padding:12px 14px 13px}
+
+#rsside .r-benfelt > div{flex:none}
+
+#rsside .r-benfelt .r-benbred{flex:1 1 180px;min-width:150px}
+
+#rsside .r-benfelt label{display:block;font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--mut);margin-bottom:3px}
+
+#rsside .r-benfelt input,#rsside .r-benfelt select{font-family:inherit;font-size:12.5px;
+  padding:5px 7px;border:1px solid var(--line);border-radius:2px;background:#fff;color:var(--ink)}
+
+#rsside .r-benfelt input:focus,#rsside .r-benfelt select:focus{outline:none;border-color:var(--gold)}
+
+#rsside .r-benfelt .r-benhj{font-size:9.5px;color:#bdb59d;margin-top:2px;font-style:italic}
+
+#rsside .r-benfelt .r-benslut{flex:1 1 100%;display:flex;gap:8px;margin-top:2px}
+
+#rsside .r-benfelt .r-benluk{font-family:inherit;font-size:11.5px;padding:5px 14px;
+  border:1px solid var(--forest);background:var(--forest);color:#fff;border-radius:2px;cursor:pointer}
+
+#rsside .r-benfelt .r-benx{font-family:inherit;font-size:11.5px;padding:5px 13px;
+  border:1px dashed #e0cdc4;background:#fdf6f4;color:#a3695a;border-radius:2px;cursor:pointer}
+
+#rsside .r-tilfben{margin-top:9px}
+
+/* ══ SAMMENDRAGET — én linje pr. etape ══
+   Wendie 04.09.2026: «den her maade var paenere foer … saa alt ikke tager
+   saa meget plads.» */
+#rsside .r-etliste{margin-top:6px}
+
+#rsside .r-etrk{display:flex;align-items:baseline;gap:14px;padding:7px 0;
+  border-bottom:1px solid var(--line-2);font-size:12.5px}
+
+#rsside .r-etrk:last-of-type{border-bottom:0}
+
+#rsside .r-etnavn{flex:none;width:118px;font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gold)}
+
+#rsside .r-etrute{flex:1;min-width:0;color:var(--ink)}
+
+#rsside .r-ettid{flex:none;font-size:11.5px;color:var(--mut);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+
+#rsside .r-etref{flex:none;font-size:10px;letter-spacing:.06em;color:#a89f86;
+  font-weight:600;white-space:nowrap}
+
+#rsside .r-etaabn{margin-top:8px;font-size:11px;color:#bdb59d;cursor:pointer;
+  border-bottom:1px dotted #ded5be;display:inline-block}
+
+#rsside .r-etaabn:hover{color:var(--gold);border-bottom-color:var(--gold)}
+
+#rsside .r-pt2 .r-planfold{margin-left:12px;font-size:10.5px;letter-spacing:0;
+  text-transform:none;font-weight:400;color:#bdb59d;cursor:pointer;
+  border-bottom:1px dotted #ded5be}
+
+#rsside .r-pt2 .r-planfold:hover{color:var(--gold);border-bottom-color:var(--gold)}
+
+#rsside .r-segt .r-mellemr td b{color:#7d6a3a;font-weight:600}
 
 #rsside .r-mangler2{border-color:var(--bad) !important;background:#fdf6f3}
 
@@ -3098,45 +3497,76 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
  #rsside .r-plk .r-hr .r-sm5{width:104px}
  #rsside .r-plk .r-hr .r-br{flex:1;width:auto}
 
-#rsside .r-fristbox{border:1px solid #e6d9c0;background:#fdfaf2;border-radius:2px;padding:12px 15px;
-  margin-bottom:13px}
+/* Wendie 04.09.2026: «den flyder lidt i et med ydelser paa rejsen.» Den
+   havde naesten samme sandfarve som fladen bagved. En frist er noget man
+   skal holde oeje med, saa den faar sin egen, koeligere flade og en
+   tydelig kant til venstre — samme sprog som resten, blot vaagent. */
+#rsside .r-fristbox{border:1px solid #dcc9a4;border-left:3px solid var(--gold);
+  background:#fff9ec;border-radius:2px;padding:12px 15px 10px;margin-bottom:13px;
+  box-shadow:0 1px 0 rgba(150,125,70,.06)}
 
 #rsside .r-fristbox .r-ft{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:#8a7132;
   font-weight:600;margin-bottom:9px}
 
-#rsside .r-fristbox .r-fr{display:flex;gap:14px;align-items:baseline;padding:5px 0;font-size:12.5px;
+/* En TABEL, ikke to flexbokse: overskrift og data deler de samme
+   spalter og kan derfor ikke komme ud af trit. Det var hele fejlen. */
+#rsside .r-fristbox .r-ftab{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12.5px}
+
+#rsside .r-fristbox .r-ftab th{text-align:left;font-family:'Inter',sans-serif;font-size:8.5px;
+  letter-spacing:.12em;text-transform:uppercase;color:#a8925f;font-weight:600;
+  padding:0 10px 6px 0;border-bottom:1px solid #ebdcbe;vertical-align:bottom}
+
+#rsside .r-fristbox .r-ftab th.r-hr{text-align:right}
+
+#rsside .r-fristbox .r-ftab td{padding:9px 10px 9px 0;vertical-align:top;
+  border-bottom:1px solid #f0e4cc}
+
+#rsside .r-fristbox .r-ftab tbody tr:last-child td{border-bottom:0}
+
+#rsside .r-fristbox .r-fantal{margin-left:10px;font-size:11px;letter-spacing:0;
+  text-transform:none;font-weight:400;color:var(--mut)}
+
+#rsside .r-fristbox .r-ftom{font-style:italic;color:#c9c1a8}
+
+#rsside .r-fristbox .r-fr{font-size:12.5px;
   border-bottom:1px solid #f0e7d3}
 
 #rsside .r-fristbox .r-fr:last-of-type{border-bottom:0}
 
-#rsside .r-fristbox .r-fn{flex:1;min-width:0}
+#rsside .r-fristbox .r-fn{min-width:0}
 
-#rsside .r-fristbox .r-fn b{font-weight:500;display:block;overflow:hidden;text-overflow:ellipsis;
+/* Wendie: «der staar bare et «con» i stedet for Economy.» Navnet blev
+   klippet. En villatype eller et hotelnavn kan ikke forkortes meningsfuldt
+   — saa det ombrydes i stedet. */
+#rsside .r-fristbox .r-fn b{font-weight:500;display:block;overflow:visible;text-overflow:clip;
   white-space:nowrap}
 
 #rsside .r-fristbox .r-fn small{display:block;color:#a89f86;font-size:11px;line-height:1.35;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-#rsside .r-fristbox .r-fl2{flex:none;width:130px;color:var(--mut);font-size:11.5px}
+#rsside .r-fristbox .r-fl2{color:var(--mut);font-size:11.5px}
 
-#rsside .r-fristbox .r-fp3{flex:none;width:118px;text-align:right;font-family:'Playfair Display',Georgia,serif;
+#rsside .r-fristbox .r-fp3{text-align:right;font-family:'Playfair Display',Georgia,serif;
   font-size:14px;line-height:1.2}
 
 #rsside .r-fristbox .r-fp3 small{display:block;font-family:'Inter',sans-serif;font-size:10.5px;
   color:var(--mut);margin-top:1px}
 
-#rsside .r-fristbox .r-fd{flex:none;width:132px;font-weight:500}
+#rsside .r-fristbox .r-fd{font-weight:600;white-space:nowrap}
+
+#rsside .r-fristbox .r-fd em{display:block;font-weight:400;font-style:normal;color:#a89f86;
+  font-size:11.5px;margin-top:1px}
 
 #rsside .r-fristbox .r-fd em{font-weight:400;color:#bdb59d}
 
-#rsside .r-fristbox .r-fk{flex:none;width:88px;font-size:11.5px;color:#8a7132}
+#rsside .r-fristbox .r-fk{font-size:11.5px;color:#8a7132;white-space:nowrap}
 
-#rsside .r-fristbox .r-fo{flex:none;width:180px;font-size:11.5px;color:var(--mut);overflow:hidden;
+#rsside .r-fristbox .r-fo{font-size:11.5px;color:var(--ink2);
   text-overflow:ellipsis;white-space:nowrap}
 
 #rsside .r-fristbox .r-fr.r-haster .r-fk{color:var(--bad);font-weight:600}
 
-#rsside .r-fristbox .r-fr.r-udloebet{background:#fdf6f3;margin:0 -15px;padding:5px 15px;
+#rsside .r-fristbox .r-fr.r-udloebet{background:#fdf6f3;
   border-bottom-color:#e3bfae}
 
 #rsside .r-fristbox .r-fr.r-udloebet .r-fk{color:#fff;background:var(--bad);padding:2px 8px;border-radius:2px;
@@ -3197,7 +3627,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.08';
+const APP_VERSION = 'v1.12';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -10709,30 +11139,71 @@ const PLAN = [];
    segmenter, og det havde ingen linje foer flybilletterne kom ind.
    Loesningen er ikke at gemme ruten to steder, men at tegne segmenterne
    med SAMME funktion som alt andet fly. Én kilde, ét udseende. */
-function segTilFly(seg, retning){
-  if(!seg || !seg.length) return null;
-  const minut = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t||''); return m ? +m[1]*60 + +m[2] : null; };
-  const varighed = min => min == null || min < 0 ? '—'
+/* Mellemlandingernes laengde og den samlede rejsetid. Ét regnestykke,
+   brugt baade af rejseplanens flykort og af prislinjens tabel — saa de to
+   steder ikke kan vise hver sit tal for den samme billet. */
+function flyVarighed(min){
+  return min == null || min < 0 ? '—'
     : Math.floor(min/60) + ' t' + (min%60 ? ' ' + (min%60) + ' m' : '');
+}
+function flyTider(seg){
+  const minut = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t||''); return m ? +m[1]*60 + +m[2] : null; };
   const stop = [];
   for(let i=0; i<seg.length-1; i++){
     const an = minut(seg[i].an), ud2 = minut(seg[i+1].ud);
     let d = (an != null && ud2 != null) ? ud2 - an : null;
     if(d != null && d < 0) d += 24*60;                 /* over midnat */
-    stop.push({ by: seg[i].tilBy || seg[i].til, tid: varighed(d) });
+    /* Er der en dato paa begge, er den praecis — ellers er vi paa
+       klokken alene og kan kun antage samme eller naeste doegn. */
+    const d1 = seg[i].ankomstDato || seg[i].dato, d2 = seg[i+1].dato;
+    if(d1 && d2){
+      const a = Date.parse(d1 + 'T' + (seg[i].an||'00:00'));
+      const b = Date.parse(d2 + 'T' + (seg[i+1].ud||'00:00'));
+      if(isFinite(a) && isFinite(b) && b > a) d = Math.round((b-a)/60000);
+    }
+    stop.push({ by: seg[i].tilBy || seg[i].til, min: d, tid: flyVarighed(d) });
   }
+  /* ══ TIDSZONERNE ══
+     Afgang og ankomst staar i LOKAL tid. Sidste ankomst minus foerste
+     afgang er derfor ikke rejsetiden: OSL 11:15 → MLE 08:55+1 giver
+     21 t 40 m, men Oslo er UTC+2 og Malé UTC+5 i juni, saa det rigtige
+     er 18 t 40 m. Tre timer for meget, paa et tal kunden laeser.
+     Vi regner det i stedet af det, vi VED: flyvetiderne (flyselskabets
+     egne) plus mellemlandingerne. En mellemlanding er samme lufthavn og
+     dermed samme tidszone, saa dén er rigtig af sig selv.
+       2 t 30 m + 5 t 35 m + 10 t 35 m = 18 t 40 m. Praecis. */
+  const minut2 = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t||''); return m ? +m[1]*60 + +m[2] : null; };
+  let sumFly = 0, mangler = false;
+  seg.forEach(x=>{ const v = minut2(x.flyvetid); if(v == null) mangler = true; else sumFly += v; });
+  const sumStop = stop.reduce((a,x)=>a + (x.min || 0), 0);
+  /* Mangler en flyvetid, kan summen ikke laegges — og saa siger vi det
+     hellere end at vise et tal, der er tre timer galt. */
+  const ialt = mangler ? null : sumFly + sumStop;
+  return { stop, ialtMin: ialt, ialt: flyVarighed(ialt), mangler,
+           flyvetidMin: sumFly, stopMin: sumStop };
+}
+function segTilFly(seg, retning){
+  if(!seg || !seg.length) return null;
+  const varighed = flyVarighed;
+  const {stop, ialt} = flyTider(seg);
   const f0 = seg[0], fN = seg[seg.length-1];
-  let ialt = null;
-  if(f0.dato && f0.ud && fN.an){
-    const a = Date.parse(f0.dato + 'T' + f0.ud);
-    const b2 = Date.parse((fN.ankomstDato || f0.dato) + 'T' + fN.an);
-    if(isFinite(a) && isFinite(b2) && b2 > a) ialt = Math.round((b2 - a)/60000);
-  }
-  return [{ retning, total: varighed(ialt),
+  return [{ retning, total: ialt,
     dato: f0.dato ? new Date(f0.dato).toLocaleDateString('da-DK',
             {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : '',
-    legs: seg.map(x=>({ ud:x.ud, an:x.an, fra:x.fra, til:x.til, plus:!!x.plus })),
+    legs: seg.map(x=>({ ud:x.ud, an:x.an, fra:x.fra, til:x.til, plus:!!x.plus,
+      nr: x.nr || x.flynr || null, flytype: x.flytype || null,
+      flyvetid: x.flyvetid || null, kabine: x.kabine || null,
+      bagage: x.bagage || null, forplejning: x.forplejning || null,
+      terminal: x.terminal || null })),
     stop }];
+}
+/* «02:30» er et klokkeslet, ikke en varighed. To og en halv time skal
+   staa som to og en halv time. */
+function flyvetidTxt(t){
+  const m = /^(\d{1,2}):(\d{2})$/.exec(t||'');
+  if(!m) return t || '';
+  const h = +m[1], mi = +m[2];
+  return (h ? h + ' t' : '') + (mi ? (h?' ':'') + mi + ' m' : (h?'':'—'));
 }
 function flyHtml(f){
   return f.map(r=>`<div class="r-ret">
@@ -10742,7 +11213,18 @@ function flyHtml(f){
         <div class="r-tid"><div class="r-t">${l.ud}</div><div class="r-iata">${l.fra}</div></div>
         <div class="r-streg"><span class="r-fl">${l.fra} → ${l.til}</span></div>
         <div class="r-tid r-h"><div class="r-t">${l.an}${l.plus?'<span class="r-plus">+1</span>':''}</div>
-          <div class="r-iata">${l.til}</div></div></div>
+          <div class="r-iata">${l.til}</div></div>
+        <!-- A3, Wendies valg 04.09.2026: flyvningens egne oplysninger staar
+             i sin egen spalte til hoejre, saa intet haenger under stregen.
+             Bagage og forplejning venter — de hoerer paa rejsesiden. -->
+        <div class="r-segfly2">
+          <div class="nr">${escH(l.nr || '—')}</div>
+          <div class="ty">${[l.flytype, l.flyvetid ? flyvetidTxt(l.flyvetid) : null]
+            .filter(Boolean).map(escH).join(' · ') || '&nbsp;'}</div>
+          ${l.kabine || l.terminal ? `<div class="kl">${
+            [l.kabine, l.terminal ? 'T' + l.terminal : null].filter(Boolean).map(escH).join(' · ')
+          }</div>` : ''}
+        </div></div>
       ${r.stop[i]?`<div class="r-mellem"><span class="r-pk"></span>Mellemlanding i ${r.stop[i].by} · ${r.stop[i].tid}</div>`:''}`).join('')}
     </div>`).join('');
 }
@@ -10845,15 +11327,22 @@ function planKonflikter(){
    mere end et doegn mellem ankomst og naeste afgang — et mellemlandings-
    ophold paa fire timer hoerer til samme vej, en uge paa Maldiverne goer
    ikke. */
+/* Skal denne flyvning begynde en ny etape? Reglen er et doegn — men
+   Wendie kan overskrive den pr. flyvning, for en bevidst stopover paa 26
+   timer er stadig samme rejse, og to flyvninger tre timer fra hinanden
+   kan undtagelsesvis vaere to. `nyEtape` true/false vinder altid over
+   reglen; er den udefineret, bestemmer doegnet. */
+function delerEtape(forrige, x){
+  if(x.nyEtape === true)  return true;
+  if(x.nyEtape === false) return false;
+  const a = Date.parse((forrige.ankomstDato||forrige.dato||'') + 'T' + (forrige.an||'00:00'));
+  const b2 = Date.parse((x.dato||'') + 'T' + (x.ud||'00:00'));
+  return isFinite(a) && isFinite(b2) && (b2 - a) > 24*3600*1000;
+}
 function flyGrupper(seg){
   const g = []; let nu = [];
-  seg.forEach((x,i)=>{
-    if(i > 0){
-      const forrige = seg[i-1];
-      const a = Date.parse((forrige.ankomstDato||forrige.dato||'') + 'T' + (forrige.an||'00:00'));
-      const b2 = Date.parse((x.dato||'') + 'T' + (x.ud||'00:00'));
-      if(isFinite(a) && isFinite(b2) && (b2 - a) > 24*3600*1000){ g.push(nu); nu = []; }
-    }
+  (seg||[]).forEach((x,i)=>{
+    if(i > 0 && delerEtape(seg[i-1], x)){ g.push(nu); nu = []; }
     nu.push(x);
   });
   if(nu.length) g.push(nu);
@@ -10891,7 +11380,9 @@ function planTekst(p){
         visPlan = 'segmenter';
         const f0 = segmenter[0];
         if(f0.ud) p.tid = f0.ud;
-        sub = [(p.vej ? 'Hjemrejse' : 'Udrejse'),
+        /* Er der en mellemflyvning, hedder den «Videre til …» — samme
+           navn som overskriften. To navne paa samme etape er én for meget. */
+        sub = [vejNavnet,
                segmenter.length > 1 ? 'via ' + f0.til : 'direkte',
                f0.dato ? kortDato(f0.dato) : null].filter(Boolean).join(' · ');
       }
@@ -10971,12 +11462,12 @@ function tegnPlan(){
              saettes dér, hvor rejsen bygges, ikke to steder. -->
         ${t2.visPlan === 'segmenter'
         ? `<div class="r-fp">${flyHtml(segTilFly(t2.segmenter, t2.vejNavn || (p.vej ? 'Hjemrejse' : 'Udrejse')))}
-             ${(()=>{ const nrs = t2.segmenter.map(x=>x.nr||x.flynr).filter(Boolean);
+             ${(()=>{ /* Flynummer og klasse staar nu paa hver enkelt flyvning.
+                  Sammendraget skal derfor kun sige det, der gaelder HELE
+                  billetten — bookingreferencen. Ellers staar det samme to
+                  gange, og det er praecis den slags rod, vi lige ryddede op i. */
                 const l0 = t2.linje || {}; const pnr = (l0.raa && l0.raa.pnr) || null;
-                const m = [ nrs.length ? ['Flynr.', nrs.join(' · ')] : null,
-                            pnr ? ['Bookingref.', pnr] : null,
-                            t2.segmenter[0].kabine ? ['Klasse', t2.segmenter[0].kabine] : null ]
-                          .filter(Boolean);
+                const m = [ pnr ? ['Bookingref.', pnr] : null ].filter(Boolean);
                 return m.length ? `<div class="r-flymeta">${m.map(([k,v])=>
                   `<span>${escH(k)}: <b>${escH(v)}</b></span>`).join('')}</div>` : ''; })()}
            </div>`
@@ -11282,21 +11773,23 @@ function nyLinjeHtml(e){
   const felt = (n,ph,type) => `<input type="${type||'text'}" placeholder="${ph}"
         value="${fm[n]}" oninput="RS.st['${e.id}'].form.${n}=this.value">`;
   return `<div class="r-plny">
+    <div class="r-plnyt">Ny prislinje
+      <span class="r-plnyn">bliver nr. ${st[e.id].linjer.length + 1} på ${escH(kortNavn(e))}</span></div>
     <div class="r-raek">
       <div class="r-sm2${fejlPaa(e.id,'lev')}"><label>Hvor fra</label>
         ${vaelger(e.id,'lev',fm.lev,levs)}
         ${fm.lev===ANDET?`<input placeholder="hvem?" value="${fm.levFri}"
             oninput="RS.st['${e.id}'].form.levFri=this.value">`:''}</div>
       ${fly ? `
-        <div><label>Flyselskab</label>
-          ${vaelger(e.id,'selskab',fm.selskab,SELSKABER)}
-          ${fm.selskab===ANDET?`<input placeholder="hvilket selskab?" value="${fm.selskabFri}"
-              oninput="RS.st['${e.id}'].form.selskabFri=this.value">`:''}</div>
-        <div><label>Klasse</label>
-          ${vaelger(e.id,'klasse',fm.klasse,KLASSER)}
-          ${fm.klasse===ANDET?`<input placeholder="skriv klassen" value="${fm.klasseFri}"
-              oninput="RS.st['${e.id}'].form.klasseFri=this.value">`:''}</div>
-        <div class="r-sm3"><label>Rejsende</label>${felt('pax','4','number')}</div>` : ''}
+        <div class="r-sm2${fejlPaa(e.id,'pris')}"><label>Pris i alt</label>
+          <input id="lp-${e.id}" type="number" placeholder="0" value="${fm.pris}"
+                 oninput="RS.st['${e.id}'].form.pris=this.value; RS.visOm('${e.id}')"></div>
+        <div class="r-sm3"><label>Valuta</label>
+          <select id="lv-${e.id}" onchange="RS.st['${e.id}'].form.val=this.value; RS.visOm('${e.id}')">${
+            VALUTAER.map(v=>`<option ${v===(fm.val||e.val)?'selected':''}>${v}</option>`).join('')}</select></div>
+        <div class="r-om" id="om-${e.id}"></div>
+        <div class="r-plnyhj">Ruten, selskabet og klassen kommer med billetten —
+          træk den ind på linjen, når den er lagt til.</div>` : ''}
     </div>
     ${fly ? '' : `
       <div class="r-fvilla">
@@ -11321,14 +11814,12 @@ function nyLinjeHtml(e){
         <button class="r-tilfoej" onclick="RS.fVillaNy('${e.id}')">
           + Tilføj villatype</button>
       </div>`}
-    <div class="r-raek">
-      <div class="r-sm2"><label>${fly ? 'Ud' : 'Fra'}</label>
-        <input type="date" value="${fm.fra}" onchange="RS.saetFra('${e.id}',this.value)"
-          ${fly?'title="Den dag flyet letter hjemmefra"':''}></div>
-      <div class="r-sm2"><label>${fly ? 'Hjem' : 'Til'}</label>
-        <input type="date" value="${fm.til}" onchange="RS.saetTil('${e.id}',this.value)"
-          ${fly?'title="Den dag flyet letter fra destinationen — også hvis man lander dagen efter"':''}></div>
-      <div class="${fly?'r-sm2':'r-sm4'}"><label>${e.spandNavn || 'Nætter'}</label>
+    ${fly ? '' : `<div class="r-raek">
+      <div class="r-sm2"><label>Fra</label>
+        <input type="date" value="${fm.fra}" onchange="RS.saetFra('${e.id}',this.value)"></div>
+      <div class="r-sm2"><label>Til</label>
+        <input type="date" value="${fm.til}" onchange="RS.saetTil('${e.id}',this.value)"></div>
+      <div class="r-sm4"><label>${e.spandNavn || 'Nætter'}</label>
         <input type="number" min="1" value="${fm.naetter}"
                oninput="RS.st['${e.id}'].form.naetter=this.value"
                onchange="RS.genberegnTil('${e.id}')"></div>
@@ -11339,7 +11830,7 @@ function nyLinjeHtml(e){
         <select id="lv-${e.id}" onchange="RS.st['${e.id}'].form.val=this.value; RS.visOm('${e.id}')">${
           VALUTAER.map(v=>`<option ${v===fm.val?'selected':''}>${v}</option>`).join('')}</select></div>
       <div class="r-om" id="lo-${e.id}"></div>
-    </div>
+    </div>`}
     <div class="r-fbil" onpaste="RS.formBillede(event,'${e.id}')">
       <div class="r-fvt">Skærmbillede</div>
       ${(fm.billeder||[]).length
@@ -11465,6 +11956,29 @@ function villaTekst(l){
   const mp = [...new Set(l.villaer.map(x=>x.mp).filter(Boolean))].join(' / ');
   return [v || l.hvad, mp].filter(Boolean).join(' · ');
 }
+/* Wendie 04.09.2026: «der staar for eksempel fire rejsende to gange.»
+   Linjens overskrift indeholder allerede «4 rejsende» — den bygges af
+   selskab · klasse · rejsende — og «daekker» gentog netop det. Vi viser
+   kun daekker, naar den siger noget, overskriften ikke allerede siger.
+   Rettet i visningen, ikke i skrivningen: saa bliver de raekker, der
+   allerede ligger i basen, ogsaa pæne. */
+/* Den rene tekst — bruges baade paa prislinjen og i fristboksen, saa de
+   to steder ikke kan komme til at rydde op paa hver sin maade. */
+function daekkerLinje(l){
+  const d = (l.daekker || '').trim();
+  const h = (villaTekst(l) || '').trim();
+  const rens = x => x.toLowerCase().replace(/\s+/g,' ').trim();
+  const dele = [h];
+  if(d && d !== '—' && !rens(h).includes(rens(d))) dele.push(d);
+  return escH(dele.filter(x=>x && x !== '—').join(' · '));
+}
+function daekkerVis(l){
+  const d = (l.daekker || '').trim();
+  if(!d || d === '—') return '';
+  const rens = x => x.toLowerCase().replace(/\s+/g,' ').trim();
+  if(rens(villaTekst(l) || '').includes(rens(d))) return '';
+  return `<small>${escH(d)}</small>`;
+}
 function stigeHtml(e){
   const s = st[e.id], g = grundPris(e.id), bi = billigst(e.id);
   return `<div class="r-stige">
@@ -11496,7 +12010,7 @@ function stigeHtml(e){
           </span>`
           : `<span class="r-intetbil" title="Ingen skærmbilleder på den her pris">▫</span>`}
         <span class="r-hvad">${villaTekst(l)}${i===bi&&s.linjer.length>1?'<span class="r-bill">billigst</span>':''}
-          <small>${l.daekker}</small>
+          ${daekkerVis(l)}
           ${l.uens?`<div class="r-uens">${l.uens}</div>`:''}
           ${s.retterNote===i
             ? `<input class="r-nin" placeholder="hvad skal man vide om den her pris?" data-fokus="1"
@@ -11531,8 +12045,8 @@ function stigeHtml(e){
                title="Læg til de valgte — hvis købet deles over flere bookinger">+</button>`}</span>
         ${st[e.id].sidsteAdvarsel === i
           ? '<span class="r-sidstadv">Der skal være mindst én valgt pris</span>' : ''}
-        <button class="r-x ${l.slag==='manuel'?'':'r-usyn'}" onclick="RS.retLinje('${e.id}',${i})"
-          title="Ret linjen">✎</button>
+        <button class="r-x ${l.slag==='manuel' && e.slags!=='fly' ?'':'r-usyn'}"
+          onclick="RS.retLinje('${e.id}',${i})" title="Ret linjen">✎</button>
         <button class="r-x ${l.slag==='grundlag'?'r-usyn':''}" onclick="RS.sletLinje('${e.id}',${i})" title="Fjern">×</button>
       </div>
       ${l.aaben ? linjeKrop(e, l, i) : ''}`).join('')}
@@ -11624,7 +12138,8 @@ function flyLaesTekst(tekst){
       if(mm) dato = d[3]+'-'+String(mm).padStart(2,'0')+'-'+String(+d[1]).padStart(2,'0');
       return; }
     const a = x.match(/^Afrejse:\s*(\d{2}:\d{2})/); if(!a) return;
-    const blok = L.slice(i, i+14).join('\n');
+    const j = L.slice(i+1).findIndex(y=>/^Afrejse:\s*\d{2}:\d{2}/.test(y));
+    const blok = L.slice(i, j < 0 ? L.length : i+1+j).join('\n');
     const alle = [...blok.matchAll(/([A-Za-zÆØÅæøå .\-]+)\s\(([A-Z]{3})\)/g)];
     if(alle.length < 2) return;
     const nr  = blok.match(/Flynr:\s*([A-Z0-9]{2})\s?(\d{1,4})\b/);
@@ -11632,6 +12147,43 @@ function flyLaesTekst(tekst){
     const tid = blok.match(/(\d{2}:\d{2})\s+flyvetid/);
     const typ = blok.match(/(Airbus [\w\- ]+|Boeing [\w\- ]+)/);
     const kab = blok.match(/Kabine:\s*(\w+)/);
+    /* Bagagen staar som et enkelt maal — «40K», «1PC», «23 kg». Den kan
+       ligge paa sin egen linje eller midt paa flyvetidens linje, alt efter
+       hvordan de to spalter falder sammen. Derfor: er maerkaten der, saa
+       find maalet i blokken frem for at gaette paa en linje. */
+    const bag = /Inkluderet bagage/i.test(blok)
+      ? (blok.match(/\b(\d{1,3})\s?(KG|K|PCS|PC|STK)\b/i) || [])
+      : [];
+    const bagage = bag.length
+      ? bag[1] + ' ' + ({K:'kg', KG:'kg', PC:'PC', PCS:'PC', STK:'stk.'}[bag[2].toUpperCase()])
+      : null;
+    /* Forplejningen staar EFTER maerkaten — tit paa naeste linje, hvor
+       ankomstlufthavnen staar foran den i den anden spalte. Vi skraeller
+       lufthavnen af og kasserer det, der tydeligvis er en anden maerkat. */
+    const forplejning = (()=>{
+      if(!/Forplejning:/i.test(blok)) return null;
+      const bl = blok.split('\n');
+      const j = bl.findIndex(y=>/Forplejning:/i.test(y));
+      if(j < 0) return null;
+      const STOEJ = /^(Operated by|Flynr|Kabine|Afrejse|Ankomst|Inkluderet|Sæde|Check-in|Terminal)/i;
+      /* Emirates skriver «ingen oplysning» ordret i billetten. Det er
+         ingen oplysning — saa skal feltet vaere tomt, ikke fyldt med
+         noget der ser ud som et svar. */
+      const TOM = /^(ingen oplysning|ikke oplyst|n\/?a|unknown|-{1,2})$/i;
+      const bud = [ (bl[j].split(/Forplejning:/i)[1] || '') ]
+        .concat(bl.slice(j+1, j+3)
+          .map(y=>y.replace(/^[A-Za-zÆØÅæøå .\-]+\s\([A-Z]{3}\)\s*/, '')));
+      for(const b3 of bud){
+        const v = (b3||'').trim().replace(/\s+/g,' ');
+        if(v.length < 4) continue;
+        if(STOEJ.test(v)) continue;
+        if(/^\d{1,3}\s?(KG|K|PCS?|STK)$/i.test(v)) continue;
+        if(TOM.test(v)) return null;
+        if(!/[A-Za-zÆØÅæøå]{3}/.test(v)) continue;
+        return v;
+      }
+      return null;
+    })();
     const ter = blok.match(/Check-in:\s*terminal\s*(\w+)/);
     const anDato = (ank && ank[2]) ? ank[4]+'-'+ank[3]+'-'+ank[2] : dato;
     ud.ben.push({ dato, ud:a[1], an: ank?ank[1]:null, ankomstDato:anDato,
@@ -11640,7 +12192,8 @@ function flyLaesTekst(tekst){
       fraBy: alle[0][1].trim(), tilBy: alle[alle.length-1][1].trim(),
       kode: nr?nr[1]:null, flynr: nr?(nr[1]+nr[2]):null, nr: nr?(nr[1]+nr[2]):null,
       flyvetid: tid?tid[1]:null, flytype: typ?typ[1].trim():null,
-      kabine: kab?kab[1]:null, terminal: ter?ter[1]:null });
+      kabine: kab?kab[1]:null, terminal: ter?ter[1]:null,
+      bagage, forplejning, pnr: ud.pnr || null });
   });
   const koder = [...new Set(ud.ben.map(b=>b.kode).filter(Boolean))];
   const navne = [...new Set(koder.map(k=>FLY_KODE[k]||k))];
@@ -11649,6 +12202,9 @@ function flyLaesTekst(tekst){
   const i0 = L.findIndex(x=>/^Passagerer/.test(x));
   const i1 = L.findIndex(x=>new RegExp('^(?:'+FLY_UGE+')\\b','i').test(x));
   const pax = L.slice(i0+1, i1<0?L.length:i1)
+    /* Billetnummeret staar bag navnet — «724-5286031136». Skaeres af, saa
+       navnet kan genkendes som et navn. */
+    .map(x=>x.replace(/\s+\d{3}-\d{6,}\s*$/,'').trim())
     .filter(x=>!x.includes(':') && /^[A-ZÆØÅ][\wÆØÅæøå\-]+( [A-ZÆØÅ][\wÆØÅæøå\-]+)+$/.test(x));
   let f1 = foran;
   for(const t2 of [...navne, ...koder].sort((a,b)=>b.length-a.length)){
@@ -11671,22 +12227,24 @@ function flyLaesTekst(tekst){
    en videreflyvning, som faar sit maal med i navnet. Er der kun én gruppe,
    er det en enkeltrejse, ikke en «udrejse» uden hjemkomst. */
 function vejNavn(veje, k){
+  if(!veje || !veje.length) return 'Flyvning';
   if(veje.length === 1) return 'Flyvning';
   if(k === 0) return 'Udrejse';
-  if(k === veje.length - 1) return 'Hjemrejse';
-  const v = veje[k], sidste = v[v.length-1];
+  if(k >= veje.length - 1) return 'Hjemrejse';   /* ogsaa hvis k er for stor */
+  const v = veje[k];
+  if(!v || !v.length) return 'Flyvning';
+  const sidste = v[v.length-1];
   return 'Videre til ' + (sidste.tilBy || sidste.til);
 }
-function flyVeje(ben){
-  const g = []; let nu = [];
-  ben.forEach((b,i)=>{ if(i && b.dato > ben[i-1].ankomstDato){ g.push(nu); nu = []; } nu.push(b); });
-  if(nu.length) g.push(nu);
-  return g;
-}
+/* Beholdt som navn, fordi den kaldes tre steder — men den deler nu
+   efter SAMME regel som rejseplanen: mere end et doegn mellem to ben.
+   Foer delte den paa datoskift, og en billet der lander 23:40 og flyver
+   videre 02:10 blev revet i to. */
+function flyVeje(ben){ return flyGrupper(ben || []); }
 /* Traekker man billetten ind paa en PRISLINJE, hoerer ruten til dén linje.
    Elementets overskrift og rejseplanens datoer foelger med, saa siden siger
    det samme hele vejen igennem. */
-async function flyPdfLinje(elId, i, filer){
+async function flyPdfLinje(elId, i, filer, maade){
   const e = ELEMENTER.find(x=>x.id===elId); if(!e) return;
   const l = st[elId] && st[elId].linjer[i]; if(!l) return;
   const svar = document.getElementById('flySvar-'+elId+'-'+i);
@@ -11701,57 +12259,235 @@ async function flyPdfLinje(elId, i, filer){
       vis('<span class="r-fejl">Kunne ikke finde flyvninger i den fil. Skriv dem ind i hånden i stedet.</span>');
       return;
     }
-    const veje = flyVeje(r.ben), f0 = r.ben[0], fN = r.ben[r.ben.length-1];
-    l.segmenter = r.ben;
-    l.raa = { ...(l.raa||{}), pnr: r.pnr || null };
+    /* «man kan ogsaa laegge yderligere flyplan ind paa samme pris, hvis
+       man vil det.» Et hop koebt paa samme billet hoerer med her; er det
+       koebt for sig, hoerer det i sit eget element — men det afgoer
+       Wendie, ikke koden. Vi sorterer paa dato, saa planen laegger sig
+       rigtigt uanset hvilken rundt vi laeser billetterne i. */
+    const gamle = (maade === 'tilfoej' && (l.segmenter||[]).length) ? l.segmenter : [];
+    const alleBen = gamle.concat(r.ben).sort((a,b)=>
+      ((a.dato||'') + 'T' + (a.ud||'')).localeCompare((b.dato||'') + 'T' + (b.ud||'')));
+    const veje = flyVeje(alleBen), f0 = alleBen[0], fN = alleBen[alleBen.length-1];
+    l.segmenter = alleBen;
+    l.raa = { ...(l.raa||{}), pnr: r.pnr || (l.raa&&l.raa.pnr) || null };
     if(r.selskab || r.klasse){
       e.sub = [r.selskab, r.klasse, r.rejsende.length ? r.rejsende.length + ' rejsende' : null,
-               r.ben.length > 1 ? r.ben.length + ' flyvninger' : null].filter(Boolean).join(' · ');
+               alleBen.length > 1 ? alleBen.length + ' flyvninger' : null].filter(Boolean).join(' · ');
+    }
+    if(erValgt(elId, i)){
+      e.raa = e.raa || {};
+      if(r.selskab) e.raa.selskab = r.selskab;
+      if(r.klasse)  e.raa.klasse  = r.klasse;
+      e.raa.rute = veje.map(v=>v[0].fra + ' → ' + v[v.length-1].til).join(' · ');
+      const {error:eE} = await db.from('trip_elements')
+        .update({details: {...(e.details||{}), lev:e.lev, sub:e.sub, type:e.type,
+                 hotel:e.hotel, kilde:e.kilde, subs:e.subs||[], raa:e.raa}})
+        .eq('id', elId);
+      if(eE){ vis('<span class="r-fejl">Ydelsens felter kunne ikke gemmes: '
+        + escH(eE.message) + '</span>'); return; }
+      /* Ligger rettelsesboksen aaben paa netop den her ydelse, skal den
+         vise de nye vaerdier — ellers staar det gamle selskab tilbage i
+         feltet, mens overskriften over det siger noget andet. */
+      if(NY.aaben && NY.retter === elId) NY.f = {...e.raa, val: e.val || KUNDEVAL};
     }
     e.navn = 'Fly · ' + veje.map(v=>v[0].fra + ' → ' + v[v.length-1].til).join(' · ');
-    /* Planlinjerne: ud og hjem, med billettens egne datoer og tider. */
-    const p = PLAN.filter(x=>x.id===elId || x.elId===elId).sort((a,b)=>(a.vej||0)-(b.vej||0));
-    veje.forEach((v,k)=>{
-      const a0 = v[0], aN = v[v.length-1];
-      let raek = p[k];
-      if(!raek){
-        /* En ny planlinje findes ikke i basen endnu. gemTilBasen OPDATERER
-           kun paa id og ville have skrevet ud i den blaa luft — den fejl har
-           vi haft to gange i dag. Derfor maerkes den, og indsaettes herunder. */
-        raek = { ...(p[0]||{art:'Fly',ophold:false,kilde:'manuel'}),
-                 id: null, _ny: true, elId, vej: k };
-        PLAN.push(raek);
-      }
-      raek.vej = k; raek.fra = a0.dato; raek.til = aN.ankomstDato || a0.dato;
-      raek.tid = a0.ud; raek.titel = a0.fra + ' → ' + aN.til;
-      raek.sub = [r.selskab, r.klasse].filter(Boolean).join(' · ');
-    });
-    /* De planlinjer, der ikke fandtes i forvejen, skrives ind — og faar
-       deres rigtige id, saa alt senere arbejde paa dem ogsaa gemmes. */
-    for(const raek of PLAN.filter(x=>x._ny && x.elId === elId)){
-      const {data:pl, error:eP} = await db.from('trip_plan_items').insert({
-        trip_id: TUR.id, element_id: elId, art: raek.art || 'Fly',
-        titel: raek.titel || '—', sub: raek.sub || null, lev: raek.lev || null,
-        fra: raek.fra || null, til: raek.til || raek.fra || null, tid: raek.tid || null,
-        vej: raek.vej || 0, ophold: false, kilde: 'manuel', detalje: null,
-        sort: PLAN.indexOf(raek)
-      }).select('id').single();
-      if(eP){ vis('<span class="r-fejl">Hjemrejsen kunne ikke gemmes: '+escH(eP.message)+'</span>'); return; }
-      raek.id = pl.id; delete raek._ny;
-    }
-    tegnPlan(); tegnListe(); opdaterDatoer(); maerk();
+    /* Planlinjerne synkroniseres af ÉN funktion — den samme, der koerer
+       naar man vaelger en anden pris. Foer stod reglen to steder, og saa
+       kunne de to gaa fra hinanden. */
+    if(!await synkPlanlinjer(elId, m => vis('<span class="r-fejl">' + escH(m) + '</span>'))) return;
+    sorterPlan(); tegnPlan(); tegnListe(); opdaterDatoer(); maerk();
     /* Listen er tegnet om, saa svaret skal skrives i den NYE boks. */
     setTimeout(()=>{
       const b2 = document.getElementById('flySvar-'+elId+'-'+i);
-      if(b2) b2.innerHTML = '<div class="r-fund"><b>' + escH(f.name) + '</b> · '
+      if(!b2) return;
+      b2.innerHTML = '<div class="r-fund"><b>' + escH(f.name) + '</b> · '
         + escH(r.selskab||'ukendt selskab') + (r.pnr ? ' · ' + escH(r.pnr) : '')
         + (r.advarsler.length ? '<div class="r-advar">' + r.advarsler.map(escH).join(' · ') + '</div>' : '')
         + '</div>';
+      /* Wendie 04.09.2026: «den behoever ikke at komme paa.» Den skal dog
+         blive et oejeblik — det er den, der siger, om laesningen lykkedes.
+         Er der en ADVARSEL, bliver den staaende: den er ikke en kvittering,
+         den er noget der skal handles paa. */
+      if(!r.advarsler.length) setTimeout(()=>{
+        const b3 = document.getElementById('flySvar-'+elId+'-'+i);
+        if(b3 && b3.querySelector('.r-fund')) b3.innerHTML = '';
+      }, 5000);
     }, 0);
   }catch(err){
     console.error(err);
     vis('<span class="r-fejl">Kunne ikke læse filen: ' + escH(err.message) + '</span>');
   }
+}
+/* Wendie 04.09.2026: «det er vigtigt, at man ikke kun kan traekke en ny
+   billet ind for at erstatte planen, men at man kan vaelge at slette
+   planen.» Prisen bliver staaende — det er kun ruten, der forsvinder.
+   Planlinjerne under elementet fjernes med, ellers stod rejseplanen
+   tilbage med etaper, ingen pris laengere kender. */
+/* ══ FLYVNINGERNE PAA EN PRISLINJE, TASTET I HAANDEN ══════════════
+   Wendie 04.09.2026: «vi skal kunne laegge en rute paa, som starter med
+   flightnummer og dato fra afgang til ankomst, flytype, flyvetid.»
+   Felterne staar i den tabel, man i forvejen laeser — ikke i en formular
+   ved siden af. Alt gemmes, naar man forlader feltet (tegnListe udloeser
+   gemningen), praecis som resten af prislinjen. */
+/* Felterne til én flyvning — to linjer, hele bredden. Flyvetiden er et
+   FELT og ikke et regnestykke: afgang og ankomst staar i lokal tid, saa
+   OSL 18:50 → IST 23:40 ser ud som 4 t 50 m og er 3 t 50 m. Den kan kun
+   regnes rigtigt, hvis vi kender hver lufthavns tidszone — se forslaget
+   om en lufthavnstabel. Indtil da staar flyselskabets eget tal. */
+function flyBenHtml(elId, i, j){
+  const l = st[elId].linjer[i], x = (l.segmenter||[])[j];
+  if(!x) return '';
+  const f = (felt, ph, type, bredde) => `<input type="${type||'text'}" placeholder="${ph}"
+      value="${escH(x[felt]==null?'':String(x[felt]))}" style="width:${bredde}"
+      onchange="RS.saetBen('${elId}',${i},${j},'${felt}',this.value)"
+      onkeydown="if(event.key==='Enter')this.blur()">`;
+  const dagEfter = !!(x.ankomstDato && x.dato && x.ankomstDato > x.dato);
+  return `<tr class="r-benret"><td colspan="8">
+    <div class="r-benfelt">
+      <div><label>Flynr.</label>${f('nr','TK1754','text','86px')}</div>
+      <div><label>Dato</label>${f('dato','','date','142px')}</div>
+      <div><label>Fra</label>${f('fra','IST','text','56px')}</div>
+      <div><label>Afgang</label>${f('ud','','time','96px')}</div>
+      <div><label>Til</label>${f('til','MLE','text','56px')}</div>
+      <div><label>Ankomst</label>${f('an','','time','96px')}</div>
+      <div><label>Ankomstdag</label>
+        <select onchange="RS.saetBen('${elId}',${i},${j},'ankomstDato',this.value)">
+          <option value="${escH(x.dato||'')}" ${dagEfter?'':'selected'}>samme dag</option>
+          <option value="${escH(laegTil(x.dato||'', 1))}" ${dagEfter?'selected':''}>dagen efter</option>
+        </select></div>
+      <div><label>Flyvetid</label>${f('flyvetid','02:30','text','82px')}
+        <div class="r-benhj">som på billetten</div></div>
+      <div class="r-benbred"><label>Flytype</label>${f('flytype','Airbus A330-300','text','100%')}</div>
+      <div><label>Terminal</label>${f('terminal','','text','72px')}</div>
+      <div class="r-benslut">
+        <button class="r-benluk" onclick="event.stopPropagation();RS.retBen('${elId}',${i},-1)">Færdig</button>
+        <button class="r-benx" onclick="event.stopPropagation();RS.sletBen('${elId}',${i},${j})">Fjern flyvningen</button>
+      </div>
+    </div></td></tr>`;
+}
+/* Folder flyplanen mellem sammendrag og alle felter. Foldes den ind,
+   lukkes den flyvning, der stod aaben — ellers ville felterne blive
+   liggende i noget, man ikke kan se. */
+function foldPlan(elId, i){
+  const l = st[elId].linjer[i]; if(!l) return;
+  l.planAaben = !l.planAaben;
+  if(!l.planAaben) st[elId].retterBen = null;
+  tegnListe();
+}
+function retBen(elId, i, j){
+  st[elId].retterBen = (j < 0) ? null : (i + ':' + j);
+  tegnListe();
+}
+function benListe(elId, i){
+  const l = st[elId] && st[elId].linjer[i];
+  if(!l) return null;
+  if(!Array.isArray(l.segmenter)) l.segmenter = [];
+  return l.segmenter;
+}
+function saetBen(elId, i, j, felt, v){
+  const seg = benListe(elId, i); if(!seg || !seg[j]) return;
+  const x = seg[j];
+  v = (v||'').trim();
+  if(felt === 'nr'){ x.nr = v.toUpperCase().replace(/\s+/g,''); x.flynr = x.nr;
+    const k = /^([A-Z]{2})\d/.exec(x.nr); x.kode = k ? k[1] : null; }
+  else if(felt === 'fra' || felt === 'til') x[felt] = v.toUpperCase().slice(0,3);
+  else x[felt] = v || null;
+  /* Lander man dagen efter, staar ankomstdatoen for sig — den er det, der
+     afgoer «+1» og mellemlandingens laengde. Er den ikke sat, er det
+     samme dag. */
+  if(felt === 'dato' || felt === 'ankomstDato'){
+    x.ankomstDato = x.ankomstDato || x.dato || null;
+    x.plus = !!(x.ankomstDato && x.dato && x.ankomstDato > x.dato);
+  }
+  /* Datoen bestemmer raekkefoelgen. Uden sortering ville en flyvning
+     tastet bagefter ligge foerst og lave etaperne om. */
+  seg.sort((a,b)=>((a.dato||'')+'T'+(a.ud||'')).localeCompare((b.dato||'')+'T'+(b.ud||'')));
+  roert(elId, i); tegnListe(); tegnPlan(); synkPlanlinjer(elId);
+}
+function nytBen(elId, i){
+  const seg = benListe(elId, i); if(!seg) return;
+  const sidste = seg[seg.length-1];
+  /* Den nye flyvning starter, hvor den forrige slap: fra bliver til.
+     Datoen arves, saa man kun retter det, der er anderledes. */
+  seg.push({ nr:null, flynr:null, kode:null,
+    dato: sidste ? (sidste.ankomstDato || sidste.dato) : null,
+    ud:null, an:null, fra: sidste ? sidste.til : null, til:null,
+    fraBy:null, tilBy:null, ankomstDato:null, plus:false,
+    flyvetid:null, flytype:null, kabine: sidste ? sidste.kabine : null,
+    bagage: sidste ? sidste.bagage : null,
+    forplejning: sidste ? sidste.forplejning : null,
+    terminal:null, pnr: sidste ? sidste.pnr : null, _manuel:true });
+  st[elId].retterBen = i + ':' + (seg.length - 1);
+  st[elId].linjer[i].planAaben = true;   /* ellers taster man i noget usynligt */
+  roert(elId, i); tegnListe();
+}
+async function sletBen(elId, i, j){
+  const seg = benListe(elId, i); if(!seg || !seg[j]) return;
+  const x = seg[j];
+  if(!confirm('Fjern ' + (x.nr || 'flyvningen') + (x.fra&&x.til ? ' ' + x.fra + '→' + x.til : '')
+    + ' fra den her pris?')) return;
+  seg.splice(j, 1);
+  roert(elId, i); tegnListe(); tegnPlan();
+  await synkPlanlinjer(elId); opdaterDatoer();
+}
+/* Vender Pandas beslutning om, hvor en etape begynder. */
+async function vendEtape(elId, i, j){
+  const seg = benListe(elId, i); if(!seg || !seg[j] || j === 0) return;
+  seg[j].nyEtape = !delerEtape(seg[j-1], seg[j]);
+  roert(elId, i); tegnListe(); tegnPlan();
+  await synkPlanlinjer(elId); opdaterDatoer();
+}
+async function sletFlyplan(elId, i){
+  const e = ELEMENTER.find(x=>x.id===elId); if(!e) return;
+  const l = st[elId] && st[elId].linjer[i]; if(!l) return;
+  const n = (l.segmenter||[]).length;
+  if(!n) return;
+  if(!confirm('Fjern flyplanen fra den her pris?\n\n'
+    + n + ' flyvning' + (n===1?'':'er') + ' forsvinder. Prisen bliver stående, '
+    + 'og du kan trække en ny billet ind bagefter.')) return;
+  l.segmenter = null;
+  if(l.raa) delete l.raa.pnr;
+  /* Er linjen valgt, mister rejseplanen sit grundlag — saa skal de
+     planlinjer, der levede af den, ogsaa vaek. */
+  if(erValgt(elId, i)){
+    const mine = PLAN.filter(x=>x.elId === elId || x.id === elId);
+    for(const raek of mine.slice(1)){
+      if(raek.id){
+        const {error} = await db.from('trip_plan_items').delete().eq('id', raek.id);
+        if(error){ kvitter('fejl','Planlinjen kunne ikke slettes: '+error.message); return; }
+      }
+      PLAN.splice(PLAN.indexOf(raek), 1);
+    }
+  }
+  /* Den linje, der bliver staaende, skal ikke baere billettens dato
+     videre. Uden dette kunne rejsens datoer i stilhed blive holdt fast
+     af en rute, ingen pris laengere kender. */
+  if(erValgt(elId, i)){
+    const bliver = PLAN.find(x=>x.elId === elId || x.id === elId);
+    if(bliver){
+      const raa = e.raa || {};
+      bliver.titel = raa.rute || e.navn || 'Fly';
+      bliver.sub   = [raa.selskab, raa.klasse].filter(Boolean).join(' · ') || bliver.sub;
+      bliver.fra   = raa.fra || bliver.fra;
+      bliver.til   = raa.til || raa.fra || bliver.til;
+      bliver.tid   = raa.tid || STD_TID.Fly;
+      bliver.vej   = 0;
+      if(bliver.id){
+        const r2 = await db.from('trip_plan_items').update({
+          titel: bliver.titel, sub: bliver.sub, fra: bliver.fra || null,
+          til: bliver.til || bliver.fra || null, tid: bliver.tid, vej: 0
+        }).eq('id', bliver.id);
+        if(r2.error){ kvitter('fejl','Planlinjen kunne ikke ryddes: '+r2.error.message); return; }
+      }
+    }
+  }
+  if(l._id){
+    const {error} = await db.from('element_prices')
+      .update({segmenter: null, raa: l.raa || {}}).eq('id', l._id);
+    if(error){ kvitter('fejl','Flyplanen kunne ikke slettes: '+error.message); return; }
+  }
+  tegnPlan(); tegnListe(); opdaterDatoer();
+  kvitter('gemt','Flyplanen er fjernet');
 }
 async function flyPdf(filer){
   const boks = document.getElementById('flyPdfSvar');
@@ -11780,7 +12516,7 @@ async function flyPdf(filer){
     if(b2) b2.innerHTML = '<div class="r-fund"><b>' + escH(f.name) + '</b> · '
       + escH(r.selskab||'ukendt selskab') + (r.pnr ? ' · ' + escH(r.pnr) : '')
       + (r.rejsende.length ? ' · ' + r.rejsende.length + ' rejsende' : '')
-      + veje.map((v,i)=>'<div class="r-vej"><em>' + (i ? 'Hjemrejse' : 'Udrejse') + '</em>'
+      + veje.map((v,i)=>'<div class="r-vej"><em>' + escH(vejNavn(veje, i)) + '</em>'
           + v.map(x=>'<span>' + escH(x.flynr||'—') + ' ' + escH(x.fra) + '→' + escH(x.til)
               + ' ' + escH(x.ud) + '–' + escH(x.an||'') + (x.plus ? ' +1' : '') + '</span>').join('')
           + '</div>').join('')
@@ -11943,7 +12679,12 @@ async function ydSlut(){
 }
 
 function tegnListe(){
-  try { tegnListeInd(); }
+  /* Wendie 04.09.2026: felterne skal LIGGE fremme. Listen tegnes om ved
+     hvert klik, og saa stod pladsen «ret-<id>» tom igen — boksen forsvandt
+     efter det foerste klik. Derfor tegnes den med, hver gang listen
+     tegnes. Kaldet er vaernet, saa en fejl i boksen aldrig kan tage hele
+     listen med sig. */
+  try { tegnListeInd(); try { if(NY.aaben && NY.retter) tegnNy(); } catch(_){} }
   catch(e){
     console.error(e);
     liste.innerHTML = `<div style="padding:16px;color:#c2653f">
@@ -11980,8 +12721,6 @@ function tegnListeInd(){
           if(!PLAN.find(x=>x.id===e.id || x.elId===e.id)?.fra) m.push('en dato');
           return m.length ? `<span class="r-mangel">mangler ${m.join(', ')}</span>` : '';
         })()}</span>
-        ${e.kilde==='manuel' ? `<button class="r-retel" title="Ret elementet"
-          onclick="event.stopPropagation();RS.retElement('${e.id}')">✎</button>` : ''}
         <span class="r-levsm">${valgteIdx(e.id).length > 1
           ? valgteIdx(e.id).length + ' leverandører' : valgtLinje(e.id).lev}</span>
         <span class="r-pris">${valgteIdx(e.id).length
@@ -12119,30 +12858,167 @@ function linjeKrop(e, l, i){
      henne.» Traekfeltet laa i «nyt element» — men ruten hoerer til PRISLINJEN,
      og det er dér, hun staar. Nu ligger det samme sted som skaermbilledet, paa
      den linje ruten gaelder for. */
-  const pnr = (l.raa && l.raa.pnr) || null;
+  const harPlan = (l.segmenter||[]).length > 0;
   const segHtml = (e.slags === 'fly') ? `<div class="r-pk">
-    <div class="r-pt2">Flyplanen på den her pris${pnr?` · PNR ${escH(pnr)}`:''}
+    <div class="r-pt2">Flyplanen på den her pris
+      ${harPlan ? `<span class="r-planfold"
+        onclick="event.stopPropagation();RS.foldPlan('${e.id}',${i})">${
+        l.planAaben ? 'skjul detaljerne' : 'vis alle felter'}</span>` : ''}
       <span class="r-n3">træk billetten ind, så udfyldes den selv</span></div>
-    <div class="r-pdf" ondragover="event.preventDefault();this.classList.add('r-paa')"
-         ondragleave="this.classList.remove('r-paa')"
-         ondrop="event.preventDefault();this.classList.remove('r-paa');RS.flyPdfLinje('${e.id}',${i},event.dataTransfer.files)"
-         onclick="this.querySelector('input').click()">
-      <input type="file" accept="application/pdf" hidden
-             onchange="RS.flyPdfLinje('${e.id}',${i},this.files);this.value=''">
-      ${(l.segmenter||[]).length ? 'Træk en ny billet ind for at erstatte planen herunder'
-        : 'Træk flybilletten (PDF) herind — eller klik for at vælge'}
+    <div class="r-flyzone">
+      <!-- Wendie 04.09.2026: «vi skal ikke have noget, der bare erstatter,
+           fordi det bliver noget rod. Enten kan man slette planen, eller
+           ogsaa kan man laegge en billet mere paa.» Der er derfor ÉN
+           handling: laeg til. Skal planen vaek, sletter man den. -->
+      <div class="r-pdf${harPlan?' r-pdf2':''}" ondragover="event.preventDefault();this.classList.add('r-paa')"
+           ondragleave="this.classList.remove('r-paa')"
+           ondrop="event.preventDefault();this.classList.remove('r-paa');RS.flyPdfLinje('${e.id}',${i},event.dataTransfer.files,'tilfoej')"
+           onclick="this.querySelector('input').click()">
+        <input type="file" accept="application/pdf" hidden
+               onchange="RS.flyPdfLinje('${e.id}',${i},this.files,'tilfoej');this.value=''">
+        ${harPlan ? '+ Læg en billet <b>mere</b> på'
+          : 'Træk flybilletten (PDF) herind — eller klik for at vælge'}
+      </div>
+      ${harPlan ? `<button class="r-sletplan"
+              title="Fjern flyplanen fra den her pris — prisen selv bliver stående"
+              onclick="event.stopPropagation();RS.sletFlyplan('${e.id}',${i})">Slet planen</button>` : ''}
     </div>
     <div id="flySvar-${e.id}-${i}"></div>
-    ${(l.segmenter||[]).length ? `
-    <table class="r-segt r-vis">
-      <tr><th>Rute</th><th>Dato</th><th>Fra</th><th>Afgang</th><th>Til</th><th>Ankomst</th></tr>
-      ${l.segmenter.map(x=>`<tr><td>${escH(x.nr||x.flynr||'—')}</td><td>${x.dato?kortDato(x.dato):'—'}</td>
-        <td>${escH(x.fra||'')}</td><td>${escH(x.ud||'')}</td><td>${escH(x.til||'')}</td>
-        <td>${escH(x.an||'')}${x.plus?'<span class="r-p1">+1</span>':''}</td></tr>`).join('')}
-    </table>` : ''}
+    ${(l.segmenter||[]).length ? (()=>{
+      /* Wendie 04.09.2026: «udrejse, hjemrejse, saadan at vi har nemmere
+         ved at se det.» Samme inddeling som rejseplanen bruger — og samme
+         navne, saa de to steder ikke kan komme til at sige noget
+         forskelligt om den samme billet. */
+      /* Wendie 04.09.2026: «det staar ikke lige over hinanden … alle
+         kolonner skal foelge hinanden, saa det ser paent og ryddeligt ud.»
+         Aarsagen var, at HVER gruppe var sin egen <table>, og en tabel
+         bestemmer selv sine bredder — to tabeller ved siden af hinanden
+         flugter derfor kun ved et tilfaelde. Nu er der ÉN tabel med faste
+         bredder (table-layout:fixed), og grupperne er raekker inde i den. */
+      const gr = flyGrupper(l.segmenter);
+      /* Sammendraget: én linje pr. etape. Det er den form, Wendie pegede
+         paa — flynumre og ruter i én laesning, uden spalter. */
+      if(!l.planAaben) return `<div class="r-etliste">
+        ${gr.map((g,gi)=>{
+          const t = flyTider(g);
+          const refs = [...new Set(g.map(x=>x.pnr).filter(Boolean))];
+          return `<div class="r-etrk">
+            <span class="r-etnavn">${escH(vejNavn(gr, gi))}</span>
+            <span class="r-etrute">${g.map(x=>
+              `${escH(x.nr||x.flynr||'—')}&nbsp;${escH(x.fra||'?')}→${escH(x.til||'?')}`
+              ).join(' · ')} · ${(()=>{
+                /* Lander etapen dagen efter, staar begge dage — «29. jun.+1»
+                   var klistret sammen og laeste sig ikke. */
+                const d0 = g[0].dato, dN = g[g.length-1].ankomstDato || g[g.length-1].dato;
+                if(!d0) return '—';
+                return (dN && dN > d0) ? kortDato(d0) + ' → ' + kortDato(dN) : kortDato(d0);
+              })()}</span>
+            <span class="r-ettid">${t.mangler ? '' : escH(t.ialt)}</span>
+            ${refs.length ? `<span class="r-etref">${escH(refs.join(' · '))}</span>` : ''}
+          </div>`;}).join('')}
+        <div class="r-etaabn" onclick="event.stopPropagation();RS.foldPlan('${e.id}',${i})">
+          Vis dato, tider, flytype og flyvetid — og ret dem</div>
+      </div>`;
+      return `<table class="r-segt r-vis r-segfast">
+        <colgroup><col style="width:82px"><col style="width:74px"><col style="width:52px">
+          <col style="width:66px"><col style="width:52px"><col style="width:78px">
+          <col style="width:82px"><col></colgroup>
+        <thead><tr><th>Rute</th><th>Dato</th><th>Fra</th><th>Afgang</th><th>Til</th>
+          <th>Ankomst</th><th>Flyvetid</th><th>Fly</th></tr></thead>
+        ${gr.map((g,gi)=>{
+          /* Referencen staar dér, hvor den gaelder — ikke i overskriften
+             for hele prislinjen. To billetter paa samme pris har hver sin. */
+          const refs = [...new Set(g.map(x=>x.pnr).filter(Boolean))];
+          const t = flyTider(g);
+          return `<tbody class="r-seggrp${gi?' r-nygruppe':''}">
+            <tr class="r-seggr"><td colspan="8"><span class="r-vejnavn">${escH(vejNavn(gr, gi))}</span>${
+              refs.length ? `<span class="r-segref">Bookingref. <b>${escH(refs.join(' · '))}</b></span>` : ''}${
+              gi ? `<span class="r-vend" onclick="event.stopPropagation();RS.vendEtape('${e.id}',${i},${
+                l.segmenter.indexOf(g[0])})">gør det til en mellemlanding i stedet</span>` : ''}</td></tr>
+            ${g.map((x,xi)=>{
+              const j = l.segmenter.indexOf(x);
+              /* linjeKrop har ikke `s` — det har stigeHtml. Fejlen tegnede
+                 slet ingen tabel, og den blev fanget af try/catch omkring
+                 listen, saa siden saa levende ud og manglede bare noget. */
+              const aaben = st[e.id].retterBen === (i + ':' + j);
+              return (aaben ? flyBenHtml(e.id, i, j) : `<tr class="r-benrk"
+                onclick="event.stopPropagation();RS.retBen('${e.id}',${i},${j})"
+                title="Klik for at rette flyvningen">
+                <td>${escH(x.nr||x.flynr||'—')}</td><td>${x.dato?kortDato(x.dato):'—'}</td>
+                <td>${escH(x.fra||'')}</td><td>${escH(x.ud||'')}</td><td>${escH(x.til||'')}</td>
+                <td>${escH(x.an||'')}${x.plus?'<span class="r-p1">+1</span>':''}</td>
+                <td class="r-segtid">${x.flyvetid?escH(flyvetidTxt(x.flyvetid)):'—'}</td>
+                <td class="r-segfly">${escH(x.flytype||'—')}</td></tr>`)
+              /* Panda VISER sin beslutning om, hvor en etape begynder, og
+                 lader den vende med ét klik. Wendie: «måske man skal kunne
+                 hakke af eller et eller andet.» Hellere se beslutningen end
+                 skulle huske at sætte et flueben. */
+              + (t.stop[xi] ? `<tr class="r-mellemr"><td colspan="6"></td>
+                  <td colspan="2">Mellemlanding i ${escH(t.stop[xi].by||'—')} ·
+                  <b>${escH(t.stop[xi].tid)}</b>
+                  <span class="r-vend" onclick="event.stopPropagation();RS.vendEtape('${e.id}',${i},${
+                    l.segmenter.indexOf(g[xi+1])})">gør det til en ny etape</span></td></tr>` : '');
+            }).join('')}
+            <tr class="r-segsum"><td colspan="6"></td>
+              <td class="r-ialtv">${t.mangler ? '—' : escH(t.ialt)}</td>
+              <td class="r-ialtl">${t.mangler
+                ? 'flyvetiden mangler på en flyvning'
+                : (t.stopMin
+                    ? `i alt · ${escH(flyVarighed(t.flyvetidMin))} i luften + ${escH(flyVarighed(t.stopMin))} på jorden`
+                    : 'i alt')}</td></tr>
+          </tbody>`;}).join('')}
+      </table>
+      <button class="r-tilfoej r-tilfben"
+        onclick="event.stopPropagation();RS.nytBen('${e.id}',${i})">+ Tilføj en flyvning</button>`;
+    })() : `<button class="r-tilfoej r-tilfben"
+        onclick="event.stopPropagation();RS.nytBen('${e.id}',${i})">+ Tast flyvningerne ind i hånden</button>`}
   </div>` : '';
   const h = l.hold || (l.hold = {aktiv:false, dato:'', tid:'17:00', note:''});
+  /* Wendie 04.09.2026: «om noget er afholdt … den skal ogsaa rykkes op som
+     lige under de her felter for selve ydelsen. Saa i princippet foer
+     flyplanen.» Fristen er det, der HASTER — den hoerer ikke nederst under
+     delelementerne, hvor man skal rulle for at finde den. */
+  const holdHtml = `<div class="r-pk">
+      <label class="r-afh ${h.aktiv?'r-til':''}">
+        <input type="checkbox" ${h.aktiv?'checked':''}
+          onchange="RS.saetLinjeHold('${e.id}',${i},'aktiv',this.checked)">
+        <span>Afholdt hos <b>${l.lev}</b></span></label>
+      ${h.aktiv ? `
+        <div class="r-hr">
+          <div><label>Frist — dato</label><input type="date" value="${h.dato}"
+                 onchange="RS.saetLinjeHold('${e.id}',${i},'dato',this.value)"></div>
+          <div class="r-sm5"><label>Klokkeslæt</label><input type="time" value="${h.tid}"
+                 onchange="RS.saetLinjeHold('${e.id}',${i},'tid',this.value)"></div>
+          <div class="r-br"><label>Note til optionen</label>
+            <input placeholder="hvad er aftalt?" value="${h.note}"
+                   oninput="RS.st['${e.id}'].linjer[${i}].hold.note=this.value"></div>
+        </div>` : ''}
+    </div>`;
+  /* Linjen ejer hvor vi koeber og hvad det koster. Alt andet paa den —
+     flyplanen, skaermbilledet, optionen, delelementerne — ligger allerede
+     herunder. Felterne gemmer sig selv: tegnListe() udloeser gemningen,
+     saa der er ingen knap at trykke paa. */
+  const egneFelter = (e.slags === 'fly') ? `<div class="r-pk r-linjefelt">
+      <div class="r-raek r-toprak">
+        <div class="r-lf1"><label>Hvor fra</label>
+          <select onchange="RS.saetLinjeLev('${e.id}',${i},this.value)">
+            <option value="">— vælg —</option>
+            ${[...new Set(levListe(e.slags, e.hotel).concat(LEVERANDOERER))]
+              .filter(x=>x && x!==ANDET)
+              .map(x=>`<option ${x===l.lev?'selected':''}>${escH(x)}</option>`).join('')}
+          </select></div>
+        <div class="r-lf2"><label>Pris i alt</label>
+          <input type="number" placeholder="0" value="${l.pris||''}"
+                 onchange="RS.saetLinjePris('${e.id}',${i},this.value)"></div>
+        <div class="r-lf3"><label>Valuta</label>
+          <select onchange="RS.saetLinjeVal('${e.id}',${i},this.value)">${
+            VALUTAER.map(v=>`<option ${v===l.val?'selected':''}>${v}</option>`).join('')}</select></div>
+        ${l.val !== 'DKK' && l.pris
+          ? `<div class="r-lfom">≈ ${krD(tilDkk2(l.pris, l.val))}</div>` : ''}
+      </div></div>` : '';
   return `<div class="r-plk">
+    ${egneFelter}
+    ${holdHtml}
     ${segHtml}
     ${bilHtml}
     ${(l.slag === 'editor' || l.slag === 'kontrakt') && e.soeg ? `<div class="r-pk">
@@ -12203,25 +13079,7 @@ function linjeKrop(e, l, i){
       </div>
     </div>
 
-    <div class="r-pk">
-      <label class="r-afh ${h.aktiv?'r-til':''}">
-        <input type="checkbox" ${h.aktiv?'checked':''}
-          onchange="RS.saetLinjeHold('${e.id}',${i},'aktiv',this.checked)">
-        <span>Afholdt hos <b>${l.lev}</b></span></label>
-      ${h.aktiv ? `
-        <div class="r-hr">
-          <div><label>Frist — dato</label><input type="date" value="${h.dato}"
-                 onchange="RS.saetLinjeHold('${e.id}',${i},'dato',this.value)"></div>
-          <div class="r-sm5"><label>Klokkeslæt</label><input type="time" value="${h.tid}"
-                 onchange="RS.saetLinjeHold('${e.id}',${i},'tid',this.value)"></div>
-          <div class="r-br"><label>Note til optionen</label>
-            <input placeholder="hvad er aftalt?" value="${h.note}"
-                   oninput="RS.st['${e.id}'].linjer[${i}].hold.note=this.value"></div>
-        </div>` : ''}
-    </div>
-    <div class="r-gemtlinje">${l.gemt
-      ? `Gemt kl. ${l.gemt} — alt på linjen bliver liggende her`
-      : 'Alt hvad du lægger på den her linje gemmes med det samme'}</div>
+    <div class="r-gemtlinje">${l.gemt ? `Gemt kl. ${l.gemt}` : ''}</div>
   </div>`;
 }
 function nyLSub(id,i){ st[id].linjer[i].nySub = true; tegnListe(); }
@@ -12248,7 +13106,24 @@ function saetLinjeHold(id,i,felt,v){
   if(felt === 'aktiv' && v && !h.dato) h.dato = iDag();
   roert(id,i); tegnListe();
 }
-function fold(id){ st[id].aaben = !st[id].aaben; tegnListe(); }
+/* Wendie 04.09.2026: «man skal stadig trykke paa den her kuglepen, som
+   jeg ikke gider trykke paa … de felter skal hele tiden ligge synlige lige
+   under den blaa bjaelke, altsaa naar den er foldet ud.»
+   Saa folder man en ydelse ud, aabner dens egne felter med den. Boksen er
+   stadig ÉN — den flytter med hen til den ydelse, der staar aaben. Folder
+   man en anden ud, foelger felterne derover. */
+function fold(id){
+  st[id].aaben = !st[id].aaben;
+  const e = ELEMENTER.find(x=>x.id===id);
+  if(st[id].aaben && e && e.kilde === 'manuel'){
+    NY.aaben = true; NY.retter = id; NY.type = e.type || 'andet';
+    NY.f = {...(e.raa||{}), val: e.val || KUNDEVAL};
+    if(!NY.f.villaer) NY.f.villaer = [{a:'1',t:'',mp:''}];
+  } else if(!st[id].aaben && NY.retter === id){
+    NY.aaben = false; NY.retter = null;
+  }
+  tegnListe(); tegnNy();
+}
 function saet(id,v){ st[id].status = v; if(v==='holder-ikke') st[id].aaben = true; tegnListe(); }
 /* ══ VAELG SKIFTER — «+» LAEGGER SAMMEN ════════════════════════════
    Foer lagde «Vaelg» prisen OVENI den, der stod i forvejen, saa rejsen
@@ -12257,7 +13132,72 @@ function saet(id,v){ st[id].status = v; if(v==='holder-ikke') st[id].aaben = tru
    dele et koeb op — «booke to hos Farewise og to et andet sted» — saa der
    er to handlinger: «Vaelg» skifter, «+» laegger til. Rejseplanen
    opdateres i samme oejeblik; der er intet at gemme. */
-function vaelg(id,i){ st[id].valgte = [i]; tegnListe(); tegnPlan(); }
+async function synkPlanlinjer(elId, vis){
+  const e = ELEMENTER.find(x=>x.id===elId);
+  if(!e || e.slags !== 'fly') return true;
+  const sig = m => { if(vis) vis(m); else kvitter('fejl', m); return false; };
+  /* Ruten hoerer til den VALGTE pris. Er der flere valgte, gaelder den
+     foerste, der har en plan. */
+  const valgt = valgteIdx(elId).map(i=>st[elId].linjer[i]).filter(Boolean);
+  const med = valgt.find(x=>(x.segmenter||[]).length);
+  const veje = med ? flyGrupper(med.segmenter) : [];
+  const p = PLAN.filter(x=>x.id===elId || x.elId===elId).sort((a,b)=>(a.vej||0)-(b.vej||0));
+  if(!p.length) return true;
+  /* Ingen plan paa den valgte pris: så er der ÉN linje, og den staar paa
+     ydelsens egen dato. Ellers ville rejseplanen vise etaper fra en rute,
+     der ikke er valgt. */
+  if(!veje.length){
+    const raa = e.raa || {}, bliver = p[0];
+    bliver.vej = 0; bliver.titel = raa.rute || e.navn || 'Fly';
+    bliver.sub = e.sub || bliver.sub;
+    if(raa.fra) bliver.fra = raa.fra;
+    if(raa.fra) bliver.til = raa.til || raa.fra;
+    if(raa.tid) bliver.tid = raa.tid;
+  } else {
+    veje.forEach((v,k)=>{
+      const a0 = v[0], aN = v[v.length-1];
+      let raek = p[k];
+      if(!raek){
+        raek = { ...(p[0]||{art:'Fly',ophold:false,kilde:'manuel'}),
+                 id: null, _ny: true, elId, vej: k };
+        PLAN.push(raek);
+      }
+      raek.vej = k; raek.fra = a0.dato; raek.til = aN.ankomstDato || a0.dato;
+      raek.tid = a0.ud; raek.titel = a0.fra + ' → ' + aN.til; raek.sub = e.sub || raek.sub;
+    });
+  }
+  for(const over of p.slice(Math.max(1, veje.length))){
+    if(over.id){
+      const {error} = await db.from('trip_plan_items').delete().eq('id', over.id);
+      if(error) return sig('En gammel planlinje kunne ikke fjernes: ' + error.message);
+    }
+    const j = PLAN.indexOf(over); if(j >= 0) PLAN.splice(j, 1);
+  }
+  for(const raek of PLAN.filter(x=>x._ny && x.elId === elId)){
+    const {data:pl, error} = await db.from('trip_plan_items').insert({
+      trip_id: TUR.id, element_id: elId, art: 'Fly',
+      titel: raek.titel || '—', sub: raek.sub || null, lev: raek.lev || null,
+      fra: raek.fra || null, til: raek.til || raek.fra || null, tid: raek.tid || null,
+      vej: raek.vej || 0, ophold: false, kilde: 'manuel', detalje: null,
+      sort: PLAN.indexOf(raek)
+    }).select('id').single();
+    if(error) return sig('Planlinjen kunne ikke gemmes: ' + error.message);
+    raek.id = pl.id; delete raek._ny;
+  }
+  for(const raek of PLAN.filter(x=>x.elId === elId && x.id)){
+    const {error} = await db.from('trip_plan_items').update({
+      titel: raek.titel, sub: raek.sub, fra: raek.fra || null,
+      til: raek.til || raek.fra || null, tid: raek.tid || null, vej: raek.vej || 0
+    }).eq('id', raek.id);
+    if(error) return sig('Rejseplanen kunne ikke opdateres: ' + error.message);
+  }
+  return true;
+}
+async function vaelg(id,i){
+  st[id].valgte = [i];
+  await synkPlanlinjer(id);
+  sorterPlan(); tegnListe(); tegnPlan(); opdaterDatoer();
+}
 function laegTilValg(id,i){
   const v = valgteIdx(id).slice();
   if(!v.includes(i)) v.push(i);
@@ -12274,6 +13214,21 @@ function fravaelg(id,i){
   setTimeout(()=>{ if(st[id].sidsteAdvarsel === i){ st[id].sidsteAdvarsel = -1; tegnListe(); } }, 3200);
 }
 function retNote(id,i){ st[id].retterNote = i; tegnListe(); }
+/* Tre smaa saettere. De skriver i linjen og tegner listen om — og det
+   er tegningen, der udloeser gemningen (tegnListe kalder maerk()). Samme
+   vej som noten og kilden gaar; ingen ny gemmesti at holde oeje med. */
+function saetLinjeLev(id,i,v){
+  const l = st[id].linjer[i]; if(!l) return;
+  l.lev = (v||'').trim(); roert(id,i); tegnListe(); tegnPlan();
+}
+function saetLinjePris(id,i,v){
+  const l = st[id].linjer[i]; if(!l) return;
+  l.pris = +v || 0; roert(id,i); tegnListe();
+}
+function saetLinjeVal(id,i,v){
+  const l = st[id].linjer[i]; if(!l) return;
+  l.val = v || 'DKK'; roert(id,i); tegnListe();
+}
 function saetNote(id,i,v){ st[id].linjer[i].note = (v||'').trim(); st[id].retterNote = -1;
   roert(id,i); tegnListe(); }
 function retKilde(id,i){ st[id].retterKilde = i; tegnListe(); }
@@ -12557,7 +13512,14 @@ function tegnFrister(){
   const boks = document.getElementById('frister');
   if(!ude.length){ boks.innerHTML = ''; return; }
   boks.innerHTML = `<div class="r-fristbox">
-    <div class="r-ft">Optioner og frister</div>
+    <div class="r-ft">Optioner og frister
+      <span class="r-fantal">${ude.length === 1 ? 'én option' : ude.length + ' optioner'}</span></div>
+    <table class="r-ftab">
+      <colgroup><col style="width:27%"><col style="width:14%"><col style="width:13%">
+        <col style="width:15%"><col style="width:10%"><col></colgroup>
+      <thead><tr><th>Ydelse</th><th>Hos hvem</th><th class="r-hr">Pris</th>
+        <th>Frist</th><th>Om</th><th>Hvad er aftalt</th></tr></thead>
+      <tbody>
     ${ude.map(({e,l})=>{
       const h = l.hold, d = dageTil(h);
       const haster = d != null && d <= 2;
@@ -12567,18 +13529,27 @@ function tegnFrister(){
          Optionen hoerer til LINJEN, saa teksten skal komme derfra: linjens
          egne vaerelser og dens egne datoer. */
       const udloebet = d != null && d < 0;
-      return `<div class="r-fr ${haster?'r-haster':''} ${udloebet?'r-udloebet':''}">
-        <span class="r-fn"><b>${kortNavn(e)}</b>
-          <small>${[villaTekst(l), l.daekker].filter(x=>x && x!=='—').join(' · ')}</small></span>
-        <span class="r-fl2">${l.lev}</span>
-        <span class="r-fp3">${kr(l.pris, l.val)}${l.val!=='DKK'
-          ? `<small>≈ ${krD(tilDkk2(l.pris,l.val))}</small>` : ''}</span>
-        <span class="r-fd">${h.dato ? fristKort(h)
-          : '<em>ingen frist sat</em>'}</span>
-        <span class="r-fk">${d == null ? 'ingen frist' : d < 0 ? 'udløbet'
-          : d === 0 ? 'i dag' : d === 1 ? 'i morgen' : 'om ' + d + ' dage'}</span>
-        <span class="r-fo">${h.note||''}</span></div>`;
+      return `<tr class="r-fr ${haster?'r-haster':''} ${udloebet?'r-udloebet':''}">
+        <!-- Samme dublet som paa prislinjen: underteksten indeholdt
+             allerede antallet, og «daekker» gentog det. Og intet klippes:
+             navnet paa en villatype er for langt til at kunne forkortes. -->
+        <td class="r-fn"><b>${kortNavn(e)}</b>
+          <small>${daekkerLinje(l)}</small></td>
+        <td class="r-fl2">${escH(l.lev||'—')}</td>
+        <td class="r-fp3">${kr(l.pris, l.val)}${l.val!=='DKK'
+          ? `<small>≈ ${krD(tilDkk2(l.pris,l.val))}</small>` : ''}</td>
+        <!-- «Der mangler noget datoer, noget information.» Fristen stod
+             uden aar og uden klokkeslaet, naar dagen var i dag eller i
+             morgen — nu staar den fuldt ud, saa der ikke er noget at gaette. -->
+        <td class="r-fd">${h.dato
+          ? `${fmtDY(h.dato)}${h.tid ? `<em>kl. ${escH(h.tid)}</em>` : ''}`
+          : '<em>ingen frist sat</em>'}</td>
+        <td class="r-fk">${d == null ? 'ingen frist' : d < 0 ? 'udløbet'
+          : d === 0 ? 'i dag' : d === 1 ? 'i morgen' : 'om ' + d + ' dage'}</td>
+        <td class="r-fo">${h.note ? escH(h.note)
+          : '<em class="r-ftom">intet skrevet</em>'}</td></tr>`;
     }).join('')}
+      </tbody></table>
   </div>`;
 }
 function tael(){
@@ -13003,8 +13974,75 @@ function nyVilla(j,felt,v){
   NY.f.villaer[j][felt] = felt==='a' ? String(Math.max(1,+v||1)) : v; tegnNy(); }
 function nyVillaNy(){ (NY.f.villaer = NY.f.villaer||[]).push({a:'1',t:'',mp:''}); tegnNy(); }
 function nyVillaSlet(j){ NY.f.villaer.splice(j,1); tegnNy(); }
+/* Wendie 04.09.2026: «det skal bare gemmes automatisk» — og «da jeg
+   rettede antal rejsende, blev antal rejsende nede paa prislinjen ikke
+   rettet. Den boer vel foelge den.»
+   Retter man en ydelse, der ALLEREDE ligger paa rejsen, skrives feltet
+   med det samme: ydelsens overskrift, grundlagets prislinje og
+   planlinjens dato foelger med. Vi kalder bevidst IKKE gemElement() —
+   den river ydelsen ud af listen og bygger den forfra, og saa lukker den
+   boks, man staar i.
+   Hver skrivning faar sit svar laest. En skrivning, hvis svar ingen
+   laeser, er den fejl vi har lavet fem gange. */
+async function gemRetStille(){
+  const id = NY.retter; if(!id) return;
+  const e = ELEMENTER.find(x=>x.id===id); if(!e) return;
+  const f = NY.f;
+  e.raa = {...(e.raa||{}), ...f};
+
+  if(e.type === 'fly'){
+    const pax = paxTekst(e.raa);
+    const nSeg = ((st[id]&&st[id].linjer||[]).find(x=>(x.segmenter||[]).length)||{}).segmenter;
+    e.sub  = [pax, (nSeg||[]).length > 1 ? nSeg.length + ' flyvninger' : null]
+             .filter(Boolean).join(' · ');
+    e.navn = 'Fly · ' + (f.rute || '');
+    /* Grundlaget er den pris, ydelsen blev bygget paa — den daekker de
+       mennesker, ydelsen siger. Linjer Wendie selv har skrevet roeres
+       ikke: kun grundlaget foelger. */
+    const g = (st[id]&&st[id].linjer||[]).find(x=>x.slag==='grundlag');
+    if(g && pax){
+      g.hvad = pax; g.daekker = pax;
+      if(g._id){
+        const r = await db.from('element_prices').update({hvad: pax, daekker: pax}).eq('id', g._id);
+        if(r.error){ kvitter('fejl','Prislinjen kunne ikke opdateres: '+r.error.message); return; }
+      }
+    }
+  }
+
+  const r2 = await db.from('trip_elements').update({
+    description: e.navn,
+    start_date: f.fra || null,
+    details: {...(e.details||{}), lev:e.lev, sub:e.sub, type:e.type,
+              hotel:e.hotel, kilde:e.kilde, subs:e.subs||[], raa:e.raa}
+  }).eq('id', id);
+  if(r2.error){ kvitter('fejl','Ydelsen kunne ikke gemmes: '+r2.error.message); return; }
+
+  /* Uden en flyplan er dato og afgang det ENESTE, rejseplanen kan
+     placere flyet efter — saa de skal med derover. Er der en flyplan,
+     bestemmer den, og vi roerer ikke datoerne. */
+  const harPlan = (st[id]&&st[id].linjer||[]).some(x=>(x.segmenter||[]).length);
+  const p0 = PLAN.find(x=>x.id===id || x.elId===id);
+  if(p0){
+    p0.sub = e.sub;
+    if(!harPlan){
+      if(f.fra) p0.fra = f.fra;
+      if(f.fra) p0.til = f.til || f.fra;
+      if(f.tid) p0.tid = f.tid;
+      if(f.rute) p0.titel = f.rute;
+    }
+    if(p0.id){
+      const r3 = await db.from('trip_plan_items').update({
+        titel: p0.titel, sub: p0.sub, fra: p0.fra || null,
+        til: p0.til || p0.fra || null, tid: p0.tid || null
+      }).eq('id', p0.id);
+      if(r3.error){ kvitter('fejl','Rejseplanen kunne ikke opdateres: '+r3.error.message); return; }
+    }
+  }
+  tegnPlan(); tegnListe(); if(!harPlan) opdaterDatoer();
+}
 function saetNyt(felt, v){
   NY.f[felt] = v;
+  if(NY.retter) setTimeout(gemRetStille, 0);   /* efter resten af saetNyt */
   if(felt === 'hotel'){ NY.f.villa = ''; NY.f.mp = ''; }       /* nyt hotel, nye lister */
   if(felt === 'fra' && v){
     if(!NY.f.til){                                 /* kun foerste gang */
@@ -13023,11 +14061,97 @@ function saetNyt(felt, v){
   if(nv) NY.f.val = nv;
   tegnNy();
 }
+/* Wendie 04.09.2026: «det skal bare gemmes automatisk.» Et tekstfelt
+   skrev foer kun i hukommelsen; nu gemmer ogsaa det, naar man forlader
+   det. Der er ingen kvittering — hun bad udtrykkeligt om, at der ikke
+   staar et lille «Gemt ✓». */
 const nyInput = (felt, ph, type) =>
   `<input type="${type||'text'}" placeholder="${ph}" value="${NY.f[felt]||''}"
      ${type==='date'||type==='number'
         ? `onchange="RS.saetNyt('${felt}',this.value)" oninput="RS.NY.f.${felt}=this.value"`
-        : `oninput="RS.NY.f.${felt}=this.value"`}>`;
+        : `oninput="RS.NY.f.${felt}=this.value" onchange="RS.saetRet('${felt}',this.value)"`}>`;
+/* Tekstfelter skal ikke tegne formen om, mens man skriver — markoeren
+   ville hoppe. De gemmer bare. */
+function saetRet(felt, v){
+  NY.f[felt] = v;
+  if(NY.retter) gemRetStille();
+}
+/* Wendie 04.09.2026: «rejsende skal altsaa igen deles ind i det her med
+   voksne og boern og alder.» Alderen afgoer prisen paa et fly lige saa
+   meget som paa et hotel, saa den skal STAA paa ydelsen — ikke gaettes ud
+   af passagerlisten, som tit ikke er skrevet ind endnu.
+   «Rejsende» bliver summen. Den er stadig det tal, resten af siden regner
+   med (undertekst, rejseplan, prissoegning), saa intet andet skal aendres. */
+/* «4 voksne · 2 børn (3, 3)» — ét sted, saa feltet, ydelsens overskrift
+   og grundlagets prislinje ikke kan komme til at sige tre forskellige
+   ting om de samme mennesker. Er antallet ikke delt endnu (en aeldre
+   ydelse), staar der bare «4 rejsende». */
+function paxTekst(raa){
+  const r = raa || {};
+  const v = +r.voksne || 0, b = +r.boern || 0;
+  if(!v && !b) return r.pax ? r.pax + (+r.pax === 1 ? ' rejsende' : ' rejsende') : '';
+  const dele = [];
+  if(v) dele.push(v + (v === 1 ? ' voksen' : ' voksne'));
+  if(b){
+    const a = String(r.boernAldre||'').split(',').map(x=>x.trim()).filter(Boolean);
+    dele.push(b + (b === 1 ? ' barn' : ' børn') + (a.length ? ' (' + a.join(', ') + ')' : ''));
+  }
+  return dele.join(' · ');
+}
+function nyPax(){
+  /* En ydelse fra i gaar har kun «pax». Foerste gang den aabnes, laeses
+     tallet som voksne — ellers ville summen nulstille det, hun har tastet. */
+  if((NY.f.voksne == null || NY.f.voksne === '') && (NY.f.boern == null || NY.f.boern === '')
+     && NY.f.pax != null && NY.f.pax !== ''){
+    NY.f.voksne = String(NY.f.pax); NY.f.boern = '0';
+  }
+  const v = Math.max(0, +NY.f.voksne || 0);
+  const b = Math.max(0, +NY.f.boern  || 0);
+  NY.f.pax = String(v + b);
+  return {v, b};
+}
+function aldreListe(){
+  return (NY.f.boernAldre || '').split(',').map(x=>x.trim());
+}
+function saetPax(felt, vaerdi){
+  NY.f[felt] = vaerdi;
+  const {b} = nyPax();
+  NY.f.boernAldre = aldreListe().filter(x=>x!=='').slice(0, b).join(', ');
+  tegnNy();
+  if(NY.retter) gemRetStille();
+}
+function saetBoernAlder(j, vaerdi){
+  const {b} = nyPax();
+  const a = aldreListe();
+  while(a.length < b) a.push('');
+  a[j] = (vaerdi||'').trim();
+  NY.f.boernAldre = a.slice(0, b).join(', ');
+  visOmNy();
+  if(NY.retter) gemRetStille();
+}
+/* Wendie 04.09.2026: «de felter skal ogsaa vaere mindre, de fylder for
+   meget, de er jo kaempestore. De skal i princippet ikke vaere stoerre end
+   de felter, der er for alderen paa boernene.» Derfor faar tallene samme
+   smalle bredde som aldersfelterne — det er tal paa ét eller to cifre.
+   «Rejsende i alt» er taget ud: det er voksne plus boern, og det kan man
+   se selv. Summen regnes stadig og staar i ydelsens overskrift. */
+function paxFelter(){
+  const {b} = nyPax(), a = aldreListe();
+  /* Én klump: voksne, boern og boernenes aldre hoerer sammen og staar
+     derfor taet. Overskrifterne staar paa samme linje som naboernes. */
+  return `<div class="r-fpax">
+    <div class="r-ftal"><label>Voksne</label>
+      <input type="number" min="0" placeholder="2" value="${NY.f.voksne||''}"
+             onchange="RS.saetPax('voksne',this.value)"></div>
+    <div class="r-ftal"><label>Børn</label>
+      <input type="number" min="0" max="9" placeholder="0" value="${NY.f.boern||''}"
+             onchange="RS.saetPax('boern',this.value)"></div>
+    ${b ? `<div class="r-faldre"><label>Alder</label>
+      <div class="r-baldre">${Array.from({length:b},(_,j)=>
+        `<input type="number" min="0" max="17" placeholder="—" value="${a[j]||''}"
+                onchange="RS.saetBoernAlder(${j},this.value)">`).join('')}</div></div>` : ''}
+  </div>`;
+}
 const nyVaelg = (felt, liste) =>
   `<select onchange="RS.saetNyt('${felt}',this.value)">
      <option value="">— vælg —</option>
@@ -13084,31 +14208,19 @@ function tegnNy(){
           </div>`).join('')}
         <button class="r-tilfoej" onclick="RS.nyVillaNy()">+ Tilføj endnu en villatype</button>
       </div>` : ''}
-      <div class="r-raek"><div class="r-sm2"><label>Fra</label>${nyInput('fra','','date')}</div>
+      <div class="r-raek r-toprak"><div class="r-sm2"><label>Fra</label>${nyInput('fra','','date')}</div>
         <div class="r-sm2"><label>Til</label>${nyInput('til','','date')}</div>
         <div class="r-sm4"><label>Nætter</label>${nyInput('naetter','','number')}</div>
-        <div class="r-sm4"><label>Check-ind kl.</label>${nyInput('tid','','time')}
-          <div class="r-hj">tom = 15.00</div></div>
+        <div class="r-sm4"><label>Check-ind kl.</label>${nyInput('tid','','time')}</div>
         ${prisFelter()}</div>`;
   } else if(t === 'fly'){
     felter = `
-      <div class="r-raek"><div><label>Rute</label>${nyInput('rute','f.eks. København → Malé')}</div>
-        <div><label>Flyselskab</label>${nyVaelg('selskab', SELSKABER)}</div>
-        <div class="r-sm2"><label>Klasse</label>${nyVaelg('klasse', KLASSER)}</div>
-        <div class="r-sm4"><label>Rejsende</label>${nyInput('pax','4','number')}</div></div>
-      <div class="r-raek"><div class="r-sm2"><label>Dato</label>${nyInput('fra','','date')}</div>
-        <div class="r-sm4"><label>Afgang kl.</label>${nyInput('tid','','time')}</div>
-        ${prisFelter()}</div>
-      <div class="r-pdf" ondragover="event.preventDefault();this.classList.add('r-paa')"
-           ondragleave="this.classList.remove('r-paa')"
-           ondrop="event.preventDefault();this.classList.remove('r-paa');RS.flyPdf(event.dataTransfer.files)"
-           onclick="this.querySelector('input').click()">
-        <input type="file" accept="application/pdf" hidden
-               onchange="RS.flyPdf(this.files);this.value=''">
-        Træk flybilletten (PDF) herind — eller klik for at vælge
-      </div>
-      <div id="flyPdfSvar">${NY.f._segmenter && NY.f._segmenter.length
-        ? `<div class="r-fund"><b>${NY.f._segmenter.length} flyvninger hentet fra billetten</b></div>` : ''}</div>`;
+      <div class="r-raek r-toprak r-flyraek">
+        <div class="r-frute"><label>Rute</label>${nyInput('rute','f.eks. København → Malé')}</div>
+        ${paxFelter()}
+        <div class="r-fdato"><label>Dato</label>${nyInput('fra','','date')}</div>
+        <div class="r-ftid"><label>Afgang kl.</label>${nyInput('tid','','time')}</div>
+      </div>`;
   } else if(t === 'transfer'){
     felter = `
       <div class="r-raek"><div><label>Strækning</label>${nyInput('rute','f.eks. Malé → Ayada')}</div>
@@ -13130,12 +14242,10 @@ function tegnNy(){
     <div class="r-nt">${NY.retter ? 'Ret element' : 'Nyt element'} · <b>${TYPER.find(x=>x[0]===t)[1]}</b>
       <span class="r-skift" onclick="RS.NY.type='';RS.tegnNy()">skift type</span></div>
     ${felter}
-    <div class="r-raek r-slut">
-      <button class="r-prim2" onclick="RS.gemElement()">${
-        NY.retter ? 'Gem rettelsen' : 'Læg ind på rejsen'}</button>
+    ${NY.retter ? '' : `<div class="r-raek r-slut">
+      <button class="r-prim2" onclick="RS.gemElement()">Læg ind på rejsen</button>
       <button class="r-luk" onclick="RS.lukNy()">Fortryd</button>
-      <span class="r-hint">Intet er påkrævet — det kan udfyldes senere.</span>
-    </div></div>`;
+    </div>`}</div>`;
   visOmNy();
 }
 function prisFelter(){
@@ -13186,7 +14296,10 @@ function gemElement(){
     f._villaer = vv.map(v=>({a:Math.max(1,+v.a||1), t:v.t, mp:v.mp}));
   } else if(t === 'fly'){
     titel = f.rute || 'Fly'; art = 'Fly'; slags = 'fly';
-    undertekst = [f.selskab, f.klasse, f.pax ? f.pax + ' rejsende' : null,
+    /* Flyselskab og klasse staar ikke laengere i formen — de hoerer paa
+       flyplanen og paa prislinjen. Overskriften siger derfor hvem der
+       rejser, og hvor mange flyvninger der er. */
+    undertekst = [paxTekst(f),
       (f._segmenter||[]).length > 1 ? f._segmenter.length + ' flyvninger' : null]
       .filter(Boolean).join(' · ');
     navn = 'Fly · ' + (f.rute||''); sub = undertekst;
@@ -13238,7 +14351,8 @@ function gemElement(){
       segmenter: t==='fly' ? ((f._segmenter||[]).length ? f._segmenter : null) : null,
       villaer: t==='hotel' ? (f._villaer||[]) : null,
       hold:{aktiv:false,dato:'',tid:'17:00',note:''}, aaben:false,
-      daekker: t==='hotel' && f.naetter ? f.naetter + ' nætter' : (f.pax ? f.pax + ' rejsende' : '—'),
+      daekker: t==='hotel' && f.naetter ? f.naetter + ' nætter'
+               : (t==='fly' ? (paxTekst(f) || '—') : (f.pax ? f.pax + ' rejsende' : '—')),
       pris: +f.pris || 0, val: f.val || KUNDEVAL,
       kilde:'Tastet manuelt', naar:'i dag · WEN' }],
     subs:[] });
@@ -13952,10 +15066,13 @@ return {
   planEl, planFra, planFraDb, planKonflikter, planNaetter, planTekst,
   planTid, planTil, prisFelter, retElement, retKilde, retLinje, retNote,
   roert, ryddHotel, saet, saetFokus, saetForm, saetFra, saetHold, saetKilde,
-  saetLinjeHold, saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla,
+  saetLinjeHold, saetLinjeLev, saetLinjePris, saetLinjeVal, saetNote, synkPlanlinjer,
+  delerEtape, vendEtape, saetBen, nytBen, sletBen, flyBenHtml, retBen, foldPlan, saetNyt, saetTil, saetTrin, saetType, saetVilla,
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
   segTilFly, soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
-  flyPdf, flyPdfLinje, flyLaesTekst, flyVeje, pdfTekst,
+  flyPdf, flyPdfLinje, flyLaesTekst, flyVeje, pdfTekst, sletFlyplan,
+  vejNavn, flyvetidTxt, daekkerVis, daekkerLinje, nyPax, saetPax, saetBoernAlder,
+  paxFelter, paxTekst, gemRetStille, saetRet, flyTider, flyVarighed,
   gemNytElement, gemNavn, gemPax, gemDatoer, opdaterDatoer, nyDest, fjernDest, tegnDest,
   ydGreb, ydStart, ydOver, ydDrop, ydSlut,
   tegnFrister, tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin,
@@ -14572,15 +15689,31 @@ const HV_BRANCHE_VALUTA = {NO:'NOK', MN:'NOK', MD:'DKK', HQ:'DKK', IT:'EUR'};
    et tilbud tit indeholder flere af hver, og prisen er KOMBINATIONEN.  */
 const HVS = { fund:null, valgt:{hotel:0, villa:null, mp:null} };
 
-/* Opslaget i Rasmus' editor. Funktionen «tilbuds-opslag» findes endnu ikke —
-   indtil den goer, svarer den her null, og boksen spoerger bare uden fund.
-   Naar den kommer, er det kun det her ene sted, der skal aendres.        */
+/* ══ OPSLAGET I RASMUS' EDITOR ═════════════════════════════════════
+   Rasmus 04.09.2026: «tilbuds-opslag er deployet i Maldivia Editor og
+   virker.» Funktionen ligger i HANS projekt (okqonzhijshklbbiuyuy) og
+   beskytter sig med PANDA_KEY i headeren «x-panda-key».
+
+   ⚠ DEN KAN DERFOR IKKE KALDES DIREKTE HERFRA.
+   Panda er en webapp paa GitHub Pages: alt i den her fil kan laeses af
+   enhver, der ser sidens kilde. Laegger vi PANDA_KEY ind i Panda, er den
+   offentlig — og fordi det er SAMME noegle som «pris-opslag» bruger,
+   ville vi dermed ogsaa aabne prisopslaget for alle.
+
+   Derfor gaar kaldet gennem maldivia-core, praecis som «hent-dagspris»
+   goer det i dag: den funktion holder EDITOR_URL og EDITOR_KEY som
+   hemmeligheder og videresender med «x-panda-key». Noeglen naar aldrig
+   browseren, og funktionen har verify_jwt:true, saa kun en indlogget
+   Panda-bruger kan kalde den.
+     Panda → maldivia-core/hent-tilbud → editor/tilbuds-opslag
+   Findes «hent-tilbud» ikke endnu, svarer den her null, og boksen
+   spoerger bare uden fund — som foer.                                  */
 async function hvsSoegTilbud(l){
   const navn = [l.contact_first_name, l.contact_last_name].filter(Boolean).join(' ').trim()
              || (l.contact_name||'').trim();
   if(navn.length < 2) return null;
   try{
-    const {data, error} = await db.functions.invoke('tilbuds-opslag',
+    const {data, error} = await db.functions.invoke('hent-tilbud',
       { body:{ hvad:'sog', navn } });
     if(error || !data || !data.ok || !(data.kunder||[]).length) return null;
     /* Præcist navnematch foretrækkes; ellers vises det bedste bud som usikkert. */
@@ -14588,8 +15721,12 @@ async function hvsSoegTilbud(l){
     const praecis = data.kunder.filter(k=>ens(k.navn)===ens(navn));
     const k = (praecis[0] || data.kunder[0]);
     if(!k || !(k.versioner||[]).length) return null;
-    const {data:v} = await db.functions.invoke('tilbuds-opslag',
-      { body:{ hvad:'version', version_id:k.versioner[0].id } });
+    /* Rasmus 04.09.2026: «version_id skal sendes som et TAL, ikke en
+       streng. Kolonnen id er bigint. Send 579, ikke "579".» */
+    const vid = Number(k.versioner[0].id);
+    if(!Number.isFinite(vid)) return null;
+    const {data:v} = await db.functions.invoke('hent-tilbud',
+      { body:{ hvad:'version', version_id: vid } });
     if(!v || !v.ok || !v.version || !(v.version.trips||[]).length) return null;
     const t = v.version.trips[0];
     return {
@@ -14603,6 +15740,12 @@ async function hvsSoegTilbud(l){
         [!!l.contact_email, l.contact_email ? 'e-mail står på henvendelsen' : 'henvendelsen har ingen e-mail'],
         [!!l.departure_date, l.departure_date ? 'henvendelsen har datoer' : 'henvendelsen har ingen datoer'],
       ],
+      /* Her ligger husets penge: pricing.hotels[].villas[].cost er
+         INDKOEBSprisen, og flightCost, bankFee og margin er resten af
+         regnestykket. h.rates[].total ovenfor er SALGSprisen i tilbuddet.
+         De to maa ikke forveksles — indkoeb er DKK og husets, salg er
+         kundens valuta (R-reglen om indkoeb og valuta). */
+      pris: t.pricing || null,
       ud: t.dateStart || null, hjem: t.dateEnd || null,
       valuta: t.currency || null, destination: t.destination || null,
       voksne: null, boern: null, url: null,
