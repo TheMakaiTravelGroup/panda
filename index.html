@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.13 · 04.09.2026
+<!-- Panda · v1.14 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,50 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.14 — SKÆRMBILLEDER KAN LÆSES.
+     Wendie 04.09.2026: «vi synes, det er hurtigere at trække et screenshot
+     ind … det burde også være muligt at trække et screenshot ind på
+     flyplanen, altså i stedet for at det er en PDF.»
+
+     Jeg frarådede billedgenkendelse, fordi den er svag på netop korte
+     cifferstrenge — 0 mod O, 1 mod 7. Det står ved magt. Men der er én
+     ting, der ændrer regnestykket: TALLENE KAN KONTROLLERES.
+       (Fare + Tax + HF + DC) × Pax No. skal give Total.
+       Et flynummer er to bogstaver og et til fire cifre.
+       En lufthavn er tre bogstaver — og vi kender de ca. 100, I flyver til.
+     Vi behøver altså ikke STOLE på læsningen; vi kan efterprøve den. Og
+     det, der ikke kan efterprøves, siges højt frem for at blive gemt som
+     en kendsgerning.
+
+     · Trækfeltet på flyets prislinje tager nu imod PDF, TST-skærm OG
+       flyplan — og finder selv ud af hvad det er. ⌘V virker også, så et
+       skærmbillede taget med Skift-⌘-4 kan sættes direkte ind.
+     · TST-skærmen giver to ting, itineraryen IKKE har: prisen delt i
+       fare, skat og gebyr — og «Last ticketing», som er
+       UDSTEDELSESFRISTEN. Den står i dag på 6 af 5.052 flyelementer,
+       netop fordi den kun findes her. Læses den, sættes den som option
+       på linjen og kommer med i «Optioner og frister».
+     · «Pax No.» er en kolonneOVERSKRIFT — tallet står på rækken under og
+       kan ikke læses ud af nærheden. Det REGNES i stedet: total delt med
+       prisen pr. person skal give et helt antal mennesker. 14.402 / 7.201
+       = 2. Det er ikke en læsning, det er et bevis på at alle fem tal
+       hænger sammen. Passer det ikke, kan der ikke lægges ind.
+     · Billedet gemmes ALTID på prislinjen — også når læsningen fejler.
+       Så er dokumentationen der, selv hvis tallene skal skrives i hånden.
+     · Alt sker i browseren. Billedet forlader ikke maskinen, der er ingen
+       nøgle, og det koster ingenting.
+
+     ── MÅLT PÅ RIGTIGE SKÆRMBILLEDER ──
+     TST-skærmen: alle fem beløb, begge datoer og selskabet læst rigtigt
+     på 1,6 sekunder. Med ét ciffer ændret (2.854 → 2.354) blev læsningen
+     AFVIST i stedet for gemt — regnestykket lukkede ikke.
+     Flyplanen: fire af fire flyvninger. Første forsøg gav kun tre, fordi
+     «OSL» blev læst som «osL» og kravet om store bogstaver smed hele
+     flyvningen væk. En flyvning, der forsvinder i stilhed, er langt
+     farligere end en, der bliver markeret — så nu læses lufthavne uanset
+     store og små bogstaver, og hvis flere linjer LIGNER en flyvning end
+     der blev læst, siges det.
 
      v1.13 — «HENT PRISERNE FRA TILBUDDET».
      Wendie 04.09.2026: «det kunne være fint at se, om vi kunne hente
@@ -3295,6 +3339,78 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-tilfben{margin-top:9px}
 
+/* ══ SKAERMBILLEDET, DER BLEV LAEST ══ */
+#rsside .r-vent{font-size:12px;color:var(--mut);font-style:italic}
+
+#rsside .r-skfejl{font-size:12.5px;color:#8c5738;background:rgba(228,196,179,.22);
+  border:1px solid #e8cdbd;border-radius:3px;padding:11px 14px;line-height:1.55;margin-top:8px}
+
+#rsside .r-skraa{margin-left:8px;color:#a3695a;cursor:pointer;border-bottom:1px dotted #cfa294}
+
+#rsside .r-skboks{border:1px solid #dcc9a4;border-left:3px solid var(--gold);
+  background:#fffdf6;border-radius:2px;padding:13px 15px 11px;margin-top:9px}
+
+#rsside .r-skboks.r-skgalt{border-left-color:var(--bad);background:#fdf8f5}
+
+#rsside .r-skhd{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;font-size:13px}
+
+#rsside .r-skhd > span{font-size:11.5px;color:var(--mut)}
+
+#rsside .r-skja{color:#3f6b4d;font-weight:600}
+
+#rsside .r-sknej{color:var(--bad);font-weight:600}
+
+#rsside .r-skfelt{display:flex;flex-wrap:wrap;gap:9px 11px;align-items:flex-start;margin-top:11px}
+
+#rsside .r-skfelt > div{flex:none}
+
+#rsside .r-skfelt label{display:block;font-size:8.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--mut);margin-bottom:3px}
+
+#rsside .r-skfelt input,#rsside .r-skfelt select{font-family:inherit;font-size:12.5px;
+  padding:5px 7px;border:1px solid var(--line);border-radius:2px;background:#fff;
+  color:var(--ink);text-align:right}
+
+#rsside .r-skfelt select{text-align:left}
+
+#rsside .r-skfelt input:focus,#rsside .r-skfelt select:focus{outline:none;border-color:var(--gold)}
+
+#rsside .r-skfelt .r-skx{align-self:flex-end;padding-bottom:6px;color:#bdb59d;font-size:13px}
+
+#rsside .r-skfelt .r-skhj{font-size:9.5px;color:#bdb59d;font-style:italic;margin-top:2px;text-align:left}
+
+#rsside .r-sksum{margin-top:10px;font-size:12px;color:var(--ink2);
+  font-variant-numeric:tabular-nums}
+
+#rsside .r-skboks.r-skgalt .r-sksum{color:var(--bad)}
+
+#rsside .r-skadv{margin-top:9px;font-size:12px;color:#8c5738;
+  background:rgba(228,196,179,.2);border-radius:2px;padding:8px 11px;line-height:1.5}
+
+#rsside .r-sktab{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+
+#rsside .r-sktab th{text-align:left;font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:#a8925f;font-weight:600;padding:0 8px 5px 0;border-bottom:1px solid #ebdcbe}
+
+#rsside .r-sktab td{padding:6px 8px 6px 0;border-bottom:1px solid #f0e4cc}
+
+#rsside .r-sktab tr:last-child td{border-bottom:0}
+
+#rsside .r-sktab em{color:var(--bad);font-style:italic}
+
+#rsside .r-skfod{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:12px;
+  padding-top:10px;border-top:1px dashed #ebdcbe;font-size:11.5px;color:var(--ink2)}
+
+#rsside .r-skfod > div{flex:1 1 220px;line-height:1.5}
+
+#rsside .r-skgem{font-family:inherit;font-size:12px;padding:6px 14px;border:1px solid var(--forest);
+  background:var(--forest);color:#fff;border-radius:2px;cursor:pointer}
+
+#rsside .r-skgem[disabled]{opacity:.4;cursor:not-allowed}
+
+#rsside .r-skluk{font-family:inherit;font-size:12px;padding:6px 13px;border:1px solid var(--line);
+  background:#fff;color:var(--ink2);border-radius:2px;cursor:pointer}
+
 /* ══ HENT PRISERNE FRA TILBUDDET ══ */
 .ml7 .r-hent2,#rsside .r-hent2{font-family:inherit;font-size:11px;padding:5px 13px;margin-left:14px;
   border:1px solid var(--gold);background:#fff;color:#8a6a2e;border-radius:2px;cursor:pointer;
@@ -3739,7 +3855,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.13';
+const APP_VERSION = 'v1.14';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -12464,6 +12580,366 @@ async function tilbudLaegInd(){
   TILBUD = null;
 }
 
+/* Boksen med det, billedet gav. Hvert tal er et FELT — det, laesningen
+   ikke kunne staa inde for, skal kunne rettes, foer det bliver en pris.
+   Og saa laenge regnestykket ikke passer, kan der ikke laegges ind. */
+function skaermBoks(){
+  if(!SKAERM) return;
+  const b = document.getElementById('flySvar-'+SKAERM.elId+'-'+SKAERM.i);
+  if(!b) return;
+  const L = SKAERM.laest;
+  const f = (felt, ph, bredde) => `<input value="${escH(L[felt]==null?'':String(L[felt]))}"
+      placeholder="${ph}" style="width:${bredde}"
+      onchange="RS.skaermSaet('${felt}',this.value)"
+      onkeydown="if(event.key==='Enter')this.blur()">`;
+  if(SKAERM.slags === 'tst'){
+    const pr = (Number(L.fare)||0) + (Number(L.tax)||0) + (Number(L.hf)||0) + (Number(L.dc)||0);
+    const sum = pr * (Number(L.pax)||0);
+    const ok = sum > 0 && sum === Number(L.total);
+    b.innerHTML = `<div class="r-skboks ${ok?'r-skok':'r-skgalt'}">
+      <div class="r-skhd"><b>Priserne fra Farewise</b>
+        <span>${escH([L.selskab, L.kode?'('+L.kode+')':null].filter(Boolean).join(' '))}</span>
+        ${ok ? '<span class="r-skja">regnestykket passer</span>'
+             : '<span class="r-sknej">regnestykket passer ikke</span>'}</div>
+      <div class="r-skfelt">
+        <div><label>Fare</label>${f('fare','0','82px')}</div>
+        <div><label>Tax</label>${f('tax','0','82px')}</div>
+        <div><label>HF</label>${f('hf','0','66px')}</div>
+        <div><label>DC</label>${f('dc','—','66px')}</div>
+        <div class="r-skx">×</div>
+        <div><label>Rejsende</label>${f('pax','2','56px')}
+          ${L.paxRegnet ? '<div class="r-skhj">regnet af totalen</div>' : ''}</div>
+        <div class="r-skx">=</div>
+        <div><label>Total</label>${f('total','0','96px')}</div>
+        <div><label>Valuta</label>
+          <select onchange="RS.skaermSaet('val',this.value)">${
+            VALUTAER.map(v=>`<option ${v===(L.val||'DKK')?'selected':''}>${v}</option>`).join('')}</select>
+          <div class="r-skhj">TST'en viser ingen valuta</div></div>
+        <div><label>Udstedelsesfrist</label>
+          <input type="date" value="${escH(L.frist||'')}" style="width:142px"
+            onchange="RS.skaermSaet('frist',this.value)"></div>
+      </div>
+      <div class="r-sksum">${pr} × ${Number(L.pax)||0} = <b>${sum||'—'}</b>${
+        ok ? '' : ` — men totalen siger <b>${escH(String(L.total||'—'))}</b>. Ret det tal, der er galt.`}</div>
+      ${L.advarsler.length ? `<div class="r-skadv">${L.advarsler.map(x=>
+        '<div>⚠ '+escH(x)+'</div>').join('')}</div>` : ''}
+      <div class="r-skfod">
+        <div>Lægges ind som indkøbspris på den her prislinje, med fristen i
+          «Afholdt hos». Skærmbilledet er allerede gemt som dokumentation.</div>
+        <button class="r-skgem" ${ok?'':'disabled'} onclick="RS.skaermLaegInd()">Læg prisen ind</button>
+        <button class="r-skluk" onclick="RS.skaermLuk()">Luk</button>
+      </div></div>`;
+    return;
+  }
+  /* En flyplan fra et skaermbillede. Vi viser hvad der blev fundet — og
+     hvad der IKKE kunne efterproeves. */
+  const ben = L.ben || [];
+  b.innerHTML = `<div class="r-skboks ${L.advarsler.length?'r-skgalt':'r-skok'}">
+    <div class="r-skhd"><b>${ben.length} ${ben.length===1?'flyvning':'flyvninger'} læst af billedet</b>
+      <span>${escH(L.selskab||'')}</span>
+      ${L.maade==='itinerary' ? '<span class="r-skja">billedet var en itinerary</span>' : ''}</div>
+    <table class="r-sktab">
+      <tr><th>Rute</th><th>Dato</th><th>Fra</th><th>Afgang</th><th>Til</th><th>Ankomst</th></tr>
+      ${ben.map(x=>`<tr><td>${escH(x.nr||'—')}</td><td>${x.dato?kortDato(x.dato):'<em>mangler</em>'}</td>
+        <td>${escH(x.fra||'')}</td><td>${escH(x.ud||'')}</td>
+        <td>${escH(x.til||'')}</td><td>${escH(x.an||'')}</td></tr>`).join('')}
+    </table>
+    ${L.advarsler.length ? `<div class="r-skadv">${L.advarsler.map(x=>
+      '<div>⚠ '+escH(x)+'</div>').join('')}</div>` : ''}
+    <div class="r-skfod">
+      <div>Lægges ind som flyplan på den her pris. Du kan rette hver flyvning
+        bagefter — klik den i tabellen.</div>
+      <button class="r-skgem" onclick="RS.skaermLaegInd()">Læg flyplanen ind</button>
+      <button class="r-skluk" onclick="RS.skaermLuk()">Luk</button>
+    </div></div>`;
+}
+function skaermSaet(felt, v){
+  if(!SKAERM) return;
+  const t = String(v||'').trim();
+  SKAERM.laest[felt] = (felt==='frist'||felt==='val'||felt==='selskab') ? t
+    : (t === '' || /^[—–-]+$/.test(t) ? null : (skaermTal(t) != null ? skaermTal(t) : Number(t.replace(/\./g,''))));
+  skaermBoks();
+}
+
+async function skaermLaegInd(){
+  if(!SKAERM) return;
+  const {slags, elId, i, laest:L} = SKAERM;
+  const l = st[elId] && st[elId].linjer[i]; if(!l) return;
+  const e = ELEMENTER.find(x=>x.id===elId);
+  if(slags === 'tst'){
+    l.pris = Number(L.total) || 0;
+    l.val  = L.val || 'DKK';
+    l.kilde = 'Farewise · TST' + (L.kode ? ' · ' + L.kode : '');
+    l.naar = iDag() + ' · ' + (window.ME||'WEN');
+    if(!l.lev || l.lev === '—') l.lev = 'Farewise';
+    /* Prisen delt op hoerer paa linjen, saa den kan afstemmes bagefter.
+       Den staar i raa, hvor formens vaerdier ellers ligger. */
+    l.raa = {...(l.raa||{}), tst:{fare:L.fare, tax:L.tax, hf:L.hf, dc:L.dc,
+      pax:L.pax, total:L.total, val:l.val, frist:L.frist||null,
+      selskab:L.selskab||null, kode:L.kode||null}};
+    /* Udstedelsesfristen — det ene sted, hvor manglende data koster penge.
+       Den staar paa 6 af 5.052 flyelementer, netop fordi den kun findes
+       her paa TST-skaermen. */
+    if(L.frist){
+      l.hold = {...(l.hold||{}), aktiv:true, dato:L.frist,
+        tid: (l.hold && l.hold.tid) || '17:00',
+        note: (l.hold && l.hold.note) || 'Udstedelsesfrist fra Farewise (TST)'};
+    }
+    if(L.selskab && e){ e.raa = {...(e.raa||{}), selskab:L.selskab}; }
+    roert(elId, i); tegnListe(); tegnPlan(); tegnFrister();
+    kvitter('gemt', 'Prisen og fristen er lagt ind');
+  } else {
+    const nye = (L.ben||[]).filter(x=>x.nr);
+    const gamle = (l.segmenter||[]);
+    const alle = gamle.concat(nye).sort((a,b)=>
+      ((a.dato||'')+'T'+(a.ud||'')).localeCompare((b.dato||'')+'T'+(b.ud||'')));
+    l.segmenter = alle;
+    if(L.selskab && e) e.raa = {...(e.raa||{}), selskab:L.selskab};
+    roert(elId, i);
+    if(!await synkPlanlinjer(elId)) return;
+    tegnPlan(); tegnListe(); opdaterDatoer();
+    kvitter('gemt', nye.length + ' flyvninger lagt ind');
+  }
+  SKAERM = null; tegnListe();
+}
+
+/* ══ SKAERMBILLEDER, DER KAN LAESES ════════════════════════════════
+   Wendie 04.09.2026: «vi synes, det er hurtigere at traekke et screenshot
+   ind.» Billedgenkendelse er svag paa korte cifferstrenge — 0 mod O, 1 mod
+   7. Derfor stoler vi ikke paa den: vi EFTERPROEVER den.
+     · (Fare + Tax + HF + DC) × Pax No. skal give Total.
+     · Et flynummer er to bogstaver og et til fire cifre.
+     · En lufthavn er tre bogstaver — og vi kender dem, I flyver til.
+     · Et klokkeslet er TT:MM, en dato dd-mm-yyyy.
+   Passer regnestykket, er laesningen rigtig. Passer det ikke, staar
+   tallene til rettelse med det, der ikke stemmer, fremhaevet — de bliver
+   ikke gemt, foer et menneske har set dem.
+   Alt sker i browseren: billedet forlader ikke maskinen, der er ingen
+   noegle, og det koster ingenting.                                     */
+
+/* De lufthavne, Maldivia nogensinde har floejet til — talt op i basen
+   04.09.2026 (112 tre-bogstavskoder i trip_elements, renset for stoej som
+   SAS og AIR), plus de europaeiske knudepunkter, der mangler i historikken.
+   Bruges KUN til at sige «den her kode kender vi ikke» — aldrig til at
+   afvise. En ny lufthavn skal kunne skrives ind. */
+const IATA_KENDTE = new Set(('AAL AAR AES AMS ANU ARN AUA AUS BAH BCN BER BGI BGO BKI BKK BLL BON '
+ + 'BOO BUD CAE CAI CDG CGN CMB CPH CUN CUR DME DOH DPS DRV DUB DUS DXB EDI EWR FDF FLL FRA GAN '
+ + 'GGT GHB GND GOT HAJ HAM HAQ HAU HAV HEL HKT HNL IAD IAH IBZ IFU IND IST JFK JNB KDM KDO KIN '
+ + 'KRS KWI LAS LAX LDU LGA LGK LGW LHR LIS LPA MAD MAN MBJ MCO MCT MEL MEX MIA MLA MLE MRU MSY '
+ + 'MUC MVK NAS NCE OGG OSL PLS PMO PPT PTP PUJ RAK SDQ SEZ SFG SFO SIN SJU SLU SLZ STT STX SVG '
+ + 'SVO SXM TAB TDX TMF TOS TRD USM UVF VAM VCE VIE VNO YGE ZNZ ZRH').split(' '));
+
+let _ocrKlar = null;
+function ocrBibliotek(){
+  if(_ocrKlar) return _ocrKlar;
+  _ocrKlar = new Promise((ok, nej)=>{
+    if(window.Tesseract) return ok(window.Tesseract);
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+    sc.onload  = ()=> window.Tesseract ? ok(window.Tesseract)
+                    : nej(new Error('Læseren blev hentet, men svarede ikke.'));
+    sc.onerror = ()=> nej(new Error('Kunne ikke hente billedlæseren. Er der net?'));
+    document.head.appendChild(sc);
+  });
+  return _ocrKlar;
+}
+
+/* Det, der flytter mest paa traefsikkerheden, er IKKE modellen — det er
+   billedet. Et skaermbillede af en tabel er lille skrift paa hvid bund;
+   forstoerres det tre gange og gøres til rent sort/hvidt, laeses cifrene
+   markant bedre. Maalt paa Wendies egen TST-skaerm. */
+function ocrForbered(kilde){
+  return new Promise((ok, nej)=>{
+    const im = new Image();
+    im.onload = ()=>{
+      const g = 3;                                    /* tre gange op */
+      const c = document.createElement('canvas');
+      c.width = im.naturalWidth * g; c.height = im.naturalHeight * g;
+      const x = c.getContext('2d');
+      x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+      x.drawImage(im, 0, 0, c.width, c.height);
+      const d = x.getImageData(0, 0, c.width, c.height), p = d.data;
+      for(let i=0; i<p.length; i+=4){
+        /* Graatone efter oejets vaegte, saa lyseblaa overskrifter ikke
+           forsvinder — og derefter en haard graense, saa antialiasing
+           ikke bliver halve cifre. */
+        const graa = 0.299*p[i] + 0.587*p[i+1] + 0.114*p[i+2];
+        const v = graa > 170 ? 255 : 0;
+        p[i] = p[i+1] = p[i+2] = v; p[i+3] = 255;
+      }
+      x.putImageData(d, 0, 0);
+      ok(c.toDataURL('image/png'));
+    };
+    im.onerror = ()=>nej(new Error('Billedet kunne ikke åbnes.'));
+    im.src = kilde;
+  });
+}
+
+async function ocrLaes(kilde, sig){
+  const T = await ocrBibliotek();
+  if(sig) sig('Gør billedet klart…');
+  const klar = await ocrForbered(kilde);
+  if(sig) sig('Læser billedet…');
+  const w = await T.createWorker('eng', 1, {logger: m => {
+    if(sig && m.status === 'recognizing text')
+      sig('Læser billedet… ' + Math.round((m.progress||0)*100) + ' %'); }});
+  try{
+    await w.setParameters({preserve_interword_spaces: '1'});
+    const r = await w.recognize(klar);
+    return String((r.data && r.data.text) || '');
+  } finally { await w.terminate(); }
+}
+
+/* Et beloeb fra skaermen: «14.402,-» · «2.854,-» · «88,-» · «—».
+   Samme regel som i tilbuddet: punktum er tusindtalsseparator. */
+function skaermTal(t){
+  const s2 = String(t||'').trim().replace(/\s/g,'');
+  if(!s2 || /^[—–-]+$/.test(s2)) return null;             /* DC var «—» */
+  const m = /^(\d{1,3}(?:\.\d{3})*|\d+)(?:,-|,00|,0)?$/.exec(s2);
+  if(!m) return null;
+  const n = Number(m[1].replace(/\./g,''));
+  return Number.isFinite(n) ? n : null;
+}
+
+/* ══ TST-SKAERMEN FRA FAREWISE ══
+   Wendie 04.09.2026: skaermbilledet af TSTs er alt, hun har — og det
+   indeholder to ting, itineraryen IKKE har: prisen delt i fare, skat og
+   gebyr, og «Last ticketing», som er UDSTEDELSESFRISTEN. Den frist staar i
+   dag paa 6 af 5.052 flyelementer, netop fordi den ikke er nogen steder
+   andre steder.
+   Kolonnerne er PR. PASSAGER; Total er for dem alle. Derfor kan vi
+   regne efter: (Fare+Tax+HF+DC) × Pax No. = Total. */
+function tstLaes(tekst){
+  const L = String(tekst||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const alt = L.join(' \n ');
+  const ud = {raa:tekst, advarsler:[], stemmer:null};
+
+  const sel = /Validating\s+carrier\s*[:|]?\s*([A-Za-z][A-Za-z .\-]{2,30}?)\s*\(([A-Z0-9]{2})\)/i.exec(alt);
+  if(sel){ ud.selskab = sel[1].trim(); ud.kode = sel[2].toUpperCase(); }
+
+  /* To datoer paa raekken: «Last modified» foerst, «Last ticketing»
+     derefter. Rammer vi kun én, ved vi ikke hvilken — saa siger vi det. */
+  const datoer = [...alt.matchAll(/\b(\d{2})[-.\/](\d{2})[-.\/](\d{4})\b/g)]
+    .map(m=>m[3]+'-'+m[2]+'-'+m[1]);
+  if(datoer.length >= 2){ ud.aendret = datoer[0]; ud.frist = datoer[1]; }
+  else if(datoer.length === 1){ ud.frist = datoer[0];
+    ud.advarsler.push('Der blev kun læst én dato. Er det udstedelsesfristen?'); }
+  else ud.advarsler.push('Ingen dato blev læst — udstedelsesfristen mangler.');
+
+  /* Passageren staar som navn; vi bruger den kun til at vise, at det er
+     den rigtige booking. Antallet staar i «Pax No.». */
+  /* «Pax No.» er en kolonneOVERSKRIFT — tallet staar paa raekken under,
+     ikke ved siden af. Det kan derfor ikke laeses ud af naerheden.
+     Men det kan REGNES: total delt med prisen pr. person skal give et
+     helt antal mennesker. 14.402 / 7.201 = 2. Det er ikke bare en
+     laesning — det er et BEVIS paa, at alle fem tal hænger sammen. */
+  const paxLaest = /Pax\s*No\.?\s*[:|]?\s*(\d{1,2})\b/i.exec(alt);
+  ud.pax = paxLaest ? Number(paxLaest[1]) : null;
+  ud.paxRegnet = false;
+
+  /* Beloebene: alle tal med tusindtalsseparator eller «,-» paa raekken,
+     i den raekkefoelge kolonnerne staar. */
+  const tal = [...alt.matchAll(/\b(\d{1,3}(?:\.\d{3})+|\d+)\s*,-/g)]
+    .map(m=>skaermTal(m[1]+',-')).filter(x=>x!=null);
+  if(tal.length >= 4){
+    /* Fare · Tax · HF · (DC) · Total — DC var «—» hos Nina, saa der er
+       fire tal, hvor det sidste er Total. */
+    ud.total = tal[tal.length-1];
+    const foran = tal.slice(0, -1);
+    ud.fare = foran[0] != null ? foran[0] : null;
+    ud.tax  = foran[1] != null ? foran[1] : null;
+    ud.hf   = foran[2] != null ? foran[2] : null;
+    ud.dc   = foran.length > 3 ? foran[3] : null;
+    const pr = foran.reduce((a,b)=>a+b, 0);
+    ud.prPerson = pr;
+    if(!ud.pax && pr > 0 && ud.total){
+      const n = ud.total / pr;
+      if(Number.isInteger(n) && n >= 1 && n <= 9){ ud.pax = n; ud.paxRegnet = true; }
+    }
+    if(ud.pax && ud.total){
+      ud.stemmer = (pr * ud.pax === ud.total);
+      if(!ud.stemmer) ud.advarsler.push(
+        'Regnestykket passer ikke: ' + pr + ' × ' + ud.pax + ' giver '
+        + (pr*ud.pax) + ', men totalen blev læst som ' + ud.total
+        + '. Ret det tal, der er galt.');
+    } else {
+      ud.advarsler.push('Antallet af passagerer kunne hverken læses eller regnes ud '
+        + '— så kan totalen ikke efterprøves. Skriv tallene ind i hånden.');
+    }
+    /* Og til sidst mod rejsen selv: staar der to mennesker paa rejsen og
+       tre paa billetten, er det ikke en laesefejl — det er noget, der skal
+       afklares, foer prisen bruges. */
+    if(ud.stemmer && TUR && TUR.pax_count && ud.pax !== TUR.pax_count)
+      ud.advarsler.push('Billetten er for ' + ud.pax + ' , men rejsen har '
+        + TUR.pax_count + ' rejsende. Tjek hvad der er rigtigt.');
+  } else {
+    ud.advarsler.push('Der blev læst ' + tal.length + ' beløb. Der skulle være mindst fire '
+      + '(fare, skat, gebyr og total).');
+  }
+  if(!ud.total) ud.advarsler.push('Totalen blev ikke læst.');
+  return ud;
+}
+
+/* ══ ET SKAERMBILLEDE AF EN FLYPLAN ══
+   Foerst proeves den rigtige laeser: er skaermbilledet af en Farewise-
+   itinerary, staar de samme ord der, og flyLaesTekst kan det hele.
+   Ellers en loesere linjelaesning: en raekke med et flynummer, to
+   lufthavne og to klokkeslet ER en flyvning. */
+function flyLaesSkaerm(tekst){
+  const via = flyLaesTekst(tekst);
+  if(via.ben && via.ben.length) return {...via, maade:'itinerary'};
+
+  const L = String(tekst||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const ben = [], advarsler = [];
+  /* Hvor mange linjer LIGNER en flyvning? Tallet bruges til at fange det
+     farligste: at en flyvning falder ud i stilhed. Sker det, skal det
+     siges — ikke bare vise tre af fire. */
+  const lignerFly = L.filter(x=>/\b[A-Z]{2}\s?\d{1,4}\b/.test(x)
+    && [...x.matchAll(/\b([0-2]?\d):([0-5]\d)\b/g)].length >= 2).length;
+  let aar = (new Date()).getFullYear();
+  const aarM = /\b(20\d{2})\b/.exec(tekst); if(aarM) aar = Number(aarM[1]);
+  const MDR = {jan:1,feb:2,mar:3,apr:4,maj:5,may:5,jun:6,jul:7,aug:8,sep:9,okt:10,oct:10,nov:11,dec:12};
+  L.forEach(linje=>{
+    const nr  = /\b([A-Z]{2})\s?(\d{1,4})\b/.exec(linje);
+    const kl  = [...linje.matchAll(/\b([0-2]?\d):([0-5]\d)\b/g)].map(m=>m[1].padStart(2,'0')+':'+m[2]);
+    /* Store og smaa bogstaver blandes af laesningen: «OSL» blev læst som
+       «osL», og med et krav om store bogstaver forsvandt hele flyvningen.
+       Vi tager derfor begge og retter dem op — og lader IATA-listen
+       afgøre, om det er en lufthavn. Hellere en advarsel end en flyvning,
+       der ikke er der. */
+    const iata = [...linje.matchAll(/\b([A-Za-z]{3})\b/g)].map(m=>m[1].toUpperCase())
+      .filter(x=>!nr || x !== (nr[1]+nr[2]).slice(0,3).toUpperCase())
+      .filter(x=>!['DEP','ARR','FRA','TIL','VIA','THE','AND','NON'].includes(x));
+    if(!nr || kl.length < 2 || iata.length < 2) return;
+    let dato = null;
+    const d1 = /\b(\d{1,2})[-.\/](\d{1,2})[-.\/](\d{2,4})\b/.exec(linje);
+    const d2 = /\b(\d{1,2})\.?\s*([a-zæøå]{3})[a-zæøå]*\.?/i.exec(linje);
+    if(d1){ const y = d1[3].length===2 ? '20'+d1[3] : d1[3];
+      dato = y+'-'+String(+d1[2]).padStart(2,'0')+'-'+String(+d1[1]).padStart(2,'0'); }
+    else if(d2 && MDR[d2[2].toLowerCase()]){
+      dato = aar+'-'+String(MDR[d2[2].toLowerCase()]).padStart(2,'0')
+             +'-'+String(+d2[1]).padStart(2,'0'); }
+    const fra = iata[0], til = iata[iata.length-1];
+    [fra, til].forEach(k=>{ if(!IATA_KENDTE.has(k))
+      advarsler.push('«'+k+'» er ikke en lufthavn, vi kender — tjek den.'); });
+    ben.push({ dato, ud:kl[0], an:kl[1], ankomstDato:dato, plus:false,
+      fra, til, fraBy:null, tilBy:null,
+      kode: nr[1], flynr: nr[1]+nr[2], nr: nr[1]+nr[2],
+      flyvetid:null, flytype:null, kabine:null, terminal:null,
+      bagage:null, forplejning:null, pnr:null, _skaerm:true });
+  });
+  if(!ben.length) advarsler.push('Der blev ikke fundet nogen flyvning på billedet. '
+    + 'Et flynummer, to lufthavne og to klokkeslæt på samme linje er det, der skal til.');
+  else if(lignerFly > ben.length) advarsler.push(lignerFly + ' linjer lignede en flyvning, '
+    + 'men kun ' + ben.length + ' kunne læses. Tjek billedet — der mangler '
+    + (lignerFly - ben.length) + '.');
+  ben.forEach(b=>{ if(!b.dato) advarsler.push(b.flynr + ' mangler en dato — skriv den ind.'); });
+  const koder = [...new Set(ben.map(b=>b.kode).filter(Boolean))];
+  return { ben, rejsende:[], advarsler, maade:'skaerm', pnr:null,
+    selskab: koder.map(k=>FLY_KODE[k]||k).join(' / ') || null,
+    klasse: null };
+}
+
 /* ══ EN FLYBILLET SOM PDF ══════════════════════════════════════════════
    Wendie 03.09.2026: «hvis man kan traekke PDF'en ind, saa ville det vaere
    fantastisk — direkte ind i Panda, saa den kan hente informationen ud.»
@@ -12633,6 +13109,68 @@ function flyVeje(ben){ return flyGrupper(ben || []); }
 /* Traekker man billetten ind paa en PRISLINJE, hoerer ruten til dén linje.
    Elementets overskrift og rejseplanens datoer foelger med, saa siden siger
    det samme hele vejen igennem. */
+/* ══ HVAD ER DET, DER BLEV TRUKKET IND? ════════════════════════════
+   Wendie 04.09.2026: «det burde ogsaa vaere muligt at traekke et
+   screenshot ind paa flyplanen, altsaa i stedet for at det er en PDF.»
+   Hun skal ikke vaelge, hvad slags fil det er — Panda finder ud af det:
+     PDF                        → itineraryen, som foer
+     billede med priser og frist → TST-skaermen
+     billede med flynumre        → en flyplan
+   Er det ingen af dem, siges det. */
+async function flyFilLinje(elId, i, filer, maade){
+  const f = filer && filer[0];
+  if(!f) return;
+  if(/\.pdf$/i.test(f.name) || f.type === 'application/pdf')
+    return flyPdfLinje(elId, i, filer, maade);
+  if((f.type||'').startsWith('image/'))
+    return flySkaermLinje(elId, i, f, maade);
+  const b = document.getElementById('flySvar-'+elId+'-'+i);
+  if(b) b.innerHTML = '<span class="r-fejl">Det skal være en PDF eller et skærmbillede.</span>';
+}
+
+/* Skaermbilledet laeses, og indholdet afgoer, hvad det er. Billedet
+   gemmes ALTID paa prislinjen — ogsaa naar laesningen gaar galt. Saa er
+   dokumentationen der, selv hvis tallene skal skrives i haanden. */
+async function flySkaermLinje(elId, i, fil, maade){
+  const l = st[elId] && st[elId].linjer[i]; if(!l) return;
+  const vis = h => { const b = document.getElementById('flySvar-'+elId+'-'+i); if(b) b.innerHTML = h; };
+  vis('<span class="r-vent">Henter billedlæseren…</span>');
+  try{
+    const kilde = await new Promise((ok,nej)=>{
+      const r = new FileReader(); r.onload=()=>ok(r.result);
+      r.onerror=()=>nej(new Error('Billedet kunne ikke læses.')); r.readAsDataURL(fil); });
+    billeder(l).push(kilde); roert(elId, i);      /* dokumentationen foerst */
+    const tekst = await ocrLaes(kilde, m => vis('<span class="r-vent">'+escH(m)+'</span>'));
+    const tst = tstLaes(tekst);
+    const erTst = (tst.total != null && tst.fare != null) || !!tst.selskab;
+    if(erTst){ SKAERM = {slags:'tst', elId, i, laest:tst, tekst}; tegnListe(); skaermBoks(); return; }
+    const fly = flyLaesSkaerm(tekst);
+    if(fly.ben && fly.ben.length){
+      SKAERM = {slags:'fly', elId, i, laest:fly, tekst}; tegnListe(); skaermBoks(); return; }
+    tegnListe();
+    vis(`<div class="r-skfejl"><b>Billedet blev læst, men der var hverken priser eller flyvninger i det.</b>
+      Skærmbilledet er lagt på prislinjen, så det ikke går tabt.
+      <span class="r-skraa" onclick="RS.skaermRaa(${JSON.stringify(tekst).replace(/"/g,'&quot;')})">se hvad der blev læst</span></div>`);
+  }catch(err){
+    console.error(err);
+    tegnListe();
+    vis('<span class="r-fejl">Billedet kunne ikke læses: ' + escH(err.message)
+      + '. Skærmbilledet er lagt på prislinjen.</span>');
+  }
+}
+let SKAERM = null;
+function skaermRaa(t){ alert('Sådan blev billedet læst:\n\n' + t); }
+/* ⌘V i traekfeltet: et skaermbillede tages tit med Skift-⌘-4 og ligger i
+   udklipsholderen. Saa skal man ikke gemme det som fil foerst. */
+function flySkaermKlip(ev, elId, i){
+  const filer = [...((ev.clipboardData && ev.clipboardData.files) || [])]
+    .filter(f=>(f.type||'').startsWith('image/'));
+  if(!filer.length) return;
+  ev.preventDefault();
+  flySkaermLinje(elId, i, filer[0], 'tilfoej');
+}
+function skaermLuk(){ SKAERM = null; tegnListe(); }
+
 async function flyPdfLinje(elId, i, filer, maade){
   const e = ELEMENTER.find(x=>x.id===elId); if(!e) return;
   const l = st[elId] && st[elId].linjer[i]; if(!l) return;
@@ -13261,12 +13799,13 @@ function linjeKrop(e, l, i){
            handling: laeg til. Skal planen vaek, sletter man den. -->
       <div class="r-pdf${harPlan?' r-pdf2':''}" ondragover="event.preventDefault();this.classList.add('r-paa')"
            ondragleave="this.classList.remove('r-paa')"
-           ondrop="event.preventDefault();this.classList.remove('r-paa');RS.flyPdfLinje('${e.id}',${i},event.dataTransfer.files,'tilfoej')"
-           onclick="this.querySelector('input').click()">
-        <input type="file" accept="application/pdf" hidden
-               onchange="RS.flyPdfLinje('${e.id}',${i},this.files,'tilfoej');this.value=''">
-        ${harPlan ? '+ Læg en billet <b>mere</b> på'
-          : 'Træk flybilletten (PDF) herind — eller klik for at vælge'}
+           ondrop="event.preventDefault();this.classList.remove('r-paa');RS.flyFilLinje('${e.id}',${i},event.dataTransfer.files,'tilfoej')"
+           onclick="this.querySelector('input').click()"
+           onpaste="RS.flySkaermKlip(event,'${e.id}',${i})">
+        <input type="file" accept="application/pdf,image/*" hidden
+               onchange="RS.flyFilLinje('${e.id}',${i},this.files,'tilfoej');this.value=''">
+        ${harPlan ? '+ Læg en billet eller et skærmbillede <b>mere</b> på'
+          : 'Træk billetten eller et skærmbillede herind — PDF, TST-skærm eller flyplan'}
       </div>
       ${harPlan ? `<button class="r-sletplan"
               title="Fjern flyplanen fra den her pris — prisen selv bliver stående"
@@ -15467,6 +16006,9 @@ return {
   roert, ryddHotel, saet, saetFokus, saetForm, saetFra, saetHold, saetKilde,
   saetLinjeHold, saetLinjeLev, saetLinjePris, saetLinjeVal, saetNote, synkPlanlinjer,
   hentTilbud, tilbudLaegInd, tilbudLuk, tilbudTal, tilbudLinjer, tilbudBoks,
+  flyFilLinje, flySkaermLinje, flySkaermKlip, skaermBoks, skaermSaet,
+  skaermLaegInd, skaermLuk, skaermRaa, skaermTal, tstLaes, flyLaesSkaerm,
+  ocrLaes, ocrForbered, ocrBibliotek,
   delerEtape, vendEtape, saetBen, nytBen, sletBen, flyBenHtml, retBen, foldPlan, saetNyt, saetTil, saetTrin, saetType, saetVilla,
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
   segTilFly, soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
