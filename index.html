@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.04 · 03.09.2026
+<!-- Panda · v1.05 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -202,6 +202,9 @@
      kun have hotel i fire af nætterne; og hjemrejsedatoen følger nu
      rejseplanen — rejsen varer så længe, som dens ydelser varer.
 
+     v1.05 — BILLETTEN TRÆKKES IND DÉR, HVOR RUTEN HØRER TIL.
+     (v1.04 lagde trækfeltet i «nyt element». Herunder står begge dele samlet.)
+
      v1.04 — EN FLYBILLET KAN TRÆKKES IND.
      Wendie: «hvis man kan trække PDF'en ind, så ville det være fantastisk —
      direkte ind i Panda, så den kan hente informationen ud.»
@@ -221,6 +224,14 @@
      Prøvet mod to rigtige billetter: én flyvning, og fire flyvninger med
      mellemlanding i London og overnatning i luften. pdf.js hentes fra CDN,
      men først i det øjeblik en PDF faktisk trækkes ind.
+     Wendie, straks efter: «jeg forstår ikke, hvor det er, jeg skal lægge den
+     ind henne.» Feltet lå i «nyt element» — men ruten hører til PRISLINJEN,
+     og det er dér, hun står. Det ligger nu samme sted som skærmbilledet, på
+     den linje ruten gælder for, og virker på et element der allerede findes.
+     Hjemrejsens planlinje findes ikke i basen i forvejen; den INDSÆTTES, i
+     stedet for at blive opdateret på et id, der ikke findes — den stille
+     fejl har vi haft to gange i dag. Og overskriftens datoer følger med, når
+     planen flytter sig: 9. nov. blev til 29. juni → 11. juli.
 
      v1.03 — TIDEN PÅ EN YDELSE ER EN SORTERINGSNØGLE, IKKE EN OPLYSNING.
      Wendie: «kan man ikke sætte check-in tidspunktet på hotellet automatisk
@@ -3149,7 +3160,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.04';
+const APP_VERSION = 'v1.05';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -11545,7 +11556,7 @@ function flyLaesTekst(tekst){
       plus: !!(anDato && dato && anDato > dato),
       fra: alle[0][2], til: alle[alle.length-1][2],
       fraBy: alle[0][1].trim(), tilBy: alle[alle.length-1][1].trim(),
-      kode: nr?nr[1]:null, flynr: nr?(nr[1]+nr[2]):null,
+      kode: nr?nr[1]:null, flynr: nr?(nr[1]+nr[2]):null, nr: nr?(nr[1]+nr[2]):null,
       flyvetid: tid?tid[1]:null, flytype: typ?typ[1].trim():null,
       kabine: kab?kab[1]:null, terminal: ter?ter[1]:null });
   });
@@ -11575,6 +11586,76 @@ function flyVeje(ben){
   ben.forEach((b,i)=>{ if(i && b.dato > ben[i-1].ankomstDato){ g.push(nu); nu = []; } nu.push(b); });
   if(nu.length) g.push(nu);
   return g;
+}
+/* Traekker man billetten ind paa en PRISLINJE, hoerer ruten til dén linje.
+   Elementets overskrift og rejseplanens datoer foelger med, saa siden siger
+   det samme hele vejen igennem. */
+async function flyPdfLinje(elId, i, filer){
+  const e = ELEMENTER.find(x=>x.id===elId); if(!e) return;
+  const l = st[elId] && st[elId].linjer[i]; if(!l) return;
+  const svar = document.getElementById('flySvar-'+elId+'-'+i);
+  const vis = h => { const b2 = document.getElementById('flySvar-'+elId+'-'+i); if(b2) b2.innerHTML = h; };
+  const f = filer && filer[0];
+  if(!f) return;
+  if(!/\.pdf$/i.test(f.name)){ vis('<span class="r-fejl">Det skal være en PDF.</span>'); return; }
+  vis('<span class="r-vent">Læser ' + escH(f.name) + '…</span>');
+  try{
+    const r = flyLaesTekst(await pdfTekst(f));
+    if(!r.ben.length){
+      vis('<span class="r-fejl">Kunne ikke finde flyvninger i den fil. Skriv dem ind i hånden i stedet.</span>');
+      return;
+    }
+    const veje = flyVeje(r.ben), f0 = r.ben[0], fN = r.ben[r.ben.length-1];
+    l.segmenter = r.ben;
+    l.raa = { ...(l.raa||{}), pnr: r.pnr || null };
+    if(r.selskab || r.klasse){
+      e.sub = [r.selskab, r.klasse, r.rejsende.length ? r.rejsende.length + ' rejsende' : null,
+               r.ben.length > 1 ? r.ben.length + ' flyvninger' : null].filter(Boolean).join(' · ');
+    }
+    e.navn = 'Fly · ' + veje.map(v=>v[0].fra + ' → ' + v[v.length-1].til).join(' · ');
+    /* Planlinjerne: ud og hjem, med billettens egne datoer og tider. */
+    const p = PLAN.filter(x=>x.id===elId || x.elId===elId).sort((a,b)=>(a.vej||0)-(b.vej||0));
+    veje.forEach((v,k)=>{
+      const a0 = v[0], aN = v[v.length-1];
+      let raek = p[k];
+      if(!raek){
+        /* En ny planlinje findes ikke i basen endnu. gemTilBasen OPDATERER
+           kun paa id og ville have skrevet ud i den blaa luft — den fejl har
+           vi haft to gange i dag. Derfor maerkes den, og indsaettes herunder. */
+        raek = { ...(p[0]||{art:'Fly',ophold:false,kilde:'manuel'}),
+                 id: null, _ny: true, elId, vej: k };
+        PLAN.push(raek);
+      }
+      raek.vej = k; raek.fra = a0.dato; raek.til = aN.ankomstDato || a0.dato;
+      raek.tid = a0.ud; raek.titel = a0.fra + ' → ' + aN.til;
+      raek.sub = [r.selskab, r.klasse].filter(Boolean).join(' · ');
+    });
+    /* De planlinjer, der ikke fandtes i forvejen, skrives ind — og faar
+       deres rigtige id, saa alt senere arbejde paa dem ogsaa gemmes. */
+    for(const raek of PLAN.filter(x=>x._ny && x.elId === elId)){
+      const {data:pl, error:eP} = await db.from('trip_plan_items').insert({
+        trip_id: TUR.id, element_id: elId, art: raek.art || 'Fly',
+        titel: raek.titel || '—', sub: raek.sub || null, lev: raek.lev || null,
+        fra: raek.fra || null, til: raek.til || raek.fra || null, tid: raek.tid || null,
+        vej: raek.vej || 0, ophold: false, kilde: 'manuel', detalje: null,
+        sort: PLAN.indexOf(raek)
+      }).select('id').single();
+      if(eP){ vis('<span class="r-fejl">Hjemrejsen kunne ikke gemmes: '+escH(eP.message)+'</span>'); return; }
+      raek.id = pl.id; delete raek._ny;
+    }
+    tegnPlan(); tegnListe(); opdaterDatoer(); maerk();
+    /* Listen er tegnet om, saa svaret skal skrives i den NYE boks. */
+    setTimeout(()=>{
+      const b2 = document.getElementById('flySvar-'+elId+'-'+i);
+      if(b2) b2.innerHTML = '<div class="r-fund"><b>' + escH(f.name) + '</b> · '
+        + escH(r.selskab||'ukendt selskab') + (r.pnr ? ' · ' + escH(r.pnr) : '')
+        + (r.advarsler.length ? '<div class="r-advar">' + r.advarsler.map(escH).join(' · ') + '</div>' : '')
+        + '</div>';
+    }, 0);
+  }catch(err){
+    console.error(err);
+    vis('<span class="r-fejl">Kunne ikke læse filen: ' + escH(err.message) + '</span>');
+  }
 }
 async function flyPdf(filer){
   const boks = document.getElementById('flyPdfSvar');
@@ -11613,6 +11694,24 @@ async function flyPdf(filer){
     console.error(e);
     vis('<span class="r-fejl">Kunne ikke læse filen: ' + escH(e.message) + '</span>');
   }
+}
+
+/* Rejsen varer saa laenge, dens ydelser varer (R253) — saa naar planen
+   aendrer sig, skal overskriften og trips foelge med. Uden det stod der
+   stadig «9. nov.» i toppen, mens planen sagde juni. */
+async function opdaterDatoer(){
+  if(!TUR) return;
+  const d = PLAN.flatMap(p=>[p.fra, p.til]).filter(Boolean).sort();
+  const ud = d[0] || null, hjem = d[d.length-1] || null;
+  const felt = document.querySelector('#rsside .r-dato, #rsside .r-dato-fast');
+  if(felt) felt.textContent = ud ? dkk(ud) + (hjem ? ' → ' + dk(hjem) : ' →') : '— datoer';
+  TUR.ud = ud; TUR.hjem = hjem;
+  if(TUR.status !== 'mellemlanding') return;
+  if(ud === TUR.departure_date && hjem === TUR.return_date) return;
+  TUR.departure_date = ud; TUR.return_date = hjem;
+  const {error} = await db.from('trips')
+    .update({departure_date: ud, return_date: hjem}).eq('id', TUR.id);
+  if(error) console.warn('datoerne kunne ikke gemmes', error);
 }
 
 /* ══ TOPPEN KAN RETTES ═════════════════════════════════════════════════
@@ -11913,14 +12012,32 @@ function linjeKrop(e, l, i){
 
        </div>`}
   </div>`;
-  const segHtml = (l.segmenter||[]).length ? `<div class="r-pk">
-    <div class="r-pt2">Flyplanen på den her pris${l.pnr?` · PNR ${l.pnr}`:''}</div>
+  /* Wendie 03.09.2026: «jeg forstår ikke, hvor det er, jeg skal lægge den ind
+     henne.» Traekfeltet laa i «nyt element» — men ruten hoerer til PRISLINJEN,
+     og det er dér, hun staar. Nu ligger det samme sted som skaermbilledet, paa
+     den linje ruten gaelder for. */
+  const pnr = (l.raa && l.raa.pnr) || null;
+  const segHtml = (e.slags === 'fly') ? `<div class="r-pk">
+    <div class="r-pt2">Flyplanen på den her pris${pnr?` · PNR ${escH(pnr)}`:''}
+      <span class="r-n3">træk billetten ind, så udfyldes den selv</span></div>
+    <div class="r-pdf" ondragover="event.preventDefault();this.classList.add('r-paa')"
+         ondragleave="this.classList.remove('r-paa')"
+         ondrop="event.preventDefault();this.classList.remove('r-paa');RS.flyPdfLinje('${e.id}',${i},event.dataTransfer.files)"
+         onclick="this.querySelector('input').click()">
+      <input type="file" accept="application/pdf" hidden
+             onchange="RS.flyPdfLinje('${e.id}',${i},this.files);this.value=''">
+      ${(l.segmenter||[]).length ? 'Træk en ny billet ind for at erstatte planen herunder'
+        : 'Træk flybilletten (PDF) herind — eller klik for at vælge'}
+    </div>
+    <div id="flySvar-${e.id}-${i}"></div>
+    ${(l.segmenter||[]).length ? `
     <table class="r-segt r-vis">
       <tr><th>Rute</th><th>Dato</th><th>Fra</th><th>Afgang</th><th>Til</th><th>Ankomst</th></tr>
-      ${l.segmenter.map(x=>`<tr><td>${x.nr||'—'}</td><td>${x.dato?kortDato(x.dato):'—'}</td>
-        <td>${x.fra}</td><td>${x.ud}</td><td>${x.til}</td>
-        <td>${x.an}${x.plus?'<span class="r-p1">+1</span>':''}</td></tr>`).join('')}
-    </table></div>` : '';
+      ${l.segmenter.map(x=>`<tr><td>${escH(x.nr||x.flynr||'—')}</td><td>${x.dato?kortDato(x.dato):'—'}</td>
+        <td>${escH(x.fra||'')}</td><td>${escH(x.ud||'')}</td><td>${escH(x.til||'')}</td>
+        <td>${escH(x.an||'')}${x.plus?'<span class="r-p1">+1</span>':''}</td></tr>`).join('')}
+    </table>` : ''}
+  </div>` : '';
   const h = l.hold || (l.hold = {aktiv:false, dato:'', tid:'17:00', note:''});
   return `<div class="r-plk">
     ${segHtml}
@@ -13723,8 +13840,8 @@ return {
   saetLinjeHold, saetNote, saetNyt, saetTil, saetTrin, saetType, saetVilla,
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
   soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
-  flyPdf, flyLaesTekst, flyVeje, pdfTekst,
-  gemNytElement, gemNavn, gemPax, gemDatoer, nyDest, fjernDest, tegnDest,
+  flyPdf, flyPdfLinje, flyLaesTekst, flyVeje, pdfTekst,
+  gemNytElement, gemNavn, gemPax, gemDatoer, opdaterDatoer, nyDest, fjernDest, tegnDest,
   ydGreb, ydStart, ydOver, ydDrop, ydSlut,
   tegnFrister, tegnListe, tegnListeInd, tegnNy, tegnPlan, tegnTrin,
   tilDkk2, tilfoejVilla, tomForm, vaelg, vaelgBilledFil, vaelgFil,
