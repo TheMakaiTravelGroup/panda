@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.12 · 04.09.2026
+<!-- Panda · v1.13 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,53 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.13 — «HENT PRISERNE FRA TILBUDDET».
+     Wendie 04.09.2026: «det kunne være fint at se, om vi kunne hente
+     hendes priser direkte fra editoren og ind på mellemlandingen.»
+
+     Opslaget fandtes, men sad i salgsflowet: «Hvad blev der solgt?» kører
+     ÉN gang, i det øjeblik henvendelsen bliver en rejse. Ninas rejse var
+     allerede oprettet, så den dør var lukket. Knappen sidder nu i
+     «Ydelser på rejsen», hvor rejsen bygges — og virker derfor også på
+     alle de rejser, der allerede findes.
+
+     · Slår rejsens kundenavn op, viser HVAD der blev fundet og hvad der
+       vil ske — og skriver først derefter. Beløbene får «Fra tilbuddet ·
+       version N» som kilde, så det for altid står på prislinjen, hvor
+       tallet kom fra. En tilbudspris er fra dengang, ikke fra nu.
+     · Findes ydelsen allerede — som Ninas Veligandu-hotel, oprettet i
+       hånden uden pris — lægges prisen PÅ den. Der oprettes ikke en dublet.
+     · Hotellet får sine EGNE datoer fra tilbuddet, ikke rejsens. Ninas
+       tilbud siger rejsen 23.11 og hotellet 24.11, fordi flyet lander
+       dagen efter. Med rejsens dato havde hotellet fået 11 nætter i
+       stedet for 10.
+     · bankFee og margin bliver IKKE ydelser. Gebyret er et led i
+       prisberegningen og står i fx_pricing_defaults; margenen er målet.
+
+     ── TALLENE ──
+     Målt mod Ninas rigtige tilbud (version 629) og afstemt mod et tal vi
+     kendte: priceTotal kom som «177.500», og rejsen står til 177.500,00
+     NOK i basen. PUNKTUMMET ER TUSINDTALSSEPARATOR.
+     tilbudTal() læser nordiske heltal og SIGER FRA ved alt andet —
+     kommatal, decimaltal, ukendt form. Rammer vi «9.350» som 9,35, er
+     beløbet 1.000 gange galt, og det ville stå som en kontrolleret
+     indkøbspris i dækningsgraden. Prøvet mod: 10.815 · 14.500 · 500 · 20 ·
+     177.500 · 1.234.567 (alle læst) og 9350.50 · 9350,50 · 10.8 · abc
+     (alle afvist).
+     Valutaen står VED hvert beløb: hotels[].currency for hotellet,
+     flightCostCurrency og bankFeeCurrency for resten. Ninas hotel er i
+     EUR, flyet og gebyret i DKK. Man må ikke antage én valuta.
+     pricingMode «package» kan vi ikke fordele på ydelser — så siger
+     boksen det i stedet for at vise 0.
+
+     ── EN FEJL I PRØVEN, IKKE I KODEN ──
+     Første måling viste, at flyet skrev hotellets pris over. Det så
+     alvorligt ud. Årsagen lå i prøveopstillingen: den falske database gav
+     tabellens FØRSTE række tilbage på et insert, så flyets nye element
+     fik hotellets id og overtog dets plads i st[]. Rettet i prøven —
+     Panda var uskyldig. Lærdommen står i LÆS MIG: en falsk db skal svare
+     som den rigtige, også på det man ikke tænker over.
 
      v1.12 — TILBUDSOPSLAGET KOBLET PÅ, MEN IKKE DIREKTE.
      Rasmus 04.09.2026: «tilbuds-opslag er deployet i Maldivia Editor og
@@ -3248,6 +3295,71 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-tilfben{margin-top:9px}
 
+/* ══ HENT PRISERNE FRA TILBUDDET ══ */
+.ml7 .r-hent2,#rsside .r-hent2{font-family:inherit;font-size:11px;padding:5px 13px;margin-left:14px;
+  border:1px solid var(--gold);background:#fff;color:#8a6a2e;border-radius:2px;cursor:pointer;
+  letter-spacing:.02em;text-transform:none;font-weight:500}
+
+.ml7 .r-hent2:hover,#rsside .r-hent2:hover{background:rgba(224,201,163,.34)}
+
+#tilbudSvar{margin-bottom:13px}
+
+#tilbudSvar .r-tbvent{font-size:12px;color:var(--mut);font-style:italic;padding:9px 2px}
+
+#tilbudSvar .r-tbfejl{font-size:12.5px;color:#8c5738;background:rgba(228,196,179,.22);
+  border:1px solid #e8cdbd;border-radius:3px;padding:11px 14px;line-height:1.55}
+
+#tilbudSvar .r-tbboks{border:1px solid #dcc9a4;border-left:3px solid var(--gold);
+  background:#fffdf6;border-radius:2px;padding:14px 16px 12px}
+
+#tilbudSvar .r-tbhd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;font-size:13.5px}
+
+#tilbudSvar .r-tbhd > span{font-size:11.5px;color:var(--mut)}
+
+#tilbudSvar .r-tbja{color:#3f6b4d}
+
+#tilbudSvar .r-tbnej{color:var(--bad)}
+
+#tilbudSvar .r-tbmeta{font-size:12px;color:var(--ink2);margin-top:3px}
+
+#tilbudSvar .r-tbadv{margin-top:10px;font-size:12px;color:#8c5738;
+  background:rgba(228,196,179,.2);border-radius:2px;padding:8px 11px;line-height:1.5}
+
+#tilbudSvar .r-tbtab{width:100%;border-collapse:collapse;table-layout:fixed;
+  font-size:12.5px;margin-top:12px}
+
+#tilbudSvar .r-tbtab th{text-align:left;font-size:8.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:#a8925f;font-weight:600;padding:0 10px 6px 0;
+  border-bottom:1px solid #ebdcbe}
+
+#tilbudSvar .r-tbtab th.r-hr,#tilbudSvar .r-tbtab td.r-hr{text-align:right}
+
+#tilbudSvar .r-tbtab td{padding:9px 10px 9px 0;vertical-align:top;
+  border-bottom:1px solid #f0e4cc}
+
+#tilbudSvar .r-tbtab tr:last-child td{border-bottom:0}
+
+#tilbudSvar .r-tbtab small{display:block;color:#a89f86;font-size:11px;font-weight:400}
+
+#tilbudSvar .r-tbtab td.r-hr{font-family:'Playfair Display',Georgia,serif;font-size:14px}
+
+#tilbudSvar .r-tbpaa{font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:#3f6b4d;background:rgba(93,138,107,.14);border-radius:2px;padding:2px 7px}
+
+#tilbudSvar .r-tbny{font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:#8a6a2e;background:rgba(224,201,163,.4);border-radius:2px;padding:2px 7px}
+
+#tilbudSvar .r-tbfod{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  margin-top:13px;padding-top:11px;border-top:1px dashed #ebdcbe;font-size:11.5px;color:var(--ink2)}
+
+#tilbudSvar .r-tbfod > div{flex:1 1 240px;line-height:1.5}
+
+#tilbudSvar .r-tbgem{font-family:inherit;font-size:12px;padding:7px 15px;border:1px solid var(--forest);
+  background:var(--forest);color:#fff;border-radius:2px;cursor:pointer}
+
+#tilbudSvar .r-tbluk{font-family:inherit;font-size:12px;padding:7px 14px;border:1px solid var(--line);
+  background:#fff;color:var(--ink2);border-radius:2px;cursor:pointer}
+
 /* ══ SAMMENDRAGET — én linje pr. etape ══
    Wendie 04.09.2026: «den her maade var paenere foer … saa alt ikke tager
    saa meget plads.» */
@@ -3627,7 +3739,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.12';
+const APP_VERSION = 'v1.13';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -12075,6 +12187,283 @@ function saetFokus(){
 }
 /* Gaar tegningen alligevel galt en dag, skal det siges — ikke ende i en
    side, hvor ingenting virker og ingen ved hvorfor. */
+/* ══ HENT PRISERNE FRA TILBUDDET ═══════════════════════════════════
+   Wendie 04.09.2026: «det kunne vaere fint at se, om vi kunne hente
+   hendes priser direkte fra editoren og ind paa mellemlandingen.»
+
+   Opslaget fandtes allerede, men sad i salgsflowet: «Hvad blev der solgt?»
+   koerer ÉN gang, i det oejeblik henvendelsen bliver en rejse. Ninas rejse
+   var allerede oprettet, saa den doer var lukket. Derfor sidder knappen
+   her, hvor rejsen bygges — og den virker ogsaa paa alle de rejser, der
+   allerede findes.
+
+   ── TALLENE ──
+   Maalt 04.09.2026 mod Ninas rigtige tilbud (version 629) og afstemt mod
+   et tal vi kendte: priceTotal kom som «177.500», og rejsen staar til
+   177.500,00 NOK i basen. PUNKTUMMET ER TUSINDTALSSEPARATOR.
+   Alle beloeb er strenge i nordisk format uden decimaler:
+     hotels[].villas[].cost «10.815»  · valuta fra hotels[].currency (EUR)
+     flightCost «14.500»              · valuta fra flightCostCurrency (DKK)
+     bankFee «500»                    · valuta fra bankFeeCurrency (DKK)
+   Valutaen staar altsaa VED hvert beloeb — man maa ikke antage én for
+   hele tilbuddet.
+
+   ── HVAD DER IKKE BLIVER EN YDELSE ──
+   bankFee er ikke et koeb, men et led i prisberegningen; den staar
+   allerede i fx_pricing_defaults. margin er maalet, ikke en udgift.
+   Ingen af dem bliver et element.                                      */
+
+/* Nordisk heltal fra en streng. Hellere sige fra end runde i stilhed:
+   rammer vi «9.350» som 9,35, er beloebet 1.000 gange galt — og det ville
+   staa som en kontrolleret indkoebspris i daekningsgraden. */
+function tilbudTal(v){
+  if(v == null) return {tal:null, fejl:null};
+  const t = String(v).trim();
+  if(!t) return {tal:null, fejl:null};                 /* tomt er tomt */
+  if(/,/.test(t))            return {tal:null, fejl:'kommatal «'+t+'»'};
+  if(/\.\d{1,2}$/.test(t))   return {tal:null, fejl:'decimaltal «'+t+'»'};
+  if(!/^\d{1,3}(\.\d{3})+$|^\d+$/.test(t))
+                             return {tal:null, fejl:'ukendt talformat «'+t+'»'};
+  const n = Number(t.replace(/\./g,''));
+  if(!Number.isFinite(n))    return {tal:null, fejl:'kunne ikke laeses «'+t+'»'};
+  return {tal:n, fejl:null};
+}
+const tilbudVal = v => String(v||'').trim().toUpperCase().slice(0,3) || 'DKK';
+
+/* Findes ydelsen allerede? Wendie har tit oprettet hotellet i haanden,
+   naar hun laver mellemlandingen — saa skal prisen laegges PAA den, ikke
+   ved siden af. Vi matcher paa navnet, blødt: «Veligandu Maldives» skal
+   finde «Veligandu Maldives (North Ari Atoll) — Sunset Ocean Pool Villa». */
+function tilbudFinderYdelse(slags, navn){
+  const rens = x => String(x||'').toLowerCase().replace(/[^a-zæøå0-9]+/g,' ').trim();
+  const n = rens(navn);
+  if(!n) return null;
+  const foerste = n.split(' ')[0];
+  return ELEMENTER.find(e => e.slags === slags &&
+    (rens(e.hotel).includes(n) || n.includes(rens(e.hotel)) ||
+     (foerste.length > 3 && rens(e.navn).includes(foerste)))) || null;
+}
+
+async function hentTilbud(){
+  const b = document.getElementById('tilbudSvar');
+  const vis = h => { const x = document.getElementById('tilbudSvar'); if(x) x.innerHTML = h; };
+  if(!TUR) return;
+  const c = TUR.customers || {};
+  const navn = [c.first_name, c.last_name].filter(Boolean).join(' ').trim();
+  if(navn.length < 2){
+    vis('<div class="r-tbfejl">Rejsen har ikke noget kundenavn at søge på.</div>'); return; }
+  vis('<div class="r-tbvent">Søger på «' + escH(navn) + '» i editoren…</div>');
+  try{
+    const a = await db.functions.invoke('hent-tilbud', {body:{hvad:'sog', navn}});
+    if(a.error) throw new Error(a.error.message || 'opslaget svarede ikke');
+    const d = a.data || {};
+    if(d.note){ vis('<div class="r-tbfejl">' + escH(d.note) + '</div>'); return; }
+    const kunder = d.kunder || [];
+    if(!kunder.length){
+      vis(`<div class="r-tbfejl"><b>Intet tilbud fundet på «${escH(navn)}».</b>
+        Søgningen leder efter navnet som det står i editoren — står det
+        anderledes dér, findes det ikke. Prøv et andet stykke af navnet.</div>`);
+      return; }
+    /* Praecist navnematch foretraekkes; ellers den foerste. Vi siger hvad
+       vi valgte, saa et forkert valg kan ses. */
+    const ens = x => String(x||'').toLowerCase().replace(/\s+/g,' ').trim();
+    const praecis = kunder.filter(k => ens(k.navn) === ens(navn));
+    const k = praecis[0] || kunder[0];
+    const v0 = (k.versioner || [])[0];
+    if(!v0){ vis('<div class="r-tbfejl">«' + escH(k.navn) + '» har ingen versioner.</div>'); return; }
+    const vid = Number(v0.id);
+    if(!Number.isFinite(vid)){ vis('<div class="r-tbfejl">Versionen har intet gyldigt id.</div>'); return; }
+    vis('<div class="r-tbvent">Henter tilbuddet fra ' + escH(k.navn) + '…</div>');
+    const r = await db.functions.invoke('hent-tilbud', {body:{hvad:'version', version_id:vid}});
+    if(r.error) throw new Error(r.error.message || 'versionen kunne ikke hentes');
+    const t = (((r.data||{}).version||{}).trips || [])[0];
+    if(!t){ vis('<div class="r-tbfejl">Tilbuddet indeholder ingen rejse.</div>'); return; }
+    TILBUD = { kunde:k.navn, praecis: praecis.length>0, version:vid,
+               ts:v0.ts, trip:t, alle:kunder.length };
+    tilbudBoks();
+  }catch(err){
+    console.error(err);
+    vis('<div class="r-tbfejl"><b>Opslaget gik galt:</b> ' + escH(err.message) + '</div>');
+  }
+}
+let TILBUD = null;
+
+/* Hvad tilbuddet indeholder, oversat til ydelser — foer der skrives noget.
+   Wendie har valgt, at det skal fyldes ud automatisk. Men hun skal kunne
+   SE, hvad der blev lagt ind, og hvor tallene kom fra: en tilbudspris er
+   fra dengang, ikke fra nu. */
+function tilbudLinjer(){
+  const t = TILBUD.trip, p = t.pricing || {};
+  const ud = [], advar = [];
+  const pakke = String(p.pricingMode||'') === 'package';
+  if(pakke) advar.push('Tilbuddet er prissat som PAKKE, ikke pr. hotel. '
+    + 'Så ligger beløbet samlet i «packageCost» og kan ikke fordeles på ydelserne af sig selv.');
+
+  (p.hotels || []).forEach((ph, i) => {
+    const th = (t.hotels || [])[i] || {};
+    const val = tilbudVal(ph.currency);
+    (ph.villas || []).forEach(v => {
+      const {tal, fejl} = tilbudTal(v.cost);
+      if(fejl) advar.push('Hotellets pris kunne ikke læses: ' + fejl);
+      /* Hotellets EGNE datoer — ikke rejsens. Ninas tilbud siger rejsen
+         23.11 og hotellet 24.11, fordi flyet lander dagen efter. Bruger vi
+         rejsens dato, får hotellet én nat for meget. */
+      const fra = th.dateStart || t.dateStart || null;
+      const til = th.dateEnd   || t.dateEnd   || null;
+      ud.push({ slags:'hotel', navn: ph.name || th.name || 'Hotel',
+        hotel: ph.name || th.name || '', villa: v.name || '', mp: v.mealPlan || '',
+        fra, til, naetter: (fra && til) ? naetterMellem(fra, til) : null,
+        pris: tal, val, lev: ph.name || th.name || '',
+        sted: [th.location, th.transferText].filter(Boolean).join(' · '),
+        fandtes: tilbudFinderYdelse('hotel', ph.name || th.name) });
+    });
+  });
+
+  const f = tilbudTal(p.flightCost);
+  if(f.fejl) advar.push('Flyets pris kunne ikke læses: ' + f.fejl);
+  if(f.tal) ud.push({ slags:'fly', navn:'Fly · ' + (t.destination || ''),
+    rute:'', fra: t.dateStart || null, til: t.dateEnd || null,
+    pris: f.tal, val: tilbudVal(p.flightCostCurrency), lev:'',
+    sted:'ruten står ikke i tilbuddet — træk billetten ind bagefter',
+    fandtes: ELEMENTER.find(e=>e.slags==='fly') || null });
+
+  const bf = tilbudTal(p.bankFee);
+  const mg = tilbudTal(p.margin);
+  return { ud, advar, bankFee: bf.tal, bankFeeVal: tilbudVal(p.bankFeeCurrency),
+           margin: mg.tal, pakke,
+           salg: tilbudTal(t.priceTotal).tal, salgVal: tilbudVal(t.currency) };
+}
+
+function tilbudBoks(){
+  const L = tilbudLinjer(), t = TILBUD.trip;
+  const dato = TILBUD.ts ? new Date(TILBUD.ts).toLocaleString('da-DK',
+    {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
+  const b = document.getElementById('tilbudSvar'); if(!b) return;
+  b.innerHTML = `<div class="r-tbboks">
+    <div class="r-tbhd"><b>${escH(TILBUD.kunde)}</b>
+      <span>version ${TILBUD.version} · gemt ${escH(dato)}</span>
+      ${TILBUD.praecis ? '<span class="r-tbja">navnet stemmer præcist</span>'
+        : `<span class="r-tbnej">navnet er ikke ens — rejsen siger «${
+            escH([((TUR.customers)||{}).first_name, ((TUR.customers)||{}).last_name]
+              .filter(Boolean).join(' '))}»</span>`}</div>
+    <div class="r-tbmeta">${escH([t.destination, t.nightsAndDays,
+      (t.dateStart && t.dateEnd) ? kortDato(t.dateStart)+' → '+kortDato(t.dateEnd) : null]
+      .filter(Boolean).join(' · '))}</div>
+    ${L.advar.length ? `<div class="r-tbadv">${L.advar.map(x=>
+      '<div>⚠ '+escH(x)+'</div>').join('')}</div>` : ''}
+    <table class="r-tbtab">
+      <colgroup><col style="width:34%"><col><col style="width:110px"><col style="width:130px"></colgroup>
+      <thead><tr><th>Ydelse</th><th>Hvad tilbuddet siger</th><th class="r-hr">Indkøb</th><th>Bliver</th></tr></thead>
+      ${L.ud.map(x=>`<tr>
+        <td><b>${escH(x.navn)}</b>${x.sted?`<small>${escH(x.sted)}</small>`:''}</td>
+        <td>${escH([x.villa, x.mp, x.naetter ? x.naetter+' nætter' : null,
+          (x.fra&&x.til) ? kortDato(x.fra)+' → '+kortDato(x.til) : null]
+          .filter(Boolean).join(' · ') || '—')}</td>
+        <td class="r-hr">${x.pris == null ? '<em>mangler</em>'
+          : escH(kr(x.pris, x.val)) + (x.val!=='DKK'
+            ? `<small>≈ ${escH(krD(tilDkk2(x.pris, x.val)))}</small>` : '')}</td>
+        <td>${x.fandtes ? '<span class="r-tbpaa">lagt på den ydelse, der er</span>'
+                        : '<span class="r-tbny">ny ydelse</span>'}</td></tr>`).join('')}
+    </table>
+    <div class="r-tbfod">
+      <div>${L.bankFee ? `Bankgebyr <b>${escH(kr(L.bankFee, L.bankFeeVal))}</b> og margen
+        <b>${L.margin != null ? L.margin+' %' : '—'}</b> bliver <em>ikke</em> ydelser —
+        de hører i prisberegningen.` : ''}
+        ${L.salg ? ` Tilbuddets salgspris var <b>${escH(kr(L.salg, L.salgVal))}</b>.` : ''}</div>
+      <button class="r-tbgem" onclick="RS.tilbudLaegInd()">Læg ${L.ud.filter(x=>x.pris!=null).length} ydelser ind</button>
+      <button class="r-tbluk" onclick="RS.tilbudLuk()">Luk</button>
+    </div>
+  </div>`;
+}
+function tilbudLuk(){ TILBUD = null; const b=document.getElementById('tilbudSvar'); if(b) b.innerHTML=''; }
+
+/* Skriver ydelserne. Prisen faar «Fra tilbuddet» som kilde, saa det for
+   altid staar paa linjen, hvor tallet kom fra — en tilbudspris er fra
+   dengang, ikke fra nu. */
+async function tilbudLaegInd(){
+  if(!TILBUD) return;
+  const L = tilbudLinjer();
+  const kilde = 'Fra tilbuddet · version ' + TILBUD.version;
+  let nye = 0, paa = 0;
+  const fejl = [];
+  for(const x of L.ud){
+    if(x.pris == null) continue;
+    try{
+      if(x.fandtes){
+        /* Ydelsen findes — vi laegger prisen PAA den. Grundlaget er den
+           pris, ydelsen blev bygget paa; findes der ingen, laves den. */
+        const e = x.fandtes, s2 = st[e.id];
+        e.val = x.val;
+        e.raa = {...(e.raa||{}), pris:String(x.pris), val:x.val,
+                 hotel:x.hotel||e.hotel, fra:x.fra, til:x.til,
+                 naetter: x.naetter!=null ? String(x.naetter) : undefined,
+                 villaer:[{a:'1', t:x.villa||'', mp:x.mp||''}]};
+        if(x.hotel) e.hotel = x.hotel;
+        const g = (s2.linjer||[]).find(l=>l.slag==='grundlag') || (s2.linjer||[])[0];
+        if(g){
+          g.pris = x.pris; g.val = x.val; g.kilde = kilde;
+          g.lev = x.lev || g.lev; g.naar = iDag() + ' · ' + (window.ME||'WEN');
+          if(x.villa) g.villaer = [{a:1, t:x.villa, mp:x.mp||''}];
+          g.daekker = x.naetter!=null ? x.naetter+' nætter' : (g.daekker||'—');
+          if(g._id){
+            const r = await db.from('element_prices').update({
+              amount:x.pris, currency:x.val, kilde, supplier_name:g.lev||null,
+              villaer:g.villaer||[], daekker:g.daekker, naar_tekst:g.naar
+            }).eq('id', g._id);
+            if(r.error) throw new Error(r.error.message);
+          }
+        }
+        const pl = PLAN.find(q=>q.id===e.id || q.elId===e.id);
+        if(pl && x.fra){ pl.fra = x.fra; pl.til = x.til || x.fra;
+          if(pl.id){ const r2 = await db.from('trip_plan_items')
+            .update({fra:pl.fra, til:pl.til}).eq('id', pl.id);
+            if(r2.error) throw new Error(r2.error.message); } }
+        const r3 = await db.from('trip_elements').update({
+          buy_amount:x.pris, buy_currency:x.val,
+          start_date:x.fra||null, end_date:x.til||x.fra||null,
+          details:{...(e.details||{}), lev:x.lev||e.lev, sub:e.sub, type:e.type,
+                   hotel:e.hotel, kilde:'tilbud', subs:e.subs||[], raa:e.raa}
+        }).eq('id', e.id);
+        if(r3.error) throw new Error(r3.error.message);
+        paa++;
+      } else {
+        /* Ny ydelse. Vi bruger den samme vej, som naar hun taster den ind
+           i haanden — gemElement() — saa der ikke findes to maader at
+           oprette en ydelse paa. */
+        NY.retter = null; NY.beholdId = null;
+        NY.type = x.slags;
+        NY.f = x.slags === 'hotel'
+          ? { hotel:x.hotel, villaer:[{a:'1', t:x.villa||'', mp:x.mp||''}],
+              fra:x.fra||'', til:x.til||'', naetter: x.naetter!=null?String(x.naetter):'',
+              pris:String(x.pris), val:x.val, lev:x.lev||'', antal:'1', tid:'' }
+          : { rute:x.rute||'', fra:x.fra||'', tid:'', voksne:String(TUR.pax_count||2),
+              boern:'0', pris:String(x.pris), val:x.val, lev:x.lev||'', antal:'1' };
+        gemElement();
+        /* gemElement laver linjen med kilde «Tastet manuelt» — den skal
+           sige hvor tallet KOM fra. */
+        const ny = ELEMENTER[ELEMENTER.length-1];
+        const g2 = (st[ny.id]||{}).linjer && st[ny.id].linjer[0];
+        if(g2){ g2.kilde = kilde; }
+        nye++;
+      }
+    }catch(e2){ fejl.push((x.navn||'ydelsen') + ': ' + e2.message); }
+  }
+  tegnPlan(); tegnListe(); opdaterDatoer(); maerk();
+  const b = document.getElementById('tilbudSvar');
+  if(b) b.innerHTML = `<div class="r-tbboks">
+    <div class="r-tbhd"><b>${nye + paa === 0 ? 'Der blev ikke lagt noget ind'
+      : 'Lagt ind fra tilbuddet'}</b></div>
+    <div class="r-tbmeta">${nye ? nye + (nye===1?' ny ydelse':' nye ydelser') : ''}${
+      nye && paa ? ' · ' : ''}${paa ? paa + ' fik prisen lagt på' : ''}
+      ${L.ud.filter(x=>x.pris==null).length
+        ? ' · ' + L.ud.filter(x=>x.pris==null).length + ' havde ingen pris i tilbuddet' : ''}</div>
+    ${fejl.length ? `<div class="r-tbadv">${fejl.map(x=>'<div>⚠ '+escH(x)+'</div>').join('')}</div>` : ''}
+    <div class="r-tbfod"><div>Priserne står som <em>${escH(kilde)}</em> på hver
+      prislinje — de er fra dengang, ikke fra nu.</div>
+      <button class="r-tbluk" onclick="RS.tilbudLuk()">Luk</button></div></div>`;
+  TILBUD = null;
+}
+
 /* ══ EN FLYBILLET SOM PDF ══════════════════════════════════════════════
    Wendie 03.09.2026: «hvis man kan traekke PDF'en ind, saa ville det vaere
    fantastisk — direkte ind i Panda, saa den kan hente informationen ud.»
@@ -14302,7 +14691,9 @@ function gemElement(){
     undertekst = [paxTekst(f),
       (f._segmenter||[]).length > 1 ? f._segmenter.length + ' flyvninger' : null]
       .filter(Boolean).join(' · ');
-    navn = 'Fly · ' + (f.rute||''); sub = undertekst;
+    /* «Fly · » med intet efter er ikke et navn. Uden en rute staar der
+       bare «Fly», til billetten eller haanden giver den én. */
+    navn = f.rute ? ('Fly · ' + f.rute) : 'Fly'; sub = undertekst;
   } else if(t === 'transfer'){
     /* slags blev aldrig sat paa en transfer eller en billet — den blev
        liggende som «andet». Det saa man ikke, saa laenge intet blev gemt;
@@ -15000,7 +15391,15 @@ function sideHtml(d){
          bare kan trykke paa selve elementet.» -->
     <h2>Ydelser på rejsen
       <span class="r-h" id="tael"></span>
+      <!-- Wendie 04.09.2026: «det kunne vaere fint at se, om vi kunne hente
+           hendes priser direkte fra editoren og ind paa mellemlandingen.»
+           Opslaget laa i salgsflowet og koerte kun én gang; her virker det
+           ogsaa paa de rejser, der allerede findes. -->
+      <button class="r-hent2" onclick="event.stopPropagation();RS.hentTilbud()"
+        title="Slår rejsens kundenavn op i editoren og lægger tilbuddets indkøbspriser ind">
+        Hent priserne fra tilbuddet</button>
       <span class="r-fp2" onclick="RS.foldKort(this.parentNode)">▼</span></h2>
+    <div id="tilbudSvar"></div>
     <div id="frister"></div>
     <div class="r-raekker" id="liste"></div>
     <!-- Wendie 01.09.2026: «det kan godt vaere, det ikke giver mening at
@@ -15067,6 +15466,7 @@ return {
   planTid, planTil, prisFelter, retElement, retKilde, retLinje, retNote,
   roert, ryddHotel, saet, saetFokus, saetForm, saetFra, saetHold, saetKilde,
   saetLinjeHold, saetLinjeLev, saetLinjePris, saetLinjeVal, saetNote, synkPlanlinjer,
+  hentTilbud, tilbudLaegInd, tilbudLuk, tilbudTal, tilbudLinjer, tilbudBoks,
   delerEtape, vendEtape, saetBen, nytBen, sletBen, flyBenHtml, retBen, foldPlan, saetNyt, saetTil, saetTrin, saetType, saetVilla,
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
   segTilFly, soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
