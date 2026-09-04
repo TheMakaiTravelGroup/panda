@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.14 · 04.09.2026
+<!-- Panda · v1.15 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,37 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.15 — TRÆKFELTET LIGGER, HVOR HUN KIGGER.
+     Wendie 04.09.2026: «hvor skal jeg lægge den her skærmprint ind på
+     Ninas mellemlanding? Jeg synes ikke, jeg kan se, hvor det er, det
+     skal ske lige nu.»
+
+     Hun havde ret. I v1.14 lå feltet inde i ydelsen, inde i prislinjen,
+     under flyplanen — tre klik ned. Det er ikke et sted man FINDER; det
+     er et sted man skal vide.
+
+     · Der ligger nu ét felt ved siden af «Hent priserne fra tilbuddet» i
+       «Ydelser på rejsen». skaermFindMaal() finder selv ud af, hvor
+       indholdet hører: en TST og en flyplan hører på FLYET, og på den
+       prislinje der er VALGT. Ydelsen og linjen foldes ud, så svaret står
+       dér, hvor det skete.
+     · Findes flyet ikke, siges det — der oprettes IKKE en ydelse ud af et
+       billede. Er der flere flyydelser, siges det også, så billetten ikke
+       lander på det forkerte køb.
+     · Feltet inde på prislinjen er beholdt til den, der vil være præcis.
+
+     OG: FLYSELSKABET KOM IKKE MED.
+     «Validating carrier» er også en kolonneOVERSKRIFT — navnet står på
+     rækken under, med hele resten af overskriftsrækken imellem. Samme
+     fælde som «Pax No.» faldt i. Nu findes selskabet på sin FORM: et navn
+     efterfulgt af en tobogstavs-kode i parentes er entydigt på den skærm.
+     Og koden retter navnet op — læses «British Airways» som «Britlsh
+     Alrways», giver FLY_KODE['BA'] det rigtige.
+
+     REGEL, som gælder al skærmlæsning herefter: på en tabel-skærm skal en
+     værdi findes på sin egen FORM eller REGNES. Aldrig på nærheden til
+     sin overskrift.
 
      v1.14 — SKÆRMBILLEDER KAN LÆSES.
      Wendie 04.09.2026: «vi synes, det er hurtigere at trække et screenshot
@@ -3412,6 +3443,19 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   background:#fff;color:var(--ink2);border-radius:2px;cursor:pointer}
 
 /* ══ HENT PRISERNE FRA TILBUDDET ══ */
+/* Feltet oeverst. Det skal se ud som et sted, man kan slippe noget —
+   men ikke fylde mere end knappen ved siden af. */
+.ml7 .r-skzone,#rsside .r-skzone{display:inline-block;font-family:inherit;font-size:11px;
+  padding:5px 15px;margin-left:9px;border:1px dashed var(--gold-l);border-radius:2px;
+  background:#fffdf6;color:#8a6a2e;cursor:pointer;letter-spacing:.02em;
+  text-transform:none;font-weight:400}
+
+.ml7 .r-skzone:hover,#rsside .r-skzone:hover{background:rgba(224,201,163,.3);
+  border-color:var(--gold);border-style:solid}
+
+.ml7 .r-skzone.r-paa,#rsside .r-skzone.r-paa{background:rgba(224,201,163,.5);
+  border-color:var(--gold);border-style:solid;color:#5f4718}
+
 .ml7 .r-hent2,#rsside .r-hent2{font-family:inherit;font-size:11px;padding:5px 13px;margin-left:14px;
   border:1px solid var(--gold);background:#fff;color:#8a6a2e;border-radius:2px;cursor:pointer;
   letter-spacing:.02em;text-transform:none;font-weight:500}
@@ -3855,7 +3899,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.14';
+const APP_VERSION = 'v1.15';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -12814,8 +12858,20 @@ function tstLaes(tekst){
   const alt = L.join(' \n ');
   const ud = {raa:tekst, advarsler:[], stemmer:null};
 
-  const sel = /Validating\s+carrier\s*[:|]?\s*([A-Za-z][A-Za-z .\-]{2,30}?)\s*\(([A-Z0-9]{2})\)/i.exec(alt);
-  if(sel){ ud.selskab = sel[1].trim(); ud.kode = sel[2].toUpperCase(); }
+  /* «Validating carrier» er ogsaa en kolonneOVERSKRIFT — navnet staar paa
+     raekken under, med hele resten af overskriftsraekken imellem. Det kan
+     derfor ikke findes ud af naerheden. Men et navn efterfulgt af en
+     tobogstavs-kode i parentes er paa denne skaerm entydigt flyselskabet:
+     «British Airways (BA)». */
+  const sel = /([A-Za-z][A-Za-z .\-]{2,30}?)\s*\(([A-Z]{2})\)/.exec(alt);
+  if(sel){
+    ud.selskab = sel[1].trim().replace(/^[^A-Za-z]+/, '');
+    ud.kode = sel[2].toUpperCase();
+    /* Kender vi koden, kan navnet efterproeves — laeses «British Airways»
+       som «Britlsh Alrways», retter koden det op. */
+    if(FLY_KODE[ud.kode]) ud.selskab = FLY_KODE[ud.kode];
+    else ud.advarsler.push('«' + ud.kode + '» er ikke et flyselskab, vi kender — tjek det.');
+  }
 
   /* To datoer paa raekken: «Last modified» foerst, «Last ticketing»
      derefter. Rammer vi kun én, ved vi ikke hvilken — saa siger vi det. */
@@ -13159,6 +13215,60 @@ async function flySkaermLinje(elId, i, fil, maade){
   }
 }
 let SKAERM = null;
+
+/* ══ ÉT STED AT LAEGGE DET IND ══════════════════════════════════════
+   Wendie skal ikke vide, hvilken ydelse og hvilken prislinje et
+   skaermbillede hoerer til. Det ved Panda: en TST og en flyplan hoerer
+   paa FLYET, og paa den prislinje der er valgt. Findes flyet ikke, siges
+   det — der oprettes ikke en ydelse af sig selv ud af et billede. */
+function skaermFindMaal(){
+  const fly = ELEMENTER.filter(e=>e.slags === 'fly');
+  if(!fly.length) return {fejl:'Der er ingen flyydelse på rejsen endnu. '
+    + 'Læg flyet ind først — med «Hent priserne fra tilbuddet» eller '
+    + '«+ Tilføj ydelse til rejsen» — så ved jeg, hvor billetten hører til.'};
+  if(fly.length > 1) return {fejl:'Der er ' + fly.length + ' flyydelser på rejsen. '
+    + 'Fold den rigtige ud og træk billetten ind på dens prislinje, '
+    + 'så den ikke lander på det forkerte køb.'};
+  const e = fly[0], s2 = st[e.id];
+  if(!s2 || !(s2.linjer||[]).length) return {fejl:'Flyydelsen har ingen prislinje endnu. '
+    + 'Læg en pris på først — så ved jeg, hvad billetten skal hænge på.'};
+  /* Den valgte linje er den, rejsen regner med. Er ingen valgt, tages
+     grundlaget. */
+  const valgte = valgteIdx(e.id);
+  const i = valgte.length ? valgte[0]
+    : Math.max(0, s2.linjer.findIndex(l=>l.slag==='grundlag'));
+  return {elId:e.id, i, navn:e.navn, linje:s2.linjer[i]};
+}
+async function skaermTilRejsen(filer){
+  const f = filer && filer[0]; if(!f) return;
+  const b = document.getElementById('tilbudSvar');
+  const m = skaermFindMaal();
+  if(m.fejl){ if(b) b.innerHTML = '<div class="r-tbfejl">' + escH(m.fejl) + '</div>'; return; }
+  /* Ydelsen og prislinjen foldes ud, saa svaret staar dér, hvor det
+     hoerer — og saa hun kan se, hvad der skete med hvad. */
+  st[m.elId].aaben = true;
+  st[m.elId].linjer.forEach((l,j)=>{ l.aaben = (j === m.i); });
+  st[m.elId].linjer[m.i].planAaben = true;
+  if(b) b.innerHTML = '<div class="r-tbvent">Læser billedet ind på «'
+    + escH(m.navn) + '»…</div>';
+  tegnListe();
+  if(/\.pdf$/i.test(f.name) || f.type === 'application/pdf'){
+    if(b) b.innerHTML = '';
+    return flyPdfLinje(m.elId, m.i, filer, 'tilfoej');
+  }
+  if((f.type||'').startsWith('image/')){
+    if(b) b.innerHTML = '';
+    return flySkaermLinje(m.elId, m.i, f, 'tilfoej');
+  }
+  if(b) b.innerHTML = '<div class="r-tbfejl">Det skal være en PDF eller et skærmbillede.</div>';
+}
+function skaermKlipTilRejsen(ev){
+  const filer = [...((ev.clipboardData && ev.clipboardData.files) || [])]
+    .filter(f=>(f.type||'').startsWith('image/'));
+  if(!filer.length) return;
+  ev.preventDefault();
+  skaermTilRejsen(filer);
+}
 function skaermRaa(t){ alert('Sådan blev billedet læst:\n\n' + t); }
 /* ⌘V i traekfeltet: et skaermbillede tages tit med Skift-⌘-4 og ligger i
    udklipsholderen. Saa skal man ikke gemme det som fil foerst. */
@@ -15937,6 +16047,19 @@ function sideHtml(d){
       <button class="r-hent2" onclick="event.stopPropagation();RS.hentTilbud()"
         title="Slår rejsens kundenavn op i editoren og lægger tilbuddets indkøbspriser ind">
         Hent priserne fra tilbuddet</button>
+      <!-- Wendie 04.09.2026: «jeg synes ikke, jeg kan se, hvor det er, det
+           skal ske.» Feltet laa tre klik ned, inde i prislinjens flyplan.
+           Nu staar det her, hvor hun i forvejen kigger — og Panda finder
+           selv ud af, hvilken ydelse indholdet hoerer til. -->
+      <span class="r-skzone" onclick="event.stopPropagation();this.querySelector('input').click()"
+        ondragover="event.preventDefault();this.classList.add('r-paa')"
+        ondragleave="this.classList.remove('r-paa')"
+        ondrop="event.preventDefault();this.classList.remove('r-paa');RS.skaermTilRejsen(event.dataTransfer.files)"
+        onpaste="RS.skaermKlipTilRejsen(event)"
+        title="Træk et skærmbillede af TST-priserne eller flyplanen herind — eller en billet som PDF">
+        <input type="file" accept="application/pdf,image/*" hidden
+               onchange="RS.skaermTilRejsen(this.files);this.value=''">
+        Træk en billet eller et skærmbillede herind</span>
       <span class="r-fp2" onclick="RS.foldKort(this.parentNode)">▼</span></h2>
     <div id="tilbudSvar"></div>
     <div id="frister"></div>
@@ -16007,6 +16130,7 @@ return {
   saetLinjeHold, saetLinjeLev, saetLinjePris, saetLinjeVal, saetNote, synkPlanlinjer,
   hentTilbud, tilbudLaegInd, tilbudLuk, tilbudTal, tilbudLinjer, tilbudBoks,
   flyFilLinje, flySkaermLinje, flySkaermKlip, skaermBoks, skaermSaet,
+  skaermTilRejsen, skaermKlipTilRejsen, skaermFindMaal,
   skaermLaegInd, skaermLuk, skaermRaa, skaermTal, tstLaes, flyLaesSkaerm,
   ocrLaes, ocrForbered, ocrBibliotek,
   delerEtape, vendEtape, saetBen, nytBen, sletBen, flyBenHtml, retBen, foldPlan, saetNyt, saetTil, saetTrin, saetType, saetVilla,
