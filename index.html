@@ -3826,21 +3826,32 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 #rsside .r-fristbox .r-fantal{margin-left:10px;font-size:11px;letter-spacing:0;
   text-transform:none;font-weight:400;color:var(--mut)}
 
-/* ══ ÉT SKRIFTSPROG ══
-   Wendie 04.09.2026: «der skal ikke vaere saa mange forskellige fonts,
-   farver og stilarter. Det skal vaere mere eller mindre det samme hele
-   vejen.» Derfor: ÉN skrift (Inter), ÉN stoerrelse (12,5 px), TO vaegter
-   — 500 til det, der ER noget, og 400 til det, der beskriver det — og
-   farve KUN hvor noget haster. Alt paa én linje. */
-#rsside .r-fristbox .r-ftab td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.35;
-  font-weight:400;color:var(--ink);vertical-align:baseline}
+/* ══ ÉT SKRIFTSPROG — ÉN AF ALT ══
+   Wendie 04.09.2026: «det skal bare vaere samme font, samme farve, samme
+   stoerrelse, samme alt tekst. Frist datoen og tidspunktet maa godt staa
+   i en anden farve, men resten skal vaere det samme.»
 
-/* Det sekundaere: samme skrift og stoerrelse, blot lysere. Ingen kursiv,
-   ingen mindre grad — kun mindre vaegt af opmaerksomhed. */
-#rsside .r-fristbox .r-ftab td span{color:#a89f86;font-weight:400}
+   Derfor ÉN skrift, ÉN grad, ÉN vaegt og ÉN farve i hele raekken — ogsaa
+   til undertekst, omregning og «intet skrevet». Kun FRIST-cellen skifter
+   farve, og den baerer dermed ALENE, om noget haster. Det er mere aerligt
+   end at farve halve raekken: farven sidder paa det, den handler om. */
+#rsside .r-fristbox .r-ftab td,
+#rsside .r-fristbox .r-ftab td span,
+#rsside .r-fristbox .r-ftab td b,
+#rsside .r-fristbox .r-ftab td small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.35;font-style:normal;
+  font-weight:400;color:var(--ink);vertical-align:baseline;background:none}
 
-#rsside .r-fristbox .r-ftom{color:#c9c1a8}
+/* Kun det, der SAD inde i en celle, maa miste sin polstring — cellen selv
+   skal beholde sin, ellers roerer tallene hinanden. (Maalt: «14.489 DKK»
+   og «5. sep. 26» stod klinet sammen, da jeg satte padding:0 paa td.) */
+#rsside .r-fristbox .r-ftab td span,
+#rsside .r-fristbox .r-ftab td b,
+#rsside .r-fristbox .r-ftab td small{padding-left:0;padding-right:0}
+
+/* Luft nok til, at kolonnerne kan ses fra hinanden uden en streg. */
+#rsside .r-fristbox .r-ftab td{padding-right:14px}
+#rsside .r-fristbox .r-ftab th{padding-right:14px}
 
 #rsside .r-fristbox .r-fr{border-bottom:1px solid #f0e7d3}
 
@@ -3848,45 +3859,39 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-fristbox .r-fn{min-width:0}
 
-/* Wendie: «der staar bare et «con» i stedet for Economy.» Navnet blev
-   klippet. En villatype eller et hotelnavn kan ikke forkortes meningsfuldt
-   — saa det ombrydes i stedet. */
-#rsside .r-fristbox .r-fn b{font-weight:500;
-  white-space:nowrap}
+/* «Fly» stod i halvfed og «2 voksne» graat — to stilarter i samme celle.
+   Nu er der én, og cellen laeses som den saetning, den er. */
+#rsside .r-fristbox .r-fn b{display:inline}
 
-#rsside .r-fristbox .r-fn small{display:inline;color:#a89f86;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#rsside .r-fristbox .r-fn small{display:inline}
 
-#rsside .r-fristbox .r-fl2{color:var(--mut)}
-
-/* Prisen staar i samme skrift som resten. Playfair er husets skrift til
-   penge overalt ellers — men her staar den ved siden af fem andre tal, og
-   saa er det ÉN skrift, der gør raekken rolig. */
+/* Playfair er husets skrift til penge overalt ellers — men her staar
+   prisen ved siden af fem andre tal, og saa er det ÉN skrift, der gør
+   raekken rolig. */
 #rsside .r-fristbox .r-fp3{text-align:right}
 
-#rsside .r-fristbox .r-fp3 small{display:inline;color:var(--mut)}
+/* ══ DEN ENESTE FARVE ══
+   Fristen — dato OG klokkeslaet — er det eneste farvede i raekken, og den
+   siger alt: guld naar der er tid, roed naar der er under 48 timer eller
+   fristen er passeret. Ingen klodser, ingen hvid tekst, ingen fed. */
+#rsside .r-fristbox .r-ftab td.r-fd,
+#rsside .r-fristbox .r-ftab td.r-fd span{color:#8a7132}
 
-/* Datoen og klokkeslettet i samme font og tykkelse — hun bad om det
-   udtrykkeligt. Datoen faar den ene vaegt mere, fordi den ER fristen;
-   klokkeslettet praeciserer den. */
-#rsside .r-fristbox .r-fd{font-weight:500}
+#rsside .r-fristbox .r-ftab tr.r-haster td.r-fd,
+#rsside .r-fristbox .r-ftab tr.r-haster td.r-fd span,
+#rsside .r-fristbox .r-ftab tr.r-udloebet td.r-fd,
+#rsside .r-fristbox .r-ftab tr.r-udloebet td.r-fd span{color:var(--bad)}
 
-#rsside .r-fristbox .r-fk{color:var(--ink)}
-
-#rsside .r-fristbox .r-fo{color:var(--ink2);
-  text-overflow:ellipsis;white-space:nowrap}
-
-#rsside .r-fristbox .r-fr.r-haster .r-fk{color:var(--bad);font-weight:500}
-
-#rsside .r-fristbox .r-fr.r-haster .r-fd{color:var(--bad)}
-
+/* Den udloebne raekke maa godt vaere svagt toenet — det er flade, ikke
+   tekst, og hun sagde teksten. */
 #rsside .r-fristbox .r-fr.r-udloebet{background:#fdf6f3;
   border-bottom-color:#e3bfae}
 
-#rsside .r-fristbox .r-fr.r-udloebet .r-fd{color:var(--bad);font-weight:500}
+/* Svaret paa et skaermbillede, der blev lagt i billedfeltet. Tom fylder
+   den intet — derfor ingen margin, foer der staar noget. */
+#rsside .r-bilsvar:empty{display:none}
 
-#rsside .r-fristbox .r-fr.r-udloebet .r-fk{color:#fff;background:var(--bad);padding:2px 8px;border-radius:2px;
-  font-weight:600}
+#rsside .r-bilsvar{margin:0 0 8px;font-size:11.5px;line-height:1.45}
 
 #rsside .r-fristbox .r-fnote{margin-top:9px;padding-top:8px;border-top:1px dashed #e6d9c0;
   font-size:11px;color:#a89f86;font-style:italic}
@@ -13233,7 +13238,16 @@ async function flyFilLinje(elId, i, filer, maade){
    dokumentationen der, selv hvis tallene skal skrives i haanden. */
 async function flySkaermLinje(elId, i, fil, maade){
   const l = st[elId] && st[elId].linjer[i]; if(!l) return;
-  const vis = h => { const b = document.getElementById('flySvar-'+elId+'-'+i); if(b) b.innerHTML = h; };
+  /* Svaret skal staa dér, hvor billedet blev lagt. Foer skrev den kun i
+     flyplanens boks — og den findes ikke paa en hotellinje, og heller ikke
+     naar planen er foldet ind. Saa trykkede man og saa ingenting. */
+  const vis = h => {
+    const b = document.getElementById('flySvar-'+elId+'-'+i)
+           || document.getElementById('bilSvar-'+elId+'-'+i);
+    if(b) b.innerHTML = h;
+    const b2 = document.getElementById('bilSvar-'+elId+'-'+i);
+    if(b2 && b2 !== b) b2.innerHTML = h;
+  };
   vis('<span class="r-vent">Henter billedlæseren…</span>');
   try{
     const kilde = await new Promise((ok,nej)=>{
@@ -13910,7 +13924,9 @@ function linjeKrop(e, l, i){
      filvaelgeren, saa man ikke er tvunget til udklipsholderen. */
   const bilHtml = `<div class="r-pk" onpaste="RS.linjeBillede(event,'${e.id}',${i})">
     <div class="r-pt2">Skærmbillede på den her pris
-      <span class="r-n3">fra Farewise, flyselskabet eller hotellet</span></div>
+      <span class="r-n3">fra Farewise, flyselskabet eller hotellet
+        — priser og flyvninger læses selv</span></div>
+    <div class="r-bilsvar" id="bilSvar-${e.id}-${i}"></div>
     ${billeder(l).length ? `
       <div class="r-bilrk">
         ${billeder(l).map((bb,j)=>`
@@ -13924,15 +13940,22 @@ function linjeKrop(e, l, i){
               <button onclick="RS.fjernBillede('${e.id}',${i},${j})">Fjern</button>
             </div>
           </div>`).join('')}
-        <div class="r-bilzone r-lille" tabindex="0">
+        <div class="r-bilzone r-lille" tabindex="0"
+             ondragover="event.preventDefault();this.classList.add('r-paa')"
+             ondragleave="this.classList.remove('r-paa')"
+             ondrop="event.preventDefault();this.classList.remove('r-paa');
+                     RS.flyFilLinje('${e.id}',${i},event.dataTransfer.files,'tilfoej')">
           <button onclick="RS.vaelgFil('${e.id}',${i})">+ Tilføj endnu et</button>
-          <small>eller ⌘V her</small>
+          <small>eller træk / ⌘V</small>
         </div>
       </div>`
-    : `<div class="r-bilzone" tabindex="0">
+    : `<div class="r-bilzone" tabindex="0"
+            ondragover="event.preventDefault();this.classList.add('r-paa')"
+            ondragleave="this.classList.remove('r-paa')"
+            ondrop="event.preventDefault();this.classList.remove('r-paa');
+                    RS.flyFilLinje('${e.id}',${i},event.dataTransfer.files,'tilfoej')">
          <button onclick="RS.vaelgFil('${e.id}',${i})">Vælg et billede…</button>
-         <span>eller klik her og sæt ind med ⌘V</span>
-
+         <span>eller træk det herind — eller ⌘V</span>
        </div>`}
   </div>`;
   /* Wendie 03.09.2026: «jeg forstår ikke, hvor det er, jeg skal lægge den ind
@@ -14625,11 +14648,18 @@ function tegnFrister(){
     <div class="r-ft">Optioner og frister
       <span class="r-fantal">${ude.length === 1 ? 'én option' : ude.length + ' optioner'}</span></div>
     <table class="r-ftab">
-      <!-- Maalt, ikke gaettet: «10.815 EUR ≈ 81.971 DKK» kraever 16 %,
-           «26. okt. 26 kl. 12:00» 14 %, «en dag og to timer» 12 %. Kun
-           ydelsesnavnet og aftalen er tekst, der taaler at blive klippet. -->
-      <colgroup><col style="width:24%"><col style="width:13%"><col style="width:17%">
-        <col style="width:14%"><col style="width:12%"><col></colgroup>
+      <!-- Maalt, ikke gaettet — og maalt EFTER at Inter var hentet. Min
+           foerste maaling skete paa reserveskriften, som er smallere, saa
+           tallene passede i maalingen og blev klippet paa skaermen.
+           Behov med Inter (984 px bred tabel): ydelse 421, hos hvem 128,
+           pris 169, frist 131, om 131 (vaerst: «en dag og 23 timer»),
+           aftalt 261 — i alt 119 % af pladsen. Der SKAL klippes, og saa
+           afgoer bredderne, HVAD man mister.
+           Tal klipper aldrig: pris, frist og «om» faar deres fulde behov
+           plus luft. Resten tages fra de to tekstspalter, fordelt efter
+           behov (421:261), og de baerer hele teksten som hold-tekst. -->
+      <colgroup><col style="width:24.1%"><col style="width:13.4%"><col style="width:18.9%">
+        <col style="width:14%"><col style="width:14%"><col></colgroup>
       <thead><tr><th>Ydelse</th><th>Hos hvem</th><th class="r-hr">Pris</th>
         <th>Frist</th><th>Om</th><th>Hvad er aftalt</th></tr></thead>
       <tbody>
@@ -14900,11 +14930,33 @@ function formBillede(ev, id){
 function vaelgFormFil(id){
   vaelgBilledFil(b => { (st[id].form.billeder = st[id].form.billeder||[]).push(b); tegnListe(); }); }
 function fjernFormBillede(id, j){ st[id].form.billeder.splice(j,1); tegnListe(); }
-/* Paa en linje, der allerede findes */
+/* ══ PAA EN LINJE, DER ALLEREDE FINDES ══════════════════════════════
+   Wendie 04.09.2026: «jeg ved stadig ikke, hvor jeg skal laegge
+   skaermprintet ind for at faa den korrekte pris ind fra Farewise.»
+
+   Hun kiggede lige paa feltet. Der var TO felter til skaermbilleder paa
+   prislinjen — «Skaermbillede paa den her pris» og «+ Laeg en billet
+   eller et skaermbillede mere paa» — og kun det sidste LAESTE. Det
+   foerste, det man naturligt ville vaelge, gemte bare billedet.
+
+   Min fejl. Rettelsen er ikke en bedre etiket, men at fjerne forskellen:
+   hvert skaermbillede paa en prislinje bliver laest, uanset hvilket felt
+   det kom ind i. Har det priser, aabner priskassen; har det flyvninger,
+   aabner flykassen; har det ingen af dem, bliver det liggende som
+   dokumentation — saa et hotelbillede stadig kan lagres uden besvaer. */
 function linjeBillede(ev, id, i){
-  billedeFraKlip(ev, b => { billeder(st[id].linjer[i]).push(b); roert(id,i); tegnListe(); }); }
+  const filer = [...((ev.clipboardData && ev.clipboardData.files) || [])]
+    .filter(f => (f.type||'').startsWith('image/'));
+  if(!filer.length) return;
+  ev.preventDefault();
+  flySkaermLinje(id, i, filer[0], 'tilfoej');
+}
 function vaelgFil(id, i){
-  vaelgBilledFil(b => { billeder(st[id].linjer[i]).push(b); roert(id,i); tegnListe(); }); }
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*,application/pdf';
+  inp.onchange = () => { if(inp.files[0]) flyFilLinje(id, i, inp.files, 'tilfoej'); };
+  inp.click();
+}
 function fjernBillede(id, i, j){ billeder(st[id].linjer[i]).splice(j,1); roert(id,i); tegnListe(); }
 
 /* I fuld stoerrelse. Lukkes med Escape, med knappen eller ved klik udenfor. */
