@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.15 · 04.09.2026
+<!-- Panda · v1.16 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,34 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.16 — FRISTBOKSEN: ÉN LINJE, ÉT SKRIFTSPROG, TID I TIMER.
+
+     Wendie 04.09.2026: «alt det her skal kun stå på en linje, og der hvor
+     der står «om», så kan det ikke stå «i morgen». Så skal der stå «en dag
+     og to timer» … der skal ikke være så mange forskellige fonts, farver
+     og stilarter. Det skal være mere eller mindre det samme hele vejen.»
+
+     Hun havde ret på alle tre punkter. Rækken havde navnet i Inter, prisen
+     i Playfair, datoen i fed, klokkeslættet mindre og gråt, «i morgen» i
+     rødt og «intet skrevet» i kursiv gråt — seks stilarter på én række, og
+     halvdelen af dem brudt over to linjer.
+
+     Nu: ÉN skrift (Inter), ÉN grad (12,5 px), ÉN linjeafstand, TO vægte —
+     500 til det, der ER noget, 400 til det, der beskriver det — og farve
+     KUN hvor noget haster. Målt: hver række har præcis én tekstlinje og
+     præcis to stilarter.
+
+     «I morgen» er væk, fordi det ikke siger noget om, hvor lang tid man
+     har: en frist i morgen kl. 09 og en i morgen kl. 23 er ikke det samme
+     arbejde. Nu står der «en dag og en time», «17 timer», «under en time».
+     Timerne står med op til en uge; derover er de støj. «Haster» måles
+     også i timer nu — en frist om 30 timer haster mere end en om «to
+     dage», selvom døgntallet siger det modsatte.
+
+     Kolonnebredderne er målt, ikke gættet: PRIS og OM klipper aldrig, for
+     et klippet tal er ubrugeligt. Kun ydelsesnavnet og aftalen klippes med
+     «…» — og de har hele teksten som hold-tekst.
 
      v1.15 — TRÆKFELTET LIGGER, HVOR HUN KIGGER.
      Wendie 04.09.2026: «hvor skal jeg lægge den her skærmprint ind på
@@ -3798,10 +3826,23 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 #rsside .r-fristbox .r-fantal{margin-left:10px;font-size:11px;letter-spacing:0;
   text-transform:none;font-weight:400;color:var(--mut)}
 
-#rsside .r-fristbox .r-ftom{font-style:italic;color:#c9c1a8}
+/* ══ ÉT SKRIFTSPROG ══
+   Wendie 04.09.2026: «der skal ikke vaere saa mange forskellige fonts,
+   farver og stilarter. Det skal vaere mere eller mindre det samme hele
+   vejen.» Derfor: ÉN skrift (Inter), ÉN stoerrelse (12,5 px), TO vaegter
+   — 500 til det, der ER noget, og 400 til det, der beskriver det — og
+   farve KUN hvor noget haster. Alt paa én linje. */
+#rsside .r-fristbox .r-ftab td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.35;
+  font-weight:400;color:var(--ink);vertical-align:baseline}
 
-#rsside .r-fristbox .r-fr{font-size:12.5px;
-  border-bottom:1px solid #f0e7d3}
+/* Det sekundaere: samme skrift og stoerrelse, blot lysere. Ingen kursiv,
+   ingen mindre grad — kun mindre vaegt af opmaerksomhed. */
+#rsside .r-fristbox .r-ftab td span{color:#a89f86;font-weight:400}
+
+#rsside .r-fristbox .r-ftom{color:#c9c1a8}
+
+#rsside .r-fristbox .r-fr{border-bottom:1px solid #f0e7d3}
 
 #rsside .r-fristbox .r-fr:last-of-type{border-bottom:0}
 
@@ -3810,36 +3851,39 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 /* Wendie: «der staar bare et «con» i stedet for Economy.» Navnet blev
    klippet. En villatype eller et hotelnavn kan ikke forkortes meningsfuldt
    — saa det ombrydes i stedet. */
-#rsside .r-fristbox .r-fn b{font-weight:500;display:block;overflow:visible;text-overflow:clip;
+#rsside .r-fristbox .r-fn b{font-weight:500;
   white-space:nowrap}
 
-#rsside .r-fristbox .r-fn small{display:block;color:#a89f86;font-size:11px;line-height:1.35;
+#rsside .r-fristbox .r-fn small{display:inline;color:#a89f86;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-#rsside .r-fristbox .r-fl2{color:var(--mut);font-size:11.5px}
+#rsside .r-fristbox .r-fl2{color:var(--mut)}
 
-#rsside .r-fristbox .r-fp3{text-align:right;font-family:'Playfair Display',Georgia,serif;
-  font-size:14px;line-height:1.2}
+/* Prisen staar i samme skrift som resten. Playfair er husets skrift til
+   penge overalt ellers — men her staar den ved siden af fem andre tal, og
+   saa er det ÉN skrift, der gør raekken rolig. */
+#rsside .r-fristbox .r-fp3{text-align:right}
 
-#rsside .r-fristbox .r-fp3 small{display:block;font-family:'Inter',sans-serif;font-size:10.5px;
-  color:var(--mut);margin-top:1px}
+#rsside .r-fristbox .r-fp3 small{display:inline;color:var(--mut)}
 
-#rsside .r-fristbox .r-fd{font-weight:600;white-space:nowrap}
+/* Datoen og klokkeslettet i samme font og tykkelse — hun bad om det
+   udtrykkeligt. Datoen faar den ene vaegt mere, fordi den ER fristen;
+   klokkeslettet praeciserer den. */
+#rsside .r-fristbox .r-fd{font-weight:500}
 
-#rsside .r-fristbox .r-fd em{display:block;font-weight:400;font-style:normal;color:#a89f86;
-  font-size:11.5px;margin-top:1px}
+#rsside .r-fristbox .r-fk{color:var(--ink)}
 
-#rsside .r-fristbox .r-fd em{font-weight:400;color:#bdb59d}
-
-#rsside .r-fristbox .r-fk{font-size:11.5px;color:#8a7132;white-space:nowrap}
-
-#rsside .r-fristbox .r-fo{font-size:11.5px;color:var(--ink2);
+#rsside .r-fristbox .r-fo{color:var(--ink2);
   text-overflow:ellipsis;white-space:nowrap}
 
-#rsside .r-fristbox .r-fr.r-haster .r-fk{color:var(--bad);font-weight:600}
+#rsside .r-fristbox .r-fr.r-haster .r-fk{color:var(--bad);font-weight:500}
+
+#rsside .r-fristbox .r-fr.r-haster .r-fd{color:var(--bad)}
 
 #rsside .r-fristbox .r-fr.r-udloebet{background:#fdf6f3;
   border-bottom-color:#e3bfae}
+
+#rsside .r-fristbox .r-fr.r-udloebet .r-fd{color:var(--bad);font-weight:500}
 
 #rsside .r-fristbox .r-fr.r-udloebet .r-fk{color:#fff;background:var(--bad);padding:2px 8px;border-radius:2px;
   font-weight:600}
@@ -3899,7 +3943,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.15';
+const APP_VERSION = 'v1.16';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -14529,6 +14573,34 @@ function dageTil(h){
   const d = new Date(h.dato + 'T' + (h.tid||'23:59'));
   return Math.ceil((d - new Date()) / 86400000);
 }
+/* Minutter til fristen — det, alt andet regnes af. */
+function minutterTil(h){
+  if(!h || !h.dato) return null;
+  const d = new Date(h.dato + 'T' + (h.tid || '23:59'));
+  if(!isFinite(d)) return null;
+  return Math.round((d - new Date()) / 60000);
+}
+/* Wendie 04.09.2026: «der kan ikke staa «i morgen». Saa skal der staa
+   «en dag og to timer».» Rigtigt: «i morgen» siger intet om, hvor lang
+   tid man har. En frist i morgen kl. 09 og en i morgen kl. 23 er ikke
+   det samme arbejde.
+   Timerne staar med, saa laenge de betyder noget — op til en uge. Derover
+   er de stoej, og saa er det doegn, der taeller. */
+function fristOm(h){
+  const m = minutterTil(h);
+  if(m == null) return 'ingen frist';
+  const t = Math.abs(m) / 60;
+  const dage = Math.floor(t / 24);
+  const timer = Math.floor(t % 24);
+  const ord = (n, en, flere) => (n === 1 ? 'en ' + en : n + ' ' + flere);
+  let tekst;
+  if(t < 1)            tekst = 'under en time';
+  else if(dage === 0)  tekst = ord(timer, 'time', 'timer');
+  else if(dage <= 7)   tekst = ord(dage, 'dag', 'dage')
+                              + (timer ? ' og ' + ord(timer, 'time', 'timer') : '');
+  else                 tekst = dage + ' dage';
+  return m < 0 ? tekst + ' siden' : tekst;
+}
 function tegnFrister(){
   /* Optionerne ligger paa linjerne, saa den samme rejse kan have flere —
      én hos bedbanken og én direkte hos hotellet. */
@@ -14553,39 +14625,45 @@ function tegnFrister(){
     <div class="r-ft">Optioner og frister
       <span class="r-fantal">${ude.length === 1 ? 'én option' : ude.length + ' optioner'}</span></div>
     <table class="r-ftab">
-      <colgroup><col style="width:27%"><col style="width:14%"><col style="width:13%">
-        <col style="width:15%"><col style="width:10%"><col></colgroup>
+      <!-- Maalt, ikke gaettet: «10.815 EUR ≈ 81.971 DKK» kraever 16 %,
+           «26. okt. 26 kl. 12:00» 14 %, «en dag og to timer» 12 %. Kun
+           ydelsesnavnet og aftalen er tekst, der taaler at blive klippet. -->
+      <colgroup><col style="width:24%"><col style="width:13%"><col style="width:17%">
+        <col style="width:14%"><col style="width:12%"><col></colgroup>
       <thead><tr><th>Ydelse</th><th>Hos hvem</th><th class="r-hr">Pris</th>
         <th>Frist</th><th>Om</th><th>Hvad er aftalt</th></tr></thead>
       <tbody>
     ${ude.map(({e,l})=>{
       const h = l.hold, d = dageTil(h);
-      const haster = d != null && d <= 2;
+      /* Haster maales i TIMER, ikke i doegn: en frist om 30 timer haster
+         mere end en om «to dage», selvom doegntallet siger det modsatte. */
+      const mTil = minutterTil(h);
+      const haster = mTil != null && mTil >= 0 && mTil <= 48*60;
       /* Wendie 01.09.2026: «oppe i boksen viser den, at det er den villa,
          som er grundlaget, der er holdt af, og det er jo forkert.» Rigtigt —
          den skrev elementets navn, og det er bygget af GRUNDLAGETS villa.
          Optionen hoerer til LINJEN, saa teksten skal komme derfra: linjens
          egne vaerelser og dens egne datoer. */
-      const udloebet = d != null && d < 0;
+      const udloebet = mTil != null && mTil < 0;
       return `<tr class="r-fr ${haster?'r-haster':''} ${udloebet?'r-udloebet':''}">
-        <!-- Samme dublet som paa prislinjen: underteksten indeholdt
-             allerede antallet, og «daekker» gentog det. Og intet klippes:
-             navnet paa en villatype er for langt til at kunne forkortes. -->
-        <td class="r-fn"><b>${kortNavn(e)}</b>
-          <small>${daekkerLinje(l)}</small></td>
+        <!-- Wendie 04.09.2026: «alt det her skal kun staa paa en linje …
+             dato og klokkeslet i samme font og tykkelse. Der skal ikke
+             vaere saa mange forskellige fonts, farver og stilarter.»
+             Alt staar derfor paa ÉN linje, i ét skriftsprog: samme skrift,
+             samme stoerrelse, og kun to vaegte — det, der er ydelsen, og
+             det, der beskriver den. -->
+        <td class="r-fn" title="${escH(kortNavn(e)+' '+daekkerLinje(l))}"><b>${kortNavn(e)}</b>${(()=>{
+          const d2 = daekkerLinje(l);
+          return d2 ? ` <span>${d2}</span>` : ''; })()}</td>
         <td class="r-fl2">${escH(l.lev||'—')}</td>
         <td class="r-fp3">${kr(l.pris, l.val)}${l.val!=='DKK'
-          ? `<small>≈ ${krD(tilDkk2(l.pris,l.val))}</small>` : ''}</td>
-        <!-- «Der mangler noget datoer, noget information.» Fristen stod
-             uden aar og uden klokkeslaet, naar dagen var i dag eller i
-             morgen — nu staar den fuldt ud, saa der ikke er noget at gaette. -->
+          ? ` <span>≈ ${krD(tilDkk2(l.pris,l.val))}</span>` : ''}</td>
         <td class="r-fd">${h.dato
-          ? `${fmtDY(h.dato)}${h.tid ? `<em>kl. ${escH(h.tid)}</em>` : ''}`
-          : '<em>ingen frist sat</em>'}</td>
-        <td class="r-fk">${d == null ? 'ingen frist' : d < 0 ? 'udløbet'
-          : d === 0 ? 'i dag' : d === 1 ? 'i morgen' : 'om ' + d + ' dage'}</td>
-        <td class="r-fo">${h.note ? escH(h.note)
-          : '<em class="r-ftom">intet skrevet</em>'}</td></tr>`;
+          ? `${fmtDY(h.dato)}${h.tid ? ` <span>kl. ${escH(h.tid)}</span>` : ''}`
+          : '<span>ingen frist sat</span>'}</td>
+        <td class="r-fk">${escH(fristOm(h))}</td>
+        <td class="r-fo"${h.note ? ` title="${escH(h.note)}"` : ''}>${h.note ? escH(h.note)
+          : '<span class="r-ftom">intet skrevet</span>'}</td></tr>`;
     }).join('')}
       </tbody></table>
   </div>`;
@@ -16128,6 +16206,7 @@ return {
   planTid, planTil, prisFelter, retElement, retKilde, retLinje, retNote,
   roert, ryddHotel, saet, saetFokus, saetForm, saetFra, saetHold, saetKilde,
   saetLinjeHold, saetLinjeLev, saetLinjePris, saetLinjeVal, saetNote, synkPlanlinjer,
+  fristOm, minutterTil,
   hentTilbud, tilbudLaegInd, tilbudLuk, tilbudTal, tilbudLinjer, tilbudBoks,
   flyFilLinje, flySkaermLinje, flySkaermKlip, skaermBoks, skaermSaet,
   skaermTilRejsen, skaermKlipTilRejsen, skaermFindMaal,
