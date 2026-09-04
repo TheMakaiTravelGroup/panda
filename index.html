@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.06 · 04.09.2026
+<!-- Panda · v1.07 · 04.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -201,6 +201,19 @@
      antal nætter er ude af overskriften, fordi vi kan sælge flyet 14.–22. og
      kun have hotel i fire af nætterne; og hjemrejsedatoen følger nu
      rejseplanen — rejsen varer så længe, som dens ydelser varer.
+
+     v1.07 — DATOEN PÅ ÉN LINJE MED ÅR, OG FLERE END TO FLYVNINGER.
+     Wendie: «det er vigtigt, at jeg kan se lidt tydeligere, hvilket år det
+     er … 29. juni 27, det er nødt til at være én linje, og så klokkeslæt
+     under.» Dagen, måneden og året stod før på hver sin linje UDEN år — en
+     rejse over et årsskifte kunne derfor ikke aflæses.
+     Og: «hvad gør vi, hvis der er flere fly på rejsen? København til Milano,
+     videre til Maldiverne, videre til Bali, og på Bali en tur ud til Lombok.»
+     Der oprettes nu én planlinje pr. flyvning i billetten — ikke to. Navnet
+     følger med: første gruppe er Udrejse, sidste er Hjemrejse, og alt
+     derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
+     én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
+     Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
 
      v1.06 — FLYENE TEGNES SOM FØR I REJSEPLANEN.
      Wendie: «den måde flyene vises på oppe i rejseplanen er jo fuldstændig
@@ -2188,17 +2201,17 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   padding:2px 7px;border-radius:2px;border:1px solid var(--line-2);background:#faf7ef;color:#8b8571}
 
 
-#rsside .r-plan{position:relative;padding-left:112px}
+#rsside .r-plan{position:relative;padding-left:196px}
 
 #rsside .r-plan::before{content:'';position:absolute;left:92px;top:8px;bottom:14px;width:1px;background:var(--line)}
 
 #rsside .r-dag{position:relative;margin-bottom:8px}
 
-#rsside .r-dato{position:absolute;left:-112px;top:13px;width:76px;text-align:right}
+#rsside .r-dato{position:absolute;left:-196px;top:12px;width:150px;text-align:right}
 
-#rsside .r-dato .r-d{font-family:'Playfair Display',Georgia,serif;font-size:18px;line-height:1}
+#rsside .r-dato .r-d{font-family:'Playfair Display',Georgia,serif;font-size:17px;line-height:1.15;
+  white-space:nowrap}
 
-#rsside .r-dato .r-m{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-top:3px}
 
 #rsside .r-dato .r-kl{font-size:11px;color:#bdb59d;margin-top:4px}
 
@@ -3174,7 +3187,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.06';
+const APP_VERSION = 'v1.07';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -10857,12 +10870,13 @@ function planTekst(p){
        tilbud    — grundlaget er valgt, saa tilbuddets plan gaelder
        ingen     — en pris tastet i haanden: vi kender selskab, klasse og
                    dage, men ikke ruten. Saa siger vi det. */
-  let sub = p.sub, segmenter = null, visPlan = 'ingen';
+  let sub = p.sub, segmenter = null, visPlan = 'ingen', vejNavnet = null;
   if(p.art === 'Fly'){
     const medSeg = linjer.find(x=>(x.segmenter||[]).length);
     if(medSeg){
       const g = flyGrupper(medSeg.segmenter);
       segmenter = g[p.vej || 0] || null;
+      vejNavnet = vejNavn(g, p.vej || 0);
       if(segmenter && segmenter.length){
         visPlan = 'segmenter';
         const f0 = segmenter[0];
@@ -10899,7 +10913,7 @@ function planTekst(p){
            p.fra && p.til ? kortDato(p.fra) + ' → ' + kortDato(p.til) : null,
            v].filter(Boolean).join(' · ');
   }
-  return {sub, lev, afvig:null, segmenter, visPlan, linje:linjer[0]};
+  return {sub, lev, afvig:null, segmenter, visPlan, vejNavn:vejNavnet, linje:linjer[0]};
 }
 function tegnPlan(){
   sorterPlan();
@@ -10922,8 +10936,15 @@ function tegnPlan(){
     const d = p.fra ? new Date(p.fra) : null;
     const fejl = (konf[p.id]||[]).concat(t2.afvig ? [t2.afvig] : []);
     return `<div class="r-dag">
-    <div class="r-dato"><div class="r-d">${d ? d.getDate()+'.' : '—'}</div>
-      <div class="r-m">${d ? d.toLocaleDateString('da-DK',{month:'short'}) : ''}</div>
+    <!-- Wendie 04.09.2026: «det er vigtigt, at jeg kan se lidt tydeligere,
+         hvilket år det er … 29. juni 27, det er nødt til at være én linje,
+         og så klokkeslæt under.» Dagen, måneden og året stod før på hver
+         sin linje uden år — og en rejse, der løber over et årsskifte, kunne
+         derfor ikke aflæses. -->
+    <div class="r-dato"><div class="r-d">${d
+        ? d.getDate() + '. ' + d.toLocaleDateString('da-DK',{month:'long'})
+          + ' ' + String(d.getFullYear()).slice(2)
+        : '—'}</div>
       <div class="r-kl">${planTid(p)}</div></div>
     <div class="r-knop ${p.ophold?'r-ophold':''} ${fejl.length?'r-fejl':''}"></div>
     <div class="r-el ${fejl.length?'r-harfejl':''}" id="el-${p.id}">
@@ -10939,7 +10960,7 @@ function tegnPlan(){
              vi lige havde besluttet: planen FOELGER elementerne. Datoerne
              saettes dér, hvor rejsen bygges, ikke to steder. -->
         ${t2.visPlan === 'segmenter'
-        ? `<div class="r-fp">${flyHtml(segTilFly(t2.segmenter, p.vej ? 'Hjemrejse' : 'Udrejse'))}
+        ? `<div class="r-fp">${flyHtml(segTilFly(t2.segmenter, t2.vejNavn || (p.vej ? 'Hjemrejse' : 'Udrejse')))}
              ${(()=>{ const nrs = t2.segmenter.map(x=>x.nr||x.flynr).filter(Boolean);
                 const l0 = t2.linje || {}; const pnr = (l0.raa && l0.raa.pnr) || null;
                 const m = [ nrs.length ? ['Flynr.', nrs.join(' · ')] : null,
@@ -11632,6 +11653,20 @@ function flyLaesTekst(tekst){
 }
 /* Ud og hjem deles, hvor der er mere end et doegn mellem to flyvninger —
    samme regel som rejseplanen selv bruger i flyGrupper(). */
+/* Wendie 04.09.2026: «hvad gør vi, hvis der er flere fly på rejsen? …
+   København til Milano, videre til Maldiverne, videre til Bali, og på Bali
+   en tur ud til Lombok.»
+   Et flyGruppe-navn kan derfor ikke bare vaere «Udrejse» og «Hjemrejse».
+   Foerste gruppe er udrejsen, sidste er hjemrejsen — og alt derimellem er
+   en videreflyvning, som faar sit maal med i navnet. Er der kun én gruppe,
+   er det en enkeltrejse, ikke en «udrejse» uden hjemkomst. */
+function vejNavn(veje, k){
+  if(veje.length === 1) return 'Flyvning';
+  if(k === 0) return 'Udrejse';
+  if(k === veje.length - 1) return 'Hjemrejse';
+  const v = veje[k], sidste = v[v.length-1];
+  return 'Videre til ' + (sidste.tilBy || sidste.til);
+}
 function flyVeje(ben){
   const g = []; let nu = [];
   ben.forEach((b,i)=>{ if(i && b.dato > ben[i-1].ankomstDato){ g.push(nu); nu = []; } nu.push(b); });
@@ -13199,19 +13234,21 @@ function gemElement(){
      Rejseplanen kender allerede vej 0 og 1; det er kun raekken, der har
      manglet. */
   if(t === 'fly'){
+    /* Én planlinje pr. flyvning i billetten — ikke to. En rundrejse kan have
+       fire: ud, videre, videre, hjem. */
     const veje = flyVeje(f._segmenter || []);
     const p0 = PLAN.find(p => p.id === id);
-    if(p0) p0.vej = 0;
-    if(veje.length > 1 && p0){
-      const hjem = veje[1], h0 = hjem[0], hN = hjem[hjem.length-1];
-      PLAN.push({ ...p0, id: id + '#hjem', elId: id, vej: 1,
-        fra: h0.dato || p0.til || p0.fra, til: hN.ankomstDato || h0.dato || p0.til,
-        tid: h0.ud || p0.tid,
-        titel: h0.fra + ' → ' + hN.til,
-        sub: [f.selskab, f.klasse].filter(Boolean).join(' · ') });
-      p0.titel = veje[0][0].fra + ' → ' + veje[0][veje[0].length-1].til;
-      p0.til   = veje[0][veje[0].length-1].ankomstDato || p0.fra;
-    }
+    if(p0 && veje.length){
+      veje.forEach((v,k)=>{
+        const a0 = v[0], aN = v[v.length-1];
+        const felt = { vej:k, fra: a0.dato || p0.fra,
+          til: aN.ankomstDato || a0.dato || p0.til, tid: a0.ud || p0.tid,
+          titel: a0.fra + ' → ' + aN.til,
+          sub: [f.selskab, f.klasse].filter(Boolean).join(' · ') };
+        if(k === 0) Object.assign(p0, felt);
+        else PLAN.push({ ...p0, ...felt, id: id + '#vej' + k, elId: id });
+      });
+    } else if(p0) p0.vej = 0;
   }
   NY.aaben = false;
   tegnPlan(); tegnListe(); tegnNy();
