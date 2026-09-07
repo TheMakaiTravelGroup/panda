@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.16 · 04.09.2026
+<!-- Panda · v1.17 · 07.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,56 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.17 — SOLGT-PANELET BLIVER EN TABEL, OG EN BOOKING KAN BLIVE
+             SIN EGEN HENVENDELSE.
+
+     To ting fra 07.09.2026.
+
+     1) «OPRET HENVENDELSEN UD FRA BOOKINGEN».
+     Pia Haulrik havde købt en rejse over telefonen, som aldrig blev
+     oprettet i Pipedrive eller Panda. Bookingbekræftelsen kom ind, og da
+     Wendie trykkede på den, sagde Panda bare: «kunne ikke kobles sikkert
+     til en henvendelse — find den selv i listen.»
+
+     Dialogboksen havde ret i at nægte; den skal ikke gætte sig til en
+     kunde. Men den var forkert i at stoppe der: der var ingen henvendelse
+     at finde, og den sendte hende ud at lede efter noget, der ikke fandtes.
+     Nu tilbyder den at oprette henvendelsen ud fra bookingen — som ved
+     mere end en telefonhenvendelse nogensinde ville have gjort: navn,
+     mail, telefon, adresse, destination, periode, nætter, hotel, villa,
+     forplejning, pris og alle rejsende med fødselsdato. Boksen viser HVAD
+     der bliver skrevet, før man godkender. Det var sket før (Bettina
+     Gravers 31.08), og anden gang er en knap.
+
+     2) SOLGT-PANELET: FRA NI KORT TIL ÉN TABEL.
+     Wendie: «lige nu ser det bare rigtig træls ud.» Målingen fandt tre
+     ting, og ingen af dem var æstetik:
+       · INGEN SORTERING. Alle mellemlandinger først, så alle bookinger,
+         hver bunke som basen leverede dem — derfor læste aldrene
+         4·4·7·3·7·2·2·3·8 dage. Øjet ledte efter et mønster, der ikke
+         fandtes. Nu ÉN liste, nyeste først.
+       · TO SLAGS INFORMATION PÅ SAMME PLADS. «MELLEMLANDING» er en status,
+         «INGEN HENVENDELSE» er et problem. Nu hver sin spalte, og farve
+         kun på det, der mangler.
+       · 6 AF 9 RÆKKER VAR STØJ. Fire testrejser, «Holt», og Anna
+         Vallentin to gange (hun sendte formularen to dage i træk).
+         Dubletter foldes nu til én række med «sendte 2 gange»;
+         testrækker skjules bag ét klik og SLETTES IKKE.
+     Dertil en DKK-spalte og en sum — «ni kunder har sagt ja» sagde intet
+     om, hvor meget der var solgt.
+
+     Panelet manglede to hentninger for at kunne udfylde tabellen ærligt:
+     kurserne (uden dem ville 177.500 NOK stå som 177.500 DKK) og
+     hotelelementerne (dashboardets element-hentning dækker kun det, der er
+     i brug I DAG, så en rejse i november havde hverken hotel eller
+     nætter). Nætterne regnes af HOTELELEMENTET, ikke af rejsens datoer —
+     Gulbrandsen er 11 dage men 10 nætter.
+
+     Og en fejl, prøveopstillingen fangede, som ellers havde slået HELE
+     dashboardet ud: dashboardet må ikke låne rejsesidens KURSER. Den hører
+     til rejsesidens modul og findes slet ikke her. Kursen regnes nu lokalt
+     af de samme tre tal, så de to sider ikke kan vise to forskellige beløb.
 
      v1.16 — FRISTBOKSEN: ÉN LINJE, ÉT SKRIFTSPROG, TID I TIMER.
 
@@ -1047,6 +1097,75 @@ table.rep tfoot td{border-top:2px solid var(--line);font-weight:700;}
 .lead-form-grid .full{grid-column:1/-1;}
 dialog.lead-dlg{max-width:640px;}
 dialog.lead-dlg h3{font-family:'Playfair Display',serif;color:var(--forest);font-size:20px;font-weight:500;margin:0 0 2px;}
+/* «Opret henvendelsen ud fra bookingen» — den viser HVAD der bliver
+   skrevet, foer man godkender. Derfor en tabel, ikke en advarsel. */
+.ldlg.bkny{max-width:640px}
+
+.ldlg.bkny .bktab{width:100%;border-collapse:collapse;font-size:12.5px;margin:2px 0 14px}
+
+.ldlg.bkny .bktab td{padding:7px 10px 7px 0;border-bottom:1px solid #f0ece0;
+  vertical-align:top;line-height:1.45}
+
+.ldlg.bkny .bktab tr:last-child td{border-bottom:0}
+
+.ldlg.bkny .bktab td.k{width:112px;font-size:8.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:#a8925f;font-weight:600;padding-top:9px;white-space:nowrap}
+
+.ldlg.bkny .bkfd{color:#8b8676;font-size:11.5px;line-height:1.5}
+
+.ldlg.bkny .bkto{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 12px}
+
+/* ══ SOLGT — BUD D ══ Wendie 07.09.2026. Tabellen erstatter kortene.
+   Kolonnerne flugter, saa navne, priser og datoer kan sammenlignes — det
+   kunne de ikke, da hver raekke var sit eget kort i et ragged gitter. */
+.bkkort .bktabvrap{overflow-x:auto;margin:2px -2px 0}
+
+.bkkort .bktab4{width:100%;border-collapse:collapse;font-size:12.5px;min-width:720px}
+
+.bkkort .bktab4 th{text-align:left;font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:#a8925f;font-weight:600;padding:0 12px 7px 0;border-bottom:1px solid #ebdcbe;
+  white-space:nowrap;vertical-align:bottom}
+
+.bkkort .bktab4 th.h{text-align:right}
+
+.bkkort .bktab4 td{padding:9px 12px 9px 0;border-bottom:1px solid #f0ece0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;cursor:pointer}
+
+.bkkort .bktab4 tbody tr:last-child td{border-bottom:0}
+
+.bkkort .bktab4 tbody tr:hover td{background:#fffaf0}
+
+.bkkort .bktab4 td.n{font-weight:600}
+
+.bkkort .bktab4 td.m{color:#8b8676}
+
+/* Tallene skal have luft til det, der staar efter dem — «106.500  i går»
+   stod klinet sammen i proeven. */
+.bkkort .bktab4 td.h{text-align:right;font-variant-numeric:tabular-nums;padding-right:20px}
+
+.bkkort .bktab4 th.h{padding-right:20px}
+
+/* Farve KUN hvor noget mangler. Status staar i sin egen spalte og skriger
+   ikke — det var netop fejlen, da «mellemlanding» og «ingen henvendelse»
+   delte plads. */
+.bkkort .bktab4 td.uro{color:#c2653f;font-weight:600}
+
+/* «sendte to gange» — dubletten foldet til én raekke. */
+.bkkort .bktab4 .gange{margin-left:8px;font-size:10px;font-weight:400;color:#8b8676;
+  font-style:italic}
+
+.bkkort .bktab4 tfoot td{border-top:1px solid #ebdcbe;border-bottom:0;
+  font-weight:600;padding-top:10px;cursor:default}
+
+.bkkort .bktab4 tfoot .m{font-weight:400;color:#8b8676}
+
+.bkkort .bktab4 tr.erTest td{opacity:.45}
+
+.bkkort .bkskjul{margin-top:10px;font-size:11.5px;color:#a8925f;font-weight:600;
+  cursor:pointer;display:inline-block}
+
+.bkkort .bkskjul:hover{color:#8a7132;text-decoration:underline}
+
 .dlg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center;}
 .dlg-actions .spacer{margin-left:auto;}
 /* ── henvendelses-kort: chips, branche, dublet ── */
@@ -3948,7 +4067,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.16';
+const APP_VERSION = 'v1.17';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -4607,7 +4726,7 @@ async function viewDash(){
   navTo('dash');
   app.innerHTML = '<div class="card">Gør dagen klar…</div>';
   const t0=today(), t7=plusDays(7), t1=plusDays(1), tm7=plusDays(-7);
-  const [trips, rk, rb, rd, re, _vp, dashLeads, nyeBookinger] = await Promise.all([
+  const [trips, rk, rb, rd, re, _vp, dashLeads, nyeBookinger, rkurs] = await Promise.all([
     fetchTrips(),
     db.from('tasks').select('*, trips(ref_no)').eq('status','aaben').order('due_date').then(r=>r.data||[]),
     // Brief: fælles brief (for_email = null) er basen; en personlig række (for_email = mig)
@@ -4629,8 +4748,30 @@ async function viewDash(){
     db.from('booking_requests')
       .select('id,modtaget_at,kontakt_navn,kontakt_email,hotel,destination,afrejse,hjemrejse,naetter,pris,valuta,branch,lead_id,match_metode,parse_ok,parse_note')
       .is('trip_id', null).order('modtaget_at',{ascending:false}).limit(20)
-      .then(r=>r.data||[])
+      .then(r=>r.data||[]),
+    /* Kurserne. UDEN dem falder tilDkk2 tilbage paa 1, og saa ville
+       177.500 NOK staa som 177.500 DKK i Solgt-tabellens DKK-spalte —
+       et forkert tal praesenteret som en kendsgerning. Rejsesiden henter
+       dem i forvejen; dashboardet gjorde ikke, fordi det ikke havde
+       brug for dem foer nu. */
+    db.rpc('fn_effektive_kurser')
   ]);
+  /* Dashboardet regner kursen SELV. Det maa ikke laane rejsesidens
+     KURSER — den hoerer til rejsesidens modul og findes ikke her
+     (proeveopstillingen 07.09.2026: «ReferenceError: KURSER is not
+     defined», og saa var hele dashboardet gaaet i produktion).
+     Regnestykket er praecis rejsesidens: marked x bankmargin x buffer. */
+  const DASH_KURS = { DKK: 1 };
+  try{
+    const kv = (rkurs && (rkurs.data || rkurs)) || {};
+    Object.entries(kv).forEach(([val, b])=>{
+      if(!b || typeof b !== 'object') return;         /* dato, salgskurs m.fl. */
+      const marked = Number(b.marked) || 0;
+      if(marked <= 0) return;
+      DASH_KURS[val] = marked * (1 + (Number(b.bankmargin)||0)/100)
+                              * (1 + (Number(b.buffer)||0)/100);
+    });
+  }catch(e){ console.warn('kurserne kunne ikke laeses', e); }
   const brief = rb;
   const act = trips.filter(active);
   const depToday = act.filter(t=>t.departure_date===t0);
@@ -4810,6 +4951,23 @@ async function viewDash(){
   const pctI=(a,b)=> b?Math.round(100*a/b):0;
 
   bkOvervaag();
+
+  /* ══ SOLGT: HOTELLET OG NAETTERNE PAA EN MELLEMLANDING ══
+     re (ovenfor) er filtreret til det, der er i brug I DAG — en rejse i
+     november staar ikke i den. Derfor et lille, selvstaendigt opslag paa
+     netop de rejser, panelet viser. Naetterne regnes af HOTELELEMENTET,
+     ikke af rejsens datoer: 1.-9. juli er 8 dage men 7 naetter, og det er
+     hotellet der afgoer det (feltkontrakten, afsnit 1). */
+  const melIds = (trips||[]).filter(t=>t.status==='mellemlanding').map(t=>t.id);
+  let melEls = [];
+  if(melIds.length){
+    const r = await db.from('trip_elements')
+      .select('trip_id,element_type,description,start_date,end_date,suppliers:supplier_id(name),element_prices(id,amount,currency,slag)')
+      .in('trip_id', melIds);
+    melEls = (r && r.data) || [];
+    if(r && r.error) console.warn('Solgt: elementerne kunne ikke hentes', r.error.message);
+  }
+
   const __dashHtml = `
   <div class="pagehead"><h2>${greet}, <i style="color:var(--gold)">${window.MYNAME}</i>.</h2>
   <span class="sub">${new Date().toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'})}</span>
@@ -4825,40 +4983,144 @@ async function viewDash(){
     const antal=mel.length+bk.length;
     return antal ? `
   <div class="card bkkort" id="bkKort">
-    <h3>Solgt<span class="r">${antal===1?'én kunde har sagt ja':antal+' kunder har sagt ja'
-      }<a href="#" onclick="bkVarslerTil();return false" id="bkVarsel"></a></span></h3>
-    <div class="bkgrid">${mel.map(t=>{
-      const timer=Math.round((Date.now()-new Date(t.created_at||t.booking_date||Date.now()))/3600000);
-      const dage=Math.round(timer/24);
-      const alder = timer<1?'lige nu' : timer<24?timer+(timer===1?' time':' timer')+' siden'
-                  : dage+(dage===1?' dag':' dage')+' siden';
-      return `<div class="bkt" onclick="viewMel('${t.id}')">
-        <div class="naar">${alder}<em>mellemlanding</em></div>
-        <div class="top"><span class="hvem">${escH(t.customers
+    ${(()=>{
+      /* ══ BUD D — ÉN TABEL, SORTERET, MED EN SUM ══
+         Wendie 07.09.2026: «D er fin!»
+         Mellemlandinger og bookinger bliver til ÉN slags raekke, saa de kan
+         sorteres sammen. Foer laa de i to bunker, og det var derfor
+         raekkefoelgen virkede tilfaeldig. */
+
+      /* Naetterne og hotellet fra hotelelementet — se opslaget ovenfor. */
+      const elsFor = id => melEls.filter(e=>e.trip_id===id);
+      const naetterAf = (fra, til) => (fra && til)
+        ? Math.round((new Date(til) - new Date(fra))/86400000) : null;
+
+      const raekkeAfMel = t => {
+        const els   = elsFor(t.id);
+        const hot   = els.find(e=>e.element_type==='hotel');
+        const fly   = els.find(e=>e.element_type==='flight' || e.element_type==='ticket');
+        const dest  = (t.trip_destinations||[]).map(d=>d.destination).filter(Boolean);
+        /* Wendie: ét kort blev sprængt af seks destinationer. I en tabel
+           klipper vi til den foerste og siger, hvor mange der er. */
+        const hvor  = hot ? ((hot.suppliers && hot.suppliers.name) || hot.description || '')
+                    : (dest.length ? dest[0] + (dest.length>1 ? ' +'+(dest.length-1) : '') : '');
+        /* Hvad mangler? Kun det, jeg kan SE — ikke et gaet. */
+        const flyPriser = fly ? (fly.element_prices||[]).length : 0;
+        const mangler = !fly ? 'flyet'
+                      : !flyPriser ? 'flyprisen'
+                      : (t.accepted_price == null ? 'prisen' : '');
+        return { id:t.id, slags:'mel',
+          navn: t.customers
             ? ((t.customers.last_name||'')+(t.customers.first_name?', '+t.customers.first_name:'')).replace(/^, /,'')
-            : 'Uden navn')}</span>
-          <span class="p">${t.accepted_price?fval(t.accepted_price)+' '+escH(t.accepted_currency||t.customer_currency||''):'—'}</span></div>
-        <div class="hvor">${escH((t.trip_destinations||[]).map(d=>d.destination).join(' · ')||'—')}</div>
-        <div class="hvornaar">${t.departure_date?escH(fmtD(t.departure_date)):'dato mangler'}${
-          t.return_date?' → '+escH(fmtD(t.return_date)):''}</div>
-      </div>`;
-    }).join('')}${bk.map(b=>{
-      const timer = Math.round((Date.now()-new Date(b.modtaget_at))/3600000);
-      const dage  = Math.round(timer/24);
-      const alder = timer < 1 ? 'lige nu'
-                  : timer < 24 ? timer+(timer===1?' time':' timer')+' siden'
-                  : dage+(dage===1?' dag':' dage')+' siden';
-      const uro = !b.lead_id ? 'ingen henvendelse' : !b.parse_ok ? 'noget mangler' : '';
-      return `<div class="bkt${uro?' uro':''}" onclick="bkAabn('${b.id}','${b.lead_id||''}')">
-        <div class="naar">${alder}${uro?`<em>${escH(uro)}</em>`:''}</div>
-        <div class="top"><span class="hvem">${escH(b.kontakt_navn||'Uden navn')}</span>
-          <span class="p">${b.pris?fval(b.pris)+' '+escH(b.valuta||''):'—'}</span></div>
-        <div class="hvor">${escH(b.hotel||b.destination||'—')}</div>
-        <div class="hvornaar">${b.afrejse?escH(fmtD(b.afrejse)):'—'}${
-          b.hjemrejse?' → '+escH(fmtD(b.hjemrejse)):''}${
-          b.naetter?' · '+b.naetter+' '+(b.naetter===1?'nat':'nætter'):''}</div>
-      </div>`;
-    }).join('')}</div>
+            : 'Uden navn',
+          hvor, fra:t.departure_date, til:t.return_date,
+          naetter: hot ? naetterAf(hot.start_date, hot.end_date) : null,
+          pris: t.accepted_price, valuta: t.accepted_currency || t.customer_currency || '',
+          solgt: t.created_at || t.booking_date || null,
+          status: 'mellemlanding', mangler, gange: 1,
+          klik: `viewMel('${t.id}')` };
+      };
+
+      const raekkeAfBk = b => ({
+        id:b.id, slags:'bk',
+        navn: b.kontakt_navn || 'Uden navn',
+        hvor: b.hotel || b.destination || '',
+        fra:b.afrejse, til:b.hjemrejse, naetter:b.naetter,
+        pris:b.pris, valuta:b.valuta || '',
+        solgt: b.modtaget_at,
+        status: 'booking',
+        mangler: !b.parse_ok ? 'noget i bookingen'
+               : !b.lead_id ? 'henvendelsen' : 'rejsen',
+        gange: 1,
+        klik: `bkAabn('${b.id}','${b.lead_id||''}')`,
+        email: b.kontakt_email || ''
+      });
+
+      /* ── Dubletter foldes til ÉN raekke ──
+         Wendie 07.09.2026: Anna Vallentin stod to gange — hun sendte
+         formularen to dage i traek. To bookinger, samme henvendelse. Vi
+         beholder den nyeste og siger, at der kom flere. */
+      const bkR = bk.map(raekkeAfBk);
+      const samlet = [];
+      bkR.forEach(r=>{
+        const noegle = (r.email||'').toLowerCase() + '|' + (r.fra||'') + '|' + (r.hvor||'');
+        const fund = samlet.find(x=>x.noegle === noegle);
+        if(fund){ fund.gange++; return; }
+        samlet.push(Object.assign({noegle}, r));
+      });
+
+      let raekker = mel.map(raekkeAfMel).concat(samlet);
+
+      /* ── Nyeste foerst. Det var det, der manglede allermest. ── */
+      raekker.sort((a,c)=> String(c.solgt||'').localeCompare(String(a.solgt||'')));
+
+      /* ── Testraekker ──
+         Der er INTET testflag i basen endnu (se «Manuel kontrol»), saa de
+         genkendes provisorisk paa navnet og paa vores egen mailadresse —
+         en booking sendt til os selv er en proeve. Reglen staar HER og
+         ingen andre steder, og antallet vises, saa den kan efterproeves.
+         Ingenting slettes: de er ét klik vaek. */
+      const erTest = r => /(^|[^a-zæøå])test([^a-zæøå]|$)/i.test(r.navn||'')
+        || (r.email||'').toLowerCase() === String(window.MYEMAIL||'').toLowerCase();
+      const tests   = raekker.filter(erTest);
+      const rigtige = raekker.filter(r=>!erTest(r));
+      const vis     = window.__bkVisTest ? raekker : rigtige;
+
+      /* ── Summen ──
+         Kun raekker med en kendt kurs taeller med. Mangler en kurs, siges
+         det — en sum, der stiltiende springer noget over, er en usandhed. */
+      const iDkk = r => (r.pris == null || !r.valuta) ? null
+        : (DASH_KURS[r.valuta] == null ? null : Math.round(r.pris * DASH_KURS[r.valuta]));
+      const kendte = vis.map(iDkk).filter(v=>v != null);
+      const udenKurs = vis.filter(r=>r.pris != null && iDkk(r) == null).length;
+      const sum = kendte.reduce((a,b2)=>a+b2, 0);
+
+      const fmtDag = d => { if(!d) return '—';
+        const t = Math.round((Date.now()-new Date(d))/3600000);
+        if(t < 1)  return 'lige nu';
+        if(t < 24) return t + (t===1?' time':' timer') + ' siden';
+        if(t < 48) return 'i går';
+        return fmtD(String(d).slice(0,10)); };
+
+      const antalTekst = rigtige.length === 1 ? 'én kunde har sagt ja'
+                       : rigtige.length + ' kunder har sagt ja';
+
+      return `
+    <h3>Solgt<span class="r">${antalTekst}${sum ? ' · ' + fval(sum) + ' DKK' : ''}<a href="#"
+      onclick="bkVarslerTil();return false" id="bkVarsel"></a></span></h3>
+    <div class="bktabvrap">
+    <table class="bktab4">
+      <thead><tr>
+        <th>Kunde</th><th>Hotel</th><th>Rejsen</th><th class="h">Nætter</th>
+        <th class="h">Pris</th><th class="h" title="Omregnet med de effektive kurser fra basen">I DKK</th>
+        <th>Solgt</th><th>Mangler</th></tr></thead>
+      <tbody>${vis.map(r=>{
+        const dkk = iDkk(r);
+        const test = erTest(r);
+        return `<tr class="${test?'erTest':''}" onclick="${r.klik}">
+          <td class="n">${escH(r.navn)}${r.gange>1
+            ? `<span class="gange" title="Kunden sendte formularen ${r.gange} gange">sendte ${r.gange} gange</span>`
+            : ''}</td>
+          <td class="m">${escH(r.hvor||'—')}</td>
+          <td class="m">${r.fra?escH(fmtD(r.fra)):'—'}${r.til?' → '+escH(fmtD(r.til)):''}</td>
+          <td class="h m">${r.naetter != null ? r.naetter : '—'}</td>
+          <td class="h">${r.pris != null ? escH(fval(r.pris)+' '+r.valuta) : '—'}</td>
+          <td class="h m">${dkk != null ? escH(fval(dkk)) : '—'}</td>
+          <td class="m">${escH(fmtDag(r.solgt))}</td>
+          <td class="${r.mangler?'uro':'m'}">${escH(r.mangler||'—')}</td></tr>`;
+      }).join('')}</tbody>
+      ${kendte.length ? `<tfoot><tr>
+        <td colspan="5">${escH(antalTekst)}${udenKurs
+          ? ` <span class="m">(${udenKurs} uden kurs er ikke med)</span>` : ''}</td>
+        <td class="h">${escH(fval(sum))}</td><td colspan="2"></td></tr></tfoot>` : ''}
+    </table></div>
+    ${tests.length ? `<div class="bkskjul" onclick="event.stopPropagation();
+        window.__bkVisTest=!window.__bkVisTest;viewDash()">${
+      window.__bkVisTest
+        ? 'Skjul de ' + tests.length + ' testrækker igen'
+        : tests.length + ' række' + (tests.length===1?'':'r') + ' ser ud som test og er skjult — vis dem'
+    }</div>` : ''}`;
+    })()}
   </div>` : ''; })()}
 
   <!-- Morgenbriefen er taget ud af dashboardet 24.08.2026 (Wendie): for lang og
@@ -11256,7 +11518,155 @@ async function bkAabn(bookingId, leadId){
   navTo('hv');
   await viewHenvendelser();
   if(leadId) setTimeout(()=>hvOpen(leadId), 60);
-  else alert('Denne booking kunne ikke kobles sikkert til en henvendelse.\n\nFind den selv i listen — søgefeltet i filterlinjen finder også lukkede sager.');
+  /* Wendie 07.09.2026: foer stod her kun en advarsel, der sendte hende ud
+     at lede efter en henvendelse, der ikke findes. Nu tilbydes den
+     oprettet ud fra bookingen. */
+  else setTimeout(()=>bkOpretHv(bookingId), 80);
+}
+
+/* ══ OPRET HENVENDELSEN UD FRA BOOKINGEN ═════════════════════════════
+   Til de salg, der kom over telefonen og aldrig blev en sag. Bookingen
+   ved mere end en telefonhenvendelse: navn, e-mail, telefon, adresse,
+   destination, periode, naetter, hotel, villa, forplejning, pris og alle
+   rejsende med foedselsdato. Vi gaetter intet — vi skriver det, der
+   staar, og viser det, foer hun godkender. */
+let BKNY = null;
+
+function bkTlf(nummer, land){
+  const t = (nummer||'').trim();
+  if(!t || t.startsWith('+')) return t;
+  /* Landekoden er ikke et gaet: bookingen oplyser landet. */
+  const l = (land||'').toLowerCase();
+  if(l.startsWith('danmark')) return '+45 ' + t;
+  if(l.startsWith('norge'))   return '+47 ' + t;
+  return t;
+}
+
+async function bkOpretHv(bookingId){
+  if(!bookingId) return;
+  const {data:b, error} = await db.from('booking_requests').select('*').eq('id',bookingId).single();
+  if(error || !b) return alert('Bookingen kunne ikke hentes: ' + ((error&&error.message)||'ukendt fejl'));
+  if(b.lead_id) return hvOpen(b.lead_id);
+  BKNY = b;
+  const ov = document.getElementById('hvOv2');
+  if(!ov) return alert('Åbn henvendelsessiden først.');
+
+  const rej = Array.isArray(b.rejsende) ? b.rejsende : [];
+  const vok = rej.filter(r=>(r.type||'')==='voksen').length;
+  const brn = rej.length - vok;
+  const navne = rej.map(r=>escH(r.navn||'')+(r.foedt?' <span class="bkfd">f. '+escH(r.foedt)+'</span>':'')).join(' · ');
+  const linje = (k,v)=> v ? `<tr><td class="k">${escH(k)}</td><td>${v}</td></tr>` : '';
+  const per = [b.afrejse, b.hjemrejse].filter(Boolean).join(' – ')
+            + (b.naetter ? ' · ' + b.naetter + ' nætter' : '');
+
+  ov.innerHTML = `<div class="ldlg bkny">
+    <div class="h"><h3>Opret henvendelsen ud fra bookingen</h3>
+      <p>Der findes ingen henvendelse på denne booking — salget kom uden om
+         Pipedrive. Men bookingen ved alt det, en henvendelse skal have.
+         Se det igennem, og godkend.</p></div>
+    <div class="c">
+      <table class="bktab">
+        ${linje('Navn', escH(b.kontakt_navn||''))}
+        ${linje('E-mail', escH(b.kontakt_email||''))}
+        ${linje('Telefon', escH(bkTlf(b.kontakt_telefon, b.land)))}
+        ${linje('Adresse', escH([b.adresse, b.postnr_by, b.land].filter(Boolean).join(', ')))}
+        ${linje('Destination', escH(b.destination||''))}
+        ${linje('Periode', escH(per))}
+        ${linje('Hotel', escH([b.hotel, b.vaerelsestype, b.forplejning].filter(Boolean).join(' · ')))}
+        ${linje('Pris', b.pris ? escH(fval(b.pris)+' '+(b.valuta||'')) : '')}
+        ${linje('Rejsende', navne + ` <span class="bkfd">(${vok} voksne${brn?' · '+brn+' børn':''})</span>`)}
+        ${linje('Ønsker', escH(b.oensker||''))}
+      </table>
+      <div class="bkto">
+        <label class="chipsel"><span>Ansvarlig</span>
+          <select id="bkOwner">${TEAM_OPTS(window.ME||'')}</select></label>
+        <label class="chipsel"><span>Kom ind via</span>
+          <select id="bkKanal">
+            <option value="telefon">Telefon</option>
+            <option value="mail">Mail</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="andet">Andet</option>
+          </select></label>
+      </div>
+      <p class="bkfd">Henvendelsen oprettes som <b>bekræftet</b>, men <b>åben</b> — rejsen findes
+         ikke endnu, og «vundet» uden en rejse ville være usandt i basen. Omdannelsen flytter den
+         selv. Hele bookingen gemmes som spor på henvendelsen.</p>
+      <p class="dlgfejl" id="bkNyFejl"></p>
+    </div>
+    <div class="lf"><button class="b gh" onclick="hvLukDlg()">Fortryd</button>
+      <button class="b gold" id="bkNyKnap" onclick="bkOpretHvGem()">Opret henvendelsen</button></div></div>`;
+  ov.classList.add('on');
+}
+
+async function bkOpretHvGem(){
+  const b = BKNY; if(!b) return;
+  const fejl = document.getElementById('bkNyFejl');
+  const knap = document.getElementById('bkNyKnap');
+  const vis  = t => { if(fejl) fejl.textContent = t; };
+  if(knap){ knap.disabled = true; knap.textContent = 'Opretter…'; }
+  try{
+    const rej = Array.isArray(b.rejsende) ? b.rejsende : [];
+    const vok = rej.filter(r=>(r.type||'')==='voksen').length;
+    const navn = (b.kontakt_navn||'').trim();
+    const del  = navn.split(/\s+/);
+    const kanal = (document.getElementById('bkKanal')||{}).value || 'telefon';
+    const ejer  = (document.getElementById('bkOwner')||{}).value || window.ME || null;
+    /* Egen dato her, saa koden ikke afhaenger af, hvor i filen iDag staar. */
+    const dagsdato = new Date().toISOString().slice(0,10);
+
+    const {data:ny, error:e1} = await db.from('leads').insert({
+      title: navn || 'Booking uden navn',
+      stage: 'confirmed', status: 'open',
+      branch: b.branch || null, owner: ejer,
+      contact_name: navn || null,
+      contact_first_name: del.length>1 ? del[0] : null,
+      contact_last_name:  del.length>1 ? del.slice(1).join(' ') : null,
+      contact_email: b.kontakt_email || null,
+      contact_phone: bkTlf(b.kontakt_telefon, b.land) || null,
+      est_value: b.pris || null, currency: b.valuta || null,
+      destination: b.destination || null,
+      adults: vok || null, kids: (rej.length - vok) || 0,
+      departure_date: b.afrejse || null, return_date: b.hjemrejse || null,
+      nights: b.naetter || null,
+      wishes: b.oensker || null,
+      source: 'manuel', source_channel: kanal, contacted: true,
+      notes: 'Oprettet ' + dagsdato + ' ud fra booking-anmodningen ' + String(b.id).slice(0,8)
+           + '. Henvendelsen kom ' + kanal + ' og blev aldrig oprettet i Pipedrive eller Panda, '
+           + 'så bookingen kunne ikke kobles til en sag. Alle felter kommer fra bookingen; '
+           + 'intet er gættet.',
+      raw: {
+        oprettet_fra: 'booking_request', booking_request_id: b.id,
+        booking_modtaget_at: b.modtaget_at,
+        hotel: b.hotel, vaerelsestype: b.vaerelsestype, forplejning: b.forplejning,
+        adresse: b.adresse, postnr_by: b.postnr_by, land: b.land,
+        rejsende: b.rejsende, booking_raa: b.raa
+      }
+    }).select('id').single();
+    if(e1) throw e1;
+
+    const {error:e2} = await db.from('booking_requests').update({
+      lead_id: ny.id,
+      match_metode: 'henvendelse oprettet fra bookingen',
+      note: (b.note ? b.note + ' | ' : '')
+          + 'Henvendelse oprettet ' + dagsdato + ' fra denne booking (' + kanal
+          + 'salg, aldrig i Pipedrive).',
+      updated_at: new Date().toISOString()
+    }).eq('id', b.id);
+    /* Henvendelsen ER oprettet. Kan koblingen ikke skrives, siges det
+       hoejt — ellers ville bookingen blive ved at se ukoblet ud, og man
+       ville lave henvendelsen to gange. */
+    if(e2){ vis('Henvendelsen er oprettet, men bookingen kunne ikke kobles til den: '
+              + e2.message + '. Sig det til Claude, så den ikke laves igen.'); }
+
+    hvLukDlg(); BKNY = null;
+    await viewHenvendelser();
+    setTimeout(()=>hvOpen(ny.id), 60);
+    hvKvit('Henvendelsen er oprettet ud fra bookingen');
+  }catch(err){
+    console.error(err);
+    vis('Henvendelsen kunne ikke oprettes: ' + (err.message||err));
+    if(knap){ knap.disabled = false; knap.textContent = 'Opret henvendelsen'; }
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -12678,7 +13088,12 @@ async function tilbudLaegInd(){
    Og saa laenge regnestykket ikke passer, kan der ikke laegges ind. */
 function skaermBoks(){
   if(!SKAERM) return;
-  const b = document.getElementById('flySvar-'+SKAERM.elId+'-'+SKAERM.i);
+  /* Samme fejl som vis() havde: kassen blev skrevet i flyplanens boks,
+     som ikke findes paa en hotellinje eller naar planen er foldet ind —
+     og saa skete der stille ingenting. Den skrives nu i den boks, der
+     findes. */
+  const b = document.getElementById('flySvar-'+SKAERM.elId+'-'+SKAERM.i)
+         || document.getElementById('bilSvar-'+SKAERM.elId+'-'+SKAERM.i);
   if(!b) return;
   const L = SKAERM.laest;
   const f = (felt, ph, bredde) => `<input value="${escH(L[felt]==null?'':String(L[felt]))}"
@@ -13923,9 +14338,13 @@ function linjeKrop(e, l, i){
      priser der har et billede — og en almindelig knap, der aabner
      filvaelgeren, saa man ikke er tvunget til udklipsholderen. */
   const bilHtml = `<div class="r-pk" onpaste="RS.linjeBillede(event,'${e.id}',${i})">
+    <!-- Wendie 04.09.2026: prisen tastes eller hentes fra tilbuddet.
+         Feltet her er DOKUMENTATION — beviset paa, hvad der stod, da vi
+         koebte. Laesningen ligger stadig bag: finder billedet priser eller
+         flyvninger, foreslaas de. Men det staar ikke som et loefte, for
+         saa leder man efter prisen her i stedet for i feltet. -->
     <div class="r-pt2">Skærmbillede på den her pris
-      <span class="r-n3">fra Farewise, flyselskabet eller hotellet
-        — priser og flyvninger læses selv</span></div>
+      <span class="r-n3">dokumentation — hvad der stod, da vi købte</span></div>
     <div class="r-bilsvar" id="bilSvar-${e.id}-${i}"></div>
     ${billeder(l).length ? `
       <div class="r-bilrk">
