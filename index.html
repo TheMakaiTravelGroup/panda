@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.25 · 08.09.2026
+<!-- Panda · v1.26 · 08.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,45 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.26 — FLYPLANEN STAAR SOM I FAREWISE, OG DEN SAMME FLYVNING
+             KAN IKKE LIGGE TO GANGE.
+
+     Wendie 08.09.2026, fire ting paa én gang:
+
+     1. «Det skal staa i den raekkefoelge, fordi det er meget nemmere for
+        os, naar vi hele tiden laeser ind i Farewise.» Tabellen staar nu i
+        Farewises orden: Flynr · Fly · Klasse · Kabine · Fra · Til · Status
+        · Dato · Afgang · Ankomst · Flyvetid. Ordene er vores, pladserne er
+        Farewises. Klasse, Kabine og Status er nye felter — de blev laest
+        foer, men havde ingen plads at staa paa.
+
+     2. Flyet stod paa den forkerte flyvning: EY178 fik 32A, som er EY700's,
+        og EY177 fik ingenting. Alt var forskudt ét trin, fordi Farewises
+        tabel kan kopieres paa TO former — én linje pr. flyvning med
+        tabulator imellem, eller én linje pr. CELLE. Paa form b laa flyet
+        FOER ruten, og laeseren kiggede fremad. Nu kendes form a paa sine
+        celler (hver celle paa sin form, raekkefoelgen ligegyldig) og form b
+        laeses i den retning, flynummeret ligger. Begge former efterproevet.
+
+     3. Hjemrejsen blev delt i to, «Videre til Abu Dhabi» og en rest.
+        Aarsagen: Farewise skriver ÉN dato pr. straekning, og EY1000
+        SEZ→AUH gaar 20:00 og lander 00:35 — dagen efter, uden at noget
+        siger det. Uden det stod ankomsten den 10., mens EY177 gik den 11.,
+        og grupperingen mente med rette, at det var to etaper. Reglen er nu
+        ubetinget: lander man tidligere paa uret end man letter, er man
+        landet dagen efter. Efter rettelsen: 2 grupper, ikke 3.
+
+     4. «Jeg kom til at lime teksten ind paa den forkerte ydelse … det ser
+        helt skoert ud derinde nu.» Hver flyvning laa TRE gange, fordi
+        limningen laegger TIL — og tre ens raekker kan man ikke rette i:
+        sletter man én, ser det uaendret ud. En flyvning er den samme, naar
+        flynummer, dato, rute og afgangstid er de samme; er den det, laegges
+        den ikke igen, og det SIGES, saa man ved at limningen virkede.
+        Tomme ben ryddes ogsaa, naar rigtige flyvninger kommer ind.
+
+     Alle fire flyvetider efterproevet mod Farewises egne tal: 6:15, 4:45,
+     4:35, 7:05 — regnet af tidszonerne, ikke laest.
 
      v1.25 — LAESERNE FRA MOCKUPPEN KOM MED I PANDA.
 
@@ -3101,6 +3140,8 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .r-skvalg{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .r-skvalg button{padding:7px 12px;border:1px solid #d8d0c2;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer}
 .r-skvalg button.paa{border-color:#6f8a4f;background:#eef3e4;font-weight:600}
+.r-segfw .r-segbk,.r-segfw .r-segst{color:#8a7f6b;font-size:11.5px;letter-spacing:.04em}
+.r-segfw .r-segkab,.r-segfw .r-segfly{color:#6b6151;font-size:11.5px}
 .r-flytekst{display:block;width:100%;margin:6px 0 0;padding:8px 10px;box-sizing:border-box;
   border:1px dashed var(--kant,#d8d0c2);border-radius:6px;background:#fffdf8;
   font:inherit;font-size:12.5px;color:var(--blk,#3a3226);resize:vertical;line-height:1.5}
@@ -4348,7 +4389,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.25';
+const APP_VERSION = 'v1.26';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -14292,8 +14333,38 @@ async function flyBrugPlan(elId, i, r, maade, kildeNavn, vis){
        koebt for sig, hoerer det i sit eget element — men det afgoer
        Wendie, ikke koden. Vi sorterer paa dato, saa planen laegger sig
        rigtigt uanset hvilken rundt vi laeser billetterne i. */
-    const gamle = (maade === 'tilfoej' && (l.segmenter||[]).length) ? l.segmenter : [];
-    const alleBen = gamle.concat(r.ben).sort((a,b)=>
+    /* Wendie 08.09.2026: hjemrejsen viste «— ?→? · — ?→?». Det var IKKE
+       laesefejl — det var to tomme ben, hun havde lavet i haanden foer, og
+       som blev staaende, fordi en billet LAEGGES TIL. Et ben uden baade
+       flynummer og rute er ikke en oplysning; det er en tom raekke. Den
+       ryddes, naar der kommer rigtige flyvninger. Alt med indhold bliver. */
+    const gamle = (maade === 'tilfoej' && (l.segmenter||[]).length)
+      ? l.segmenter.filter(x => x && (x.nr || x.flynr || x.fra || x.til || x.ud || x.an))
+      : [];
+    /* ══ SAMME FLYVNING MAA IKKE LIGGE TO GANGE ═══════════════════════
+       Wendie 08.09.2026: «jeg kom ogsaa til at lime teksten ind paa den
+       forkerte ydelse … det ser helt skoert ud derinde nu.» Hun havde limet
+       den samme tekst ind tre gange — fordi de foerste gange saa ud som om
+       der ikke skete noget — og saa laa hver flyvning der TRE gange. Og tre
+       ens raekker kan man ikke rette i: sletter man én, ser det uaendret ud.
+       En flyvning er den samme, naar flynummer, dato, rute og afgangstid er
+       de samme. Er den det, laegges den ikke igen. Det siges hoejt, saa man
+       ved, at limningen VIRKEDE — den havde bare intet nyt at tilfoeje. */
+    const noegleAf = x => [x.nr||x.flynr||'', x.dato||'', x.fra||'', x.til||'',
+                           retTid(x.ud)||''].join('|');
+    const kendte = new Set(gamle.map(noegleAf));
+    let dubletter = 0;
+    const friske = r.ben.filter(x=>{
+      const k = noegleAf(x);
+      if(kendte.has(k)){ dubletter++; return false; }
+      kendte.add(k); return true;
+    });
+    if(!friske.length){
+      vis('<div class="r-fund"><b>De ' + dubletter + ' flyvninger lå der allerede</b>'
+        + ' — planen er uændret. Skal den væk, så brug «Slet planen».</div>');
+      return true;
+    }
+    const alleBen = gamle.concat(friske).sort((a,b)=>
       ((a.dato||'') + 'T' + (a.ud||'')).localeCompare((b.dato||'') + 'T' + (b.ud||'')));
     const veje = flyVeje(alleBen), f0 = alleBen[0], fN = alleBen[alleBen.length-1];
     l.segmenter = alleBen;
@@ -14329,7 +14400,9 @@ async function flyBrugPlan(elId, i, r, maade, kildeNavn, vis){
       const b2 = document.getElementById('flySvar-'+elId+'-'+i);
       if(!b2) return;
       b2.innerHTML = '<div class="r-fund"><b>' + escH(kildeNavn) + '</b> · '
-        + escH(r.selskab||'ukendt selskab') + (r.pnr ? ' · ' + escH(r.pnr) : '')
+        + friske.length + (friske.length === 1 ? ' flyvning' : ' flyvninger')
+        + (dubletter ? ' · ' + dubletter + ' lå der allerede og blev ikke lagt ind igen' : '')
+        + ' · ' + escH(r.selskab||'ukendt selskab') + (r.pnr ? ' · ' + escH(r.pnr) : '')
         + (r.advarsler.length ? '<div class="r-advar">' + r.advarsler.map(escH).join(' · ') + '</div>' : '')
         + '</div>';
       /* Wendie 04.09.2026: «den behoever ikke at komme paa.» Den skal dog
@@ -14415,7 +14488,8 @@ function mkRuteankret(t){
     const slut  = k === ankre.length-1 ? linjer.length : ankre[k+1].i;
     const blok  = linjer.slice(a.i, slut), foran = linjer.slice(start, a.i);
     const seg = {nr:null, selskab:null, operatoer:null, fra:a.fra, til:a.til,
-                 dato:'', ud:'', an:'', min:null, type:'', bk:'', plus:0};
+                 dato:'', ud:'', an:'', min:null, type:'', bk:'', kabine:'',
+                 status:'', plus:0};
     if(nummerFoerst){
       for(let j=foran.length-1;j>=0;j--){ const f = mkBartFlynr(foran[j]);
         if(f){ seg.nr=f.nr; seg.operatoer=f.operatoer; break; } }
@@ -14425,7 +14499,51 @@ function mkRuteankret(t){
     }
     if(!seg.nr){ const f = mkFlynr(blok[0].replace(/\([A-Z]{3}\)/g,'')); if(f) seg.nr = f; }
     if(seg.nr) seg.selskab = seg.nr.slice(0,2);
+    /* ══ TO MAADER AT KOPIERE DEN SAMME TABEL ══════════════════════
+       Farewises Segments-tabel kommer ud af udklipsholderen paa to former,
+       alt efter hvor man markerer:
+         a) ÉN LINJE pr. flyvning, cellerne skilt af tabulator
+         b) ÉN LINJE pr. CELLE — «EY178», «789», «Z», «Business», …
+       Form b er den, Wendie faktisk fik, og den er farlig: laeser man
+       «fremad» fra ruten, henter man den NAESTE flyvnings fly. Det var
+       praecis det, hun saa — EY178 stod med 32A, som er EY700's fly, og
+       EY177 stod uden noget som helst. Alt var forskudt ét trin.
+       Form a laeses derfor som CELLER (raekkefoelgen er ligegyldig, hver
+       celle kendes paa sin form), form b som linjer i den retning,
+       flynummeret ligger. */
+    const celler = String(blok[0]).split(/\t|\s{2,}/).map(c=>c.trim()).filter(Boolean);
+    if(celler.length >= 5){
+      for(const c of celler){
+        if(!seg.type){ const eq = /^(\d{2}[A-Z0-9]|[0-9]{3}|[A-Z]\d{2,3})$/.exec(c);
+          if(eq && eq[1] !== (seg.nr||'').slice(2)) { seg.type = eq[1]; continue; } }
+        if(!seg.bk && /^[A-Z]$/.test(c)){ seg.bk = c; continue; }
+        if(!seg.kabine){ const ka = /^(Premium\s+Economy|Economy|Business|First)$/i.exec(c);
+          if(ka){ seg.kabine = ka[1].replace(/\s+/g,' ')
+            .replace(/\b\w/g, z=>z.toUpperCase()); continue; } }
+      }
+    }
+    for(const l of (nummerFoerst ? foran : blok)){
+      const eq = /^\s*(\d{2}[A-Z0-9]|[0-9]{3}|[A-Z]\d{2,3})\s*$/.exec(l);
+      if(eq && !seg.type) seg.type = eq[1];
+      const bk = /^\s*([A-Z])\s*$/.exec(l);
+      if(bk && !seg.bk) seg.bk = bk[1];
+      const ka = /^\s*(Premium\s+Economy|Economy|Business|First)\s*$/i.exec(l);
+      if(ka && !seg.kabine) seg.kabine = ka[1].replace(/\s+/g,' ')
+        .replace(/\b\w/g, c=>c.toUpperCase());
+    }
     for(const l of blok){
+      /* Kabinen kan ogsaa staa PAA ruteliniens egen linje — det gjorde den
+         i den foerste Farewise-tekst: «Economy Copenhagen (CPH) …». */
+      if(!seg.kabine){
+        const ka2 = /\b(Premium\s+Economy|Economy|Business|First)\b/i.exec(l);
+        if(ka2) seg.kabine = ka2[1].replace(/\s+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      }
+      /* Statuskoden — «HK» er bekraeftet. Den staar mellem ruten og datoen
+         og er en af de koder, vi i forvejen holder ude af flynumrene. */
+      if(!seg.status){
+        const stm = /\b(HK|HL|HN|UN|UC|TK|OK|RR|SS|DS|PN|WL)\b/.exec(l);
+        if(stm) seg.status = stm[1];
+      }
       const d = /(\d{2})-(\d{2})-(\d{4})/.exec(l);
       if(d && !seg.dato) seg.dato = d[3]+'-'+d[2]+'-'+d[1];
       const ti = [...l.matchAll(/\b(\d{1,2}):(\d{2})\b/g)].map(m=>m[1].padStart(2,'0')+':'+m[2]);
@@ -14535,11 +14653,23 @@ function mkLaesTst(t){
    ét sted — saa laeserne kan blive ordret som de blev afproevet. */
 function mkTilPanda(b, rejse, pnr){
   const dato = b.dato || null;
-  const ankomstDato = (b.plus ? laegTil(dato, b.plus) : dato) || dato;
+  /* ══ ANKOMSTEN PAA DAGEN EFTER ══
+     Wendie 08.09.2026: hjemrejsen blev delt i to, «Videre til Abu Dhabi»
+     og en hjemrejse med to tomme ben. Aarsagen var HER: Farewise skriver
+     ÉN dato pr. straekning, og EY1000 SEZ→AUH gaar 20:00 og lander 00:35.
+     Uden noget der siger «dagen efter», stod ankomsten den 10., mens
+     EY177 gik den 11. — mere end et halvt doegn imellem, og saa mente
+     grupperingen med rette, at det var to forskellige etaper.
+     Reglen er ubetinget: lander man tidligere paa uret end man letter, er
+     man landet dagen efter. Et eksplicit «+1» i teksten vejer tungere. */
+  const plusDage = b.plus ? b.plus
+    : (b.ud && b.an && String(b.an) < String(b.ud) ? 1 : 0);
+  const ankomstDato = (plusDage ? laegTil(dato, plusDage) : dato) || dato;
   const p = {nr:b.nr, flynr:b.nr, kode:b.selskab || (b.nr||'').slice(0,2) || null,
     dato, ud:b.ud || null, an:b.an || null, fra:b.fra || null, til:b.til || null,
-    fraBy: byAf(b.fra), tilBy: byAf(b.til), ankomstDato, plus: !!b.plus,
-    flyvetid:null, flytype: b.type || null, kabine: b.bk || (rejse&&rejse.klasse) || null,
+    fraBy: byAf(b.fra), tilBy: byAf(b.til), ankomstDato, plus: !!plusDage,
+    flyvetid:null, flytype: b.type || null, bk: b.bk || null, status: b.status || null,
+    kabine: b.kabine || (rejse && rejse.klasse) || null,
     bagage: (rejse && rejse.bagage) || null, forplejning:null, terminal:null,
     pnr: pnr || null};
   /* Flyvetiden REGNES af tidszonerne, naar vi kender lufthavnene. Kun hvis
@@ -14732,15 +14862,20 @@ function flyBenHtml(elId, i, j){
     return a < u; })();
   const byLinje = k => { const b = byAf(k); return b ? `<div class="r-benhj">${escH(b)}</div>`
     : (k ? `<div class="r-benhj r-benukendt">ukendt kode</div>` : ''); };
-  return `<tr class="r-benret"><td colspan="8">
+  return `<tr class="r-benret"><td colspan="11">
     <div class="r-benfelt">
       <div><label>Flynr.</label>${t('nr','EY178','86px')}
         <div class="r-benhj">${escH(selskabAf(x.nr) || '')}</div></div>
-      <div><label>Dato</label>${dato}</div>
+      <div><label>Fly</label>${t('flytype','789','72px')}
+        <div class="r-benhj">equipment</div></div>
+      <div><label>Klasse</label>${t('bk','Z','48px')}</div>
+      <div><label>Kabine</label>${t('kabine','Business','92px')}</div>
       <div><label>Fra</label>${t('fra','CPH','56px')}${byLinje(x.fra)}</div>
+      <div><label>Til</label>${t('til','AUH','56px')}${byLinje(x.til)}</div>
+      <div><label>Status</label>${t('status','HK','50px')}</div>
+      <div><label>Dato</label>${dato}</div>
       <div><label>Afgang</label>${t('ud','11:10','78px')}
         <div class="r-benhj">lokal tid</div></div>
-      <div><label>Til</label>${t('til','AUH','56px')}${byLinje(x.til)}</div>
       <div><label>Ankomst</label>${t('an','19:25','78px')}
         <div class="r-benhj" id="${id('dag')}">${dagEfter
           ? '<b class="r-p1">+1</b> dagen efter' : 'lokal tid'}</div></div>
@@ -14756,7 +14891,6 @@ function flyBenHtml(elId, i, j){
           : (zoneAf(x.fra) && zoneAf(x.til) ? 'udfyld tider og dato'
              : 'tidszonen mangler på ' + escH([x.fra,x.til].filter(k=>k && !zoneAf(k)).join(' og ') || 'lufthavnen'))
         }</div></div>
-      <div class="r-benbred"><label>Flytype</label>${t('flytype','Boeing 787-9','100%')}</div>
       <div><label>Terminal</label>${t('terminal','','72px')}</div>
       <div class="r-benslut">
         <button class="r-benluk" onclick="event.stopPropagation();RS.retBen('${elId}',${i},-1)">Færdig</button>
@@ -15469,19 +15603,30 @@ function linjeKrop(e, l, i){
         <div class="r-etaabn" onclick="event.stopPropagation();RS.foldPlan('${e.id}',${i})">
           Vis dato, tider, flytype og flyvetid — og ret dem</div>
       </div>`;
-      return `<table class="r-segt r-vis r-segfast">
-        <colgroup><col style="width:82px"><col style="width:74px"><col style="width:52px">
-          <col style="width:66px"><col style="width:52px"><col style="width:78px">
-          <col style="width:82px"><col></colgroup>
-        <thead><tr><th>Rute</th><th>Dato</th><th>Fra</th><th>Afgang</th><th>Til</th>
-          <th>Ankomst</th><th>Flyvetid</th><th>Fly</th></tr></thead>
+      /* ══ SAMME RAEKKEFOELGE SOM FAREWISE ══
+         Wendie 08.09.2026: «det skal staa i den raekkefoelge, fordi det er
+         meget nemmere for os, naar vi hele tiden laeser ind i Farewise, at
+         det ogsaa staar paa samme maade i Panda.»
+         Farewises Segments-tabel: Flight No · Equipment · Class · Cabin ·
+         From · To · Status · Date · Departure · Arrival · Duration.
+         Ordene er vores, pladserne er Farewises — saa oejet kan gaa fra den
+         ene skaerm til den anden uden at lede. «Duration» heder Flyvetid,
+         fordi det er det, den er, og fordi den REGNES her. */
+      return `<table class="r-segt r-vis r-segfast r-segfw">
+        <colgroup><col style="width:70px"><col style="width:52px"><col style="width:44px">
+          <col style="width:74px"><col style="width:46px"><col style="width:46px">
+          <col style="width:48px"><col style="width:74px"><col style="width:62px">
+          <col style="width:68px"><col></colgroup>
+        <thead><tr><th>Flynr.</th><th>Fly</th><th>Klasse</th><th>Kabine</th>
+          <th>Fra</th><th>Til</th><th>Status</th><th>Dato</th>
+          <th>Afgang</th><th>Ankomst</th><th>Flyvetid</th></tr></thead>
         ${gr.map((g,gi)=>{
           /* Referencen staar dér, hvor den gaelder — ikke i overskriften
              for hele prislinjen. To billetter paa samme pris har hver sin. */
           const refs = [...new Set(g.map(x=>x.pnr).filter(Boolean))];
           const t = flyTider(g);
           return `<tbody class="r-seggrp${gi?' r-nygruppe':''}">
-            <tr class="r-seggr"><td colspan="8"><span class="r-vejnavn">${escH(vejNavn(gr, gi))}</span>${
+            <tr class="r-seggr"><td colspan="11"><span class="r-vejnavn">${escH(vejNavn(gr, gi))}</span>${
               refs.length ? `<span class="r-segref">Bookingref. <b>${escH(refs.join(' · '))}</b></span>` : ''}${
               gi ? `<span class="r-vend" onclick="event.stopPropagation();RS.vendEtape('${e.id}',${i},${
                 l.segmenter.indexOf(g[0])})">gør det til en mellemlanding i stedet</span>` : ''}</td></tr>
@@ -15494,28 +15639,32 @@ function linjeKrop(e, l, i){
               return (aaben ? flyBenHtml(e.id, i, j) : `<tr class="r-benrk"
                 onclick="event.stopPropagation();RS.retBen('${e.id}',${i},${j})"
                 title="Klik for at rette flyvningen">
-                <td>${escH(x.nr||x.flynr||'—')}</td><td>${x.dato?kortDato(x.dato):'—'}</td>
-                <td>${escH(x.fra||'')}</td><td>${escH(x.ud||'')}</td><td>${escH(x.til||'')}</td>
+                <td>${escH(x.nr||x.flynr||'—')}</td>
+                <td class="r-segfly">${escH(x.flytype||'—')}</td>
+                <td class="r-segbk">${escH(x.bk||'')}</td>
+                <td class="r-segkab">${escH(x.kabine||'')}</td>
+                <td>${escH(x.fra||'')}</td><td>${escH(x.til||'')}</td>
+                <td class="r-segst">${escH(x.status||'')}</td>
+                <td>${x.dato?kortDato(x.dato):'—'}</td>
+                <td>${escH(x.ud||'')}</td>
                 <td>${escH(x.an||'')}${x.plus?'<span class="r-p1">+1</span>':''}</td>
-                <td class="r-segtid">${x.flyvetid?escH(flyvetidTxt(x.flyvetid)):'—'}</td>
-                <td class="r-segfly">${escH(x.flytype||'—')}</td></tr>`)
+                <td class="r-segtid">${x.flyvetid?escH(flyvetidTxt(x.flyvetid)):'—'}</td></tr>`)
               /* Panda VISER sin beslutning om, hvor en etape begynder, og
                  lader den vende med ét klik. Wendie: «måske man skal kunne
                  hakke af eller et eller andet.» Hellere se beslutningen end
                  skulle huske at sætte et flueben. */
-              + (t.stop[xi] ? `<tr class="r-mellemr"><td colspan="6"></td>
-                  <td colspan="2">Mellemlanding i ${escH(t.stop[xi].by||'—')} ·
+              + (t.stop[xi] ? `<tr class="r-mellemr"><td colspan="7"></td>
+                  <td colspan="4">Mellemlanding i ${escH(t.stop[xi].by||'—')} ·
                   <b>${escH(t.stop[xi].tid)}</b>
                   <span class="r-vend" onclick="event.stopPropagation();RS.vendEtape('${e.id}',${i},${
                     l.segmenter.indexOf(g[xi+1])})">gør det til en ny etape</span></td></tr>` : '');
             }).join('')}
-            <tr class="r-segsum"><td colspan="6"></td>
-              <td class="r-ialtv">${t.mangler ? '—' : escH(t.ialt)}</td>
-              <td class="r-ialtl">${t.mangler
+            <tr class="r-segsum"><td colspan="10" class="r-ialtl">${t.mangler
                 ? 'flyvetiden mangler på en flyvning'
                 : (t.stopMin
                     ? `i alt · ${escH(flyVarighed(t.flyvetidMin))} i luften + ${escH(flyVarighed(t.stopMin))} på jorden`
-                    : 'i alt')}</td></tr>
+                    : 'i alt')}</td>
+              <td class="r-ialtv">${t.mangler ? '—' : escH(t.ialt)}</td></tr>
           </tbody>`;}).join('')}
       </table>
       <button class="r-tilfoej r-tilfben"
