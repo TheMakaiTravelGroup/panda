@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.26 · 08.09.2026
+<!-- Panda · v1.27 · 08.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,25 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.27 — OVERSKRIFTEN FOELGER PLANEN, OGSAA NAAR DEN BLIVER TOM.
+
+     Wendie 08.09.2026: «efter at jeg fjernede de der flyvninger, saa staar
+     der jo stadigvaek oppe i hovedlinjen, at der er 16 flyvninger, og det
+     flyver paa kryds og tvaers af alt muligt naermest.»
+
+     Overskriften blev SKREVET, naar en billet blev laest ind — og aldrig
+     regnet om bagefter. Sletter man planen, bliver teksten staaende som et
+     minde om noget, der ikke er der. Nu er der ÉN funktion,
+     flyOverskrift(), og den regner overskriften af den VALGTE prislinjes
+     flyvninger, hver gang planen aendrer sig: laegges til, slettes, deles
+     eller samles. Den skriver aldrig «null» — en flyvning uden
+     ankomstlufthavn staar som «AUH → ?», fordi den mangler noget, og det
+     skal kunne ses.
+
+     «Business Copenhagen» var ikke en kabine. Grebet
+     /business\s*\w*/ slugte det foerste ord af «Copenhagen (CPH)» paa
+     linjen efter. Klassenavne er lukkede ord og matches nu som de er.
 
      v1.26 — FLYPLANEN STAAR SOM I FAREWISE, OG DEN SAMME FLYVNING
              KAN IKKE LIGGE TO GANGE.
@@ -4389,7 +4408,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.26';
+const APP_VERSION = 'v1.27';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -14184,6 +14203,53 @@ function vejNavn(veje, k){
    Foer delte den paa datoskift, og en billet der lander 23:40 og flyver
    videre 02:10 blev revet i to. */
 function flyVeje(ben){ return flyGrupper(ben || []); }
+/* ══ OVERSKRIFTEN SKAL FOELGE PLANEN — OGSAA NAAR DEN BLIVER TOM ═══
+   Wendie 08.09.2026: «efter at jeg fjernede de der flyvninger, saa staar
+   der jo stadigvaek oppe i hovedlinjen, at der er 16 flyvninger, og det
+   flyver paa kryds og tvaers af alt muligt naermest.»
+   Aarsagen: overskriften blev SKREVET, naar en billet blev laest ind — og
+   aldrig regnet om bagefter. Sletter man planen, bliver teksten staaende
+   som et minde om noget, der ikke er der.
+   Nu er der ÉN funktion, og den regner overskriften af den VALGTE
+   prislinjes flyvninger, hver gang planen aendrer sig — laegges til,
+   slettes, deles eller samles. Er der ingen flyvninger, siger den det ved
+   ikke at sige noget: «Fly», og ruten fra formen, hvis den er der.
+   Og den skriver ALDRIG «null»: en flyvning uden ankomstlufthavn er en
+   flyvning, der mangler noget, og det skal se sådan ud — «AUH → ?». */
+async function flyOverskrift(elId){
+  const e = ELEMENTER.find(x=>x.id===elId);
+  if(!e || e.slags !== 'fly') return true;
+  const idx = valgteIdx(e.id);
+  const l = idx.length ? st[e.id].linjer[idx[0]]
+          : (st[e.id].linjer||[]).find(x=>x.slag==='grundlag');
+  const ben = (l && l.segmenter) || [];
+  const kode = k => k || '?';
+  const raa = e.raa || {};
+  if(!ben.length){
+    e.navn = raa.rute ? 'Fly · ' + raa.rute : 'Fly';
+    e.sub  = [raa.selskab, raa.klasse].filter(Boolean).join(' · ') || null;
+  } else {
+    const veje = flyVeje(ben);
+    e.navn = 'Fly · ' + veje.map(v =>
+      kode(v[0].fra) + ' → ' + kode(v[v.length-1].til)).join(' · ');
+    /* Selskabet og kabinen tages af FLYVNINGERNE, ikke af et gammelt
+       felt — saa de ikke kan sige noget andet end ruten under dem. */
+    const sel = [...new Set(ben.map(x=>selskabAf(x.nr)).filter(Boolean))];
+    const kab = [...new Set(ben.map(x=>x.kabine).filter(Boolean))];
+    e.sub = [sel.length === 1 ? sel[0] : (sel.length ? sel.length + ' selskaber' : null),
+             kab.length === 1 ? kab[0] : null,
+             ben.length + (ben.length === 1 ? ' flyvning' : ' flyvninger')]
+            .filter(Boolean).join(' · ');
+  }
+  const {error} = await db.from('trip_elements')
+    .update({description: e.navn,
+             details: {...(e.details||{}), lev:e.lev, sub:e.sub, type:e.type,
+                       hotel:e.hotel, kilde:e.kilde, subs:e.subs||[], raa:e.raa}})
+    .eq('id', elId);
+  if(error){ kvitter('fejl','Ydelsens overskrift kunne ikke gemmes: '+error.message);
+    return false; }
+  return true;
+}
 /* Traekker man billetten ind paa en PRISLINJE, hoerer ruten til dén linje.
    Elementets overskrift og rejseplanens datoer foelger med, saa siden siger
    det samme hele vejen igennem. */
@@ -14389,7 +14455,10 @@ async function flyBrugPlan(elId, i, r, maade, kildeNavn, vis){
          feltet, mens overskriften over det siger noget andet. */
       if(NY.aaben && NY.retter === elId) NY.f = {...e.raa, val: e.val || KUNDEVAL};
     }
-    e.navn = 'Fly · ' + veje.map(v=>v[0].fra + ' → ' + v[v.length-1].til).join(' · ');
+    /* Overskriften regnes af ÉN funktion — den samme, der koerer naar man
+       sletter en flyvning. Foer stod reglen to steder, og saa kunne de to
+       komme til at sige noget forskelligt om den samme billet. */
+    await flyOverskrift(elId);
     /* Planlinjerne synkroniseres af ÉN funktion — den samme, der koerer
        naar man vaelger en anden pris. Foer stod reglen to steder, og saa
        kunne de to gaa fra hinanden. */
@@ -14570,7 +14639,11 @@ function mkRejsen(t){
   const pnr = /\b(?:PNR|Ref(?:erence)?|Booking)[\s:.]*([A-Z0-9]{5,7})\b/i.exec(tekst);
   r.pnr = pnr ? pnr[1].toUpperCase() : null;
   if(/Overnight connection/i.test(tekst)) r.natforbindelse = true;
-  const kl = /\b(economy\s+\w+|premium\s+economy|business\s*\w*|first\s*\w*|economy)\b/i.exec(tekst);
+  /* «Business Copenhagen» stod i overskriften. Det var IKKE en kabine —
+     det var «business\s*\w*», som slugte det foerste ord af «Copenhagen
+     (CPH)» paa linjen efter. Klassenavne er lukkede ord; de skal matches
+     som de er, ikke med et frit ord haengende bagefter. */
+  const kl = /\b(premium\s+economy|economy\s+(?:light|classic|flex|standard|basic|saver|value)|business(?:\s+class)?|first(?:\s+class)?|economy)\b/i.exec(tekst);
   if(kl) r.klasse = kl[1].replace(/\s+/g,' ').trim().replace(/\b\w/g,c=>c.toUpperCase());
   return r;
 }
@@ -14991,7 +15064,9 @@ function retBen(elId, i, j){
       seg.sort((a,b)=>noegle(a).localeCompare(noegle(b)));
     }
     st[elId].retterBen = null;
-    roert(elId, i); tegnListe(); tegnPlan(); synkPlanlinjer(elId);
+    roert(elId, i);
+    flyOverskrift(elId).then(()=>{ tegnListe(); });
+    tegnListe(); tegnPlan(); synkPlanlinjer(elId);
     return;
   }
   st[elId].retterBen = i + ':' + j;
@@ -15077,14 +15152,18 @@ async function sletBen(elId, i, j){
   if(!confirm('Fjern ' + (x.nr || 'flyvningen') + (x.fra&&x.til ? ' ' + x.fra + '→' + x.til : '')
     + ' fra den her pris?')) return;
   seg.splice(j, 1);
-  roert(elId, i); tegnListe(); tegnPlan();
+  roert(elId, i);
+  if(!await flyOverskrift(elId)) return;
+  tegnListe(); tegnPlan();
   await synkPlanlinjer(elId); opdaterDatoer();
 }
 /* Vender Pandas beslutning om, hvor en etape begynder. */
 async function vendEtape(elId, i, j){
   const seg = benListe(elId, i); if(!seg || !seg[j] || j === 0) return;
   seg[j].nyEtape = !delerEtape(seg[j-1], seg[j]);
-  roert(elId, i); tegnListe(); tegnPlan();
+  roert(elId, i);
+  if(!await flyOverskrift(elId)) return;
+  tegnListe(); tegnPlan();
   await synkPlanlinjer(elId); opdaterDatoer();
 }
 async function sletFlyplan(elId, i){
@@ -15097,6 +15176,9 @@ async function sletFlyplan(elId, i){
     + 'og du kan trække en ny billet ind bagefter.')) return;
   l.segmenter = null;
   if(l.raa) delete l.raa.pnr;
+  /* Overskriften regnes om FOER planlinjerne ryddes, saa siden ikke staar
+     et oejeblik med «16 flyvninger» over en tom plan. */
+  if(!await flyOverskrift(elId)) return;
   /* Er linjen valgt, mister rejseplanen sit grundlag — saa skal de
      planlinjer, der levede af den, ogsaa vaek. */
   if(erValgt(elId, i)){
