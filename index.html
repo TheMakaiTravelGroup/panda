@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.19 · 07.09.2026
+<!-- Panda · v1.20 · 08.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -2746,6 +2746,12 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    man den foerst, naar kunden staar i Malé. */
 #rsside .r-mangltr{color:var(--bad)}
 
+/* Kan der ikke prissoeges, staar der HVAD der mangler. En knap, der
+   forsvinder uden at sige hvorfor, er den slags man ender med at lede
+   efter — og det var praecis, hvad der skete. */
+#rsside .r-hentmangl{float:right;font-size:10.5px;color:#a89f86;font-style:italic;
+  letter-spacing:0;text-transform:none;font-weight:400;cursor:help}
+
 #rsside .r-dato{position:absolute;left:-196px;top:12px;width:150px;text-align:right}
 
 #rsside .r-dato .r-d{font-family:'Playfair Display',Georgia,serif;font-size:17px;line-height:1.15;
@@ -4192,7 +4198,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.19';
+const APP_VERSION = 'v1.20';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -12259,11 +12265,15 @@ function planTekst(p){
      vandflyet naesten altid indeholdt i hotellets kontraktpris — men den
      skal kunne ses, og hvis den mangler, skal DET ogsaa kunne ses. */
   if(p.art === 'Hotel'){
-    const raa = (e.raa) || {};
-    const tr = raa.transfer || (e.details||{}).transfer || '';
-    if(tr) sub = [sub, tr].filter(Boolean).join(' · ');
-    else   sub = [sub, '<span class="r-mangltr">transfer mangler</span>']
-                 .filter(Boolean).join(' · ');
+    /* Wendie 07.09.2026: transferen er en delydelse, ikke en tekst — saa
+       linjen her skal laese DELYDELSERNE, ikke et raat felt. Findes der
+       ingen, siges det: en manglende transfer opdager man ellers foerst,
+       naar kunden staar i Malé. */
+    const dele = linjer.flatMap(l => (l.subs||[]).map(x=>String(x.t||'').trim()))
+                       .filter(Boolean);
+    sub = [sub, dele.length ? dele.join(' · ')
+                : '<span class="r-mangltr">ingen transfer lagt ind</span>']
+          .filter(Boolean).join(' · ');
   }
   if(p.art === 'Fly'){
     const medSeg = linjer.find(x=>(x.segmenter||[]).length);
@@ -12928,7 +12938,7 @@ function stigeHtml(e){
           if(!subs) return `<span class="r-pr">${kr(l.pris, l.val)}
             ${l.val!=='DKK' ? `<small>≈ ${krD(tilDkk2(l.pris,l.val))}</small>` : ''}</span>`;
           return `<span class="r-pr">${krD(ialt)}
-            <small class="r-opdel">${kr(l.pris, l.val)} + ${krD(subs)} i delelementer</small></span>`;
+            <small class="r-opdel">${kr(l.pris, l.val)} + ${krD(subs)} i delydelser</small></span>`;
         })()}
         <span class="r-dif">${l.slag==='grundlag' ? ''
           : difTekst(linjePris(l), g)}</span>
@@ -13213,6 +13223,25 @@ function tilbudBoks(){
 }
 function tilbudLuk(){ TILBUD = null; const b=document.getElementById('tilbudSvar'); if(b) b.innerHTML=''; }
 
+/* ══ TRANSFEREN SOM DELYDELSE ════════════════════════════════════════
+   Wendie 07.09.2026: «transferen skal oprettes under delelement paa
+   hotellet, hvis det er noget, der indgaar i prisen. Og saa skal der jo
+   bare staa til 0 kroner i princippet.»
+   Vandflyet ligger naesten altid i hotellets kontraktpris — maalt: 759 af
+   763 Maldiverne-rejser har en transfer, og de fleste staar til 0,00 i
+   Dolphin, netop fordi de er indeholdt. 0 kr. er derfor ikke en manglende
+   pris; det er den rigtige pris, og den skal staa. Laegges den samme
+   transfer ind igen, bliver den ikke lagt to gange. */
+function transferSub(subs, tekst, val){
+  const liste = (subs || []).map(x=>({...x}));
+  const t = String(tekst || '').trim();
+  if(!t) return liste;
+  if(liste.some(x=>String(x.t||'').trim().toLowerCase() === t.toLowerCase()))
+    return liste;                      /* den er der allerede */
+  liste.push({ t, u:'indeholdt i hotellets pris', p:0, val: val || 'DKK' });
+  return liste;
+}
+
 /* Skriver ydelserne. Prisen faar «Fra tilbuddet» som kilde, saa det for
    altid staar paa linjen, hvor tallet kom fra — en tilbudspris er fra
    dengang, ikke fra nu. */
@@ -13246,10 +13275,15 @@ async function tilbudLaegInd(){
           g.lev = x.lev || g.lev; g.naar = iDag() + ' · ' + (window.ME||'WEN');
           if(x.villa) g.villaer = [{a:1, t:x.villa, mp:x.mp||''}];
           g.daekker = x.naetter!=null ? x.naetter+' nætter' : (g.daekker||'—');
+          /* Wendie 07.09.2026: transferen er en DELYDELSE under hotellet,
+             ikke en tekst. Til 0 kr., fordi den er indeholdt i hotellets
+             pris — saa siger den «ydelsen findes» uden at flytte summen. */
+          if(x.transfer) g.subs = transferSub(g.subs, x.transfer, x.val);
           if(g._id){
             const r = await db.from('element_prices').update({
               amount:x.pris, currency:x.val, kilde, supplier_name:g.lev||null,
-              villaer:g.villaer||[], daekker:g.daekker, naar_tekst:g.naar
+              villaer:g.villaer||[], daekker:g.daekker, naar_tekst:g.naar,
+              subs: g.subs || []
             }).eq('id', g._id);
             if(r.error) throw new Error(r.error.message);
           }
@@ -13285,7 +13319,10 @@ async function tilbudLaegInd(){
            sige hvor tallet KOM fra. */
         const ny = ELEMENTER[ELEMENTER.length-1];
         const g2 = (st[ny.id]||{}).linjer && st[ny.id].linjer[0];
-        if(g2){ g2.kilde = kilde; }
+        if(g2){
+          g2.kilde = kilde;
+          if(x.transfer) g2.subs = transferSub(g2.subs, x.transfer, x.val);
+        }
         nye++;
       }
     }catch(e2){ fejl.push((x.navn||'ydelsen') + ': ' + e2.message); }
@@ -14474,8 +14511,18 @@ function tegnListeInd(){
 
         <div class="r-blok">
           <div class="r-bt">Priser <span class="r-n">grundlaget øverst · alt måles mod den</span>
-            ${e.soeg ? `<button class="r-hent" onclick="RS.hentDagens('${e.id}')">${
-              s.hentet ? 'Hent igen' : 'Hent dagens pris'}</button>` : ''}
+            ${(()=>{
+              /* Wendie 07.09.2026: knappen var usynlig, fordi `soeg` aldrig
+                 blev sat. Nu regnes den — og kan den ikke regnes, staar der
+                 HVAD der mangler i stedet for ingenting. */
+              const q = soegAf(e);
+              if(!q) return '';
+              if(q.mangler) return `<span class="r-hentmangl"
+                title="Prissøgningen har brug for: ${escH(q.mangler.join(', '))}"
+                >kan ikke prissøges — mangler ${escH(q.mangler.join(' og '))}</span>`;
+              return `<button class="r-hent" onclick="RS.hentDagens('${e.id}')">${
+                s.hentet ? 'Hent igen' : 'Hent dagens pris'}</button>`;
+            })()}
             </div>
           <!-- Wendie 01.09.2026: «det her kan vi laegge ind under prislinjen
                for det, der er fundet fra editoren, saa det er gemt vaek fra
@@ -14770,7 +14817,7 @@ function linjeKrop(e, l, i){
     ${holdHtml}
     ${segHtml}
     ${bilHtml}
-    ${(l.slag === 'editor' || l.slag === 'kontrakt') && e.soeg ? `<div class="r-pk">
+    ${(l.slag === 'editor' || l.slag === 'kontrakt') && soegAf(e) && !soegAf(e).mangler ? `<div class="r-pk">
       <div class="r-soegt">
         <div class="r-sl"><b>Søgt på:</b> ${soegeTekst(e)}</div>
         <div class="r-sl2"><b>To kilder spørges hver gang:</b>
@@ -14805,7 +14852,7 @@ function linjeKrop(e, l, i){
       </div>` : ''}
 
     <div class="r-pk">
-      <div class="r-pt2">Delelementer på den her pris
+      <div class="r-pt2">Delydelser på den her pris
 </div>
       <div class="r-dele">
         ${(l.subs||[]).map((x,j)=>`<div class="r-sr">
@@ -14822,8 +14869,8 @@ function linjeKrop(e, l, i){
                 `<option ${v===l.val?'selected':''}>${v}</option>`).join('')}</select></div>
           </span>
           <button class="r-tf" onclick="RS.gemLSub('${e.id}',${i})">Tilføj</button></div>` : ''}
-        <button class="r-tilf" onclick="RS.nyLSub('${e.id}',${i})">+ Tilføj delelement under ${l.lev}</button>
-        ${(l.subs||[]).length ? `<div class="r-subsum"><span>Linjen i alt, med delelementer</span>
+        <button class="r-tilf" onclick="RS.nyLSub('${e.id}',${i})">+ Tilføj delydelse under ${l.lev}</button>
+        ${(l.subs||[]).length ? `<div class="r-subsum"><span>Linjen i alt, med delydelser</span>
           <b>${krD(linjePris(l))}</b></div>` : ''}
       </div>
     </div>
@@ -15164,7 +15211,13 @@ async function hentArkiv(e, q){
   }
 }
 async function hentDagens(id){
-  const e = ELEMENTER.find(x=>x.id===id), q = e.soeg;
+  const e = ELEMENTER.find(x=>x.id===id);
+  const q = soegAf(e);
+  if(!q || q.mangler){
+    alert('Prissøgningen mangler ' + ((q&&q.mangler)||['noget']).join(' og ')
+      + '. Udfyld det på ydelsen først.');
+    return;
+  }
   st[id].linjer = st[id].linjer.filter(l=>l.slag!=='editor');
   const oensket = mpGruppe(q.mp);
   const passer = r =>
@@ -15192,9 +15245,58 @@ async function hentDagens(id){
   if(!st[id].valgte.length) st[id].valgte = [0];
   tegnListe();
 }
+/* ══ SOEGNINGEN REGNES, DEN GEMMES IKKE ══════════════════════════════
+   Wendie 07.09.2026: «hvor er den blevet af? Den er bare forsvundet.»
+   Knappen «Hent dagens pris» vises kun, naar der findes en soegning paa
+   ydelsen — og `soeg` blev aldrig SAT nogen steder i koden. Den kom fra
+   mockuppens data. En ydelse fra tilbuddet eller fra en booking havde
+   derfor ingen, og saa var knappen usynlig paa hver eneste rigtige rejse.
+
+   Alt, soegningen kraever, staar allerede paa ydelsen. Saa vi regner den:
+     villa + forplejning  fra den valgte prislinjes vaerelse
+     naetter + ankomst    fra hotelelementets EGNE datoer (ikke rejsens)
+     voksne + boern       fra rejsens rejsende, med alder pr. ankomstdato
+   Mangler noget, siger vi HVAD — vi skjuler ikke knappen. */
+function soegAf(e){
+  if(!e) return null;
+  if(e.soeg) return e.soeg;                    /* er den gemt, gaelder den */
+  if(e.slags !== 'hotel') return null;         /* kun hoteller kan prissoeges */
+  const s2 = st[e.id] || {};
+  const idx = valgteIdx(e.id);
+  const l = (idx.length ? (s2.linjer||[])[idx[0]] : (s2.linjer||[])[0]) || {};
+  const v = (l.villaer||[])[0] || (((e.raa||{}).villaer)||[])[0] || {};
+  const p = PLAN.find(x=>x.elId === e.id) || {};
+  const fra = p.fra || e.fra || null;
+  const til = p.til || e.til || null;
+  const naetter = (fra && til) ? naetterMellem(fra, til) : null;
+  /* De rejsende: voksen = 18 aar eller mere PAA ANKOMSTDAGEN. Et barn,
+     der fylder 18 undervejs, er stadig barn i hotellets kontrakt. */
+  let voksne = null, boern = null;
+  if(REJSENDE.length && fra){
+    const aldre = REJSENDE.map(r=>alderVed(r.foedt, fra));
+    if(aldre.every(a=>a != null)){
+      voksne = aldre.filter(a=>a >= 18).length;
+      boern  = aldre.filter(a=>a <  18).length;
+    }
+  }
+  if(voksne == null){                          /* ingen foedselsdatoer endnu */
+    voksne = Number((TUR||{}).pax_count) || null;
+    boern = voksne != null ? 0 : null;
+  }
+  const mangler = [];
+  if(!e.hotel)          mangler.push('hotellets navn');
+  if(!v.t)              mangler.push('villatypen');
+  if(!fra)              mangler.push('ankomstdatoen');
+  if(naetter == null || naetter <= 0) mangler.push('antal nætter');
+  if(voksne == null)    mangler.push('de rejsende');
+  if(mangler.length) return {mangler};
+  return { villa: v.t, mp: v.mp || '', naetter, voksne, boern,
+           ankomst: fra, regnet: true };
+}
+
 /* Hvad der blev soegt paa — saa man ikke skal tage vores ord for det. */
 function soegeTekst(e){
-  const q = e.soeg; if(!q) return '';
+  const q = soegAf(e); if(!q || q.mangler) return '';
   const g = mpGruppe(q.mp);
   return `${q.villa} · ${q.mp || 'alle forplejninger'} · ${q.naetter} nætter
     · ${q.voksne} voksne + ${q.boern} børn · ankomst ${kortDato(q.ankomst)}`
@@ -16409,7 +16511,12 @@ function elementFra(e, mine){
   return { id: e.id, slags: SLAGS_AF_TYPE[e.element_type] || 'andet',
     navn: e.description || '', sub: d.sub || '', lev: d.lev || '',
     val: (e.buy_currency || e.tilbud_buy_currency || KUNDEVAL || 'DKK').trim(),
-    hotel: d.hotel || hotelFraNavn(e.description), soeg: e.soeg || null,
+    hotel: d.hotel || hotelFraNavn(e.description),
+    /* Wendie 07.09.2026: knappen «Hent dagens pris» kunne ALDRIG vises paa
+       en rigtig rejse. Der stod `e.soeg`, men feltet bor i details — saa
+       den var altid tom, uanset hvad der stod i basen. Nu laeses det
+       rigtige sted, og findes det ikke, regner soegAf() den selv. */
+    soeg: d.soeg || null,
     stdSpan: e.std_span || undefined, spandNavn: d.spandNavn || undefined,
     kilde: d.kilde || 'tilbud', type: d.type || null, raa: d.raa || null,
     /* sort foelger med, saa vi kan se HVILKE raekker der faktisk har flyttet
