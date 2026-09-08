@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.23 · 08.09.2026
+<!-- Panda · v1.25 · 08.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,59 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.25 — LAESERNE FRA MOCKUPPEN KOM MED I PANDA.
+
+     Wendie 08.09.2026: «det foeles lidt som spild af tid, alt det vi lige
+     har siddet og lavet i mockuppen, fordi du har jo ikke lavet noget af
+     det … den maade jeg kunne kopiere ind, baade i forhold til om det kom
+     fra Farewise eller om det kom fra Amadeus, det virker jo overhovedet
+     ikke i den rigtige version.»
+
+     Hun havde ret. Mockuppen fik fire laesere, som blev afproevet paa
+     hendes egne tekster — og de blev aldrig flyttet ind i Panda. Panda
+     havde kun sine gamle laesere, og de kraever en PDF eller et billede
+     gennem billedgenkendelsen. Der var ingen doer ind for TEKST. Man kunne
+     staa med ⌘V og se INGENTING ske, fordi ⌘V kun kiggede efter en
+     billedfil i udklipsholderen.
+
+     Nu er de fire med, ordret som de blev afproevet:
+       mkCryptic       Amadeus PNR: «5  EK 160 K 16OCT 5 OSLDXB HK4 1435 2325»
+       mkRuteankret    Farewise-soegning, hvor RUTEN er ankeret
+       mkTstFarewise   «Etihad Airways (EY) 4 5.905,- 3.408,- 88,- — 37.604,-»
+       mkTstAmadeus    «List of TSTs» — navne, CHD og ét beloeb pr. TST
+
+     Og der er nu TRE doere ind: et synligt felt under traekfeltet, ⌘V i
+     traekfeltet, og filerne som foer. Alle tre ender i ÉN funktion,
+     flyBrugPlan, saa en indsat tekst og en indlaest PDF bliver til samme
+     flyplan efter samme regler.
+
+     Efterproevet i node paa alle fire tekster: 4 ben ud af hver af de to
+     flyplaner, flyvetiden REGNET af tidszonerne (EK159 DXB→OSL den
+     25.10.2026 rammer sommertidsskiftet og giver rigtigt 7 t 35),
+     Farewise-TST'en lukker (9.401 x 4 = 37.604), og Amadeus-TST'en siger
+     2 voksne og 2 boern — med spoergsmaalet stillet i stedet for gaettet:
+     45.474 eller 22.737 kr.
+
+     v1.24 — MAN KAN SLETTE EN YDELSE.
+
+     Wendie 08.09.2026: «hvordan sletter jeg et element på mellemlandingen?»
+     Svaret var: det kunne man ikke. Panda kunne slette en flyvning, en
+     flyplan, en prislinje, en delydelse og en villa — men ikke selve
+     ydelsen. Derfor sad hun fast med to test-fly, der tælte MED i
+     prisberegneren og gjorde dækningsgraden forkert.
+
+     Knappen «Fjern ydelsen fra rejsen» ligger nederst i ydelsen, under
+     priserne — ikke i overskriften, hvor den kan rammes ved et uheld.
+
+     Basen var allerede indrettet til det: element_prices og
+     trip_plan_items følger med (CASCADE). Men documents,
+     payment_allocations og tasks SPÆRRER (NO ACTION), og det er rigtigt —
+     en ydelse, der er betalt, står i et dokument eller har en opgave på
+     sig, må ikke bare forsvinde. Derfor spørges basen FØRST, så beskeden
+     siger hvorfor, i stedet for at vise en constraint-fejl bagefter. Og
+     før sletningen står der, hvad man mister: prislinjer, flyplaner,
+     skærmbilleder.
 
      v1.23 — FLYBOKSEN FÅR DET, MOCKUPPEN LOVEDE.
 
@@ -2818,6 +2871,17 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 #rsside .r-benregnet:focus{background:#fff;border-color:var(--gold);font-style:normal;color:var(--ink)}
 #rsside .r-benukendt{color:var(--bad)}
 
+/* «Fjern ydelsen» staar nederst i ydelsen, ikke i overskriften. En
+   handling, der ikke kan fortrydes, skal ligge et sted man gaar HEN — ikke
+   et sted man kommer forbi. */
+#rsside .r-ydslet{margin-top:10px;padding-top:9px;border-top:1px dashed #ece2ca;text-align:right}
+
+#rsside .r-ydslet button{background:none;border:1px dashed #e3bfae;border-radius:2px;
+  font-family:inherit;font-size:11.5px;color:#a3624a;padding:6px 13px;cursor:pointer}
+
+#rsside .r-ydslet button:hover{background:#fdf6f3;border-style:solid;border-color:var(--bad);
+  color:var(--bad)}
+
 /* Kan der ikke prissoeges, staar der HVAD der mangler. En knap, der
    forsvinder uden at sige hvorfor, er den slags man ender med at lede
    efter — og det var praecis, hvad der skete. */
@@ -3028,7 +3092,21 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-flyzone .r-pdf2{flex:0 0 190px}
 
-#rsside .r-sletplan{flex:none;font-family:inherit;font-size:11px;padding:0 13px;cursor:pointer;
+#rsside .r-sktabel{margin:8px 0;font-size:12.5px}
+.r-sktabel>div{display:flex;gap:10px;align-items:baseline;padding:3px 0;border-bottom:1px solid #efe9dd}
+.r-sktnavn{flex:1}
+.r-sktptc{color:#8a7f6b;font-size:11px;letter-spacing:.06em}
+.r-sktbel{font-variant-numeric:tabular-nums;font-weight:600}
+.r-skspoerg{margin:10px 0;padding:10px 12px;background:#fffaf0;border:1px solid #e6d9b8;border-radius:6px;font-size:12.5px;line-height:1.55}
+.r-skvalg{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.r-skvalg button{padding:7px 12px;border:1px solid #d8d0c2;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer}
+.r-skvalg button.paa{border-color:#6f8a4f;background:#eef3e4;font-weight:600}
+.r-flytekst{display:block;width:100%;margin:6px 0 0;padding:8px 10px;box-sizing:border-box;
+  border:1px dashed var(--kant,#d8d0c2);border-radius:6px;background:#fffdf8;
+  font:inherit;font-size:12.5px;color:var(--blk,#3a3226);resize:vertical;line-height:1.5}
+.r-flytekst::placeholder{color:#a89c88;font-style:italic}
+.r-flytekst:focus{outline:none;border-color:#8a9a6b;background:#fff}
+.r-sletplan{flex:none;font-family:inherit;font-size:11px;padding:0 13px;cursor:pointer;
   border:1px dashed #e0cdc4;background:#fdf6f4;color:#a3695a;border-radius:2px}
 
 #rsside .r-sletplan:hover{background:#f8e9e4;border-color:#cfa294;color:#8c4f3f}
@@ -4270,7 +4348,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.23';
+const APP_VERSION = 'v1.25';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -13035,7 +13113,70 @@ function stigeHtml(e){
         return a + (tilDkk2(l.pris,l.val)||0); },0))}</span></div>` : ''}
     ${s.nyLinje ? nyLinjeHtml(e) : ''}
     <button class="r-tilf" onclick="RS.nyLinje('${e.id}')">+ Tilføj prislinje</button>
+    <!-- Wendie 08.09.2026: «hvordan sletter jeg et element paa
+         mellemlandingen?» Man kunne ikke. Knappen ligger nederst, under
+         priserne — ikke i overskriften, hvor den kan rammes ved et uheld. -->
+    <div class="r-ydslet"><button onclick="event.stopPropagation();RS.sletElement('${e.id}')"
+      title="Fjerner ydelsen, dens priser og dens plads i rejseplanen">Fjern ydelsen fra rejsen</button></div>
   </div>`;
+}
+
+/* ══ FJERN EN YDELSE ═══════════════════════════════════════════════════
+   Basen sletter selv prislinjerne og rejseplanens punkter (CASCADE), men
+   naegter, hvis der haenger et dokument, en betaling eller en opgave paa
+   ydelsen (NO ACTION). Det er rigtigt — en betalt ydelse maa ikke bare
+   forsvinde — saa vi spoerger FOERST og siger hvorfor, i stedet for at
+   vise en databasefejl bagefter. */
+async function sletElement(elId){
+  const e = ELEMENTER.find(x=>x.id===elId); if(!e) return;
+  const s2 = st[elId] || {};
+  const navn = kortNavn(e) || e.navn || 'ydelsen';
+
+  /* 1. Er der noget, der spaerrer? */
+  let spaerre = [];
+  try{
+    const [rd, rp, rt] = await Promise.all([
+      db.from('documents').select('id',{count:'exact',head:true}).eq('element_id', elId),
+      db.from('payment_allocations').select('id',{count:'exact',head:true}).eq('element_id', elId),
+      db.from('tasks').select('id',{count:'exact',head:true}).eq('element_id', elId)
+    ]);
+    if(rd && rd.count) spaerre.push(rd.count + (rd.count===1?' dokument':' dokumenter'));
+    if(rp && rp.count) spaerre.push(rp.count + (rp.count===1?' betaling':' betalinger'));
+    if(rt && rt.count) spaerre.push(rt.count + (rt.count===1?' opgave':' opgaver'));
+  }catch(err){ console.warn('kunne ikke tjekke bindinger', err); }
+  if(spaerre.length){
+    alert('«' + navn + '» kan ikke fjernes: der hænger ' + spaerre.join(' og ')
+      + ' på den.\n\nDet er med vilje — en ydelse, der er betalt, står i et dokument '
+      + 'eller har en opgave på sig, må ikke bare forsvinde. Fjern det først.');
+    return;
+  }
+
+  /* 2. Sig HVAD der forsvinder, foer hun bekraefter. */
+  const antalLinjer = (s2.linjer||[]).length;
+  const antalBilleder = (s2.linjer||[]).reduce((a,l)=>a + (l.billeder||[]).length, 0);
+  const flyplaner = (s2.linjer||[]).filter(l=>(l.segmenter||[]).length).length;
+  const mister = [
+    antalLinjer ? antalLinjer + (antalLinjer===1?' prislinje':' prislinjer') : null,
+    flyplaner ? flyplaner + (flyplaner===1?' flyplan':' flyplaner') : null,
+    antalBilleder ? antalBilleder + (antalBilleder===1?' skærmbillede':' skærmbilleder') : null
+  ].filter(Boolean);
+  if(!confirm('Fjern «' + navn + '» fra rejsen?'
+    + (mister.length ? '\n\nDet fjerner også ' + mister.join(', ') + '.' : '')
+    + '\n\nDet kan ikke fortrydes.')) return;
+
+  /* 3. Slet i basen foerst — saa fladen ikke viser noget, der stadig staar. */
+  const r = await db.from('trip_elements').delete().eq('id', elId);
+  if(r && r.error){
+    alert('Ydelsen kunne ikke fjernes: ' + r.error.message);
+    return;
+  }
+  /* 4. Og saa ud af hukommelsen: ydelsen, dens tilstand og dens plads i planen. */
+  const k = ELEMENTER.findIndex(x=>x.id===elId);
+  if(k >= 0) ELEMENTER.splice(k, 1);
+  delete st[elId];
+  for(let n = PLAN.length - 1; n >= 0; n--) if(PLAN[n].elId === elId) PLAN.splice(n, 1);
+  if(NY.retter === elId){ NY.retter = null; NY.aaben = false; tegnNy(); }
+  tegnListe(); tegnPlan(); opdaterDatoer(); maerk();
 }
 
 /* Foer stod der «autofocus» paa de felter, der klappes ud. Attributten
@@ -13473,6 +13614,37 @@ function skaermBoks(){
       </div></div>`;
     return;
   }
+  if(SKAERM.slags === 'tstam'){
+    /* Det ene, teksten IKKE svarer paa: er «DKK 12548» pr. person eller
+       for hele TST'en? 45.474 mod 22.737 kr. Vi gaetter ikke paa en
+       indkoebspris — vi spoerger, og vi viser begge tal. */
+    const g = L.grundlag;
+    const sum = g === 'person' ? L.somPrPerson : g === 'tst' ? L.somPrTst : null;
+    b.innerHTML = `<div class="r-skboks ${g?'r-skok':'r-skgalt'}">
+      <div class="r-skhd"><b>Priserne fra Amadeus (List of TSTs)</b>
+        <span>${L.raekker.length} TST'er · ${L.voksne} voksne${L.boern?' · '+L.boern+' børn':''}</span></div>
+      <div class="r-sktabel">${L.raekker.map(r=>`<div>
+        <span class="r-sktnavn">${escH(r.navne.join(', '))}</span>
+        <span class="r-sktptc">${r.ptc||'ADT'}</span>
+        <span class="r-sktbel">${escH(r.val||'')} ${(r.beloeb||0).toLocaleString('da-DK')}</span>
+        </div>`).join('')}</div>
+      <div class="r-skspoerg"><b>Er beløbet pr. person eller for hele TST'en?</b>
+        Det står ikke i teksten, og forskellen er
+        ${L.somPrPerson.toLocaleString('da-DK')} mod ${L.somPrTst.toLocaleString('da-DK')} kr.
+        <div class="r-skvalg">
+          <button class="${g==='person'?'paa':''}" onclick="RS.skaermSaet('grundlag','person')">
+            Pr. person → ${L.somPrPerson.toLocaleString('da-DK')} ${escH(L.val||'')}</button>
+          <button class="${g==='tst'?'paa':''}" onclick="RS.skaermSaet('grundlag','tst')">
+            For hele TST'en → ${L.somPrTst.toLocaleString('da-DK')} ${escH(L.val||'')}</button>
+        </div></div>
+      <div class="r-skfod">
+        <div>${g ? 'Lægges ind som indkøbspris: <b>' + sum.toLocaleString('da-DK') + ' ' + escH(L.val||'') + '</b>.'
+                 : 'Vælg først, hvad beløbet dækker.'}</div>
+        <button class="r-skgem" ${g?'':'disabled'} onclick="RS.skaermLaegInd()">Læg prisen ind</button>
+        <button class="r-skluk" onclick="RS.skaermLuk()">Luk</button>
+      </div></div>`;
+    return;
+  }
   /* En flyplan fra et skaermbillede. Vi viser hvad der blev fundet — og
      hvad der IKKE kunne efterproeves. */
   const ben = L.ben || [];
@@ -13530,6 +13702,17 @@ async function skaermLaegInd(){
     if(L.selskab && e){ e.raa = {...(e.raa||{}), selskab:L.selskab}; }
     roert(elId, i); tegnListe(); tegnPlan(); tegnFrister();
     kvitter('gemt', 'Prisen og fristen er lagt ind');
+  } else if(slags === 'tstam'){
+    const sum = L.grundlag === 'person' ? L.somPrPerson : L.somPrTst;
+    if(!sum){ kvitter('fejl', 'Vælg først, hvad beløbet dækker'); return; }
+    l.pris = sum; l.val = L.val || 'DKK';
+    l.kilde = 'Amadeus · TST';
+    l.naar = iDag() + ' · ' + (window.ME||'WEN');
+    if(!l.lev || l.lev === '—') l.lev = 'Amadeus';
+    l.raa = {...(l.raa||{}), tst:{kilde:'amadeus', grundlag:L.grundlag,
+      raekker:L.raekker, voksne:L.voksne, boern:L.boern, total:sum, val:l.val}};
+    roert(elId, i); tegnListe(); tegnPlan();
+    kvitter('gemt', 'Prisen er lagt ind — ' + sum.toLocaleString('da-DK') + ' ' + l.val);
   } else {
     const nye = (L.ben||[]).filter(x=>x.nr);
     const gamle = (l.segmenter||[]);
@@ -14082,28 +14265,29 @@ function skaermRaa(t){ alert('Sådan blev billedet læst:\n\n' + t); }
 function flySkaermKlip(ev, elId, i){
   const filer = [...((ev.clipboardData && ev.clipboardData.files) || [])]
     .filter(f=>(f.type||'').startsWith('image/'));
-  if(!filer.length) return;
-  ev.preventDefault();
-  flySkaermLinje(elId, i, filer[0], 'tilfoej');
+  if(filer.length){ ev.preventDefault(); flySkaermLinje(elId, i, filer[0], 'tilfoej'); return; }
+  /* Ingen billedfil i udklipsholderen? Saa er det tekst — og tekst er den
+     hurtigste vej ind. Foer skete der INTET her, og det var praecis den
+     tomhed, Wendie stod i. */
+  const t = ev.clipboardData && ev.clipboardData.getData('text/plain');
+  if(t && t.trim().length > 9){ ev.preventDefault(); flyTekstLinje(elId, i, t, 'tilfoej'); }
 }
 function skaermLuk(){ SKAERM = null; tegnListe(); }
 
-async function flyPdfLinje(elId, i, filer, maade){
-  const e = ELEMENTER.find(x=>x.id===elId); if(!e) return;
-  const l = st[elId] && st[elId].linjer[i]; if(!l) return;
-  const svar = document.getElementById('flySvar-'+elId+'-'+i);
-  const vis = h => { const b2 = document.getElementById('flySvar-'+elId+'-'+i); if(b2) b2.innerHTML = h; };
-  const f = filer && filer[0];
-  if(!f) return;
-  if(!/\.pdf$/i.test(f.name)){ vis('<span class="r-fejl">Det skal være en PDF.</span>'); return; }
-  vis('<span class="r-vent">Læser ' + escH(f.name) + '…</span>');
-  try{
-    const r = flyLaesTekst(await pdfTekst(f));
-    if(!r.ben.length){
-      vis('<span class="r-fejl">Kunne ikke finde flyvninger i den fil. Skriv dem ind i hånden i stedet.</span>');
-      return;
-    }
-    /* «man kan ogsaa laegge yderligere flyplan ind paa samme pris, hvis
+/* ══ ÉN VEJ FRA LAEST BILLET TIL FLYPLAN ═══════════════════════════
+   Wendie 08.09.2026: «hvad skete der med alle de mockups, hvor man kunne
+   taste og bare kopiere og lime tekst ind?»
+   Aarsagen var, at der KUN var én doer ind: en PDF eller et billede, der
+   skulle gennem billedlaesningen. Teksten — den hun i praksis kopierer
+   fra Farewise eller fra Amadeus — havde ingen doer. Laeserne
+   (flyLaesTekst, tstLaes) var der og virkede; de kunne bare ikke naas.
+   Nu er der to doere ind til ÉN og samme funktion herunder, saa en
+   indsat tekst og en indlaest PDF ender i samme flyplan efter samme
+   regler. Der er kun ét sted at rette, hvis reglen skal aendres. */
+async function flyBrugPlan(elId, i, r, maade, kildeNavn, vis){
+  const e = ELEMENTER.find(x=>x.id===elId); if(!e) return false;
+  const l = st[elId] && st[elId].linjer[i]; if(!l) return false;
+  /* «man kan ogsaa laegge yderligere flyplan ind paa samme pris, hvis
        man vil det.» Et hop koebt paa samme billet hoerer med her; er det
        koebt for sig, hoerer det i sit eget element — men det afgoer
        Wendie, ikke koden. Vi sorterer paa dato, saa planen laegger sig
@@ -14144,7 +14328,7 @@ async function flyPdfLinje(elId, i, filer, maade){
     setTimeout(()=>{
       const b2 = document.getElementById('flySvar-'+elId+'-'+i);
       if(!b2) return;
-      b2.innerHTML = '<div class="r-fund"><b>' + escH(f.name) + '</b> · '
+      b2.innerHTML = '<div class="r-fund"><b>' + escH(kildeNavn) + '</b> · '
         + escH(r.selskab||'ukendt selskab') + (r.pnr ? ' · ' + escH(r.pnr) : '')
         + (r.advarsler.length ? '<div class="r-advar">' + r.advarsler.map(escH).join(' · ') + '</div>' : '')
         + '</div>';
@@ -14157,6 +14341,291 @@ async function flyPdfLinje(elId, i, filer, maade){
         if(b3 && b3.querySelector('.r-fund')) b3.innerHTML = '';
       }, 5000);
     }, 0);
+  return true;
+}
+
+/* ══ LAESERNE FRA MOCKUPPEN — NU I PANDA ══════════════════════════════
+   Wendie 08.09.2026: «den maade jeg kunne kopiere ind, baade i forhold til
+   om det kom fra Farewise eller om det kom fra Amadeus, det virker jo
+   overhovedet ikke i den rigtige version.»
+
+   Hun har ret, og aarsagen er min: laeserne blev bygget og gennemtestet i
+   mockuppen — og saa blev de ikke flyttet med. Panda havde kun de gamle
+   laesere, som kraever en PDF eller et billede. Her er de fire fra
+   mockuppen, ordret, med deres afproevede eksempler:
+
+     laesCryptic      Amadeus PNR  «5  EK 160 K 16OCT 5 OSLDXB HK4  1435 2325»
+     laesRuteankret   Farewise-soegning, hvor ruten er ankeret
+     laesTstFarewise  «Etihad Airways (EY) 4 5.905,- 3.408,- 88,- — 37.604,-»
+     laesTstAmadeus   «List of TSTs» — navne, CHD og ét beloeb pr. TST
+
+   Navnene har faaet «mk»-forstavelse, fordi Panda i forvejen har en
+   laesFlyplan og en tal() til noget andet. Ingen af de gamle er beroert. */
+const MK_PNR_KODER = new Set(['HK','HL','HN','UN','UC','TK','OK','RR','SS','DS',
+                              'PN','WL','AP','RP','FA','FP','FE','FM','SR','NDC']);
+const MK_MDR = {JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12};
+const mkFlynr = s2 => { const m = /\b([A-Z]{2})\s?(\d{1,4})\b/.exec(String(s2||''));
+  return (!m || MK_PNR_KODER.has(m[1])) ? null : m[1] + m[2]; };
+const mkBartFlynr = l => {
+  const m = /^([A-Z]{2})\s?(\d{1,4})(\s*\(([A-Z]{2})\))?$/.exec(String(l).trim());
+  if(!m || MK_PNR_KODER.has(m[1])) return null;
+  return { nr: m[1] + m[2], operatoer: m[4] || null }; };
+const mkRuteAf = l => { const a = [...String(l).matchAll(/\(([A-Z]{3})\)/g)].map(m=>m[1]);
+  return a.length >= 2 ? {fra:a[0], til:a[1]} : null; };
+/* Aarstallet staar IKKE i en cryptic PNR. Vi tager rejsens eget aar, hvis
+   vi kender det — ellers i dag. En billet tastet i december til januar
+   ville ellers lande et aar for tidligt. */
+const mkAar = () => {
+  const d = (TUR && (TUR.start_date || TUR.depart_date)) || null;
+  const a = d ? Number(String(d).slice(0,4)) : NaN;
+  return isFinite(a) && a > 2000 ? a : new Date().getFullYear();
+};
+
+function mkCryptic(t){
+  const ud = [];
+  const re = /^\s*\d+\s+([A-Z]{2})\s?(\d{1,4})\s+([A-Z])\s+(\d{1,2})([A-Z]{3})\s+\d\s+([A-Z]{3})([A-Z]{3})\s+([A-Z]{2})(\d+)\s+(?:\d+\s+)?(\d{4})\s+(\d{4})(\+\d)?/;
+  const aar = mkAar();
+  for(const linje of String(t||'').split(/\r?\n/)){
+    const m = re.exec(linje); if(!m) continue;
+    const mdr = MK_MDR[m[5]] || null;
+    ud.push({ nr:m[1]+m[2], selskab:m[1], bk:m[3], pax:+m[9],
+      dato: mdr ? aar+'-'+String(mdr).padStart(2,'0')+'-'+String(+m[4]).padStart(2,'0') : '',
+      fra:m[6], til:m[7],
+      ud:m[10].slice(0,2)+':'+m[10].slice(2), an:m[11].slice(0,2)+':'+m[11].slice(2),
+      plus: m[12] ? +m[12].slice(1) : 0, type:'', min:null, operatoer:null });
+  }
+  return ud;
+}
+
+function mkRuteankret(t){
+  const linjer = String(t||'').split(/\r?\n/);
+  const ankre = [];
+  linjer.forEach((l,i)=>{ const r = mkRuteAf(l); if(r) ankre.push({i, ...r}); });
+  if(!ankre.length) return [];
+  /* Retningen afgoeres ÉN gang for hele teksten: i en PNR staar
+     flynummeret FOER ruten, i en soegning EFTER. Kigger man «foerst
+     fremad» pr. etape, finder man den NAESTE etapes nummer — og saa er alt
+     forskudt ét trin. Det var praecis EY178 → EY378. */
+  let foerste = -1;
+  linjer.forEach((l,i)=>{ if(foerste < 0 && mkBartFlynr(l)) foerste = i; });
+  const nummerFoerst = foerste >= 0 && foerste < ankre[0].i;
+  const ud = [];
+  ankre.forEach((a,k)=>{
+    const start = k === 0 ? 0 : ankre[k-1].i + 1;
+    const slut  = k === ankre.length-1 ? linjer.length : ankre[k+1].i;
+    const blok  = linjer.slice(a.i, slut), foran = linjer.slice(start, a.i);
+    const seg = {nr:null, selskab:null, operatoer:null, fra:a.fra, til:a.til,
+                 dato:'', ud:'', an:'', min:null, type:'', bk:'', plus:0};
+    if(nummerFoerst){
+      for(let j=foran.length-1;j>=0;j--){ const f = mkBartFlynr(foran[j]);
+        if(f){ seg.nr=f.nr; seg.operatoer=f.operatoer; break; } }
+    } else {
+      for(const l of blok.slice(1)){ const f = mkBartFlynr(l);
+        if(f){ seg.nr=f.nr; seg.operatoer=f.operatoer; break; } }
+    }
+    if(!seg.nr){ const f = mkFlynr(blok[0].replace(/\([A-Z]{3}\)/g,'')); if(f) seg.nr = f; }
+    if(seg.nr) seg.selskab = seg.nr.slice(0,2);
+    for(const l of blok){
+      const d = /(\d{2})-(\d{2})-(\d{4})/.exec(l);
+      if(d && !seg.dato) seg.dato = d[3]+'-'+d[2]+'-'+d[1];
+      const ti = [...l.matchAll(/\b(\d{1,2}):(\d{2})\b/g)].map(m=>m[1].padStart(2,'0')+':'+m[2]);
+      if(ti[0] && !seg.ud) seg.ud = ti[0];
+      if(ti[1] && !seg.an) seg.an = ti[1];
+      const v = /\(?(\d+)h\s*(\d+)?\s*m/.exec(l);
+      if(v && seg.min == null) seg.min = (+v[1])*60 + (+(v[2]||0));
+      const eq = /^\s*(\d{2}[A-Z0-9]|[0-9]{3}|[A-Z]\d{2,3})\s*$/.exec(l);
+      if(eq && !seg.type) seg.type = eq[1];
+      const bk = /^\s*([A-Z])\s*$/.exec(l);
+      if(bk && !seg.bk) seg.bk = bk[1];
+    }
+    if(seg.nr) ud.push(seg);
+  });
+  return ud;
+}
+
+function mkRejsen(t){
+  const r = {}, tekst = String(t||'');
+  const b = /(\d{1,3})\s?kg\b/i.exec(tekst);                      if(b) r.bagage = b[1] + ' kg';
+  const f = /Last ticketing date\s+(\d{2})-(\d{2})-(\d{4})/i.exec(tekst);
+  if(f) r.frist = f[3]+'-'+f[2]+'-'+f[1];
+  const p = /\b([A-Z0-9]{6})\b\s*$/m.exec(tekst);
+  const pnr = /\b(?:PNR|Ref(?:erence)?|Booking)[\s:.]*([A-Z0-9]{5,7})\b/i.exec(tekst);
+  r.pnr = pnr ? pnr[1].toUpperCase() : null;
+  if(/Overnight connection/i.test(tekst)) r.natforbindelse = true;
+  const kl = /\b(economy\s+\w+|premium\s+economy|business\s*\w*|first\s*\w*|economy)\b/i.exec(tekst);
+  if(kl) r.klasse = kl[1].replace(/\s+/g,' ').trim().replace(/\b\w/g,c=>c.toUpperCase());
+  return r;
+}
+
+/* Cryptic foerst: den er helt regelmaessig, saa naar den rammer, er der
+   ingen tvivl. Rammer den ikke, er det en tabel eller en soegning. */
+function mkLaesPlan(t){
+  const a = mkCryptic(t);
+  if(a.length) return {format:'Amadeus (cryptic)', ben:a, rejse:mkRejsen(t)};
+  const b = mkRuteankret(t);
+  return {format:'tabel eller søgning', ben:b, rejse:mkRejsen(t)};
+}
+
+const mkTal = s2 => { const v = parseFloat(String(s2).replace(/\./g,'').replace(',','.'));
+  return isNaN(v) ? null : Math.round(v); };
+
+function mkTstFarewise(t){
+  const ud = [];
+  for(const linje of String(t||'').split(/\r?\n/)){
+    const c = /([A-Za-z][A-Za-z .'&-]+)\s\(([A-Z]{2})\)/.exec(linje);
+    const b = [...linje.matchAll(/(\d{1,3}(?:\.\d{3})*),-/g)].map(m=>mkTal(m[1]));
+    if(!c || b.length < 2) continue;
+    const frist = /(\d{2})-(\d{2})-(\d{4})\s+(\d{1,2}:\d{2})/.exec(linje);
+    const efter = linje.slice(c.index + c[0].length);
+    const pax = (/^\s*(\d{1,2})\b/.exec(efter) || [])[1];
+    const total = b[b.length-1], dele = b.slice(0,-1);
+    const prPerson = dele.reduce((a,x)=>a+x,0), p = pax ? +pax : null;
+    ud.push({slags:'farewise', selskab:c[1].trim(), kode:c[2], pax:p,
+      fare:dele[0], tax:dele[1], hf:dele[2], dc:dele.length>3?dele[3]:null,
+      prPerson, total,
+      frist: frist ? frist[3]+'-'+frist[2]+'-'+frist[1] : null,
+      fristTid: frist ? frist[4] : null,
+      passer: p != null && prPerson * p === total});
+  }
+  return ud;
+}
+
+/* «List of TSTs»: intet selskab, ét beloeb pr. TST — og tallet ved siden
+   af er ANTAL ETAPER, ikke rejsende. Rejsende taelles af NAVNENE. */
+function mkTstAmadeus(t){
+  const tst = []; let nu = null;
+  const gem = () => { if(nu && nu.beloeb != null) tst.push(nu); };
+  for(const raa of String(t||'').split(/\r?\n/)){
+    const l = raa.replace(/\t/g,'  ');
+    const navne = [...l.matchAll(/([A-ZÆØÅ][A-ZÆØÅa-zæøå'-]+)\s*\/\s*([A-ZÆØÅ][A-Za-zæøåÆØÅ.'-]*(?:\s+(?:mrs|mr|ms|miss|chd|inf))?)/g)];
+    if(navne.length){
+      if(!nu) nu = {slags:'amadeus', navne:[], ptc:null, etaper:null, beloeb:null, val:null};
+      navne.forEach(m=>nu.navne.push((m[1]+' '+m[2]).trim()));
+      continue;
+    }
+    const b = /\b([A-Z]{3})\s?(\d{1,3}(?:[ .]\d{3})*|\d+)\b/.exec(l);
+    if(b && nu){
+      nu.val = b[1]; nu.beloeb = mkTal(b[2].replace(/ /g,''));
+      if(/\bCHD\b/i.test(l)) nu.ptc = 'CHD';
+      if(/\bINF\b/i.test(l)) nu.ptc = 'INF';
+      const seg = /(?:^|\s)(\d{1,2})(?=\s{2,}|\s*[A-Z]{3})/.exec(l);
+      if(seg) nu.etaper = +seg[1];
+      gem(); nu = null; continue;
+    }
+    if(/\bCHD\b/i.test(l) && nu) nu.ptc = 'CHD';
+  }
+  gem();
+  return tst;
+}
+
+function mkLaesTst(t){
+  const fw = mkTstFarewise(t);
+  if(fw.length) return {slags:'farewise', raekker:fw};
+  const am = mkTstAmadeus(t);
+  if(!am.length) return {slags:null, raekker:[]};
+  const voksne = am.filter(x=>x.ptc!=='CHD'&&x.ptc!=='INF').reduce((a,x)=>a+x.navne.length,0);
+  const boern  = am.filter(x=>x.ptc==='CHD').reduce((a,x)=>a+x.navne.length,0);
+  const somPrPerson = am.reduce((a,x)=>a + x.beloeb*x.navne.length, 0);
+  const somPrTst    = am.reduce((a,x)=>a + x.beloeb, 0);
+  return {slags:'amadeus', raekker:am, voksne, boern, val:am[0].val,
+          somPrPerson, somPrTst, tvivl: somPrPerson !== somPrTst};
+}
+
+/* Mockuppens ben har andre feltnavne end Panda. Oversaettelsen staar HER,
+   ét sted — saa laeserne kan blive ordret som de blev afproevet. */
+function mkTilPanda(b, rejse, pnr){
+  const dato = b.dato || null;
+  const ankomstDato = (b.plus ? laegTil(dato, b.plus) : dato) || dato;
+  const p = {nr:b.nr, flynr:b.nr, kode:b.selskab || (b.nr||'').slice(0,2) || null,
+    dato, ud:b.ud || null, an:b.an || null, fra:b.fra || null, til:b.til || null,
+    fraBy: byAf(b.fra), tilBy: byAf(b.til), ankomstDato, plus: !!b.plus,
+    flyvetid:null, flytype: b.type || null, kabine: b.bk || (rejse&&rejse.klasse) || null,
+    bagage: (rejse && rejse.bagage) || null, forplejning:null, terminal:null,
+    pnr: pnr || null};
+  /* Flyvetiden REGNES af tidszonerne, naar vi kender lufthavnene. Kun hvis
+     vi ikke kan regne den, bruges flyselskabets eget tal fra teksten. Et
+     gaet staar der aldrig. */
+  const m = regnBenFlyvetid(p);
+  p.flyvetid = m != null ? minTilTid(m) : (b.min != null ? minTilTid(b.min) : null);
+  return p;
+}
+
+/* ══ TEKSTEN INDSAT I HAANDEN ══════════════════════════════════════
+   Det her er den vej, Wendie faktisk bruger: markér i Farewise eller i
+   Amadeus, ⌘C, ⌘V. Ingen fil, ingen billedlaesning, ingen ventetid.
+   Rækkefoelgen er vigtig: en TST er PRISER (og har ingen brugbare
+   flyvninger), en itinerary er FLYVNINGER. Derfor spoerges om priser
+   foerst — ellers vil flylaeseren gerne finde et par halve ben i en
+   TST og lave rod ud af det. */
+function flyTekstLinje(elId, i, tekst, maade){
+  const t = String(tekst||'').trim();
+  const vis = h => { const b = document.getElementById('flySvar-'+elId+'-'+i);
+                     if(b) b.innerHTML = h; };
+  if(t.length < 10){ vis('<span class="r-fejl">Der var ingen tekst i det, der blev indsat.</span>'); return; }
+  try{
+    /* PRISERNE foerst. En TST har ingen brugbare flyvninger, men flylaeseren
+       finder gerne et par halve ben i den og laver rod ud af det. */
+    const tst = mkLaesTst(t);
+    if(tst.slags === 'farewise' && tst.raekker.length){
+      const r0 = tst.raekker[0];
+      SKAERM = {slags:'tst', elId, i, tekst:t, laest:{
+        selskab:r0.selskab, kode:r0.kode, pax:r0.pax, paxRegnet:false,
+        fare:r0.fare, tax:r0.tax, hf:r0.hf, dc:r0.dc, total:r0.total,
+        prPerson:r0.prPerson, frist:r0.frist, val:'DKK',
+        advarsler: r0.passer ? [] : ['Regnestykket lukker ikke på den række — tjek tallene.']}};
+      tegnListe(); skaermBoks(); return;
+    }
+    if(tst.slags === 'amadeus' && tst.raekker.length){
+      SKAERM = {slags:'tstam', elId, i, tekst:t, laest:{...tst, grundlag:null, val:tst.val||'DKK'}};
+      tegnListe(); skaermBoks(); return;
+    }
+    /* Saa flyvningerne — cryptic PNR eller ruteankret tabel/soegning. */
+    const p = mkLaesPlan(t);
+    if(p.ben && p.ben.length){
+      const pnr = (p.rejse && p.rejse.pnr) || null;
+      const r = {ben: p.ben.map(b=>mkTilPanda(b, p.rejse, pnr)),
+                 pnr, selskab: FLY_KODE[(p.ben[0].selskab||'')] || p.ben[0].selskab || null,
+                 klasse: (p.rejse && p.rejse.klasse) || null,
+                 rejsende: [], advarsler: []};
+      /* Manglende tidszone betyder manglende flyvetid — og det skal SIGES,
+         ikke gemmes. Den staar tom i tabellen, klar til at rettes. */
+      const uden = r.ben.filter(x=>!x.flyvetid).length;
+      if(uden) r.advarsler.push(uden + (uden===1?' flyvning mangler':' flyvninger mangler')
+        + ' flyvetid — lufthavnens tidszone er ukendt. Skriv tiden ind i hånden.');
+      flyBrugPlan(elId, i, r, maade, p.format, vis); return;
+    }
+    /* Hverken priser eller flyvninger. Sig hvad der blev laest — ellers
+       staar hun med en tom boks og ingen forklaring. */
+    vis(`<div class="r-skfejl"><b>Der var hverken priser eller flyvninger i den tekst.</b>
+      <span class="r-skraa" onclick="RS.skaermRaa(${JSON.stringify(t.slice(0,4000)).replace(/"/g,'&quot;')})">se hvad der blev læst</span></div>`);
+  }catch(err){
+    console.error(err);
+    vis('<span class="r-fejl">Teksten kunne ikke læses: ' + escH(err.message) + '</span>');
+  }
+}
+/* Feltet toemmes bagefter, saa man kan lime den naeste billet ind uden
+   at slette den forrige i haanden. */
+function flyTekstFelt(elId, i, el){
+  const t = el.value; el.value = '';
+  flyTekstLinje(elId, i, t, 'tilfoej');
+}
+
+async function flyPdfLinje(elId, i, filer, maade){
+  const e = ELEMENTER.find(x=>x.id===elId); if(!e) return;
+  const l = st[elId] && st[elId].linjer[i]; if(!l) return;
+  const svar = document.getElementById('flySvar-'+elId+'-'+i);
+  const vis = h => { const b2 = document.getElementById('flySvar-'+elId+'-'+i); if(b2) b2.innerHTML = h; };
+  const f = filer && filer[0];
+  if(!f) return;
+  if(!/\.pdf$/i.test(f.name)){ vis('<span class="r-fejl">Det skal være en PDF.</span>'); return; }
+  vis('<span class="r-vent">Læser ' + escH(f.name) + '…</span>');
+  try{
+    const r = flyLaesTekst(await pdfTekst(f));
+    if(!r.ben.length){
+      vis('<span class="r-fejl">Kunne ikke finde flyvninger i den fil. Skriv dem ind i hånden i stedet.</span>');
+      return;
+    }
+    if(!await flyBrugPlan(elId, i, r, maade, f.name, vis)) return;
   }catch(err){
     console.error(err);
     vis('<span class="r-fejl">Kunne ikke læse filen: ' + escH(err.message) + '</span>');
@@ -14954,6 +15423,16 @@ function linjeKrop(e, l, i){
               title="Fjern flyplanen fra den her pris — prisen selv bliver stående"
               onclick="event.stopPropagation();RS.sletFlyplan('${e.id}',${i})">Slet planen</button>` : ''}
     </div>
+    <!-- Wendie 08.09.2026: «den maade jeg kunne kopiere ind, baade i
+         forhold til om det kom fra Farewise eller om det kom fra Amadeus.»
+         Feltet ligger her, fordi det er den hurtigste vej: markér, ⌘C, ⌘V.
+         Panda afgoer selv, om teksten er en TST (priser) eller en
+         itinerary (flyvninger) — man skal ikke vaelge noget. -->
+    <textarea class="r-flytekst" rows="1" placeholder="…eller lim teksten ind her — fra Farewise eller Amadeus"
+      onclick="event.stopPropagation()"
+      onfocus="this.rows=6"
+      onblur="if(!this.value.trim())this.rows=1"
+      onpaste="const el=this;setTimeout(()=>RS.flyTekstFelt('${e.id}',${i},el),0)"></textarea>
     <div id="flySvar-${e.id}-${i}"></div>
     ${(l.segmenter||[]).length ? (()=>{
       /* Wendie 04.09.2026: «udrejse, hjemrejse, saadan at vi har nemmere
@@ -17309,7 +17788,7 @@ return {
   fristOm, minutterTil,
   hentTilbud, tilbudLaegInd, tilbudLuk, tilbudTal, tilbudLinjer, tilbudBoks,
   tilbudVaelg, tilbudVaelgAlle, tilbudStandardvalg,
-  flyFilLinje, flySkaermLinje, flySkaermKlip, skaermBoks, skaermSaet,
+  flyFilLinje, flySkaermLinje, flySkaermKlip, flyTekstLinje, flyTekstFelt, skaermBoks, skaermSaet,
   skaermTilRejsen, skaermKlipTilRejsen, skaermFindMaal,
   skaermLaegInd, skaermLuk, skaermRaa, skaermTal, tstLaes, flyLaesSkaerm,
   ocrLaes, ocrForbered, ocrBibliotek,
@@ -17317,6 +17796,7 @@ return {
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
   segTilFly, soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
   benSaet, benFaerdigFelt, benOpdaterRegnet, retTid, regnBenFlyvetid,
+  sletElement,
   LUFTHAVNE, byAf, zoneAf, selskabAf,
   flyPdf, flyPdfLinje, flyLaesTekst, flyVeje, pdfTekst, sletFlyplan,
   vejNavn, flyvetidTxt, daekkerVis, daekkerLinje, nyPax, saetPax, saetBoernAlder,
