@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.20 · 08.09.2026
+<!-- Panda · v1.21 · 08.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,35 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.21 — PRISBEREGNEREN REGNEDE PÅ EN FROSSEN LISTE AF YDELSER.
+
+     Wendie 08.09.2026: «nu kan jeg se, at da jeg tastede prisen ind,
+     bliver prisberegneren ikke automatisk opdateret med det samme. Så nu
+     bliver jeg bange for, om jeg ikke har gemt et eller andet.»
+
+     Hun HAVDE gemt. Fejlen var min, og den var værre end en manglende
+     opdatering: ML.els sættes ÉN gang, når mellemlandingen åbnes, til de
+     rå rækker fra trip_elements. Prislinjerne læses live, men LISTEN af
+     ydelser var frossen. En ydelse oprettet BAGEFTER — flyet fra
+     tilbuddet, en ydelse tastet i hånden — fandtes derfor slet ikke for
+     prisberegneren. Ikke «endnu ikke opdateret»: usynlig, til siden blev
+     hentet forfra.
+
+     På Mortens rejse: købet stod til 82.205 og dækningsgraden til 44,8 %.
+     Med flyets 37.604 er købet 119.814 og dækningsgraden 19,6 % — og
+     målet er 20,3 %, så rejsen er lige UNDER målet, ikke milevidt over.
+     25 procentpoint, og igen i den farlige retning.
+
+     Og min egen R357-spærre fangede det ikke: den går gennem samme
+     ML.els og så derfor heller ikke flyet. En spærre, der læser den
+     samme forkerte liste, spærrer ingenting. Det er lærdommen — en
+     kontrol skal læse en ANDEN kilde end det, den kontrollerer.
+
+     Rettelsen: mlSynkEls() forliger listen med den levende (RS.ELEMENTER)
+     ved hver beregning. Kendte ydelser beholder deres DB-række, så
+     tilbud_buy_amount stadig kan bruges som reserve; nye kommer med;
+     slettede falder ud. Efterprøvet i node på Mortens rigtige tal.
 
      v1.18 — ÉN DÆKNINGSGRAD PÅ SKÆRMEN, OG INGEN NÅR KOSTPRISEN ER HUL.
 
@@ -4198,7 +4227,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.20';
+const APP_VERSION = 'v1.21';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -17394,7 +17423,30 @@ function mlSaetGebyr(vaerdi){
   clearTimeout(_mlGebyrGem);
   _mlGebyrGem = setTimeout(mlGemKurser, 700);
 }
+/* ══ LISTEN AF YDELSER SKAL VAERE DEN LEVENDE ═════════════════════════
+   ML.els blev sat ÉN gang, da siden blev aabnet. Prislinjerne laeses live,
+   men listen var frossen — saa en ydelse, der blev oprettet bagefter, var
+   usynlig for prisberegneren. Paa Mortens rejse betoed det 44,8 % i
+   stedet for 19,6 %, fordi flyets 37.604 kr. ikke fandtes for den.
+   (Wendie 08.09.2026: «prisberegneren bliver ikke automatisk opdateret …
+   nu bliver jeg bange for, om jeg ikke har gemt et eller andet.» Hun
+   havde gemt. Listen var forkert.) */
+function mlSynkEls(){
+  const live = (window.RS && RS.ELEMENTER) || null;
+  if(!live) return;                        /* rejsesiden er ikke i gang */
+  const kendt = ML.els || [];
+  ML.els = live.map(le => kendt.find(x => x.id === le.id) || {
+    id: le.id,
+    description: le.navn || le.hotel || 'Ydelse',
+    element_type: le.slags || 'other',
+    tilbud_buy_amount: null,
+    tilbud_buy_currency: le.val || null,
+    buy_currency: le.val || null,
+    details: {}
+  });
+}
 function mlBeregn(){
+  mlSynkEls();
   const dele = ML.els.map(e=>{
     const g = mlGrundlag(e);
     const t = mlTilbudspris(e);
