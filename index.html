@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.17 · 07.09.2026
+<!-- Panda · v1.19 · 07.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,80 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.18 — ÉN DÆKNINGSGRAD PÅ SKÆRMEN, OG INGEN NÅR KOSTPRISEN ER HUL.
+
+     Wendie 07.09.2026 om Pias mellemlanding: «hvorfor er DG'et ikke det
+     samme over det hele her? Det er forvirrende.» Hun havde tre tal foran
+     sig, og de betød tre forskellige ting:
+
+       34,5 %  Det rigtige FOR DET, DER VAR TASTET IND. Men flyets
+               18.000 kr. var ikke lagt ind endnu, så kostprisen var
+               69.781 i stedet for 87.781. Med flyet er den 17,6 %.
+               14 procentpoint — og forskellen mellem «langt over målet»
+               og «under målet», for målet er 20,3 %.
+       99,5    DG-feltet, forældet. Feltet blev KUN fyldt af mlFraPris()/
+               mlFraDG(), altså når man skrev. mlRegn(), som tegner alt
+               det andet, rørte det ikke. De 99,5 var skrevet på et
+               tidspunkt, hvor kun bankgebyrets 500 kr. var talt med:
+               (106.500 − 500) / 106.500 = 99,53 %.
+       20,3 %  IKKE en dækningsgrad. Det er MÅLET fra indstillingerne
+               (fx_pricing_defaults.target_dg_pct). Knappen sagde bare
+               «Sæt til 20,3 %», og så ser det ud som et fjerde tal.
+
+     Rettelserne:
+     · mlRegn() holder DG-feltet i takt, så det ikke KAN stå forældet.
+     · Knappen siger «Sæt prisen til målet · 20,3 %».
+     · Mangler en ydelse en pris, står der «kan ikke regnes endnu» — ALLE
+       fire steder: venstre spalte, den store boks, DG-feltet og
+       bundlinjen. Og rejsen kan ikke bekræftes, for bekræftelsen er det
+       punkt, hvor tallet bliver til noget vi står ved. (R357)
+     · «Prisen til kunden»-boksen blandede en kendsgerning (det kunden
+       accepterede), et værktøj (flyt prisen) og et felt der hed
+       dækningsgrad ligesom den store boks. Nu står kendsgerningen alene,
+       og værktøjet ligger bag «Ret prisen». Feltet heder «Regn ud fra
+       dækningsgrad», for det er hvad det gør.
+
+     Prøveopstillingen fangede to ting undervejs: at DG-feltet stadig
+     viste 99,5, efter jeg havde spærret de tre andre steder (et forkert
+     tal i et felt bliver ikke rigtigt, fordi der står «kan ikke regnes»
+     ved siden af) — og at min egen attrap brugte feltnavnet l.sum, hvor
+     koden bruger l.pris, så alt stod til 0. R333 igen: mistænk prøven.
+
+     v1.17 — SOLGT-PANELET BLIVER EN TABEL, EN BOOKING KAN BLIVE SIN EGEN
+             HENVENDELSE, OG KURSERNE HOLDER OP MED AT LYVE.
+
+     3) KURSMODELLEN — TRE TING, DER IKKE ER DET SAMME.
+     Wendie 07.09.2026: «den reelle salgspris er jo egentlig bare baseret
+     på den margin, som vi har lagt i den effektive kurs.» Præcis, og det
+     var kernen. Tre ting lå klistret sammen i én kurs:
+
+       marked      hvad valutaen er værd.        En kendsgerning.
+       bankmargin  hvad banken faktisk tager.    En reel omkostning.
+       buffer      en risikopude.                IKKE en omkostning.
+
+     Puden var bagt ind i kursen i BEGGE ender, og derfor svingede den
+     SAMME rejse mellem 17,5 % og 22 %, alt efter hvor man læste den:
+       som Panda regnede   96.966 / 117.473  ->  17,5 %  (pude i begge ender)
+       ren markedskurs     95.831 / 122.812  ->  22,0 %  (ingen pude)
+       marked+bankmargin   96.154 / 120.970  ->  20,5 %  (valgt: model 4)
+     Puden hører i margenmålet, hvor den kan ses — ikke i kursen, hvor den
+     forsvinder. Wendie valgte model 4.
+
+     Og JEG havde den forkert: Solgt-summen brugte KØBSkursen på en
+     SALGSpris og gav 128.394 DKK for Ninas 177.500 NOK — knap 11.000 kr.
+     for meget på én rejse. En salgspris læses nu som
+     «beløb × marked × (1 − bankmargin/100)»: vi modtager kundens valuta
+     og skal veksle den, så banken tager sit af den vej.
+
+     4) OG 29,8 % VAR SLET IKKE EN KURSFEJL.
+     Dækningsgraden på Ninas rejse stod til 29,8 %, og både Wendie og jeg
+     ledte i kurserne. Regnestykket viser hvor det kom fra: flyets
+     14.489 kr. var IKKE talt med i købet. 117.473 − 82.477 = 34.996, og
+     34.996 af 117.473 er 29,79 %. Præcis tallet.
+     Det er den farlige slags fejl: 29,8 % ser ud som en sund margin, så
+     man går ikke og leder. Rettelsen (ingen dækningsgrad når en ydelse
+     mangler en pris) er logget som krav — Wendie tager den senere.
 
      v1.17 — SOLGT-PANELET BLIVER EN TABEL, OG EN BOOKING KAN BLIVE
              SIN EGEN HENVENDELSE.
@@ -2639,9 +2713,38 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-plan{position:relative;padding-left:196px}
 
-#rsside .r-plan::before{content:'';position:absolute;left:92px;top:8px;bottom:14px;width:1px;background:var(--line)}
+/* Wendie 07.09.2026: «der er en streg, der gaar igennem maaneden.»
+   Rigtigt, og det var maalbart: datospalten fylder 0-150 px og er
+   hoejrestillet, saa «9. oktober 26» (~105 px) starter ved ca. 45 px.
+   Stregen laa ved 92 px — tvaers gennem ordet «oktober». Prikkerne
+   sidder ved 172-181 px, og det er DEM, tidslinjen forbinder. */
+#rsside .r-plan::before{content:'';position:absolute;left:176px;top:8px;bottom:14px;
+  width:1px;background:var(--line)}
 
 #rsside .r-dag{position:relative;margin-bottom:8px}
+
+/* Hakkene i tilbudsboksen. En fravalgt raekke daempes, saa man kan se
+   hvad der bliver lagt ind uden at laese kolonnen «Bliver». */
+#rsside .r-tbtab th.r-tbhak,
+#rsside .r-tbtab td.r-tbhak{width:34px;padding-right:0;text-align:center}
+
+#rsside .r-tbtab td.r-tbhak input,
+#rsside .r-tbtab th.r-tbhak input{width:15px;height:15px;cursor:pointer;accent-color:#8a7132}
+
+#rsside .r-tbtab tr.r-tbfra td:not(.r-tbhak){opacity:.42}
+
+#rsside .r-tbfra2{font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:#a89f86;font-weight:600}
+
+/* «Tilbuddet har 3 hotelmuligheder» — forklaringen paa, hvorfor der
+   pludselig staar flere ydelser, end der skal ind. */
+#rsside .r-tbflere{background:#fff9ec;border:1px solid #e3d9c0;border-left:3px solid var(--gold);
+  border-radius:2px;padding:10px 13px;margin:2px 0 10px;font-size:12px;line-height:1.5;
+  color:var(--ink2)}
+
+/* En manglende transfer skal kunne ses paa rejseplanen — ellers opdager
+   man den foerst, naar kunden staar i Malé. */
+#rsside .r-mangltr{color:var(--bad)}
 
 #rsside .r-dato{position:absolute;left:-196px;top:12px;width:150px;text-align:right}
 
@@ -4008,6 +4111,28 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 /* Svaret paa et skaermbillede, der blev lagt i billedfeltet. Tom fylder
    den intet — derfor ingen margin, foer der staar noget. */
+/* «Ret prisen» — vaerktoejet ligger bag ét klik, saa kendsgerningen staar
+   alene, naar der ikke er noget at rette. */
+/* «kan ikke regnes endnu» — samme plads som procenten, men tydeligt
+   ikke et tal. Bedre en aaben mangel end et selvsikkert forkert tal. */
+.mlufuld{font-family:'Inter',sans-serif;font-size:15px;font-weight:500;
+  color:#c2653f;letter-spacing:-.01em}
+
+.mlmangler{color:#c2653f}
+
+.mljret{background:none;border:1px solid #d9cfb4;border-radius:2px;
+  font-family:inherit;font-size:12px;letter-spacing:.04em;color:#8a7132;
+  padding:7px 15px;cursor:pointer;margin-top:2px}
+
+.mljret:hover{background:#fff9ec;border-color:var(--gold)}
+
+.mljhusk{display:block;margin-top:5px;color:#a8925f;font-style:italic}
+
+/* Regnestykket bag daekningsgraden — smaat, men laesbart, saa tallet kan
+   efterproeves uden at aabne noget. */
+.mlregnestykke{display:block;margin-top:4px;color:#8b8676;font-size:11px;
+  font-variant-numeric:tabular-nums}
+
 #rsside .r-bilsvar:empty{display:none}
 
 #rsside .r-bilsvar{margin:0 0 8px;font-size:11.5px;line-height:1.45}
@@ -4067,7 +4192,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.17';
+const APP_VERSION = 'v1.19';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -4761,15 +4886,39 @@ async function viewDash(){
      (proeveopstillingen 07.09.2026: «ReferenceError: KURSER is not
      defined», og saa var hele dashboardet gaaet i produktion).
      Regnestykket er praecis rejsesidens: marked x bankmargin x buffer. */
-  const DASH_KURS = { DKK: 1 };
+  /* ══ TRE TING, DER IKKE ER DET SAMME ══
+     Wendie 07.09.2026: «den reelle salgspris er jo egentlig bare baseret
+     paa den margin, som vi har lagt i den effektive kurs.» Praecis. Tre
+     ting laa klistret sammen i én kurs, og derfor svingede den SAMME
+     rejse mellem 17,5 % og 22 % alt efter, hvor man laeste den:
+
+       marked      hvad valutaen er vaerd.        En kendsgerning.
+       bankmargin  hvad banken faktisk tager.     En reel omkostning.
+       buffer      en risikopude.                 IKKE en omkostning.
+
+     Puden er en del af det, vi vil TJENE — sat til side for det tilfaelde
+     at kursen flytter sig, foer vi betaler hotellet eller veksler kundens
+     kroner. Den hoerer derfor i margenmaalet, ikke i kursen. Modellen er
+     valgt af Wendie 07.09.2026 («model 4»).
+
+     Kurserne her indeholder altsaa KUN marked + bankmargin. Og de vender
+     modsat, som vekselkontoret: vi koeber valuta dyrere end marked og
+     saelger den billigere. Solgt-summen er SALGSPRISER — vi modtager
+     kundens valuta og skal veksle den — saa:
+
+         beloeb x marked x (1 - bankmargin/100)
+
+     Ninas 177.500 NOK bliver 120.970 DKK. (Til sammenligning: 122.812 til
+     rent marked, 117.473 med puden bagt ind, og 128.394 hvis man ved en
+     fejl bruger KOEBSkursen paa en salgspris — det gjorde jeg i v1.17.) */
+  const DASH_MODTAG = { DKK: 1 };
   try{
     const kv = (rkurs && (rkurs.data || rkurs)) || {};
     Object.entries(kv).forEach(([val, b])=>{
       if(!b || typeof b !== 'object') return;         /* dato, salgskurs m.fl. */
       const marked = Number(b.marked) || 0;
-      if(marked <= 0) return;
-      DASH_KURS[val] = marked * (1 + (Number(b.bankmargin)||0)/100)
-                              * (1 + (Number(b.buffer)||0)/100);
+      if(marked <= 0 || val === 'DKK') return;
+      DASH_MODTAG[val] = marked * (1 - (Number(b.bankmargin)||0)/100);
     });
   }catch(e){ console.warn('kurserne kunne ikke laeses', e); }
   const brief = rb;
@@ -5069,8 +5218,10 @@ async function viewDash(){
       /* ── Summen ──
          Kun raekker med en kendt kurs taeller med. Mangler en kurs, siges
          det — en sum, der stiltiende springer noget over, er en usandhed. */
+      /* Se forklaringen ved DASH_MODTAG: marked minus bankens andel. */
       const iDkk = r => (r.pris == null || !r.valuta) ? null
-        : (DASH_KURS[r.valuta] == null ? null : Math.round(r.pris * DASH_KURS[r.valuta]));
+        : (DASH_MODTAG[r.valuta] == null ? null
+           : Math.round(r.pris * DASH_MODTAG[r.valuta]));
       const kendte = vis.map(iDkk).filter(v=>v != null);
       const udenKurs = vis.filter(r=>r.pris != null && iDkk(r) == null).length;
       const sum = kendte.reduce((a,b2)=>a+b2, 0);
@@ -5092,7 +5243,7 @@ async function viewDash(){
     <table class="bktab4">
       <thead><tr>
         <th>Kunde</th><th>Hotel</th><th>Rejsen</th><th class="h">Nætter</th>
-        <th class="h">Pris</th><th class="h" title="Omregnet med de effektive kurser fra basen">I DKK</th>
+        <th class="h">Pris</th><th class="h" title="Salgspriser omregnet med marked minus bankens andel. Risikopuden er IKKE trukket fra her — den hører i margenmålet, ikke i kursen.">I DKK</th>
         <th>Solgt</th><th>Mangler</th></tr></thead>
       <tbody>${vis.map(r=>{
         const dkk = iDkk(r);
@@ -12101,6 +12252,19 @@ function planTekst(p){
        ingen     — en pris tastet i haanden: vi kender selskab, klasse og
                    dage, men ikke ruten. Saa siger vi det. */
   let sub = p.sub, segmenter = null, visPlan = 'ingen', vejNavnet = null;
+  /* ══ TRANSFEREN SKAL KUNNE SES PAA REJSEPLANEN ══
+     Wendie 07.09.2026: «det fremgaar ikke paa rejseplanen … det maa godt
+     indgaa under hotellet … det vigtigste er bare, at det ogsaa kommer
+     paa Rejseplan.» Den bliver ikke sin egen ydelse — paa Maldiverne er
+     vandflyet naesten altid indeholdt i hotellets kontraktpris — men den
+     skal kunne ses, og hvis den mangler, skal DET ogsaa kunne ses. */
+  if(p.art === 'Hotel'){
+    const raa = (e.raa) || {};
+    const tr = raa.transfer || (e.details||{}).transfer || '';
+    if(tr) sub = [sub, tr].filter(Boolean).join(' · ');
+    else   sub = [sub, '<span class="r-mangltr">transfer mangler</span>']
+                 .filter(Boolean).join(' · ');
+  }
   if(p.art === 'Fly'){
     const medSeg = linjer.find(x=>(x.segmenter||[]).length);
     if(medSeg){
@@ -12934,6 +13098,10 @@ function tilbudLinjer(){
         fra, til, naetter: (fra && til) ? naetterMellem(fra, til) : null,
         pris: tal, val, lev: ph.name || th.name || '',
         sted: [th.location, th.transferText].filter(Boolean).join(' · '),
+        /* Transferen for SIG, saa den kan foelge med ind paa ydelsen og
+           staa paa rejseplanen — ikke kun i tilbudsboksens smaatekst. */
+        beliggenhed: th.location || '',
+        transfer: th.transferText || '',
         fandtes: tilbudFinderYdelse('hotel', ph.name || th.name) });
     });
   });
@@ -12953,8 +13121,40 @@ function tilbudLinjer(){
            salg: tilbudTal(t.priceTotal).tal, salgVal: tilbudVal(t.currency) };
 }
 
+/* ══ HVILKE YDELSER SKAL IND? ══
+   Wendie 07.09.2026: «det er jo ikke alle fire ydelser, der skal ind.»
+   Standardvalget gaetter ikke: matchede raekken en ydelse, der ER paa
+   rejsen, er den sat til. Er der FLERE hotelmuligheder og ingen af dem
+   matchede, er ingen sat til — for saa ved kun mennesket, hvad kunden
+   koebte. Alt andet (flyet, en enkelt hotelmulighed) er sat til. */
+function tilbudStandardvalg(L){
+  const hoteller = L.ud.filter(x=>x.slags === 'hotel').length;
+  return L.ud.map(x => {
+    if(x.pris == null)      return false;   /* ingen pris — kan ikke laegges ind */
+    if(x.fandtes)           return true;    /* matchede en ydelse, der er */
+    if(x.slags !== 'hotel') return true;    /* flyet og alt andet */
+    return hoteller === 1;                  /* ét hotel: med. Flere: vaelg selv */
+  });
+}
+function tilbudVaelg(i, paa){
+  if(!TILBUD) return;
+  TILBUD.valgt = TILBUD.valgt || [];
+  TILBUD.valgt[i] = !!paa;
+  tilbudBoks();
+}
+function tilbudVaelgAlle(paa){
+  if(!TILBUD) return;
+  const L = tilbudLinjer();
+  TILBUD.valgt = L.ud.map(x => paa && x.pris != null);
+  tilbudBoks();
+}
 function tilbudBoks(){
   const L = tilbudLinjer(), t = TILBUD.trip;
+  if(!TILBUD.valgt || TILBUD.valgt.length !== L.ud.length)
+    TILBUD.valgt = tilbudStandardvalg(L);
+  const valgt = TILBUD.valgt;
+  const antalValgt = valgt.filter(Boolean).length;
+  const hotelKand = L.ud.filter(x=>x.slags === 'hotel').length;
   const dato = TILBUD.ts ? new Date(TILBUD.ts).toLocaleString('da-DK',
     {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
   const b = document.getElementById('tilbudSvar'); if(!b) return;
@@ -12970,10 +13170,22 @@ function tilbudBoks(){
       .filter(Boolean).join(' · '))}</div>
     ${L.advar.length ? `<div class="r-tbadv">${L.advar.map(x=>
       '<div>⚠ '+escH(x)+'</div>').join('')}</div>` : ''}
+    ${hotelKand > 1 ? `<div class="r-tbflere">
+      <b>Tilbuddet har ${hotelKand} hotelmuligheder.</b> Kunden har fået flere at vælge mellem
+      og har valgt én. Sæt hak ved den, der blev solgt — de øvrige var alternativer og hører
+      ikke på rejsen.</div>` : ''}
     <table class="r-tbtab">
-      <colgroup><col style="width:34%"><col><col style="width:110px"><col style="width:130px"></colgroup>
-      <thead><tr><th>Ydelse</th><th>Hvad tilbuddet siger</th><th class="r-hr">Indkøb</th><th>Bliver</th></tr></thead>
-      ${L.ud.map(x=>`<tr>
+      <colgroup><col style="width:34px"><col style="width:32%"><col>
+        <col style="width:110px"><col style="width:130px"></colgroup>
+      <thead><tr>
+        <th class="r-tbhak"><input type="checkbox" title="Vælg alle / ingen"
+          ${antalValgt === valgt.filter((_,i)=>L.ud[i].pris!=null).length && antalValgt ? 'checked' : ''}
+          onchange="RS.tilbudVaelgAlle(this.checked)"></th>
+        <th>Ydelse</th><th>Hvad tilbuddet siger</th><th class="r-hr">Indkøb</th><th>Bliver</th></tr></thead>
+      ${L.ud.map((x,i)=>`<tr class="${valgt[i]?'':'r-tbfra'}">
+        <td class="r-tbhak">${x.pris == null ? ''
+          : `<input type="checkbox" ${valgt[i]?'checked':''}
+               onchange="RS.tilbudVaelg(${i}, this.checked)">`}</td>
         <td><b>${escH(x.navn)}</b>${x.sted?`<small>${escH(x.sted)}</small>`:''}</td>
         <td>${escH([x.villa, x.mp, x.naetter ? x.naetter+' nætter' : null,
           (x.fra&&x.til) ? kortDato(x.fra)+' → '+kortDato(x.til) : null]
@@ -12981,15 +13193,20 @@ function tilbudBoks(){
         <td class="r-hr">${x.pris == null ? '<em>mangler</em>'
           : escH(kr(x.pris, x.val)) + (x.val!=='DKK'
             ? `<small>≈ ${escH(krD(tilDkk2(x.pris, x.val)))}</small>` : '')}</td>
-        <td>${x.fandtes ? '<span class="r-tbpaa">lagt på den ydelse, der er</span>'
-                        : '<span class="r-tbny">ny ydelse</span>'}</td></tr>`).join('')}
+        <td>${x.pris == null ? '<span class="r-tbfra2">ingen pris</span>'
+          : !valgt[i] ? '<span class="r-tbfra2">lægges ikke ind</span>'
+          : x.fandtes ? '<span class="r-tbpaa">lagt på den ydelse, der er</span>'
+                      : '<span class="r-tbny">ny ydelse</span>'}</td></tr>`).join('')}
     </table>
     <div class="r-tbfod">
       <div>${L.bankFee ? `Bankgebyr <b>${escH(kr(L.bankFee, L.bankFeeVal))}</b> og margen
         <b>${L.margin != null ? L.margin+' %' : '—'}</b> bliver <em>ikke</em> ydelser —
         de hører i prisberegningen.` : ''}
         ${L.salg ? ` Tilbuddets salgspris var <b>${escH(kr(L.salg, L.salgVal))}</b>.` : ''}</div>
-      <button class="r-tbgem" onclick="RS.tilbudLaegInd()">Læg ${L.ud.filter(x=>x.pris!=null).length} ydelser ind</button>
+      <button class="r-tbgem" ${antalValgt ? '' : 'disabled'} onclick="RS.tilbudLaegInd()">${
+        antalValgt === 0 ? 'Vælg mindst én ydelse'
+        : antalValgt === 1 ? 'Læg 1 ydelse ind'
+        : 'Læg ' + antalValgt + ' ydelser ind'}</button>
       <button class="r-tbluk" onclick="RS.tilbudLuk()">Luk</button>
     </div>
   </div>`;
@@ -13005,8 +13222,11 @@ async function tilbudLaegInd(){
   const kilde = 'Fra tilbuddet · version ' + TILBUD.version;
   let nye = 0, paa = 0;
   const fejl = [];
-  for(const x of L.ud){
+  const valgt = TILBUD.valgt || tilbudStandardvalg(L);
+  for(let i = 0; i < L.ud.length; i++){
+    const x = L.ud[i];
     if(x.pris == null) continue;
+    if(!valgt[i]) continue;          /* hun har taget hakket af */
     try{
       if(x.fandtes){
         /* Ydelsen findes — vi laegger prisen PAA den. Grundlaget er den
@@ -13016,6 +13236,8 @@ async function tilbudLaegInd(){
         e.raa = {...(e.raa||{}), pris:String(x.pris), val:x.val,
                  hotel:x.hotel||e.hotel, fra:x.fra, til:x.til,
                  naetter: x.naetter!=null ? String(x.naetter) : undefined,
+                 transfer: x.transfer || (e.raa||{}).transfer || '',
+                 beliggenhed: x.beliggenhed || (e.raa||{}).beliggenhed || '',
                  villaer:[{a:'1', t:x.villa||'', mp:x.mp||''}]};
         if(x.hotel) e.hotel = x.hotel;
         const g = (s2.linjer||[]).find(l=>l.slag==='grundlag') || (s2.linjer||[])[0];
@@ -13054,7 +13276,8 @@ async function tilbudLaegInd(){
         NY.f = x.slags === 'hotel'
           ? { hotel:x.hotel, villaer:[{a:'1', t:x.villa||'', mp:x.mp||''}],
               fra:x.fra||'', til:x.til||'', naetter: x.naetter!=null?String(x.naetter):'',
-              pris:String(x.pris), val:x.val, lev:x.lev||'', antal:'1', tid:'' }
+              pris:String(x.pris), val:x.val, lev:x.lev||'', antal:'1', tid:'',
+              transfer:x.transfer||'', beliggenhed:x.beliggenhed||'' }
           : { rute:x.rute||'', fra:x.fra||'', tid:'', voksne:String(TUR.pax_count||2),
               boern:'0', pris:String(x.pris), val:x.val, lev:x.lev||'', antal:'1' };
         gemElement();
@@ -13068,12 +13291,14 @@ async function tilbudLaegInd(){
     }catch(e2){ fejl.push((x.navn||'ydelsen') + ': ' + e2.message); }
   }
   tegnPlan(); tegnListe(); opdaterDatoer(); maerk();
+  const ikkeValgt = L.ud.filter((x,i)=>x.pris != null && !valgt[i]).length;
   const b = document.getElementById('tilbudSvar');
   if(b) b.innerHTML = `<div class="r-tbboks">
     <div class="r-tbhd"><b>${nye + paa === 0 ? 'Der blev ikke lagt noget ind'
       : 'Lagt ind fra tilbuddet'}</b></div>
     <div class="r-tbmeta">${nye ? nye + (nye===1?' ny ydelse':' nye ydelser') : ''}${
       nye && paa ? ' · ' : ''}${paa ? paa + ' fik prisen lagt på' : ''}
+      ${ikkeValgt ? ' · ' + ikkeValgt + (ikkeValgt===1?' blev ikke valgt':' blev ikke valgt') : ''}
       ${L.ud.filter(x=>x.pris==null).length
         ? ' · ' + L.ud.filter(x=>x.pris==null).length + ' havde ingen pris i tilbuddet' : ''}</div>
     ${fejl.length ? `<div class="r-tbadv">${fejl.map(x=>'<div>⚠ '+escH(x)+'</div>').join('')}</div>` : ''}
@@ -16679,6 +16904,7 @@ return {
   saetLinjeHold, saetLinjeLev, saetLinjePris, saetLinjeVal, saetNote, synkPlanlinjer,
   fristOm, minutterTil,
   hentTilbud, tilbudLaegInd, tilbudLuk, tilbudTal, tilbudLinjer, tilbudBoks,
+  tilbudVaelg, tilbudVaelgAlle, tilbudStandardvalg,
   flyFilLinje, flySkaermLinje, flySkaermKlip, skaermBoks, skaermSaet,
   skaermTilRejsen, skaermKlipTilRejsen, skaermFindMaal,
   skaermLaegInd, skaermLuk, skaermRaa, skaermTal, tstLaes, flyLaesSkaerm,
@@ -16751,26 +16977,41 @@ function mlRenderBund(){
   <div class="mlregn">
     <div class="mlrtab" id="mlRegn"></div>
     <div>
+      <!-- ══ PRISEN TIL KUNDEN ══
+           Wendie 07.09.2026: boksen blandede en KENDSGERNING (det kunden
+           accepterede), et VAERKTOEJ (flyt prisen) og et ANDET tal, der hed
+           daekningsgrad ligesom den store boks — men var et indtastningsfelt.
+           Nu: kendsgerningen staar, vaerktoejet ligger bag ét klik, og der er
+           ÉT daekningsgrad-tal paa skaermen. -->
       <div class="mljbox">
         <div class="mlhvem">Prisen til kunden</div>
         ${t.accepted_price ? `<div class="mlaccept">
           <div class="al">Kunden accepterede</div>
           <div class="av">${mlNf(t.accepted_price)} <em>${escH(t.accepted_currency||val)}</em></div>
           <div class="am">${escH(t.accepted_offer_ref||'tilbud')}${t.accepted_at?' · '+new Date(t.accepted_at).toLocaleString('da-DK'):''}</div>
-        </div>` : `<div class="mlaccept"><div class="al">Ingen accepteret pris registreret</div>
-          <div class="am">Skriv den ind herunder — den er målestokken for om rejsen tjener det, den skulle.</div></div>`}
-        <p class="mljforkl"><b>Prisen ændrer sig ikke af sig selv.</b> Vælger du en dyrere leverandør, falder
-          jeres fortjeneste — prisen står stille, til du selv flytter den.</p>
-        <div class="mljrk">
-          <div><label>Pris til kunden</label>
-            <input id="mlPris" value="${t.accepted_price?mlNf(t.accepted_price):''}" oninput="fmtBelob(this);mlFraPris()">
-            <span class="e" id="mlPrisE">${escH(val)}</span></div>
-          <div><label>Dækningsgrad</label><input id="mlDG" value="" oninput="mlFraDG()">
-            <span class="e">% af prisen</span></div>
         </div>
-        <div class="mlknapper">
-          <button class="btn ghost" onclick="mlBrugMaal()">Sæt til ${mlNf1(ML.std.target_dg_pct)} %</button>
-          <button class="btn ghost" onclick="mlGemPrisTilKunde()">Gem prisen</button>
+        <p class="mljforkl"><b>Prisen ændrer sig ikke af sig selv.</b> Vælger du en dyrere
+          leverandør, falder jeres fortjeneste — prisen står stille, til du selv flytter den.
+          <span class="mljhusk">Flytter du den, skal kunden have det at vide.</span></p>
+        <button class="mljret" onclick="mlRetPris()" id="mlRetKnap">Ret prisen</button>`
+        : `<div class="mlaccept"><div class="al">Ingen accepteret pris registreret</div>
+          <div class="am">Skriv den ind herunder — den er målestokken for, om rejsen tjener det, den skulle.</div></div>`}
+        <div class="mljvaerk" id="mlVaerk" ${t.accepted_price?'hidden':''}>
+          <div class="mljrk">
+            <div><label>Pris til kunden</label>
+              <input id="mlPris" value="${t.accepted_price?mlNf(t.accepted_price):''}" oninput="fmtBelob(this);mlFraPris()">
+              <span class="e" id="mlPrisE">${escH(val)}</span></div>
+            <!-- Det andet felt er ikke en visning af daekningsgraden — det er
+                 den anden vej ind: skriv 25, og prisen regnes baglaens. Derfor
+                 staar der «Regn ud fra», ikke «Daekningsgrad». -->
+            <div><label>Regn ud fra dækningsgrad</label><input id="mlDG" value="" oninput="mlFraDG()">
+              <span class="e">% — så regnes prisen</span></div>
+          </div>
+          <div class="mlknapper">
+            <button class="btn ghost" onclick="mlBrugMaal()"
+              title="Målet står i indstillingerne (fx_pricing_defaults.target_dg_pct) og gælder alle rejser">Sæt prisen til målet · ${mlNf1(ML.std.target_dg_pct)} %</button>
+            <button class="btn ghost" onclick="mlGemPrisTilKunde()">Gem prisen</button>
+          </div>
         </div>
       </div>
       <div class="mldb">
@@ -17061,7 +17302,12 @@ function mlBeregn(){
   const kost = sub + gebyr, kostTilbud = tilbudSub + gebyr;
   const kk = mlKundeKurs();
   const accept = Number(ML.trip.accepted_price)||0;
-  return {dele, sub, kost, kostTilbud, gebyr, kk,
+  /* Hvilke ydelser har slet ingen pris? De taeller som 0 i kostprisen, og
+     saa bliver daekningsgraden for hoej — 34,5 % i stedet for 17,6 % paa
+     Pias rejse, fordi flyet manglede. Listen foelger med, saa den kan
+     siges hoejt i stedet for at blive regnet med som nul. */
+  const udenPris = dele.filter(d=>!(Number(d.beloeb) > 0)).map(d=>d.navn);
+  return {dele, sub, kost, kostTilbud, gebyr, kk, udenPris,
           dbTilbud: accept ? accept/kk - kostTilbud : null};
 }
 function mlPrisVed(dgPct, kost){
@@ -17070,6 +17316,13 @@ function mlPrisVed(dgPct, kost){
 }
 function mlRegn(tegnKurs){
   const r = mlBeregn();
+  /* ══ ER KOSTPRISEN HEL? (R357) ══
+     En ydelse uden pris taeller som 0, og saa bliver daekningsgraden for
+     hoej. Paa Pias rejse: 34,5 % i stedet for 17,6 %, fordi flyets
+     18.000 kr. manglede. Svaret skal vaere det samme ALLE tre steder paa
+     skaermen — venstre spalte, den store boks og bundlinjen — ellers
+     laver jeg praecis den fejl, hun spurgte om, én gang mere. */
+  const ufuld = (r.udenPris || []).length > 0;
   if(tegnKurs===true) mlTegnKurser();
   let h='';
   /* Teksten under hvert element fortaeller, HVILKEN linje i prisstigen der
@@ -17098,31 +17351,71 @@ function mlRegn(tegnKurs){
           : 'bankens faste gebyr for overførslerne'}</small></span>
       <span class="v"><input class="mlgf${(ML.overrides||{})._gebyr!=null?' aendret':''}"
         value="${mlNf(r.gebyr)}" oninput="fmtBelob(this);mlSaetGebyr(this.value)"> DKK</span></div>
-    <div class="mlrr slut"><span class="l">Rejsen koster os</span><span class="v">${mlNf(r.kost)}</span></div>
+    <div class="mlrr slut"><span class="l">Rejsen koster os${ufuld
+        ? `<small class="mlmangler">— så langt. ${escH(r.udenPris.join(' og '))} mangler en pris</small>` : ''}</span>
+      <span class="v">${mlNf(r.kost)}</span></div>
     <div class="mlrr fin"><span class="l">alt i DKK, med bankmargin og risikobuffer</span><span class="v"></span></div>
-    <div class="mlrr"><span class="l">${pris ? `+ Fortjeneste ${mlNf1(dg)} %<small>det I sidder tilbage med</small>`
+    <div class="mlrr"><span class="l">${ufuld
+        ? `+ Fortjeneste<small class="mlmangler">kan ikke regnes, før alle ydelser har en pris</small>`
+        : pris ? `+ Fortjeneste ${mlNf1(dg)} %<small>det I sidder tilbage med</small>`
         : `+ Fortjeneste<small>kendes først når prisen til kunden er skrevet ind</small>`}</span>
-      <span class="v">${pris ? mlNf(db)+' DKK' : '—'}</span></div>
+      <span class="v">${(pris && !ufuld) ? mlNf(db)+' DKK' : '—'}</span></div>
     <div class="mlrr nok"><span class="l">Prisen til kunden${pris&&val!=='DKK'?`<small>${mlNf(prisDkk)} DKK · vekslet med salgskurs ${mlNf4(r.kk)}</small>`:''}</span>
       <span class="v">${mlNf(pris)} ${escH(val)}</span></div>`;
-  if(val!=='DKK') h += `<div class="mlbegge"><b>Samme rejse, samme fortjeneste.</b> En dansk kunde ville betale
+  if(val!=='DKK' && !ufuld) h += `<div class="mlbegge"><b>Samme rejse, samme fortjeneste.</b> En dansk kunde ville betale
     ${mlNf(mlPrisVed(dg, r.kost))} DKK for den samme dækningsgrad. Forskellen er ikke avance — det er
     bankmarginen og risikobufferen på NOK.</div>`;
   document.getElementById('mlRegn').innerHTML = h;
 
-  document.getElementById('mlDbPct').innerHTML = mlNf1(dg)+'<small>%</small>';
-  document.getElementById('mlDbTxt').innerHTML = pris
-    ? `Dækningsbidrag <b>${mlNf(db)} DKK</b>. Rejsen koster os ${mlNf(r.kost)} DKK.`
+  /* ══ ÉT TAL, ÉT STED ══
+     Wendie 07.09.2026: «hvorfor er DG'et ikke det samme over det hele?»
+     Fordi DG-feltet kun blev fyldt, naar man skrev i det — og mlRegn(),
+     der tegner alt det andet, roerte det ikke. Paa Pias rejse stod der
+     99,5 i feltet og 34,5 % i boksen: de 99,5 var skrevet paa et
+     tidspunkt, hvor kun bankgebyrets 500 kr. var talt med.
+     Nu holder mlRegn() feltet i takt, saa de to IKKE KAN vaere uenige.
+     Feltet man skriver i, roeres stadig aldrig. */
+  const dgFelt = document.getElementById('mlDG');
+  if(dgFelt && document.activeElement !== dgFelt)
+    /* Er kostprisen hul, er tallet 99,5 — og det var praecis det, Wendie
+       spurgte om. Et forkert tal i et felt bliver ikke rigtigt, fordi der
+       staar «kan ikke regnes endnu» ved siden af. */
+    dgFelt.value = (pris && !ufuld) ? mlNf1(dg) : '';
+
+  /* ══ INGEN PROCENT, NAAR KOSTPRISEN IKKE ER HEL (R357) ══
+     En ydelse uden pris taeller som 0, og saa bliver daekningsgraden for
+     hoej. Paa Pias rejse: 34,5 % i stedet for 17,6 %, fordi flyets
+     18.000 kr. manglede — 14 point, og forskellen mellem «langt over
+     maalet» og «under maalet». Et tal, der ser sundt ud, bliver brugt
+     til at prissaette den naeste rejse. Derfor siges det i stedet. */
+  document.getElementById('mlDbPct').innerHTML = ufuld
+    ? '<span class="mlufuld">kan ikke regnes endnu</span>'
+    : mlNf1(dg)+'<small>%</small>';
+  /* Regnestykket skrives ud, saa tallet kan efterproeves paa stedet.
+     Havde det staaet der i forvejen, var 99,5 og 29,8 blevet fanget med
+     det samme — begge kom af en kostpris, der manglede en ydelse. */
+  document.getElementById('mlDbTxt').innerHTML = ufuld
+    ? `<b>${escH(r.udenPris.join(' og '))}</b> mangler en pris.
+       Uden den tæller ydelsen som 0, og dækningsgraden ville se
+       ${r.udenPris.length===1?'bedre':'bedre'} ud, end den er.
+       <span class="mlregnestykke">Lige nu er der lagt
+       ${mlNf(r.kost)} DKK ind af købet.</span>`
+    : pris
+    ? `Dækningsbidrag <b>${mlNf(db)} DKK</b>.
+       <span class="mlregnestykke">(${mlNf(r.kk===1?pris:pris/r.kk)}
+       ${r.kk===1?'' : 'DKK af '+mlNf(pris)+' '+escH(ML.trip.customer_currency||'')+' '}
+       − ${mlNf(r.kost)} kostpris) ÷ ${mlNf(r.kk===1?pris:pris/r.kk)}</span>`
     : 'Skriv prisen til kunden, så regnes dækningsbidraget.';
   const sam = document.getElementById('mlDbSam');
-  if(r.dbTilbud!=null && pris){
+  if(ufuld){ sam.innerHTML = ''; }
+  else if(r.dbTilbud!=null && pris){
     const f = db - r.dbTilbud;
     sam.innerHTML = (Math.abs(f)<1 ? '<span class="lige">= Præcis det samme som tilbuddet var bygget på.</span>'
       : f<0 ? `<span class="ned">▼ ${mlNf(-f)} kr. mindre</span> end tilbuddet var bygget på.`
             : `<span class="op">▲ ${mlNf(f)} kr. mere</span> end tilbuddet var bygget på.`)
       + `<div class="fin">Da tilbuddet blev bygget: kostpris ${mlNf(r.kostTilbud)} DKK · dækningsbidrag ${mlNf(r.dbTilbud)} DKK</div>`;
   } else sam.innerHTML='';
-  mlBundstatus(r, dg);
+  mlBundstatus(r, dg, ufuld);
 }
 /* Pris og dækningsgrad er to sider af samme tal. Feltet man skriver i røres aldrig. */
 function mlFraPris(){
@@ -17136,6 +17429,14 @@ function mlFraDG(){
   if(document.activeElement.id!=='mlPris')
     document.getElementById('mlPris').value = dg<0.999 ? mlNf(r.kost/(1-dg)*r.kk) : '';
   mlRegn();
+}
+/* Vaerktoejet frem. Knappen forsvinder, saa der ikke staar to veje til
+   det samme paa skaermen. */
+function mlRetPris(){
+  const v = document.getElementById('mlVaerk'); if(!v) return;
+  v.hidden = false;
+  const k = document.getElementById('mlRetKnap'); if(k) k.hidden = true;
+  const p = document.getElementById('mlPris'); if(p){ p.focus(); p.select(); }
 }
 function mlBrugMaal(){
   const r = mlBeregn();
@@ -17163,7 +17464,7 @@ async function mlGemPrisTilKunde(){
    overlapper.» Advarslerne staar, men de spaerrer ingenting. Tilbage staar
    kun to ting, der virkelig ikke kan lade sig goere: en rejse uden
    elementer, og en rejse uden pris til kunden. */
-function mlBundstatus(r, dg){
+function mlBundstatus(r, dg, ufuld){
   const s = document.getElementById('mlStatus'), k = document.getElementById('mlBekraeft');
   if(!s||!k) return;
   const pris = mlTal((document.getElementById('mlPris')||{}).value);
@@ -17175,6 +17476,16 @@ function mlBundstatus(r, dg){
   if(!pris){
     k.disabled = true;
     s.innerHTML = '<b>Skriv prisen til kunden</b>, før rejsen kan bekræftes.';
+    return;
+  }
+  /* R357: en rejse maa ikke bekraeftes paa en hul kostpris. Bekraeftelsen
+     er det punkt, hvor tallet bliver til noget, vi staar ved — og en
+     manglende ydelse betyder, at fortjenesten er ukendt, ikke hoej. */
+  if(ufuld){
+    k.disabled = true;
+    s.innerHTML = `<b>${escH(r.udenPris.join(' og '))} mangler en pris.</b> `
+      + 'Så længe den mangler, kender vi ikke fortjenesten — og rejsen kan ikke bekræftes. '
+      + `Der er lagt ${mlNf(r.kost)} DKK ind af købet indtil nu.`;
     return;
   }
   k.disabled = false;
