@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.21 · 08.09.2026
+<!-- Panda · v1.23 · 08.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,44 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.23 — FLYBOKSEN FÅR DET, MOCKUPPEN LOVEDE.
+
+     Wendie 08.09.2026: «det her ligner overhovedet ikke det, vi lige har
+     bygget.» Hun havde ret. Mockuppen var en tegning — intet af den var i
+     Panda. Nu er den her, og de tre ting hun ikke kunne, virker:
+
+     · TIDERNE TASTES FRIT. «1005» bliver 10:05, når man forlader feltet.
+       Feltet kan ryddes. De native time-felter er byttet til tekst; de var
+       det, der «rodede sig helt til».
+     · FELTET TEGNES IKKE OM, MENS MAN TASTER. Det var årsagen til
+       «01/12/0020» i datofeltet og til at Tab smed hende ud: hver onchange
+       kaldte tegnListe(), som skriver hele listen forfra, så inputtet blev
+       slettet og lavet igen. Nu skrives kun modellen; sorteringen og
+       tegningen sker ved «Færdig».
+     · FLYVETIDEN OG ANKOMSTDAGEN REGNES SELV. Wendie: «når jeg har tastet
+       Oslo ind, så er det ankomsttiden, som er Oslo lokal tid. Den skal
+       vide, hvad tidszone Oslo er i.» Præcis: CPH 11:10 → AUH 19:25 er
+       8t15 på uret og 6t15 i luften. Efterprøvet mod Farewises egne
+       varigheder på fire etaper: 6:15 · 4:20 · 4:00 · 6:45 — alle fire
+       stemmer. «Ankomstdag»-dropdownen er væk; lander man før man letter
+       på uret, står der «+1».
+
+     Det kræver lufthavnenes tidszoner, og derfor er tabellen `airports`
+     oprettet: 30 lufthavne — dem vi flyver til — med IANA-tidszone og
+     VORES stavning af bynavnet («Malé», «København», «Wien»). Kender vi
+     ikke en zone, regnes flyvetiden IKKE; så står der «tidszonen mangler»
+     i stedet. En gættet varighed i kundens dokument er værre end en tom.
+
+     OG EN FEJL, DER FORKLAREDE TRE SYMPTOMER PÅ ÉN GANG:
+     saetBen() sorterede etaperne efter dato + afgangstid ved hver ændring
+     — men `retterBen` huskede etapen ved sit NUMMER. Efter sorteringen
+     pegede nummeret på en anden etape. Wendie tastede SK111 i en ny
+     flyvning, og så stod EY177 i boksen; «Fjern flyvningen» fjernede
+     EY177. En tom afgangstid gav desuden nøglen «2026-10-18T», som er et
+     præfiks af «2026-10-18T02:15» og derfor sorterede FØRST, så den nye
+     tomme flyvning sprang op foran. Nu sorterer en etape uden afgangstid
+     SIDST på sin dato, og den åbne etape huskes som objekt.
 
      v1.21 — PRISBEREGNEREN REGNEDE PÅ EN FROSSEN LISTE AF YDELSER.
 
@@ -2775,6 +2813,11 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
    man den foerst, naar kunden staar i Malé. */
 #rsside .r-mangltr{color:var(--bad)}
 
+/* Flyvetiden er REGNET af tiderne og tidszonerne — ikke tastet. */
+#rsside .r-benregnet{background:#f6f3ea;border-color:#ddd0ae;color:#7a6634;font-style:italic}
+#rsside .r-benregnet:focus{background:#fff;border-color:var(--gold);font-style:normal;color:var(--ink)}
+#rsside .r-benukendt{color:var(--bad)}
+
 /* Kan der ikke prissoeges, staar der HVAD der mangler. En knap, der
    forsvinder uden at sige hvorfor, er den slags man ender med at lede
    efter — og det var praecis, hvad der skete. */
@@ -4227,7 +4270,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.21';
+const APP_VERSION = 'v1.23';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -14135,36 +14178,196 @@ async function flyPdfLinje(elId, i, filer, maade){
    OSL 18:50 → IST 23:40 ser ud som 4 t 50 m og er 3 t 50 m. Den kan kun
    regnes rigtigt, hvis vi kender hver lufthavns tidszone — se forslaget
    om en lufthavnstabel. Indtil da staar flyselskabets eget tal. */
+/* ══ LUFTHAVNENE ═══════════════════════════════════════════════════
+   Fyldes af hent() fra airports-tabellen i maldivia-core. by_dansk er
+   VORES stavning — «Malé», «Koebenhavn», «Wien» — og den er den, der skal
+   i kundens dokument. tidszone er IANA og bruges til at regne flyvetiden
+   af lokale klokkeslaet. Er zonen ukendt, regnes flyvetiden IKKE; en
+   gaettet varighed i kundens dokument er vaerre end en tom. */
+const LUFTHAVNE = {};
+const byAf   = k => (LUFTHAVNE[String(k||'').toUpperCase()]||{}).by || null;
+const zoneAf = k => (LUFTHAVNE[String(k||'').toUpperCase()]||{}).zone || null;
+
+/* «1005» -> «10:05». Hun taster uden kolon, og det er hurtigere. */
+function retTid(v){
+  const t = String(v||'').trim().replace(/[.\s]/g,':').replace(/::+/g,':');
+  let m = /^(\d{1,2}):(\d{2})$/.exec(t);
+  if(m && +m[1] < 24 && +m[2] < 60) return String(+m[1]).padStart(2,'0')+':'+m[2];
+  const rene = t.replace(/:/g,'');
+  m = /^(\d{3,4})$/.exec(rene);
+  if(m){ const r = m[1].padStart(4,'0'), t2 = +r.slice(0,2), m2 = +r.slice(2);
+    if(t2 < 24 && m2 < 60) return String(t2).padStart(2,'0')+':'+r.slice(2); }
+  m = /^(\d{1,2})$/.exec(rene);
+  if(m && +m[1] < 24) return String(+m[1]).padStart(2,'0')+':00';
+  return null;
+}
+/* Tidszonernes forskydning paa en given dato — Intl klarer sommertid,
+   ogsaa naar skiftet falder midt i rejsen. */
+function zoneForskyd(utcMs, zone){
+  const t = new Intl.DateTimeFormat('sv-SE',{timeZone:zone,year:'numeric',month:'2-digit',
+    day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})
+    .format(new Date(utcMs));
+  return Date.parse(t.replace(' ','T')+'Z') - utcMs;
+}
+function lokalTilUTC(dato, tid, zone){
+  const naivt = Date.parse(dato+'T'+tid+':00Z');
+  if(!isFinite(naivt)) return null;
+  let m = naivt;
+  for(let k=0;k<2;k++) m = naivt - zoneForskyd(m, zone);
+  return m;
+}
+/* ══ FLYVETIDEN AF TO LOKALE TIDER ══
+   Wendie 08.09.2026: «naar jeg har tastet Oslo ind, saa er det
+   ankomsttiden, som er Oslo lokal tid. Den skal vide, hvad tidszone Oslo
+   er i.» CPH 11:10 → AUH 19:25 er 8t15 paa uret og 6t15 i luften.
+   Kender vi ikke en zone, returneres null — og saa siges det. */
+function regnBenFlyvetid(x){
+  if(!x) return null;
+  const ud = retTid(x.ud), an = retTid(x.an);
+  if(!x.dato || !ud || !an || !x.fra || !x.til) return null;
+  const zf = zoneAf(x.fra), zt = zoneAf(x.til);
+  if(!zf || !zt) return null;
+  const a = lokalTilUTC(x.dato, ud, zf);
+  let b = lokalTilUTC(x.dato, an, zt);
+  if(a == null || b == null) return null;
+  if(b < a) b += 86400000;
+  const m = Math.round((b - a)/60000);
+  return (m > 0 && m < 24*60) ? m : null;
+}
+const minTilTid = m => m == null ? null
+  : String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0');
+
 function flyBenHtml(elId, i, j){
   const l = st[elId].linjer[i], x = (l.segmenter||[])[j];
   if(!x) return '';
-  const f = (felt, ph, type, bredde) => `<input type="${type||'text'}" placeholder="${ph}"
-      value="${escH(x[felt]==null?'':String(x[felt]))}" style="width:${bredde}"
-      onchange="RS.saetBen('${elId}',${i},${j},'${felt}',this.value)"
+  const id = b => 'ben-' + elId + '-' + i + '-' + j + '-' + b;
+  /* ══ FELTET TEGNES IKKE OM, MENS MAN TASTER ══
+     Wendie 08.09.2026: «hvis jeg tager tab, saa ryger jeg bare helt ud af
+     det hele … det roder sig ogsaa helt til.» Aarsagen var, at hvert
+     onchange kaldte tegnListe(), som skriver hele listen forfra — saa
+     feltet, hun stod i, blev slettet og lavet igen. Nu skriver vi kun i
+     modellen (benSaet) og tegner foerst, naar hun trykker «Færdig». */
+  const t = (felt, ph, bredde) => `<input type="text" id="${id(felt)}"
+      placeholder="${ph}" value="${escH(x[felt]==null?'':String(x[felt]))}" style="width:${bredde}"
+      oninput="RS.benSaet('${elId}',${i},${j},'${felt}',this.value)"
+      onblur="RS.benFaerdigFelt('${elId}',${i},${j},'${felt}',this)"
       onkeydown="if(event.key==='Enter')this.blur()">`;
-  const dagEfter = !!(x.ankomstDato && x.dato && x.ankomstDato > x.dato);
+  const dato = `<input type="date" id="${id('dato')}"
+      value="${escH(x.dato||'')}" style="width:142px"
+      oninput="RS.benSaet('${elId}',${i},${j},'dato',this.value)"
+      onchange="RS.benSaet('${elId}',${i},${j},'dato',this.value)">`;
+  const min = regnBenFlyvetid(x);
+  const regnet = min != null;
+  const dagEfter = (()=>{ const u = retTid(x.ud), a = retTid(x.an);
+    if(!u || !a) return false;
+    return a < u; })();
+  const byLinje = k => { const b = byAf(k); return b ? `<div class="r-benhj">${escH(b)}</div>`
+    : (k ? `<div class="r-benhj r-benukendt">ukendt kode</div>` : ''); };
   return `<tr class="r-benret"><td colspan="8">
     <div class="r-benfelt">
-      <div><label>Flynr.</label>${f('nr','TK1754','text','86px')}</div>
-      <div><label>Dato</label>${f('dato','','date','142px')}</div>
-      <div><label>Fra</label>${f('fra','IST','text','56px')}</div>
-      <div><label>Afgang</label>${f('ud','','time','96px')}</div>
-      <div><label>Til</label>${f('til','MLE','text','56px')}</div>
-      <div><label>Ankomst</label>${f('an','','time','96px')}</div>
-      <div><label>Ankomstdag</label>
-        <select onchange="RS.saetBen('${elId}',${i},${j},'ankomstDato',this.value)">
-          <option value="${escH(x.dato||'')}" ${dagEfter?'':'selected'}>samme dag</option>
-          <option value="${escH(laegTil(x.dato||'', 1))}" ${dagEfter?'selected':''}>dagen efter</option>
-        </select></div>
-      <div><label>Flyvetid</label>${f('flyvetid','02:30','text','82px')}
-        <div class="r-benhj">som på billetten</div></div>
-      <div class="r-benbred"><label>Flytype</label>${f('flytype','Airbus A330-300','text','100%')}</div>
-      <div><label>Terminal</label>${f('terminal','','text','72px')}</div>
+      <div><label>Flynr.</label>${t('nr','EY178','86px')}
+        <div class="r-benhj">${escH(selskabAf(x.nr) || '')}</div></div>
+      <div><label>Dato</label>${dato}</div>
+      <div><label>Fra</label>${t('fra','CPH','56px')}${byLinje(x.fra)}</div>
+      <div><label>Afgang</label>${t('ud','11:10','78px')}
+        <div class="r-benhj">lokal tid</div></div>
+      <div><label>Til</label>${t('til','AUH','56px')}${byLinje(x.til)}</div>
+      <div><label>Ankomst</label>${t('an','19:25','78px')}
+        <div class="r-benhj" id="${id('dag')}">${dagEfter
+          ? '<b class="r-p1">+1</b> dagen efter' : 'lokal tid'}</div></div>
+      <div><label>Flyvetid</label>
+        <input type="text" id="${id('flyvetid')}" placeholder="06:15" style="width:82px"
+          class="${regnet && !x._flyvetidHaand ? 'r-benregnet' : ''}"
+          value="${escH(x._flyvetidHaand ? (x.flyvetid||'') : (minTilTid(min) || x.flyvetid || ''))}"
+          oninput="RS.benSaet('${elId}',${i},${j},'flyvetid',this.value)"
+          onblur="RS.benFaerdigFelt('${elId}',${i},${j},'flyvetid',this)">
+        <div class="r-benhj" id="${id('fthj')}">${
+          x._flyvetidHaand ? 'som på billetten'
+          : regnet ? 'regnet af tiderne og tidszonerne'
+          : (zoneAf(x.fra) && zoneAf(x.til) ? 'udfyld tider og dato'
+             : 'tidszonen mangler på ' + escH([x.fra,x.til].filter(k=>k && !zoneAf(k)).join(' og ') || 'lufthavnen'))
+        }</div></div>
+      <div class="r-benbred"><label>Flytype</label>${t('flytype','Boeing 787-9','100%')}</div>
+      <div><label>Terminal</label>${t('terminal','','72px')}</div>
       <div class="r-benslut">
         <button class="r-benluk" onclick="event.stopPropagation();RS.retBen('${elId}',${i},-1)">Færdig</button>
         <button class="r-benx" onclick="event.stopPropagation();RS.sletBen('${elId}',${i},${j})">Fjern flyvningen</button>
       </div>
     </div></td></tr>`;
+}
+/* Selskabet af flynummeret. Koden skifter ikke: EY er Etihad i morgen ogsaa. */
+const FLYKODE = {EY:'Etihad Airways', EK:'Emirates', BA:'British Airways', SK:'SAS',
+  QR:'Qatar Airways', TK:'Turkish Airlines', LX:'Swiss', LO:'LOT', AY:'Finnair',
+  KL:'KLM', AF:'Air France', LH:'Lufthansa', DY:'Norwegian', D8:'Norwegian',
+  Q2:'Maldivian', UL:'SriLankan', WY:'Oman Air', SV:'Saudia', MK:'Air Mauritius',
+  HM:'Air Seychelles', ET:'Ethiopian', WB:'RwandAir', IB:'Iberia', AT:'Royal Air Maroc'};
+const selskabAf = nr => FLYKODE[String(nr||'').toUpperCase().slice(0,2)] || null;
+
+/* ══ SKRIV I MODELLEN — TEGN IKKE ══
+   Kaldes ved hvert tastetryk. Den roerer ikke fladen ud over de tal, der
+   REGNES (flyvetiden og ankomstdagen), og de opdateres ét felt ad gangen,
+   saa markoeren bliver, hvor den er. */
+function benSaet(elId, i, j, felt, v){
+  const seg = benListe(elId, i); if(!seg || !seg[j]) return;
+  const x = seg[j];
+  if(felt === 'nr'){
+    x.nr = String(v||'').toUpperCase().replace(/\s+/g,''); x.flynr = x.nr;
+    const k = /^([A-Z]{2})\d/.exec(x.nr); x.kode = k ? k[1] : null;
+  } else if(felt === 'fra' || felt === 'til'){
+    x[felt] = String(v||'').toUpperCase().slice(0,3);
+    x[felt === 'fra' ? 'fraBy' : 'tilBy'] = byAf(x[felt]) || null;
+  } else if(felt === 'flyvetid'){
+    x.flyvetid = String(v||'').trim() || null;
+    x._flyvetidHaand = !!x.flyvetid;          /* rettet i haanden -> regn ikke om */
+  } else {
+    x[felt] = String(v||'').trim() || null;
+  }
+  benOpdaterRegnet(elId, i, j);
+  maerk();
+}
+/* De to ting, der REGNES, opdateres direkte i deres felter. */
+function benOpdaterRegnet(elId, i, j){
+  const seg = benListe(elId, i); if(!seg) return;
+  const x = seg[j]; if(!x) return;
+  const id = b => 'ben-' + elId + '-' + i + '-' + j + '-' + b;
+  const u = retTid(x.ud), a = retTid(x.an);
+  /* Ankomstdagen detekteres af tiderne — Wendie 08.09.2026: «det skal den
+     jo selv detekte baseret paa tidspunktet, som man ankommer.» */
+  const dagEfter = !!(u && a && a < u);
+  x.plus = dagEfter;
+  x.ankomstDato = (x.dato && dagEfter) ? laegTil(x.dato, 1) : (x.dato || null);
+  const dg = document.getElementById(id('dag'));
+  if(dg) dg.innerHTML = dagEfter ? '<b class="r-p1">+1</b> dagen efter' : 'lokal tid';
+  if(x._flyvetidHaand) return;
+  const min = regnBenFlyvetid(x);
+  const ft = document.getElementById(id('flyvetid'));
+  const hj = document.getElementById(id('fthj'));
+  if(min != null){
+    x.flyvetid = minTilTid(min);
+    if(ft && document.activeElement !== ft){ ft.value = x.flyvetid; ft.classList.add('r-benregnet'); }
+    if(hj) hj.textContent = 'regnet af tiderne og tidszonerne';
+  } else {
+    if(hj) hj.textContent = (zoneAf(x.fra) && zoneAf(x.til))
+      ? 'udfyld tider og dato'
+      : 'tidszonen mangler på ' + ([x.fra,x.til].filter(k=>k && !zoneAf(k)).join(' og ') || 'lufthavnen');
+  }
+}
+/* Naar man forlader et felt: saet kolon paa tiderne, og ryd op. */
+function benFaerdigFelt(elId, i, j, felt, el){
+  const seg = benListe(elId, i); if(!seg || !seg[j]) return;
+  const x = seg[j];
+  if(felt === 'ud' || felt === 'an'){
+    const raa = String(el.value||'').trim();
+    if(raa === ''){ x[felt] = null; }
+    else { const p = retTid(raa); if(p){ x[felt] = p; el.value = p; } }
+  }
+  if(felt === 'flyvetid'){
+    const raa = String(el.value||'').trim();
+    if(raa === ''){ x._flyvetidHaand = false; x.flyvetid = null; el.classList.remove('r-benregnet'); }
+    else { const p = retTid(raa); if(p){ x.flyvetid = p; el.value = p; } }
+  }
+  benOpdaterRegnet(elId, i, j);
+  maerk();
 }
 /* Folder flyplanen mellem sammendrag og alle felter. Foldes den ind,
    lukkes den flyvning, der stod aaben — ellers ville felterne blive
@@ -14176,7 +14379,19 @@ function foldPlan(elId, i){
   tegnListe();
 }
 function retBen(elId, i, j){
-  st[elId].retterBen = (j < 0) ? null : (i + ':' + j);
+  /* Lukker man boksen, er det HER sorteringen og tegningen sker — ikke ved
+     hvert tastetryk. */
+  if(j < 0){
+    const seg = benListe(elId, i);
+    if(seg){
+      const noegle = y => (y.dato||'9999-99-99') + 'T' + (retTid(y.ud) || '99:99');
+      seg.sort((a,b)=>noegle(a).localeCompare(noegle(b)));
+    }
+    st[elId].retterBen = null;
+    roert(elId, i); tegnListe(); tegnPlan(); synkPlanlinjer(elId);
+    return;
+  }
+  st[elId].retterBen = i + ':' + j;
   tegnListe();
 }
 function benListe(elId, i){
@@ -14188,6 +14403,9 @@ function benListe(elId, i){
 function saetBen(elId, i, j, felt, v){
   const seg = benListe(elId, i); if(!seg || !seg[j]) return;
   const x = seg[j];
+  /* Er boksen aaben, skriver vi kun i modellen — ellers slettes feltet,
+     man staar i. Sorteringen og tegningen sker ved «Færdig». */
+  if(st[elId] && st[elId].retterBen){ return benSaet(elId, i, j, felt, v); }
   v = (v||'').trim();
   if(felt === 'nr'){ x.nr = v.toUpperCase().replace(/\s+/g,''); x.flynr = x.nr;
     const k = /^([A-Z]{2})\d/.exec(x.nr); x.kode = k ? k[1] : null; }
@@ -14200,9 +14418,24 @@ function saetBen(elId, i, j, felt, v){
     x.ankomstDato = x.ankomstDato || x.dato || null;
     x.plus = !!(x.ankomstDato && x.dato && x.ankomstDato > x.dato);
   }
-  /* Datoen bestemmer raekkefoelgen. Uden sortering ville en flyvning
-     tastet bagefter ligge foerst og lave etaperne om. */
-  seg.sort((a,b)=>((a.dato||'')+'T'+(a.ud||'')).localeCompare((b.dato||'')+'T'+(b.ud||'')));
+  /* ══ SORTERINGEN MAA IKKE FLYTTE, HVEM DER ER AABEN ══
+     Wendie 08.09.2026: hun tastede SK111 i en ny flyvning, trykkede Tab —
+     og saa stod EY177 i boksen, og «Fjern flyvningen» fjernede EY177.
+
+     Aarsagen: listen sorteres efter dato + afgangstid (det SKAL den, ellers
+     ligger en flyvning tastet bagefter foerst), men `retterBen` huskede
+     etapen ved sit NUMMER. Efter sorteringen pegede nummeret paa en anden
+     etape. En tom afgangstid gav desuden noeglen «2026-10-18T», som er et
+     praefiks af «2026-10-18T02:15» og derfor sorterer FOERST — saa den nye,
+     tomme flyvning sprang op foran EY177.
+
+     Derfor: en etape uden afgangstid sorterer SIDST paa sin dato, og den
+     aabne etape huskes som OBJEKT hen over sorteringen. */
+  const noegle = y => (y.dato||'9999-99-99') + 'T' + (y.ud || '99:99');
+  seg.sort((a,b)=>noegle(a).localeCompare(noegle(b)));
+  /* x er stadig den etape, hun retter i — nummeret regnes forfra. */
+  const nyPlads = seg.indexOf(x);
+  if(nyPlads >= 0) st[elId].retterBen = i + ':' + nyPlads;
   roert(elId, i); tegnListe(); tegnPlan(); synkPlanlinjer(elId);
 }
 function nytBen(elId, i){
@@ -14221,6 +14454,19 @@ function nytBen(elId, i){
   st[elId].retterBen = i + ':' + (seg.length - 1);
   st[elId].linjer[i].planAaben = true;   /* ellers taster man i noget usynligt */
   roert(elId, i); tegnListe();
+  /* Wendie 08.09.2026: «saa blev jeg bare smidt vaek fra siden … saa skulle
+     jeg scrolle op.» tegnListe() tegner hele listen forfra, sidens hoejde
+     aendrer sig, og rullehoejden foelger ikke med. Vi ruller derfor den nye
+     flyvning frem og saetter markoeren i foerste felt — man skal taste dér,
+     hvor man trykkede. */
+  requestAnimationFrame(()=>{
+    const boks = document.querySelector('#el-' + elId + ' .r-benret, .r-benret');
+    if(boks){
+      boks.scrollIntoView({block:'center', behavior:'smooth'});
+      const f = boks.querySelector('input,select');
+      if(f){ f.focus(); if(f.select) f.select(); }
+    }
+  });
 }
 async function sletBen(elId, i, j){
   const seg = benListe(elId, i); if(!seg || !seg[j]) return;
@@ -15079,8 +15325,18 @@ function visOm(id){
 }
 function nyLinje(id){ st[id].nyLinje = true; tegnListe(); }
 const kortDato = d => d ? new Date(d).toLocaleDateString('da-DK',{day:'numeric',month:'short'}) : '';
-const laegTil = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n);
-  return x.toISOString().slice(0,10); };
+/* Wendie 08.09.2026: «Invalid time value» — hele listen doede, fordi en ny
+   manuel flyvning har dato = null, og «dagen efter» regnede paa den.
+   En hjaelpefunktion maa ikke kaste paa en tom dato: der er ni kaldesteder,
+   og flere af dem kan have et felt, der endnu ikke er udfyldt. Tom ind,
+   tom ud — saa dør siden ikke af et felt, man er MIDT i at udfylde. */
+const laegTil = (d,n) => {
+  if(!d) return '';
+  const x = new Date(d);
+  if(!isFinite(x.getTime())) return '';
+  x.setDate(x.getDate() + n);
+  return x.toISOString().slice(0,10);
+};
 const naetterMellem = (a,bb) => Math.round((Date.parse(bb) - Date.parse(a)) / 86400000);
 
 /* Datoerne haenger sammen. Wendie 01.09.2026: «naar man har valgt en fra-dato,
@@ -16443,12 +16699,15 @@ const beholder = () => document.getElementById('rsside');
    lister villatyper og forplejning skal vaelges fra. Hentes parallelt;
    siden maa ikke vente seks gange i traek. */
 async function hent(tripId){
-  const [rt, re, rp, rk, rh, rf, rs, rd, rj] = await Promise.all([
+  const [rt, re, rp, rk, rlh, rh, rf, rs, rd, rj] = await Promise.all([
     db.from('trips').select('*, customers(first_name,last_name,email,phone,country,postal_address)')
       .eq('id', tripId).single(),
     db.from('trip_elements').select('*').eq('trip_id', tripId).order('sort').order('start_date'),
     db.from('trip_plan_items').select('*').eq('trip_id', tripId).order('sort'),
     db.rpc('fn_effektive_kurser'),
+    /* Lufthavnene: bynavn i VORES stavning og IANA-tidszonen, som
+       flyvetiden regnes af. 30 raekker — dem vi flyver til. */
+    db.from('airports').select('iata,by_dansk,by_navn,tidszone,navn'),
     db.from('v_hotel_valg').select('hotel_navn,villatyper'),
     db.from('hotel_forplejning').select('hotel_navn,forplejning'),
     db.from('suppliers').select('name').order('name'),
@@ -16460,6 +16719,15 @@ async function hent(tripId){
                           ['kurserne',rk],['hotellerne',rh],['forplejningen',rf]]){
     if(r && r.error) throw new Error(hvor + ': ' + r.error.message);
   }
+  /* Lufthavnene maa gerne mangle — saa siger flyboksen bare, at tidszonen
+     ikke er kendt, i stedet for at regne en forkert flyvetid. */
+  Object.keys(LUFTHAVNE).forEach(k=>delete LUFTHAVNE[k]);
+  ((rlh && rlh.data) || []).forEach(a=>{
+    if(!a.iata) return;
+    LUFTHAVNE[a.iata] = { by: a.by_dansk || a.by_navn || null,
+                          zone: a.tidszone || null, navn: a.navn || null };
+  });
+  if(rlh && rlh.error) console.warn('lufthavnene kunne ikke hentes', rlh.error.message);
   const els = re.data || [];
   let priser = [];
   if(els.length){
@@ -17048,6 +17316,8 @@ return {
   delerEtape, vendEtape, saetBen, nytBen, sletBen, flyBenHtml, retBen, foldPlan, saetNyt, saetTil, saetTrin, saetType, saetVilla,
   sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
   segTilFly, soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
+  benSaet, benFaerdigFelt, benOpdaterRegnet, retTid, regnBenFlyvetid,
+  LUFTHAVNE, byAf, zoneAf, selskabAf,
   flyPdf, flyPdfLinje, flyLaesTekst, flyVeje, pdfTekst, sletFlyplan,
   vejNavn, flyvetidTxt, daekkerVis, daekkerLinje, nyPax, saetPax, saetBoernAlder,
   paxFelter, paxTekst, gemRetStille, saetRet, flyTider, flyVarighed,
