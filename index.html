@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.27 · 08.09.2026
+<!-- Panda · v1.30 · 09.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -214,6 +214,52 @@
      derimellem hedder «Videre til Malé», «Videre til Denpasar». Er der kun
      én gruppe, hedder den «Flyvning» — ikke en udrejse uden hjemkomst.
      Prøvet med fire flyvninger: CPH → MXP → MLE → DPS → CPH.
+
+     v1.29 — «GRUNDLAG» ER FORBEHOLDT TILBUDDET.
+
+     Wendie 08.09.2026: «jeg synes ikke, at et element man laegger ind, som
+     ikke er en del af det oprindelige tilbud, skal hedde grundlag i
+     prislinjen. Det er noedt til at hede noget andet end det, som er
+     grundlaget for tilbuddet. For det har jo ikke samme funktion.»
+
+     Rigtigt. Et GRUNDLAG er en pris fra tilbuddet — den kunden har set, og
+     den vi er bundet af. Den foerste pris paa en ydelse, hun selv laegger
+     ind bagefter, er ikke bundet af noget. Kaldes de det samme, ser en
+     tilfoejelse ud som et loefte.
+
+     Rollen er den samme: det er stadig den, alt andet paa ydelsen maales
+     mod, saa den staar oeverst og med samme plads. Det er ORDET, der
+     skelner — «Grundlag» mod «Første pris» — og maerkaten er koeligere og
+     uden fed skrift, saa oejet kan se forskellen uden at laese.
+
+     Kilden afgoer: tilbudsimporten skriver «Fra tilbuddet · version N» paa
+     linjen, da prisen hentes, og det staar der for altid. Overskriften over
+     priserne foelger med: «grundlaget oeverst» eller «den foerste pris
+     oeverst».
+
+     v1.28 — ÉN FLYVNING AD GANGEN, OG REJSEPLANEN FOELGER MED.
+
+     Wendie 08.09.2026: «hvis jeg sletter noget, saa sletter den jo hele
+     planen. Vi skal have en maade hvor vi kan slette en hel flyvning ad
+     gangen, hvis det er det jeg vil.»
+
+     «Fjern flyvningen» FANDTES — men kun inde i rettekassen, og den skulle
+     man ramme raekken for at aabne. Med tre ens raekker aabnede man den
+     forkerte (v1.26 spaerrede dubletterne, men skaden var sket), og saa
+     foeltes det som om «Slet planen» var den eneste vej. Nu staar der et ×
+     paa hver raekke i tabellen. Lyst indtil man er henne ved det.
+
+     Og sletningen slutter nu HELE vejen: overskriften regnes om,
+     rejseplanens linjer synkroniseres, datoerne opdateres, og der kvitteres
+     med hvad der forsvandt. Foer stoppede den ved listen, og rejseplanen
+     stod tilbage med etaper fra en rute, ingen pris laengere kendte.
+
+     Rejseplanen sagde ogsaa «MLE → null». Samme aabne doer som i
+     overskriften (R386), bare et andet sted: titlen blev bygget af
+     a0.fra + ' → ' + aN.til uden at spoerge, om der stod noget. Og
+     raa.rute — den titel planen falder tilbage paa, naar en pris uden
+     flyplan vaelges — blev aldrig skrevet om, saa den huskede en rute fra
+     en billet, der var slettet. Begge rettet.
 
      v1.27 — OVERSKRIFTEN FOELGER PLANEN, OGSAA NAAR DEN BLIVER TOM.
 
@@ -3159,6 +3205,11 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .r-skvalg{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .r-skvalg button{padding:7px 12px;border:1px solid #d8d0c2;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer}
 .r-skvalg button.paa{border-color:#6f8a4f;background:#eef3e4;font-weight:600}
+#rsside .r-segfw .r-benslet{text-align:center;padding:0}
+#rsside .r-segfw .r-benslet span{display:inline-block;width:20px;line-height:20px;
+  border-radius:4px;color:#cdc4b4;cursor:pointer;font-size:14px;user-select:none}
+#rsside .r-segfw tr:hover .r-benslet span{color:#8c6a5e}
+#rsside .r-segfw .r-benslet span:hover{background:#f6e9e5;color:#8f3d2c}
 .r-segfw .r-segbk,.r-segfw .r-segst{color:#8a7f6b;font-size:11.5px;letter-spacing:.04em}
 .r-segfw .r-segkab,.r-segfw .r-segfly{color:#6b6151;font-size:11.5px}
 .r-flytekst{display:block;width:100%;margin:6px 0 0;padding:8px 10px;box-sizing:border-box;
@@ -3347,6 +3398,8 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-pl.r-grundlag .r-mrk{border-color:#ddd0ae;background:#efe6d0;color:#7c6f45}
 
+#rsside .r-pl .r-mrk.r-foerste{border-color:#dcd6c4;background:#fbf9f3;color:#7f7a63;
+  font-weight:400;letter-spacing:.06em}
 #rsside .r-pl .r-mrk.r-ed{border-color:#cfdbe4;background:#f0f5f8;color:#5c748a}
 
 #rsside .r-pl .r-mrk.r-kon{border-color:#cfe0d2;background:#f1f7f2;color:#4d7a5c}
@@ -4381,6 +4434,627 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   SILKE — MELLEMLANDINGENS DESIGN, 08.09.2026
+   ══════════════════════════════════════════════════════════════════════
+   Wendie 08.09.2026: «designet skal vaere fuldstaendig som det her. Den
+   maa hverken blive mindre, stoerre, aendres noget som helst. Jeg skal
+   bare have det som det, vi har bygget og brugt hele dagen paa.»
+
+   Retningen fik navnet SILKE efter fem forkastede bud. Hendes ord om,
+   hvad der var galt foer: «det ser rodet ud og uddateret … alle de der
+   knapper og runde bokse ser bare saa tarveligt ud … du maa taenke lidt
+   mere high end hotelstil, high end software development stil, tasteful»
+   — og retningen fremad: «vi skal bevare det lyse og elegante, men vaek
+   fra det computerskrift og terminalagtige … endnu skarpere, mest af alt
+   delikat, elegant, vakkert.» Hendes motto: «det er de smaa detaljer,
+   der goer store indtryk.»
+
+   Derfor: ingen rammer om raekker, kun halvpixel-linjer (transform:
+   scaleY(.5)); ingen store bokse, men luft; ingen monospace; ingen
+   maettede farver — kun de tre daempede toner (groen til det valgte,
+   guld til overskrifter, blaa til referencer). Skyggerne er lange og
+   naesten usynlige.
+
+   Laget er RENT KOSMETISK og lagt sidst i stilarket, saa det vinder paa
+   raekkefoelge uden at aendre en enkelt selektor ovenfor. Ingen markup
+   og ingen funktion er roert. Palletten var i forvejen den samme
+   (--card #fffefb, --line #e9e3d6, --gold #b99a5f), saa det er
+   typografien, linjerne og maerkaterne, der flytter sig.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── selve siden ─────────────────────────────────────────────────── */
+#rsside .r-wrap{max-width:1200px;margin:0 auto;padding:2px 0 0}
+#rsside,#rsside *{box-sizing:border-box}
+#rsside{font-size:13px;line-height:1.55;color:#2e332e}
+
+/* ── HOVEDET ─────────────────────────────────────────────────────── */
+#rsside .r-top{
+  background:
+    radial-gradient(140% 200% at 2% 0%, rgba(122,166,132,.1), transparent 52%),
+    radial-gradient(110% 180% at 99% 4%, rgba(185,154,95,.1), transparent 56%),
+    linear-gradient(180deg,#fffefb,#fdfbf5);
+  border:1px solid #e9e3d6;border-radius:14px;padding:18px 22px;position:relative;
+  overflow:hidden;box-shadow:0 1px 2px rgba(46,38,20,.03),0 20px 44px -36px rgba(46,38,20,.3);
+  margin-bottom:14px}
+#rsside .r-top::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:
+  radial-gradient(1.1px 1.1px at 14% 22%, rgba(120,140,120,.3), transparent 60%),
+  radial-gradient(1px 1px at 82% 12%, rgba(185,154,95,.3), transparent 60%),
+  radial-gradient(1px 1px at 60% 78%, rgba(120,140,120,.18), transparent 60%)}
+#rsside .r-top::after{display:none}
+#rsside .r-krumme{font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:#b3ac97;font-weight:600;margin:0 0 9px;position:relative}
+#rsside .r-krumme b{color:#8a7238;font-weight:600}
+#rsside h1[contenteditable],#rsside .r-top h1{font-family:'Playfair Display',serif;
+  font-size:24px;font-weight:500;color:#22301f;letter-spacing:-.5px;margin:0;
+  line-height:1.2;position:relative}
+#rsside h1[contenteditable]:hover{border-bottom-color:rgba(185,154,95,.35)}
+#rsside .r-linje2{display:flex;align-items:baseline;gap:0 14px;flex-wrap:wrap;margin-top:9px;
+  position:relative;font-size:12px;color:#6f6d62}
+#rsside .r-linje2 em{font-style:italic;color:#6f6d62}
+#rsside .r-sep{color:#d8d1bf}
+#rsside .r-dests{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+#rsside .r-dch{font-size:11px;padding:3px 9px;border-radius:6px;background:rgba(111,156,124,.13);
+  color:#3d6b4c;font-weight:500;display:inline-flex;align-items:center;gap:6px;border:0}
+#rsside .r-dch button{border:0;background:none;color:#8fae97;cursor:pointer;font-size:11px;
+  padding:0;line-height:1;opacity:.7}
+#rsside .r-dch button:hover{opacity:1;color:#7d5a4a}
+#rsside .r-dadd{border:0;background:#fff;box-shadow:inset 0 0 0 1px #e6dfd0;border-radius:6px;
+  color:#b09a68;cursor:pointer;font-size:12px;line-height:1;padding:3px 8px}
+#rsside .r-dadd:hover{box-shadow:inset 0 0 0 1px #ddd0ae}
+#rsside .r-dato,#rsside .r-dato-fast{font-size:12px;color:#6f6d62;border:0}
+#rsside .r-pax{font-size:12px;color:#6f6d62;border:0}
+
+/* ── STADIEBJÆLKEN ───────────────────────────────────────────────── */
+#rsside .r-trin{display:flex;margin-top:14px;position:relative;border-radius:9px;overflow:hidden;
+  box-shadow:inset 0 0 0 1px #e6dfd0;background:#fdfbf6;border:0;gap:0}
+#rsside .r-trin > div{flex:1;font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  font-weight:600;color:#b3ac97;padding:9px 6px;text-align:center;white-space:nowrap;
+  cursor:pointer;position:relative;background:none;border:0;border-radius:0;
+  transition:color .16s ease,background .16s ease}
+#rsside .r-trin > div + div::before{content:'';position:absolute;left:0;top:6px;bottom:6px;
+  width:1px;background:#eeeae0}
+#rsside .r-trin > div:hover{color:#6f6d62;background:#faf7ef}
+#rsside .r-trin > div.r-nu{background:linear-gradient(180deg,#2b3d2a,#1e2b1d);color:#e9dfc4;
+  box-shadow:0 1px 8px -2px rgba(34,48,31,.5)}
+#rsside .r-trin > div.r-nu::before,#rsside .r-trin > div.r-nu + div::before{display:none}
+#rsside .r-forkl{font-size:12px;color:#6f6d62;margin:11px 0 0;max-width:94ch;position:relative;
+  line-height:1.6;font-style:normal}
+
+/* ── KORTENE ─────────────────────────────────────────────────────── */
+#rsside .r-kort{background:#fffefb;border:1px solid #e9e3d6;border-radius:14px;padding:18px 20px;
+  box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3);
+  margin-bottom:14px;overflow:visible}
+#rsside .r-kort > h2{display:flex;align-items:center;gap:14px;padding:0 2px 13px;margin:0;
+  font-family:'Inter',system-ui,sans-serif;font-size:10.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:#b99a5f;font-weight:600;cursor:pointer;border:0}
+#rsside .r-kort > h2 .r-h{font-size:12px;color:#98937f;font-style:italic;
+  font-family:'Playfair Display',serif;letter-spacing:0;text-transform:none;font-weight:400}
+#rsside .r-kort > h2 .r-fp2{margin-left:auto;color:#b99a5f;font-size:9px;opacity:.7;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1)}
+#rsside .r-kort.r-lukket > h2 .r-fp2{transform:rotate(-90deg)}
+#rsside .r-kort.r-lukket > h2{padding-bottom:0}
+#rsside .r-kort > h2 .r-hent2,#rsside .r-kort > h2 .r-skzone{letter-spacing:.02em;
+  text-transform:none;font-weight:400}
+
+/* ── REJSEPLANEN ─────────────────────────────────────────────────────
+   Den gamle opbygning er bevaret (dagen absolut i venstre spalte,
+   knoppen paa tidslinjen, indholdet til hoejre) — kun tonen aendres:
+   rammerne om raekkerne forsvinder, og der er halvpixel-linjer i
+   stedet. Wendie 08.09.2026 om boksene: «de virker voldsomt store.» */
+#rsside .r-plan{position:relative;padding-left:196px;border-radius:0;box-shadow:none;
+  background:none;overflow:visible}
+#rsside .r-plan::before{left:176px;top:10px;bottom:16px;
+  background:linear-gradient(180deg,rgba(200,192,172,.75),rgba(200,192,172,.3))}
+#rsside .r-dag{position:relative;margin:0;display:block}
+#rsside .r-dag + .r-dag::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0;z-index:2}
+#rsside .r-dato{position:absolute;left:-196px;top:11px;width:150px;text-align:right;padding:0}
+#rsside .r-dato .r-d{font-family:'Playfair Display',serif;font-size:13.5px;line-height:1.25;
+  color:#22301f;letter-spacing:-.2px}
+#rsside .r-dato .r-kl{font-size:9.5px;color:#a8a494;margin-top:1px}
+#rsside .r-knop{position:absolute;left:-24px;top:17px;width:7px;height:7px;border-radius:50%;
+  background:#fffefb;border:0;box-shadow:inset 0 0 0 1px #c8c0ac}
+#rsside .r-knop.r-ophold{background:#c9a961;box-shadow:inset 0 0 0 1px #b99a5f}
+#rsside .r-el{background:none;border:0;border-radius:0;margin:0}
+#rsside .r-el .r-hd{display:flex;gap:13px;align-items:center;padding:10px 2px;cursor:pointer;
+  transition:background .16s ease}
+#rsside .r-el .r-hd:hover{background:linear-gradient(90deg,rgba(185,154,95,.05),rgba(185,154,95,0) 60%)}
+#rsside .r-el.r-aaben .r-hd{background:linear-gradient(180deg,#fdfbf5,#faf7ef)}
+#rsside .r-el .r-art{flex:none;width:auto;min-width:62px;font-size:8px;letter-spacing:.13em;
+  text-transform:uppercase;font-weight:600;padding:4px 7px;border-radius:4px;text-align:center;
+  white-space:nowrap;border:0;box-shadow:none;color:#4d6f8a;background:rgba(125,156,181,.16)}
+#rsside .r-art.r-fly{background:rgba(125,156,181,.16);color:#4d6f8a}
+#rsside .r-art.r-hotel{background:rgba(111,156,124,.16);color:#3d6b4c}
+#rsside .r-art.r-transfer{background:rgba(185,154,95,.18);color:#8a7238}
+#rsside .r-art.r-andet,#rsside .r-art.r-billet{background:rgba(160,156,140,.16);color:#7a7666}
+#rsside .r-el .r-midt{flex:1;min-width:0}
+#rsside .r-el .r-titel{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;
+  color:#22301f;line-height:1.3}
+#rsside .r-el .r-sub{font-size:11px;color:#98937f;margin-top:1px;line-height:1.4}
+#rsside .r-el .r-lev{flex:none;font-size:10.5px;color:#98937f;background:none;border:0;
+  padding:0;border-radius:0;white-space:nowrap}
+#rsside .r-el .r-lev b{font-weight:600;color:#4c4c43}
+#rsside .r-el .r-pil{flex:none;width:12px;color:#b3ac97;font-size:7.5px;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1)}
+#rsside .r-el .r-krop{padding:2px 2px 14px 75px;border-top:0;background:none;
+  font-size:11.5px;color:#4c4c43}
+#rsside .r-el.r-harfejl{border:0;box-shadow:none}
+#rsside .r-el.r-harfejl .r-hd{box-shadow:inset 2px 0 0 rgba(168,85,47,.55)}
+
+/* ── YDELSERNE ───────────────────────────────────────────────────────
+   Wendie 08.09.2026: «alle de der knapper og runde bokse ser bare saa
+   tarveligt ud.» Listen er derfor ÉN ring med halvpixel-linjer mellem
+   raekkerne — ikke seks kasser. Navnet er Playfair (det er en titel),
+   prisen er Inter med tabulaere cifre (det er et tal). Foer var det
+   omvendt. */
+#rsside .r-raekker{border:0;border-radius:11px;overflow:hidden;background:#fffefb;
+  box-shadow:inset 0 0 0 1px #ece7db}
+#rsside .r-rk{border-bottom:0;position:relative;background:#fffefb}
+#rsside .r-rk + .r-rk::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0;z-index:3}
+#rsside .r-rk .r-hd{display:flex;align-items:center;gap:13px;padding:11px 14px;cursor:pointer;
+  transition:background .16s ease}
+#rsside .r-rk .r-hd:hover{background:linear-gradient(90deg,rgba(185,154,95,.05),rgba(185,154,95,0) 60%)}
+#rsside .r-rk.r-aaben .r-hd{background:linear-gradient(180deg,#fdfbf5,#faf7ef)}
+#rsside .r-rk .r-greb{color:#d8d1bf;font-size:10px;cursor:grab;line-height:1;letter-spacing:-1px}
+#rsside .r-rk .r-pil{flex:none;width:11px;color:#b3ac97;font-size:7.5px;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1)}
+#rsside .r-rk.r-aaben .r-pil{transform:rotate(90deg)}
+#rsside .r-rk .r-navn{flex:1;min-width:0;white-space:normal;
+  font-family:'Playfair Display',serif;font-size:14.5px;font-weight:500;color:#22301f;line-height:1.3}
+#rsside .r-rk .r-navn b{font-weight:500;font-family:'Playfair Display',serif}
+#rsside .r-rk .r-navn span{color:#98937f;font-size:11px;
+  font-family:'Inter',system-ui,sans-serif;font-weight:400}
+#rsside .r-rk .r-levsm{flex:none;font-size:10.5px;color:#98937f;width:130px;text-align:right;
+  white-space:nowrap}
+#rsside .r-rk .r-pris{flex:none;width:126px;text-align:right;white-space:nowrap}
+#rsside .r-rk .r-pris .r-nu{font-family:'Inter',system-ui,sans-serif;font-size:16px;
+  font-weight:600;color:#22301f;letter-spacing:-.2px;
+  font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1,'lnum' 1}
+#rsside .r-rk .r-pris .r-df{font-size:9.5px;margin-top:1px;color:#a8a494}
+#rsside .r-rk .r-krop{padding:16px 14px 16px 39px;background:linear-gradient(180deg,#f6f3ec,#f9f7f1);
+  border-top:0;box-shadow:inset 0 10px 18px -16px rgba(40,32,16,.34)}
+#rsside .r-nyknap{border:0;background:#fff;box-shadow:inset 0 0 0 1px #ece7db;border-radius:8px;
+  font-size:10.5px;color:#4c4c43;padding:9px 12px;text-align:center;cursor:pointer;
+  margin-top:12px;transition:box-shadow .16s ease,transform .16s cubic-bezier(.2,.7,.2,1)}
+#rsside .r-nyknap:hover{transform:translateY(-1px);
+  box-shadow:inset 0 0 0 1px #ddd0ae,0 3px 9px -4px rgba(185,154,95,.6)}
+#rsside .r-opsum{border:0;background:none;padding:11px 2px 0;font-size:11px;color:#a09c8c;
+  display:flex;align-items:baseline;gap:8px;position:relative}
+#rsside .r-opsum::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#ece7db}
+#rsside .r-opsum b{color:#22301f;font-weight:600}
+
+/* ── UNDEROVERSKRIFTER I EN YDELSE ──────────────────────────────── */
+#rsside .r-bt{font-size:8px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;
+  margin:0 0 9px;display:flex;align-items:center;gap:11px;color:#a68d55;
+  font-family:'Inter',system-ui,sans-serif;border:0;padding:0}
+#rsside .r-bt::after{content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,rgba(193,164,104,.3),rgba(193,164,104,0))}
+#rsside .r-bt .r-n{letter-spacing:.02em;text-transform:none;font-size:10px;font-weight:400;
+  color:#a09c8c;font-style:normal}
+#rsside .r-blok{border:0;background:none;padding:0;margin:0 0 16px}
+
+/* ── PRISLINJERNE ────────────────────────────────────────────────────
+   Wendie valgte retningen SILKE: «bare endnu skarpere, endnu mere …
+   mest af alt delikat, elegant, vakkert.» Linjen er derfor et blad,
+   der ligger paa papiret — en lang, næsten usynlig skygge og en fin
+   guldstribe i venstre kant, groen naar den er valgt. */
+#rsside .r-stige{border:0;border-radius:0;overflow:visible;background:none;box-shadow:none;
+  display:flex;flex-direction:column;gap:6px}
+#rsside .r-stige .r-pl{font-size:12.5px}
+#rsside .r-pl{display:flex;align-items:flex-start;gap:0 14px;padding:9px 12px 9px 16px;
+  border-bottom:0;border-radius:11px;position:relative;min-height:48px;
+  background:linear-gradient(180deg,#fff,#fffdf9);
+  box-shadow:0 1px 1px rgba(40,32,16,.035),0 10px 20px -16px rgba(40,32,16,.28),inset 0 1px 0 #fff}
+#rsside .r-pl::before{content:'';position:absolute;left:0;top:9px;bottom:9px;width:2px;
+  border-radius:2px;background:linear-gradient(180deg,rgba(185,154,95,0),#cfb37c,rgba(185,154,95,0))}
+#rsside .r-pl.r-valgt{background:
+    radial-gradient(130% 190% at 2% 0%, rgba(122,166,132,.115), transparent 54%),
+    radial-gradient(100% 170% at 99% 6%, rgba(185,154,95,.1), transparent 58%),
+    linear-gradient(180deg,#fff,#fffdf9);
+  box-shadow:0 1px 1px rgba(40,32,16,.035),0 16px 30px -18px rgba(38,70,44,.3),
+             inset 0 1px 0 #fff,0 0 24px -14px rgba(122,166,132,.45)}
+#rsside .r-pl.r-valgt::before{background:linear-gradient(180deg,rgba(111,156,124,0),#6f9c7c,rgba(111,156,124,0));
+  box-shadow:0 0 7px rgba(111,156,124,.6)}
+#rsside .r-pl .r-mrk{flex:none;width:auto;min-width:0;font-size:8px;letter-spacing:.16em;
+  text-transform:uppercase;font-weight:600;padding:3px 7px;border-radius:4px;white-space:nowrap;
+  border:0;background:rgba(185,154,95,.14);color:#8a7238;align-self:flex-start;margin-top:2px}
+#rsside .r-pl.r-valgt .r-mrk{background:rgba(111,156,124,.15);color:#41704f}
+#rsside .r-pl .r-mrk.r-foerste{border:0;background:rgba(160,156,140,.15);color:#7a7666;
+  font-weight:600;letter-spacing:.16em}
+#rsside .r-pl .r-mrk.r-ed{border:0;background:rgba(125,156,181,.14);color:#4d6f8a}
+#rsside .r-pl .r-mrk.r-kon{border:0;background:rgba(111,156,124,.14);color:#3d6b4c}
+#rsside .r-pl .r-mrk.r-man{border:0;background:rgba(160,156,140,.15);color:#7a7666}
+#rsside .r-pl .r-hvem{flex:none;width:200px;font-size:13.5px;min-width:0}
+#rsside .r-pl .r-hvem b{font-weight:600;color:#22301f}
+#rsside .r-pl .r-hvem small{color:#8c8879;font-size:11px;line-height:1.4;margin-top:1px}
+#rsside .r-pl .r-hvad{flex:1;min-width:0;font-size:11px;color:#8c8879;line-height:1.4}
+#rsside .r-pl .r-hvad small{color:#98937f;font-size:11px}
+#rsside .r-pl .r-pr{flex:none;text-align:right;white-space:nowrap;font-size:16px;font-weight:600;
+  color:#22301f;letter-spacing:-.2px;
+  font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1,'lnum' 1}
+#rsside .r-pl .r-dif{flex:none;font-size:9.5px;color:#a8a494;text-align:right;white-space:nowrap}
+#rsside .r-pl .r-vlg{flex:none;display:flex;align-items:center;gap:7px}
+#rsside .r-pl .r-vlg button,#rsside .r-pl button.r-ervalgt{font-size:8px;letter-spacing:.16em;
+  text-transform:uppercase;font-weight:600;padding:5px 11px;border-radius:7px;border:0;
+  cursor:pointer;background:#fff;color:#4c4c43;box-shadow:inset 0 0 0 1px #e6dfd0;
+  transition:box-shadow .16s ease,transform .16s cubic-bezier(.2,.7,.2,1)}
+#rsside .r-pl .r-vlg button:hover{transform:translateY(-1px);box-shadow:inset 0 0 0 1px #ddd0ae}
+#rsside .r-pl.r-valgt button.r-ervalgt{background:linear-gradient(180deg,#7cae8b,#5d8f6d);
+  color:#fff;box-shadow:0 2px 8px -3px rgba(93,143,109,.7)}
+#rsside .r-pl .r-x{opacity:.28;font-size:11.5px;background:none;border:0;cursor:pointer;
+  color:#4c4c43;box-shadow:none;padding:0 3px}
+#rsside .r-pl .r-x:hover{opacity:.85;color:#a8724f;background:none;box-shadow:none;transform:none}
+#rsside .r-tilf{border:0;background:#fff;box-shadow:inset 0 0 0 1px #ece7db;border-radius:8px;
+  font-size:10.5px;color:#4c4c43;padding:7px 11px;cursor:pointer;margin-top:9px;
+  transition:box-shadow .16s ease,transform .16s cubic-bezier(.2,.7,.2,1)}
+#rsside .r-tilf:hover{transform:translateY(-1px);
+  box-shadow:inset 0 0 0 1px #ddd0ae,0 3px 9px -4px rgba(185,154,95,.6)}
+#rsside .r-ydslet button{border:0;background:none;box-shadow:none;font-size:9.5px;color:#c3a79c;
+  cursor:pointer;padding:0;border-bottom:1px dotted transparent}
+#rsside .r-ydslet button:hover{color:#a8724f;border-bottom-color:#d8bdb2;background:none}
+
+/* ── OPTIONER OG FRISTER ─────────────────────────────────────────── */
+#rsside .r-fristbox{border:0;border-radius:11px;
+  background:linear-gradient(180deg,#fffdf6,#fdf9ec);box-shadow:inset 0 0 0 1px #e8dcbd;
+  padding:13px 15px;margin-bottom:14px}
+#rsside .r-fristbox .r-fh{font-size:8px;letter-spacing:.22em;text-transform:uppercase;
+  font-weight:600;color:#8a7238;display:flex;align-items:baseline;gap:11px;margin-bottom:8px}
+#rsside .r-fristbox .r-ftab th{font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:#b0a179;font-weight:600;border:0;padding:0 10px 6px 0}
+#rsside .r-fristbox .r-ftab td{border:0;padding:6px 10px 6px 0;position:relative}
+#rsside .r-fristbox .r-ftab tr+tr td::before{content:'';position:absolute;left:0;right:10px;top:0;
+  height:1px;transform:scaleY(.5);transform-origin:top;background:rgba(200,180,130,.4)}
+
+/* ══ BUNDEN: REJSENDE, KURSER, PRISBEREGNING ═════════════════════════
+   Wendie 08.09.2026 om den store overskrift: «den blok, der har alle
+   kurserne, maa faktisk godt ligge nede under prisberegningen.» Og om
+   helheden: «vi skal vaek fra det computerskrift og terminalagtige.»
+   De tre sektioner er derfor samme slags kort som ovenfor, med
+   overskriften som en fin guldlinje — ikke som en serif-titel paa
+   siden. */
+.ml7{font-size:13px;line-height:1.55;color:#2e332e;
+  font-family:'Inter',system-ui,sans-serif;max-width:1200px;margin:0 auto}
+.ml7 .mlsh{display:flex;align-items:baseline;gap:14px;margin:26px 0 14px;padding-top:20px;
+  border-top:1px solid #ece7db;position:relative}
+.ml7 .mlsh::after{display:none}
+.ml7 .mlsh .txt{font-family:'Inter',system-ui,sans-serif;font-size:10.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:#b99a5f;font-weight:600}
+.ml7 .mlsh .r{font-size:12px;color:#98937f;font-style:italic;
+  font-family:'Playfair Display',serif;margin-left:0}
+.ml7 h1,.ml7 h2{font-family:'Inter',system-ui,sans-serif}
+
+/* ── kortene i bunden ───────────────────────────────────────────── */
+.ml7 .mlkort,.ml7 .mlkurskort,.ml7 .mlrtab,.ml7 .mljbox{
+  background:#fffefb;border:1px solid #e9e3d6;border-radius:14px;padding:16px 18px;
+  box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3)}
+.ml7 .mlkort,.ml7 .mlkurskort{padding:6px 18px}
+
+/* ── de rejsende ────────────────────────────────────────────────── */
+.ml7 .mlpaxr{display:flex;align-items:flex-end;gap:12px 16px;flex-wrap:wrap;
+  padding:11px 0;position:relative;border:0;background:none}
+.ml7 .mlpaxr + .mlpaxr::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+.ml7 .mlpaxr .nr{font-size:9px;font-weight:700;color:#8c8879;background:#f4f1e9;border-radius:4px;
+  padding:3px 6px;letter-spacing:.04em;align-self:center;border:0}
+.ml7 .mlpaxr .f{display:flex;flex-direction:column;gap:2px;flex:1;min-width:180px}
+.ml7 .mlpaxr .f.sm{flex:none;min-width:0}
+.ml7 .mlpaxr label{font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;color:#a09c8c;
+  font-weight:600}
+.ml7 .mlpaxr input{font-family:inherit;font-size:11.5px;padding:4px 7px;border-radius:6px;border:0;
+  background:#fff;color:#26291f;box-shadow:inset 0 0 0 1px #e6dfd0;height:26px;
+  transition:box-shadow .15s ease}
+.ml7 .mlpaxr input:hover{box-shadow:inset 0 0 0 1px #ddd0ae}
+.ml7 .mlpaxr input:focus{outline:none;box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+.ml7 .mlpaxr .alder{font-size:9.5px;color:#a09c8c;align-self:center}
+.ml7 .mlpaxr .alder .mgl{color:#a8552f}
+.ml7 .pmini{border:0;background:none;box-shadow:none;color:#4c4c43;opacity:.28;font-size:11.5px;
+  cursor:pointer;align-self:center;padding:0 3px}
+.ml7 .pmini:hover{opacity:.85;color:#a8724f;background:none}
+.ml7 .mltilfoej{display:flex;align-items:center;gap:12px;padding:11px 0 13px;position:relative}
+.ml7 .mltilfoej::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+.ml7 .mlpaxhj{font-size:10.5px;color:#a09c8c}
+
+/* ── kurstabellen ───────────────────────────────────────────────── */
+.ml7 .kurstop{display:flex;align-items:baseline;gap:12px;padding:13px 0 9px;font-size:0;
+  border:0;background:none}
+.ml7 .kurstop .n{font-size:8px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;
+  color:#a68d55}
+.ml7 .kurstop .sml2{font-size:10.5px;letter-spacing:.02em;text-transform:none;font-weight:400;
+  color:#a09c8c}
+.ml7 .mlktab{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.ml7 .mlktab th{text-align:right;font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:#b0a179;font-weight:600;padding:0 10px 6px 0;border:0;background:none}
+.ml7 .mlktab th:first-child{text-align:left}
+.ml7 .mlktab td{padding:8px 10px 8px 0;text-align:right;position:relative;border:0}
+.ml7 .mlktab td:first-child{text-align:left;font-weight:600;color:#22301f}
+.ml7 .mlktab tr+tr td::before{content:'';position:absolute;left:0;right:10px;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+.ml7 .mlktab .eff{font-weight:600;color:#22301f}
+.ml7 .mlktab .eff .tal{font-size:15px;letter-spacing:-.2px}
+.ml7 .mlktab .hj{font-size:9.5px;color:#a09c8c;font-weight:400}
+.ml7 .mlktab .e{font-size:9.5px;color:#b3af9f;display:block}
+.ml7 .mlktab input.kf{width:58px;text-align:right;font-family:inherit;font-size:11.5px;
+  padding:3px 5px;border:0;border-radius:5px;background:#fff;box-shadow:inset 0 0 0 1px #e6dfd0;
+  height:24px}
+.ml7 .mlktab input.kf:hover{box-shadow:inset 0 0 0 1px #ddd0ae}
+.ml7 .mlktab input.kf:focus{outline:none;box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+.ml7 .mlktab .skoen{font-size:7.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:600;
+  padding:2px 6px;border-radius:4px;background:rgba(185,154,95,.16);color:#8a7238;margin-left:6px}
+
+/* ── prisberegneren ─────────────────────────────────────────────── */
+.ml7 .mlregn{display:grid;grid-template-columns:1.45fr 1fr;gap:14px;align-items:start}
+.ml7 .mlrr{display:flex;align-items:baseline;gap:12px;padding:7px 0;position:relative;
+  font-size:12px;color:#4c4c43;border:0}
+.ml7 .mlrr + .mlrr::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+.ml7 .mlrr .l{flex:1;min-width:0}
+.ml7 .mlrr .l small{display:block;font-size:10px;color:#a8a494;margin-top:1px;line-height:1.45}
+.ml7 .mlrr .v{white-space:nowrap;font-weight:500;color:#22301f;
+  font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1,'lnum' 1}
+.ml7 .mlrr.sum .v,.ml7 .mlrr.slut .v{font-weight:600}
+.ml7 .mlrr.fin{padding-top:11px}
+.ml7 .mlrr.fin::before{background:#ded7c5;height:1px;transform:none}
+.ml7 .mlrr.fin .l{font-size:13px;color:#22301f;font-weight:600}
+.ml7 .mlrr.fin .v{font-size:19px;font-weight:600;letter-spacing:-.35px}
+.ml7 .mlrr.nok .v{color:#4e8079;font-weight:600}
+.ml7 .mlrr .uv{color:#a8552f}
+.ml7 input.mlgf{width:76px;text-align:right;font-family:inherit;font-size:11.5px;padding:3px 6px;
+  border:0;border-radius:5px;background:#fff;box-shadow:inset 0 0 0 1px #e6dfd0;height:24px}
+
+/* ── prisen til kunden + dækningsgraden ─────────────────────────── */
+.ml7 .mljbox{padding:14px 16px}
+.ml7 .mlhvem{font-size:8px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;
+  color:#a68d55;margin-bottom:9px}
+.ml7 .mlaccept{padding:11px 13px;border-radius:10px;
+  background:linear-gradient(180deg,#fffdf6,#fdf9ec);box-shadow:inset 0 0 0 1px #e8dcbd;border:0}
+.ml7 .mlaccept .al{font-size:7.5px;letter-spacing:.18em;text-transform:uppercase;color:#8a7238;
+  font-weight:600}
+.ml7 .mlaccept .av{font-size:24px;font-weight:600;color:#22301f;letter-spacing:-.5px;margin-top:2px;
+  font-variant-numeric:tabular-nums}
+.ml7 .mlaccept .av em{font-style:normal;font-size:11px;color:#a09c8c;font-weight:400;margin-left:5px}
+.ml7 .mlaccept .am{font-size:10px;color:#a8a494;margin-top:3px}
+.ml7 .mljforkl{font-size:11px;color:#8c8879;line-height:1.55;margin:10px 0 0}
+.ml7 .mljforkl b{color:#4c4c43;font-weight:600}
+.ml7 .mljhusk{color:#8a7238}
+.ml7 .mljret{border:0;background:#fff;box-shadow:inset 0 0 0 1px #ece7db;border-radius:8px;
+  font-size:10.5px;color:#4c4c43;padding:7px 12px;cursor:pointer;margin-top:11px;
+  transition:box-shadow .16s ease,transform .16s cubic-bezier(.2,.7,.2,1)}
+.ml7 .mljret:hover{transform:translateY(-1px);
+  box-shadow:inset 0 0 0 1px #ddd0ae,0 3px 9px -4px rgba(185,154,95,.6)}
+.ml7 .mljvaerk{margin-top:12px;padding-top:12px;position:relative}
+.ml7 .mljvaerk::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+.ml7 .mljrk{display:grid;grid-template-columns:repeat(2,minmax(120px,1fr));gap:12px}
+.ml7 .mljrk label{font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;color:#a09c8c;
+  font-weight:600;display:block;margin-bottom:2px}
+.ml7 .mljrk input{font-family:inherit;font-size:11.5px;padding:4px 7px;border-radius:6px;border:0;
+  background:#fff;box-shadow:inset 0 0 0 1px #e6dfd0;height:26px;width:100%;
+  font-variant-numeric:tabular-nums}
+.ml7 .mljrk input:focus{outline:none;box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+.ml7 .mljrk .e{font-size:9.5px;color:#b3af9f;display:block;margin-top:2px}
+.ml7 .mlknapper{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+.ml7 .mldb{margin-top:14px;padding:15px 17px;border-radius:12px;border:0;
+  background:linear-gradient(180deg,#f2f8f7,#eaf3f1);box-shadow:inset 0 0 0 1px #cfe3df}
+.ml7 .mldb .stor{font-size:34px;font-weight:600;color:#2f5d55;letter-spacing:-1px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.ml7 .mldb .stor small{font-size:15px;font-weight:500;margin-left:2px;letter-spacing:0}
+.ml7 .mldb .u{font-size:11px;color:#5c8580;margin-top:5px}
+.ml7 .mldb .u b{color:#2f5d55;font-weight:600}
+.ml7 .mldb .sam{font-size:10.5px;color:#5c8580;margin-top:9px;padding-top:9px;position:relative;
+  line-height:1.5}
+.ml7 .mldb .sam::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:rgba(120,160,150,.35)}
+.ml7 .mldb .lige{color:#4e8079;font-weight:600}
+.ml7 .mlregnestykke{font-size:10px;color:#7fa39c}
+
+/* ── bundbjælken ───────────────────────────────────────────────── */
+/* Bjaelken sad fast i bunden af skaermen og laa oven paa teksten.
+   Mockuppen har ingen svaevende bjaelke — bekraeftelsen staar, hvor den
+   hoerer til: efter regnestykket. */
+.ml7 .mlbund{position:static;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  margin-top:22px;padding:16px 0 0;border:0;border-top:1px solid #ece7db;background:none;
+  border-radius:0;box-shadow:none;z-index:auto}
+.ml7 .mlbund .status{flex:1;min-width:220px;font-size:11.5px;color:#8c8879}
+.ml7 .mlbund .status b{color:#22301f;font-weight:600}
+.ml7 .btn.ghost{border:0;background:#fff;box-shadow:inset 0 0 0 1px #ece7db;border-radius:8px;
+  font-size:10.5px;color:#4c4c43;padding:8px 13px;cursor:pointer;letter-spacing:.02em;
+  text-transform:none;font-weight:400;transition:box-shadow .16s ease,transform .16s cubic-bezier(.2,.7,.2,1)}
+.ml7 .btn.ghost:hover{transform:translateY(-1px);
+  box-shadow:inset 0 0 0 1px #ddd0ae,0 3px 9px -4px rgba(185,154,95,.6)}
+.ml7 .btn.gold{border:0;border-radius:8px;font-size:10.5px;padding:8px 15px;cursor:pointer;
+  background:linear-gradient(180deg,#7cae8b,#5d8f6d);color:#fff;letter-spacing:.02em;
+  text-transform:none;font-weight:500;box-shadow:0 2px 10px -4px rgba(93,143,109,.75)}
+.ml7 .btn.gold[disabled]{background:#efece3;color:#b3ac97;box-shadow:none;cursor:not-allowed}
+.ml7 .btn.gold:not([disabled]):hover{transform:translateY(-1px)}
+
+/* ══ NOTER ══════════════════════════════════════════════════════════ */
+#rsside .n-blok{margin-top:16px}
+#rsside .n-lnk{letter-spacing:.02em;text-transform:none;font-size:10px;font-weight:400;
+  color:#a09c8c;cursor:pointer;border-bottom:1px dotted #d6d0c0}
+#rsside .n-lnk:hover{color:#6f6d62}
+#rsside .n-gemt{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;cursor:pointer;
+  font-size:11.5px;color:#3f4a3f;padding:7px 11px;border-radius:8px;margin-bottom:4px;
+  background:linear-gradient(180deg,#f7faf7,#f2f7f3);box-shadow:inset 0 0 0 1px #dfeade;
+  transition:box-shadow .16s ease}
+#rsside .n-gemt:hover{box-shadow:inset 0 0 0 1px #c9ddc9}
+#rsside .n-gemt .n-t b{color:#3d6b4c;font-weight:600}
+#rsside .n-gemt .n-meta{font-size:9.5px;color:#a09c8c}
+#rsside .n-gemt .n-ret{margin-left:auto;font-size:9.5px;color:#8a8676;
+  border-bottom:1px dotted #cfcabb}
+#rsside .n-mrk{display:inline-block;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:600;padding:2px 6px;border-radius:5px;vertical-align:1px;white-space:nowrap}
+#rsside .n-mrk.n-plan{background:rgba(111,156,124,.14);color:#3d6b4c}
+#rsside .n-mrk.n-intern{background:rgba(160,156,140,.16);color:#7a7666}
+#rsside .n-mrk.n-frist{background:rgba(185,154,95,.18);color:#8a7238}
+#rsside .n-raek{padding:8px 0 2px}
+#rsside .n-fr{display:flex;flex-wrap:wrap;gap:9px 14px;align-items:flex-end}
+#rsside .n-f{display:flex;flex-direction:column;gap:2px}
+#rsside .n-f label{font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;color:#a09c8c;
+  font-weight:600}
+#rsside .n-f input,#rsside .n-f select{font-family:inherit;font-size:11.5px;padding:4px 7px;
+  border-radius:6px;border:0;background:#fff;color:#26291f;box-shadow:inset 0 0 0 1px #e6dfd0;
+  height:26px;transition:box-shadow .15s ease}
+#rsside .n-f input:hover,#rsside .n-f select:hover{box-shadow:inset 0 0 0 1px #ddd0ae}
+#rsside .n-f input:focus,#rsside .n-f select:focus{outline:none;
+  box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+#rsside .n-f.n-bred input{min-width:260px}
+#rsside .n-x{opacity:.28;cursor:pointer;font-size:12px;align-self:center;padding:0 2px}
+#rsside .n-x:hover{opacity:1;color:#a8724f}
+#rsside .n-dely{margin-top:4px}
+#rsside .n-dely .n-gemt{padding:5px 9px;font-size:11px}
+#rsside .n-plan{margin-top:3px}
+#rsside .n-pl{display:block;font-size:11px;color:#6c7a63;font-style:italic;line-height:1.5}
+#rsside .n-pl b{color:#3d6b4c;font-weight:600;font-style:normal}
+#rsside .n-liste{display:flex;flex-direction:column}
+#rsside .n-or{display:flex;align-items:baseline;gap:12px;font-size:11.5px;color:#4c4c43;
+  padding:7px 0;position:relative}
+#rsside .n-or + .n-or::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+#rsside .n-ok{font-size:9px;letter-spacing:.06em;color:#a09c8c;min-width:210px;flex:none}
+#rsside .n-ot{flex:1;min-width:0}
+#rsside .n-ot em{font-style:normal;display:block;font-size:9.5px;color:#b3af9f;margin-top:1px}
+#rsside .n-tom{font-size:10.5px;color:#a09c8c;line-height:1.55;max-width:78ch}
+#rsside .n-fod{font-size:10px;color:#a09c8c;margin:12px 0 0;line-height:1.55;max-width:88ch}
+#rsside .n-fod b{color:#4c4c43;font-weight:600}
+/* ══ HISTORIKKEN ════════════════════════════════════════════════════ */
+#rsside .h-liste{display:flex;flex-direction:column}
+#rsside .h-r{display:flex;align-items:baseline;gap:13px;padding:8px 2px;position:relative;
+  font-size:11.5px;color:#4c4c43}
+#rsside .h-r + .h-r::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:rgba(200,192,172,.5)}
+#rsside .h-t{font-size:9.5px;color:#a09c8c;min-width:96px;flex:none;letter-spacing:.02em}
+#rsside .h-w{font-size:8px;letter-spacing:.14em;font-weight:600;color:#8a7238;min-width:36px;flex:none}
+#rsside .h-h{flex:1;min-width:0}
+#rsside .h-h b{font-weight:600;color:#2b2a26}
+#rsside .h-h em{font-style:normal;display:block;font-size:10.5px;color:#a09c8c;margin-top:1px}
+#rsside .h-tom{font-size:10.5px;color:#a09c8c;line-height:1.55;max-width:78ch}
+
+/* ══ SALGSBOKSEN ════════════════════════════════════════════════════ */
+.ml7 .mlsalg{margin-top:14px;padding:14px 16px;border-radius:12px;
+  background:linear-gradient(180deg,#f7fafb,#f1f6f8);box-shadow:inset 0 0 0 1px #d6e3e9}
+.ml7 .mlsalg .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:11px;flex-wrap:wrap}
+.ml7 .mlsalg .st{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4d6f8a;
+  font-weight:600}
+.ml7 .mlsalg .sn{font-size:10.5px;color:#8ba3b4;font-style:italic}
+.ml7 .mlsalg .stab{width:100%;border-collapse:collapse;font-size:12.5px}
+.ml7 .mlsalg .stab td{padding:6px 0;position:relative;vertical-align:baseline}
+.ml7 .mlsalg .stab tr+tr td::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:rgba(120,150,165,.22)}
+.ml7 .mlsalg .sk{width:142px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;
+  color:#7f97a8;font-weight:600}
+.ml7 .mlsalg .sv{width:98px;text-align:right;padding:6px 13px 6px 0;font-weight:600;
+  color:#26414f;font-variant-numeric:tabular-nums}
+.ml7 .mlsalg .sv input{width:90px;text-align:right;font-family:inherit;font-size:12.5px;
+  padding:4px 7px;border:0;border-radius:6px;background:#fff;box-shadow:inset 0 0 0 1px #d6e3e9;
+  height:26px;color:#26414f;font-weight:600;font-variant-numeric:tabular-nums}
+.ml7 .mlsalg .sv input:hover{box-shadow:inset 0 0 0 1px #b9d0dc}
+.ml7 .mlsalg .sv input:focus{outline:none;
+  box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+.ml7 .mlsalg .sbm{color:#7f97a8;font-size:11.5px}
+.ml7 .mlsalg .sbm b{color:#26414f;font-weight:600}
+.ml7 .mlsalg .sbm .lnk{margin-left:9px;cursor:pointer;color:#7f97a8;
+  border-bottom:1px dotted #b9d0dc;font-size:10.5px}
+.ml7 .mlsalg .sbm .lnk:hover{color:#26414f}
+.ml7 .mlsalg tr.stor2 .sv{font-size:18px;letter-spacing:-.3px}
+.ml7 .mlsalg tr.stor2 .sbm b{font-size:11px;letter-spacing:.1em}
+.ml7 .mlsalg .sfod{font-size:10.5px;color:#7f97a8;margin:11px 0 0;max-width:88ch;line-height:1.55}
+.ml7 .mlsalg .sfod b{color:#26414f;font-weight:600}
+
+/* ── SIDSTE FINPUDS: DE SMÅ DETALJER ────────────────────────────────
+   Wendie 08.09.2026: «mit motto er, at det er de smaa detaljer, der goer
+   store indtryk.» Her er de: ingen stiplede kasser, ingen fuldbrede
+   graa knapper, og en prislinje der bliver paa én linje. */
+
+/* prislinjen: navnet skal have plads, saa kilden ikke ombrydes */
+#rsside .r-pl .r-hvem{width:236px}
+#rsside .r-pl .r-hvem small{white-space:normal}
+#rsside .r-pl .r-hvad{font-size:11.5px}
+
+/* «+ Tilføj …» er en lille brik, ikke en bjælke */
+#rsside .r-tilf{width:auto;display:inline-flex;align-items:center;gap:6px;
+  border:0;background:#fff;box-shadow:inset 0 0 0 1px #ece7db;border-radius:8px;
+  font-size:10.5px;color:#4c4c43;padding:7px 11px;cursor:pointer;margin:9px 0 0;
+  border-top:0;text-align:left;
+  transition:box-shadow .16s ease,transform .16s cubic-bezier(.2,.7,.2,1)}
+#rsside .r-tilf:hover{background:#fff;transform:translateY(-1px);
+  box-shadow:inset 0 0 0 1px #ddd0ae,0 3px 9px -4px rgba(185,154,95,.6)}
+#rsside .r-dele{border:0;border-radius:9px;background:#fff;box-shadow:inset 0 0 0 1px #ece7db;
+  padding:2px 4px}
+#rsside .r-dele .r-sr{border-bottom:0;position:relative;padding:9px 11px;gap:12px}
+#rsside .r-dele .r-sr + .r-sr::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+#rsside .r-dele .r-sr .r-med{border:0;border-radius:5px;font-size:9px;letter-spacing:.13em;
+  text-transform:uppercase;font-weight:600;padding:3px 8px;
+  background:rgba(111,156,124,.14);color:#3d6b4c}
+#rsside .r-dele .r-sr .r-tf{border:0;border-radius:8px;font-size:10.5px;padding:7px 13px;
+  background:linear-gradient(180deg,#7cae8b,#5d8f6d);color:#fff;
+  box-shadow:0 2px 8px -3px rgba(93,143,109,.7)}
+#rsside .r-subsum{border:0;padding:9px 11px 5px;font-size:11px;color:#a09c8c;
+  display:flex;align-items:baseline;position:relative}
+#rsside .r-subsum::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+#rsside .r-subsum b{margin-left:auto;color:#22301f;font-weight:600}
+
+/* billet- og skærmbilledezonerne: ingen stiplede rammer */
+#rsside .r-pdf{margin-top:10px;border:0;border-radius:9px;background:#fffdf6;
+  box-shadow:inset 0 0 0 1px #e8dcbd;color:#8a7238;font-size:10.5px;padding:11px 13px;
+  transition:box-shadow .16s ease}
+#rsside .r-pdf:hover{background:#fffcf0;box-shadow:inset 0 0 0 1px #ddc99a}
+#rsside .r-pdf.r-paa{background:#fdf6e4;box-shadow:inset 0 0 0 1px #cfb37c}
+#rsside .r-sletplan{border:0;border-radius:9px;background:#fdf4f1;
+  box-shadow:inset 0 0 0 1px #eddcd5;color:#a8724f;font-size:10.5px;padding:11px 13px}
+#rsside .r-sletplan:hover{background:#faece6;box-shadow:inset 0 0 0 1px #e0c4b9;color:#8c4f3f}
+#rsside .r-pk,#rsside .r-pk2z,#rsside .r-bilzone,#rsside .r-tomzone{border:0}
+#rsside .r-pk{border:0;border-radius:9px;background:#fff;box-shadow:inset 0 0 0 1px #ece7db;
+  padding:11px 13px;margin-top:9px}
+#rsside .r-pt2{font-size:8px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;
+  color:#a68d55;display:flex;align-items:center;gap:11px;margin:0 0 9px;border:0;padding:0}
+#rsside .r-pt2::after{content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,rgba(193,164,104,.3),rgba(193,164,104,0))}
+#rsside .r-pt2 .r-planfold,#rsside .r-etaabn{letter-spacing:.02em;text-transform:none;
+  font-size:10px;font-weight:400;color:#a09c8c;border-bottom:1px dotted #d6d0c0;cursor:pointer}
+#rsside .r-pt2 .r-planfold:hover,#rsside .r-etaabn:hover{color:#6f6d62;border-bottom-color:#c9c2b0}
+#rsside .r-flytekst{border:0;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px #e6dfd0;
+  font-family:inherit;font-size:11.5px;padding:7px 9px;color:#4c4c43}
+#rsside .r-flytekst:focus{outline:none;box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+
+/* felterne i en prislinje */
+#rsside .r-krop label{font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:#a09c8c;font-weight:600}
+#rsside .r-krop input,#rsside .r-krop select,#rsside .r-krop textarea{font-family:inherit;
+  font-size:11.5px;padding:4px 7px;border-radius:6px;border:0;background:#fff;color:#26291f;
+  box-shadow:inset 0 0 0 1px #e6dfd0;transition:box-shadow .15s ease}
+#rsside .r-krop input:hover,#rsside .r-krop select:hover{box-shadow:inset 0 0 0 1px #ddd0ae}
+#rsside .r-krop input:focus,#rsside .r-krop select:focus,#rsside .r-krop textarea:focus{
+  outline:none;box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+#rsside .r-krop input[type=checkbox]{accent-color:#6f9c7c;box-shadow:none;width:13px;height:13px}
+#rsside .r-hold{border:0;border-radius:9px;background:linear-gradient(180deg,#fffdf6,#fdf9ec);
+  box-shadow:inset 0 0 0 1px #e8dcbd;padding:9px 12px}
+
+/* flyplanens tabel */
+#rsside .r-segt th{color:#b0a179;font-size:7.5px;letter-spacing:.16em}
+#rsside .r-segt .r-seggr .r-vejnavn{font-size:8px;letter-spacing:.22em;color:#a68d55;font-weight:600}
+#rsside .r-segt .r-seggr .r-segref b{color:#4d6f8a;letter-spacing:.06em}
+#rsside .r-segt.r-vis td{border-bottom:0;position:relative}
+#rsside .r-segt.r-vis tr+tr td::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+#rsside .r-segt .r-segsum .r-ialtv{border-top:0;color:#22301f;font-weight:600;
+  font-variant-numeric:tabular-nums}
+#rsside .r-segt .r-segsum .r-ialtl{border-top:0;font-size:8px;letter-spacing:.16em;color:#a68d55}
+#rsside .r-benrk:hover{background:linear-gradient(90deg,rgba(185,154,95,.05),rgba(185,154,95,0) 70%)}
+
+/* de valgte-mærkater og øvrige småting */
+#rsside .r-tg2,#rsside .r-vlgmrk{font-size:8px;letter-spacing:.13em;text-transform:uppercase;
+  font-weight:600;padding:2.5px 7px;border-radius:20px;background:rgba(125,156,181,.14);
+  color:#4d6f8a;border:0}
+#rsside .r-gemtlinje{font-size:9.5px;color:#b3af9f;margin-top:10px;text-align:right}
+
+#rsside .r-plantom{font-size:11.5px;color:#a09c8c;line-height:1.6;max-width:82ch;padding:4px 2px}
 </style>
 </head>
 <body>
@@ -4408,7 +5082,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.27';
+const APP_VERSION = 'v1.30';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -7976,9 +8650,13 @@ function kvalitetsTrin(score){
   if(score==null || isNaN(score)) return null;
   return KVALITET.find(k=>score>=k.fra) || null;
 }
-const BRANCH_LABEL={MN:'Maldivia NO',NO:'Maldivia NO',MD:'Maldivia DK',IT:'Maldivia IT',HQ:'HQ'};
+/* Fundet ved test 09.09.2026: en italiensk rejse med branchekoden MIT viste
+   raat «MIT» i sidehovedet. Begge stavemaader kendes nu, saa den, der har
+   skrevet MIT ét sted, ikke ser en kode i stedet for et navn. */
+const BRANCH_LABEL={MN:'Maldivia NO',NO:'Maldivia NO',MD:'Maldivia DK',
+  IT:'Maldivia IT',MIT:'Maldivia IT',MDK:'Maldivia DK',HQ:'HQ'};
 // kort form til henvendelseskortene — der er ikke plads til (eller brug for) "Maldivia"
-const BRANCH_KORT={MN:'NO',NO:'NO',MD:'DK',IT:'IT',HQ:'HQ'};
+const BRANCH_KORT={MN:'NO',NO:'NO',MD:'DK',IT:'IT',MIT:'IT',MDK:'DK',HQ:'HQ'};
 const STAGE_SHORT={new_lead:'Ny',send_email:'Send e-mail',email_sent:'E-mail sendt',make_offer:'Lav tilbud',to_be_sent:'Klar',offer_sent:'Tilbud sendt',followed_up:'Fulgt op',thinking:'Tænker',negotiation:'Forhandling',confirmed:'Vundet'};
 const ROT_DAYS=4; // henvendelsen "rådner" når den har ligget stille på et trin i mere end så mange dage
 const DEST_OPTS=['Maldiverne','Dubai','Abu Dhabi','Qatar','Sri Lanka','Mauritius','Seychellerne','Zanzibar','Thailand','Bali / Indonesien','Singapore','Malaysia','Vietnam'];
@@ -12112,16 +12790,94 @@ function mlEff(v){
   const t = mlTal3(v);
   return t.marked * (1+t.bankmargin/100) * (1+t.buffer/100);
 }
-/* Salgskursen vender modsat: vi MODTAGER kundens valuta i stedet for at
-   betale den, saa forsigtighed betyder at vi faar faerre kroner for den. */
-function mlSalgskurs(){
+/* ══ SALGSKURSEN ══════════════════════════════════════════════════════
+   Salgskursen vender modsat koebskursen: vi MODTAGER kundens valuta i
+   stedet for at betale den, saa forsigtighed betyder, at vi regner med at
+   faa FAERRE kroner for den.
+
+   Wendie 08.09.2026: «kursen, der bliver brugt, skal staa nede i
+   Kurserne, hvor USD og DKK ligger … i udgangspunktet skal den tage fra
+   den effektive kurs, saa kan vi bare overskrive, hvis vi ved det. Men
+   man skal ogsaa kunne nulstille.»
+   Derfor er der ingen saerskilt «salgsmargin»: kursen er markedskursen
+   for kundens valuta gange de SAMME to procenter — bankmargin og buffer —
+   blot regnet den vej, kunden betaler. Retter man procenterne i Kurserne,
+   foelger salgskursen med. Overskriver man kursen, staar den fast, og der
+   staar hvad den effektive VAR, saa man kan komme tilbage.
+
+   Foer gjaldt den kun NOK. En italiensk rejse i euro fik derfor kursen 1
+   og en daekningsgrad, der var ren fiktion. Nu foelger den rejsens egen
+   valuta. */
+function mlSalgsvaluta(){
+  const t = (window.ML&&ML.trip)||{};
+  return (t.customer_currency||'DKK');
+}
+function mlSalgskursEff(){
+  const v = mlSalgsvaluta();
+  if(v === 'DKK') return 1;
   const k = (window.ML&&ML.kurser)||{};
-  if(!k.NOK) return Number((k||{}).salgskurs)||1;
-  const t = mlTal3('NOK');
+  if(!k[v]) return Number((k||{}).salgskurs) || 1;
+  const t = mlTal3(v);
   return t.marked>0 ? (1/t.marked) * (1+t.bankmargin/100) * (1+t.buffer/100) : 1;
+}
+function mlSalgskursMarked(){
+  const v = mlSalgsvaluta();
+  if(v === 'DKK') return 1;
+  const t = mlTal3(v);
+  return t.marked>0 ? 1/t.marked : 1;
+}
+/* Bankens kurs: den vi reelt faar, hvis pengene skal veksles til DKK.
+   Wendie 08.09.2026: «man skal ikke sammenligne med markedspris, fordi
+   den kurs faar vi jo aldrig.» */
+function mlSalgskursBank(){
+  const v = mlSalgsvaluta();
+  if(v === 'DKK') return 1;
+  const t = mlTal3(v);
+  return t.marked>0 ? (1/t.marked) * (1+t.bankmargin/100) : 1;
+}
+function mlSalgsHaand(){
+  const o = (window.ML&&ML.overrides)||{};
+  return o._salgskurs != null ? Number(o._salgskurs) : null;
+}
+function mlSalgskurs(){
+  const h = mlSalgsHaand();
+  return (h && h > 0) ? h : mlSalgskursEff();
+}
+let _mlSalgsGem = null;
+function mlSaetSalgskurs(vaerdi){
+  const t = parseFloat(String(vaerdi).replace(/\s/g,'').replace(',','.'));
+  const o = ML.overrides = ML.overrides || {};
+  if(isNaN(t) || t <= 0) return;
+  /* Feltet viser fire decimaler. Skriver man dét tal ind igen, er det
+     ikke en rettelse — det er den samme kurs, blot afrundet. Ellers
+     flyttede daekningsgrundlaget sig ~45 kr. paa en EUR-rejse, fordi
+     0,1357 ikke er 0,13565827. Fundet ved test 09.09.2026. */
+  const eff = mlSalgskursEff();
+  if(Math.abs(t - eff) < Math.max(Math.abs(eff) * 5e-5, 5e-5)) delete o._salgskurs;
+  else o._salgskurs = t;
+  mlRegn(false); mlFraPris();
+  clearTimeout(_mlSalgsGem);
+  _mlSalgsGem = setTimeout(mlGemKurser, 700);
+}
+function mlNulstilSalgskurs(){
+  const o = ML.overrides = ML.overrides || {};
+  delete o._salgskurs;
+  mlRegn(false); mlFraPris();
+  clearTimeout(_mlSalgsGem);
+  _mlSalgsGem = setTimeout(mlGemKurser, 700);
 }
 /* Hvilke valutaer er faktisk i brug paa DENNE rejse? De oevrige forstyrrer
    mere end de gavner, saa de vises ikke. */
+/* ══ HVILKE VALUTAER ER I SPIL PÅ DENNE REJSE? ════════════════════════
+   Fejl fundet ved test 09.09.2026: tabellen spurgte kun de VALGTE linjer.
+   To foelger af det, og begge er slemme:
+     · en hotellinje i USD med en delydelse i EUR fik kurstabellen til at
+       sige «ingen kurser i spil» — mens EUR-beloebet blev omregnet med en
+       kurs, man hverken kunne se eller rette
+     · sammenligner man tre priser i tre valutaer, kunne man kun se kursen
+       paa den, der var valgt
+   Nu spoerges ALLE prislinjer og alle deres delydelser. En kurs, der
+   bruges til at regne med, skal kunne ses. */
 function mlValutaerIBrug(){
   const set = new Set();
   (ML.els||[]).forEach(e=>{
@@ -12129,6 +12885,13 @@ function mlValutaerIBrug(){
     if(g.valuta && g.valuta!=='DKK') set.add(g.valuta);
     const t = e.tilbud_buy_currency;
     if(t && t!=='DKK') set.add(t);
+    if(e.buy_currency && e.buy_currency!=='DKK') set.add(e.buy_currency);
+    const s = window.RS && RS.st && RS.st[e.id];
+    ((s && s.linjer) || []).forEach(l => {
+      if(l.val && l.val !== 'DKK') set.add(l.val);
+      (l.subs||[]).forEach(x => { const v = x.val || l.val;
+        if(v && v !== 'DKK') set.add(v); });
+    });
   });
   /* Kundens valuta skal altid med — prisen veksles med den. */
   const kv = (ML.trip.customer_currency||'DKK');
@@ -12310,7 +13073,7 @@ function flyHtml(f){
     ${r.legs.map((l,i)=>`<div class="r-seg">
         <div class="r-tid"><div class="r-t">${l.ud}</div><div class="r-iata">${l.fra}</div></div>
         <div class="r-streg"><span class="r-fl">${l.fra} → ${l.til}</span></div>
-        <div class="r-tid r-h"><div class="r-t">${l.an}${l.plus?'<span class="r-plus">+1</span>':''}</div>
+        <div class="r-tid r-h"><div class="r-t">${l.an}${plusMrk(l,'r-plus')}</div>
           <div class="r-iata">${l.til}</div></div>
         <!-- A3, Wendies valg 04.09.2026: flyvningens egne oplysninger staar
              i sin egen spalte til hoejre, saa intet haenger under stregen.
@@ -12501,13 +13264,21 @@ function planTekst(p){
                segmenter.length > 1 ? 'via ' + f0.til : 'direkte',
                f0.dato ? kortDato(f0.dato) : null].filter(Boolean).join(' · ');
       }
-    } else if(linjer.some(x=>x.slag === 'grundlag')){
+    } else if(linjer.some(x=>x.slag === 'grundlag') && (p.fly || (p.detalje||[]).length)){
+      /* Kun naar tilbuddets plan FAKTISK ligger paa planlinjen. Fundet ved
+         test 09.09.2026: var grundlaget valgt uden segmenter, antog vi, at
+         tilbuddets plan fandtes — og saa tegnede vi ingenting, mens
+         underteksten blev staaende med «4 flyvninger». Linjen loved en
+         flyplan, der ikke var der. */
       visPlan = 'tilbud';
     } else {
       const l0 = linjer[0], r = l0.raa || {};
-      sub = [(p.vej ? 'Hjemrejse' : 'Udrejse'),
+      /* «Vi kender 4 voksne · 4 voksne» — hvad og daekker er ofte det
+         samme tal. Det siges én gang. */
+      const dele = [(p.vej ? 'Hjemrejse' : 'Udrejse'),
              l0.hvad && l0.hvad !== '—' ? l0.hvad : null,
-             r.pax ? r.pax + ' rejsende' : null].filter(Boolean).join(' · ');
+             r.pax ? r.pax + ' rejsende' : null].filter(Boolean);
+      sub = [...new Set(dele)].join(' · ');
     }
   }
   /* ══ PLANEN FOELGER DEN VALGTE PRIS — OGSAA PAA DATOERNE ══
@@ -12525,11 +13296,30 @@ function planTekst(p){
     /* Flere valgte linjer staar alle i planen — to vaerelser hos hver sin
        leverandoer er stadig ét ophold. */
     const v = linjer.map(villaTekst).filter(Boolean).join('  +  ');
+    /* ══ TRANSFEREN MÅ IKKE FALDE UD ══════════════════════════════════
+       Fejl fundet ved test 09.09.2026: delydelserne blev lagt i teksten
+       ovenfor og saa OVERSKREVET her. Foelgen var, at speedbaaden og
+       vandflyet aldrig naaede rejseplanen — og at advarslen om en
+       manglende transfer aldrig kunne komme til syne. Wendie 07.09.2026:
+       «det vigtigste er bare, at det ogsaa kommer paa Rejseplan.» */
+    const dele = linjer.flatMap(l => (l.subs||[]).map(x => String(x.t||'').trim()))
+                       .filter(Boolean);
     sub = [p.fra && p.til ? naetterMellem(p.fra,p.til) + ' nætter' : null,
            p.fra && p.til ? kortDato(p.fra) + ' → ' + kortDato(p.til) : null,
-           v].filter(Boolean).join(' · ');
+           v,
+           dele.length ? [...new Set(dele)].join(' · ')
+             : '<span class="r-mangltr">ingen transfer lagt ind</span>'
+          ].filter(Boolean).join(' · ');
   }
-  return {sub, lev, afvig:null, segmenter, visPlan, vejNavn:vejNavnet, linje:linjer[0]};
+  /* ══ BEGGE BOOKINGREFERENCER SKAL KUNNE SES ═══════════════════════
+     Wendie 08.09.2026: «hvis der er to PNR'er paa den samme flyrejse …
+     saa skal det jo fremgaa.» Fundet ved test 09.09.2026: kun den
+     foerste valgte linjes reference naaede rejseplanen, saa den anden
+     billet fandtes ikke for den, der laeste planen. */
+  const refs = [...new Set(linjer.flatMap(l => (l.segmenter||[])
+    .map(x => x.pnr).filter(Boolean)))];
+  return {sub, lev, afvig:null, segmenter, visPlan, vejNavn:vejNavnet,
+          linje:linjer[0], linjer, refs};
 }
 function tegnPlan(){
   sorterPlan();
@@ -12541,6 +13331,15 @@ function tegnPlan(){
      bare vigtigt, at vi kan se de her roede skrifttyper … nogle gange er der
      en mening bag den maniske galskab.» Advarslen bliver staaende, men den
      spaerrer ingenting. */
+  /* Fundet ved test 09.09.2026: en rejse uden planlinjer efterlod kortet
+     som en helt tom kasse — «Rejseplan ▼» og ingenting. Alle andre kort
+     siger, hvad der mangler; det skal dette ogsaa. */
+  if(!PLAN.length){
+    plan.innerHTML = `<div class="r-plantom">Der er endnu ingen rejseplan.
+      Den bygges af ydelserne: læg et fly eller et hotel ind nedenfor, så
+      kommer linjerne her af sig selv — med de datoer, der står på ydelsen.</div>`;
+    return;
+  }
   plan.innerHTML = (antal ? `<div class="r-konfbox">
       <b>${antal === 1 ? 'Ét element' : antal + ' elementer'} ser mærkeligt ud i rækken.</b>
     </div>` : '') +
@@ -12551,6 +13350,10 @@ function tegnPlan(){
     const t2 = planTekst(p);
     const d = p.fra ? new Date(p.fra) : null;
     const fejl = (konf[p.id]||[]).concat(t2.afvig ? [t2.afvig] : []);
+    /* Er dette den foerste linje for ydelsen? Noten skal kun staa én gang. */
+    const eid = p.elId || p.element_id || p.id;
+    const foersteLinje = PLAN.findIndex(x => (x.elId || x.element_id || x.id) === eid)
+      === PLAN.indexOf(p);
     return `<div class="r-dag">
     <!-- Wendie 04.09.2026: «det er vigtigt, at jeg kan se lidt tydeligere,
          hvilket år det er … 29. juni 27, det er nødt til at være én linje,
@@ -12567,6 +13370,14 @@ function tegnPlan(){
       <div class="r-hd" onclick="RS.foldEl('${p.id}')">
         <span class="r-art r-${p.art.toLowerCase()}">${p.art}</span>
         <span class="r-midt"><span class="r-titel">${p.titel}</span><div class="r-sub">${t2.sub}</div>
+          <!-- ══ EN KUNDEVENDT NOTE STÅR PÅ REJSEPLANEN ══
+               Wendie 08.09.2026: «den her note mangler oppe paa rejseplanen.
+               Den skal ligesom staa heroppe paa en eller anden maade.» Og:
+               «der skal bare staa note, kolon, og saa den tekst, vi nu engang
+               har tastet ind.» Rejseplanen ER udkastet til reisebeviset
+               (R411), saa en note med flaget SKAL kunne ses her — ellers er
+               flaget et loefte, siden ikke holder. -->
+          ${window.NOT ? NOT.planlinje(p.elId || p.element_id || p.id, foersteLinje) : ''}
           ${fejl.length?`<div class="r-elfejl">${fejl.join(' ')}</div>`:''}</span>
         <span class="r-lev">Leverandør: <b>${t2.lev}</b></span><span class="r-pil">▶</span></div>
       <div class="r-krop">
@@ -12581,8 +13392,14 @@ function tegnPlan(){
                   Sammendraget skal derfor kun sige det, der gaelder HELE
                   billetten — bookingreferencen. Ellers staar det samme to
                   gange, og det er praecis den slags rod, vi lige ryddede op i. */
-                const l0 = t2.linje || {}; const pnr = (l0.raa && l0.raa.pnr) || null;
-                const m = [ pnr ? ['Bookingref.', pnr] : null ].filter(Boolean);
+                const l0 = t2.linje || {};
+                /* Alle valgte linjers referencer — ikke kun den foerstes.
+                   To billetter paa samme flyplan er to referencer, og den
+                   ene maa ikke forsvinde. */
+                const alle = (t2.refs && t2.refs.length) ? t2.refs
+                  : [(l0.raa && l0.raa.pnr) || null].filter(Boolean);
+                const pnr = alle.length ? alle.join(' · ') : null;
+                const m = [ pnr ? [alle.length > 1 ? 'Bookingref.' : 'Bookingref.', pnr] : null ].filter(Boolean);
                 return m.length ? `<div class="r-flymeta">${m.map(([k,v])=>
                   `<span>${escH(k)}: <b>${escH(v)}</b></span>`).join('')}</div>` : ''; })()}
            </div>`
@@ -12591,9 +13408,9 @@ function tegnPlan(){
              <div class="r-pt2">Flyplanen på den valgte pris</div>
              <div class="r-ingenplan">
                <b>Der er ingen flyplan på den her pris.</b>
-               Vi kender ${[t2.linje.hvad && t2.linje.hvad !== '—' ? t2.linje.hvad : null,
+               Vi kender ${[...new Set([t2.linje.hvad && t2.linje.hvad !== '—' ? t2.linje.hvad : null,
                  t2.linje.daekker && t2.linje.daekker !== '—' ? t2.linje.daekker : null]
-                 .filter(Boolean).join(' · ') || 'kun prisen'} — men ikke ruten eller tiderne.
+                 .filter(Boolean))].join(' · ') || 'kun prisen'} — men ikke ruten eller tiderne.
                ${billeder(t2.linje).length
                  ? `<span class="r-seskaerm" onclick="RS.visStort('${RS.billeder(t2.linje)[0]}')">Se skærmbilledet fra søgningen</span>`
                  : 'Fold prislinjen ud og læg et skærmbillede på, så står den her.'}
@@ -12789,6 +13606,25 @@ const kr = (n,v) => n==null ? '—'
    dag, men en fejl der foerst blev synlig paa en MN-rejse.) */
 const krD = n => kr(n, 'DKK');
 const tilDkk2 = (n, fra) => n == null ? null : n * (KURSER[fra] ?? 1);
+/* ══ «GRUNDLAG» BETYDER: DET, TILBUDDET BLEV BYGGET PAA ════════════
+   Wendie 08.09.2026: «jeg synes ikke, at et element man laegger ind, som
+   ikke er en del af det oprindelige tilbud eller de ydelser vi havde
+   baseret det tilbud paa, skal hedde grundlag i prislinjen. Det er noedt
+   til at hede noget andet end det, som er grundlaget for tilbuddet. For
+   det har jo ikke samme funktion.»
+
+   Hun har ret, og forskellen er ikke kosmetisk. Et GRUNDLAG er en pris fra
+   tilbuddet — den kunden har set, og den vi er bundet af. En pris paa en
+   ydelse, hun selv har lagt ind bagefter, er ikke bundet af noget; den er
+   bare den FOERSTE pris paa noget nyt. Kaldes de det samme, ser en
+   tilfoejelse ud som et loefte.
+
+   Rollen er den samme — det er den, alt andet paa ydelsen maales mod, og
+   derfor staar den stadig oeverst og med samme farve. Det er ORDET, der
+   skal skelne. Kilden afgoer det: en tilbudspris faar «Fra tilbuddet ·
+   version N» skrevet paa, da den blev hentet, og det staar der for altid. */
+const fraTilbuddet = l => /^Fra tilbuddet/i.test(String((l && l.kilde) || ''));
+const grundlagOrd  = l => fraTilbuddet(l) ? 'Grundlag' : 'Første pris';
 const grundlag = id => st[id].linjer.find(l=>l.slag==='grundlag');
 /* ══ FLERE VALGTE LINJER ═══════════════════════════════════════════
    Wendie 01.09.2026: «det kan godt vaere, at vi har fundet hele prisen for
@@ -13100,8 +13936,14 @@ function stigeHtml(e){
     ${s.linjer.map((l,i)=>`
       <div class="r-pl ${l.slag==='grundlag'?'r-grundlag':''} ${erValgt(e.id,i)?'r-valgt':''} ${l.aaben?'r-ud':''}"
            onclick="RS.klikLinje(event,'${e.id}',${i})">
-        <span class="r-mrk ${l.slag==='editor'?'r-ed':l.slag==='kontrakt'?'r-kon':l.slag==='manuel'?'r-man':''}">${
-          l.slag==='grundlag'?'Grundlag'
+        <span class="r-mrk ${l.slag==='editor'?'r-ed':l.slag==='kontrakt'?'r-kon':l.slag==='manuel'?'r-man':''}${
+          l.slag==='grundlag' && !fraTilbuddet(l) ? ' r-foerste' : ''}"
+          title="${l.slag==='grundlag'
+            ? (fraTilbuddet(l)
+                ? 'Prisen fra tilbuddet — den kunden har set. Alt andet på ydelsen måles mod den.'
+                : 'Den første pris på en ydelse, der ikke var i tilbuddet. Alt andet på ydelsen måles mod den.')
+            : ''}">${
+          l.slag==='grundlag'?grundlagOrd(l)
           :l.slag==='kontrakt'?'Kontrakt'
           :l.slag==='editor'?'Editoren':'Skaffet selv'}</span>
         <span class="r-hvem"><b>${l.lev}</b><small>${
@@ -13167,10 +14009,17 @@ function stigeHtml(e){
       ${l.aaben ? linjeKrop(e, l, i) : ''}`).join('')}
     ${valgteIdx(e.id).length > 1 ? `<div class="r-sumlinje">
       <span class="r-sl1">${valgteIdx(e.id).length} linjer lagt sammen</span>
+      <!-- Fejl fundet ved test 09.09.2026: summen brugte l.pris og glemte
+           delydelserne, saa linjen sagde 128.051 mens ydelsen kostede
+           131.405. Praecis samme fejl som den, der blev rettet for den
+           enkelte linje — den var bare tilbage her, ét niveau op.
+           linjePris() er det ene sted, der ved, hvad en linje koster. -->
       <span class="r-sl2">${valgteIdx(e.id).map(i=>{ const l = st[e.id].linjer[i];
-        return `${l.lev} ${kr(l.pris,l.val)}`; }).join('  +  ')}</span>
+        const d = (l.subs||[]).length;
+        return `${l.lev} ${kr(l.pris,l.val)}${d ? ' + ' + d + (d===1?' delydelse':' delydelser') : ''}`;
+        }).join('  +  ')}</span>
       <span class="r-sl3">${krD(valgteIdx(e.id).reduce((a,i)=>{ const l = st[e.id].linjer[i];
-        return a + (tilDkk2(l.pris,l.val)||0); },0))}</span></div>` : ''}
+        return a + (tilDkk2(linjePris(l), l.val)||0); },0))}</span></div>` : ''}
     ${s.nyLinje ? nyLinjeHtml(e) : ''}
     <button class="r-tilf" onclick="RS.nyLinje('${e.id}')">+ Tilføj prislinje</button>
     <!-- Wendie 08.09.2026: «hvordan sletter jeg et element paa
@@ -14234,6 +15083,11 @@ async function flyOverskrift(elId){
       kode(v[0].fra) + ' → ' + kode(v[v.length-1].til)).join(' · ');
     /* Selskabet og kabinen tages af FLYVNINGERNE, ikke af et gammelt
        felt — saa de ikke kan sige noget andet end ruten under dem. */
+    /* raa.rute er den titel, rejseplanen falder tilbage paa, naar en pris
+       uden flyplan bliver valgt. Bliver den ikke skrevet om her, staar
+       rejseplanen med en rute, ingen pris laengere kender — det var den,
+       der sagde «CPH → MLE · MLE → null · CPH → SEZ …» oppe i planen. */
+    e.raa = {...(e.raa||{}), rute: e.navn.replace(/^Fly · /, '')};
     const sel = [...new Set(ben.map(x=>selskabAf(x.nr)).filter(Boolean))];
     const kab = [...new Set(ben.map(x=>x.kabine).filter(Boolean))];
     e.sub = [sel.length === 1 ? sel[0] : (sel.length ? sel.length + ' selskaber' : null),
@@ -14935,7 +15789,7 @@ function flyBenHtml(elId, i, j){
     return a < u; })();
   const byLinje = k => { const b = byAf(k); return b ? `<div class="r-benhj">${escH(b)}</div>`
     : (k ? `<div class="r-benhj r-benukendt">ukendt kode</div>` : ''); };
-  return `<tr class="r-benret"><td colspan="11">
+  return `<tr class="r-benret"><td colspan="12">
     <div class="r-benfelt">
       <div><label>Flynr.</label>${t('nr','EY178','86px')}
         <div class="r-benhj">${escH(selskabAf(x.nr) || '')}</div></div>
@@ -15154,8 +16008,9 @@ async function sletBen(elId, i, j){
   seg.splice(j, 1);
   roert(elId, i);
   if(!await flyOverskrift(elId)) return;
-  tegnListe(); tegnPlan();
-  await synkPlanlinjer(elId); opdaterDatoer();
+  if(!await synkPlanlinjer(elId)) return;
+  tegnListe(); tegnPlan(); sorterPlan(); opdaterDatoer();
+  kvitter('gemt', (x.nr || 'Flyvningen') + ' er fjernet');
 }
 /* Vender Pandas beslutning om, hvor en etape begynder. */
 async function vendEtape(elId, i, j){
@@ -15426,8 +16281,28 @@ function tegnListe(){
         onclick="location.reload()">Hent siden igen</button></div>`;
   }
 }
+/* ══ FLYET ØVERST, SÅ HOTELLER, SÅ ALT ANDET ════════════════════════
+   Wendie 08.09.2026: «flyydelsen skal forresten altid ligge oeverst inde
+   paa ydelserne paa rejsen, og saa hoteller, og saa andet. Typisk fordi
+   vi altid laeser fly foerst, saa det er bare nemmere at se og overskue.»
+   Raekkefoelgen er en LAESEORDEN, ikke en sortering af data: inden for
+   hver gruppe staar ydelserne stadig, som hun selv har trukket dem
+   (sort), saa grebet virker praecis som foer. Rejseplanen bliver ved med
+   at vaere kronologisk — den er en tidslinje, ikke en liste. */
+const YD_RANG = {fly:0, flight:0, hotel:1, transfer:2, billet:3, andet:4};
+function ydRang(e){
+  const t = String((e && (e.type || e.slags || e.art)) || '').toLowerCase();
+  if(YD_RANG[t] != null) return YD_RANG[t];
+  if(/fly/.test(t)) return 0;
+  if(/hotel/.test(t)) return 1;
+  return 5;
+}
+function laeseorden(liste2){
+  return (liste2||[]).map((e,i)=>({e, i})).sort((a,b)=>
+    (ydRang(a.e) - ydRang(b.e)) || (a.i - b.i)).map(x=>x.e);
+}
 function tegnListeInd(){
-  liste.innerHTML = ELEMENTER.map(e=>{
+  liste.innerHTML = laeseorden(ELEMENTER).map(e=>{
     const s = st[e.id], g = grundPris(e.id);
     return `
     <div class="r-rk ${s.aaben?'r-aaben':''}" data-id="${e.id}" draggable="true"
@@ -15470,7 +16345,7 @@ function tegnListeInd(){
         <div id="ret-${e.id}"></div>
 
         <div class="r-blok">
-          <div class="r-bt">Priser <span class="r-n">grundlaget øverst · alt måles mod den</span>
+          <div class="r-bt">Priser <span class="r-n">${fraTilbuddet(grundlag(e.id)) ? 'grundlaget øverst' : 'den første pris øverst'} · alt måles mod den</span>
             ${(()=>{
               /* Wendie 07.09.2026: knappen var usynlig, fordi `soeg` aldrig
                  blev sat. Nu regnes den — og kan den ikke regnes, staar der
@@ -15511,6 +16386,14 @@ function tegnListeInd(){
           </div>
         </div>
 
+        <!-- ══ NOTER PÅ HELE YDELSEN ══
+             Wendie 08.09.2026: «egentlig generelt i alle ydelser skal vi
+             kunne taste en fri tekst ind … som vi vaelger, om vi vil vise
+             paa rejseplanen og dermed ogsaa vise kunden, eller om det bare
+             er en intern note.» Ydelsens egne noter staar nederst — under
+             priserne, fordi de gaelder dem alle. -->
+        ${window.NOT ? NOT.blok(e.id, '', '', 'Noter på ydelsen') : ''}
+
         <!-- Wendie 01.09.2026: «hvor kan jeg gemme den her prislinje? … hvordan
              soerger jeg for, at det bliver inde paa den prislinje?» Der stod en
              «Gem»-knap paa ELEMENTET, som ikke gemte linjens ting — den lovede
@@ -15522,6 +16405,7 @@ function tegnListeInd(){
   }).join('');
   tael();
   saetFokus();
+  if(window.NOT) NOT.oversigt();
 }
 
 /* Wendie 01.09.2026: «bekraeftelse hos leverandoeren kan vi vente med, til
@@ -15698,17 +16582,17 @@ function linjeKrop(e, l, i){
         <colgroup><col style="width:70px"><col style="width:52px"><col style="width:44px">
           <col style="width:74px"><col style="width:46px"><col style="width:46px">
           <col style="width:48px"><col style="width:74px"><col style="width:62px">
-          <col style="width:68px"><col></colgroup>
+          <col style="width:68px"><col><col style="width:28px"></colgroup>
         <thead><tr><th>Flynr.</th><th>Fly</th><th>Klasse</th><th>Kabine</th>
           <th>Fra</th><th>Til</th><th>Status</th><th>Dato</th>
-          <th>Afgang</th><th>Ankomst</th><th>Flyvetid</th></tr></thead>
+          <th>Afgang</th><th>Ankomst</th><th>Flyvetid</th><th></th></tr></thead>
         ${gr.map((g,gi)=>{
           /* Referencen staar dér, hvor den gaelder — ikke i overskriften
              for hele prislinjen. To billetter paa samme pris har hver sin. */
           const refs = [...new Set(g.map(x=>x.pnr).filter(Boolean))];
           const t = flyTider(g);
           return `<tbody class="r-seggrp${gi?' r-nygruppe':''}">
-            <tr class="r-seggr"><td colspan="11"><span class="r-vejnavn">${escH(vejNavn(gr, gi))}</span>${
+            <tr class="r-seggr"><td colspan="12"><span class="r-vejnavn">${escH(vejNavn(gr, gi))}</span>${
               refs.length ? `<span class="r-segref">Bookingref. <b>${escH(refs.join(' · '))}</b></span>` : ''}${
               gi ? `<span class="r-vend" onclick="event.stopPropagation();RS.vendEtape('${e.id}',${i},${
                 l.segmenter.indexOf(g[0])})">gør det til en mellemlanding i stedet</span>` : ''}</td></tr>
@@ -15729,14 +16613,24 @@ function linjeKrop(e, l, i){
                 <td class="r-segst">${escH(x.status||'')}</td>
                 <td>${x.dato?kortDato(x.dato):'—'}</td>
                 <td>${escH(x.ud||'')}</td>
-                <td>${escH(x.an||'')}${x.plus?'<span class="r-p1">+1</span>':''}</td>
-                <td class="r-segtid">${x.flyvetid?escH(flyvetidTxt(x.flyvetid)):'—'}</td></tr>`)
+                <td>${escH(x.an||'')}${plusMrk(x,'r-p1')}</td>
+                <td class="r-segtid">${x.flyvetid?escH(flyvetidTxt(x.flyvetid)):'—'}</td>
+                <!-- Wendie 08.09.2026: «vi skal have en maade hvor vi kan slette
+                     en hel flyvning ad gangen, hvis det er det jeg vil.»
+                     «Fjern flyvningen» FANDTES — men kun inde i rettekassen,
+                     og den skulle man ramme raekken for at aabne. Med tre ens
+                     raekker aabnede man den forkerte, og saa foeltes det som om
+                     man kun kunne slette hele planen. Nu staar × paa raekken.
+                     Den er lys indtil man er henne ved den, saa den ikke
+                     tigger om at blive trykket paa. -->
+                <td class="r-benslet"><span title="Fjern kun den her flyvning"
+                  onclick="event.stopPropagation();RS.sletBen('${e.id}',${i},${j})">×</span></td></tr>`)
               /* Panda VISER sin beslutning om, hvor en etape begynder, og
                  lader den vende med ét klik. Wendie: «måske man skal kunne
                  hakke af eller et eller andet.» Hellere se beslutningen end
                  skulle huske at sætte et flueben. */
               + (t.stop[xi] ? `<tr class="r-mellemr"><td colspan="7"></td>
-                  <td colspan="4">Mellemlanding i ${escH(t.stop[xi].by||'—')} ·
+                  <td colspan="5">Mellemlanding i ${escH(t.stop[xi].by||'—')} ·
                   <b>${escH(t.stop[xi].tid)}</b>
                   <span class="r-vend" onclick="event.stopPropagation();RS.vendEtape('${e.id}',${i},${
                     l.segmenter.indexOf(g[xi+1])})">gør det til en ny etape</span></td></tr>` : '');
@@ -15746,7 +16640,7 @@ function linjeKrop(e, l, i){
                 : (t.stopMin
                     ? `i alt · ${escH(flyVarighed(t.flyvetidMin))} i luften + ${escH(flyVarighed(t.stopMin))} på jorden`
                     : 'i alt')}</td>
-              <td class="r-ialtv">${t.mangler ? '—' : escH(t.ialt)}</td></tr>
+              <td class="r-ialtv">${t.mangler ? '—' : escH(t.ialt)}</td><td></td></tr>
           </tbody>`;}).join('')}
       </table>
       <button class="r-tilfoej r-tilfben"
@@ -15841,7 +16735,7 @@ function linjeKrop(e, l, i){
 </div>
       <div class="r-dele">
         ${(l.subs||[]).map((x,j)=>`<div class="r-sr">
-          <span class="r-n">${x.t}</span>
+          <span class="r-n">${x.t}${window.NOT ? NOT.delyLinje(e.id, l._id||'', x.t) : ''}</span>
           <span class="r-med">${x.p ? '+ ' + kr(x.p, x.val) + ' · medregnet' : 'Inkluderet'}</span>
           <button class="r-x" onclick="RS.sletLSub('${e.id}',${i},${j})" title="Fjern">×</button></div>`).join('')}
         ${l.nySub ? `<div class="r-sr r-ny"><span class="r-n">
@@ -15859,6 +16753,13 @@ function linjeKrop(e, l, i){
           <b>${krD(linjePris(l))}</b></div>` : ''}
       </div>
     </div>
+
+    <!-- ══ NOTER PÅ SELVE PRISLINJEN ══
+         Wendie 08.09.2026: «det er ikke kun paa delydelsen … det skal jo
+         ogsaa vaere inde paa selve grundydelsen, at man kan laegge en
+         fritekst ind, som man saa har som en intern note eller skal vises
+         paa rejseplanen.» -->
+    ${window.NOT ? NOT.blok(e.id, l._id||'', '', 'Noter på prislinjen') : ''}
 
     <div class="r-gemtlinje">${l.gemt ? `Gemt kl. ${l.gemt}` : ''}</div>
   </div>`;
@@ -15944,7 +16845,12 @@ async function synkPlanlinjer(elId, vis){
         PLAN.push(raek);
       }
       raek.vej = k; raek.fra = a0.dato; raek.til = aN.ankomstDato || a0.dato;
-      raek.tid = a0.ud; raek.titel = a0.fra + ' → ' + aN.til; raek.sub = e.sub || raek.sub;
+      raek.tid = a0.ud;
+      /* Samme regel som i ydelsens overskrift (R386): en manglende
+         lufthavn er «?», ikke «null». Rejseplanen sagde «MLE → null», og
+         det var den samme aabne doer, bare et andet sted. */
+      raek.titel = (a0.fra || '?') + ' → ' + (aN.til || '?');
+      raek.sub = e.sub || raek.sub;
     });
   }
   for(const over of p.slice(Math.max(1, veje.length))){
@@ -17409,7 +18315,7 @@ const beholder = () => document.getElementById('rsside');
    lister villatyper og forplejning skal vaelges fra. Hentes parallelt;
    siden maa ikke vente seks gange i traek. */
 async function hent(tripId){
-  const [rt, re, rp, rk, rlh, rh, rf, rs, rd, rj] = await Promise.all([
+  const [rt, re, rp, rk, rlh, rh, rf, rs, rd, rj, rn] = await Promise.all([
     db.from('trips').select('*, customers(first_name,last_name,email,phone,country,postal_address)')
       .eq('id', tripId).single(),
     db.from('trip_elements').select('*').eq('trip_id', tripId).order('sort').order('start_date'),
@@ -17423,7 +18329,13 @@ async function hent(tripId){
     db.from('suppliers').select('name').order('name'),
     db.from('trip_destinations').select('destination').eq('trip_id', tripId),
     db.from('trip_travelers')
-      .select('id,note,travelers(id,full_name,date_of_birth,is_lead)').eq('trip_id', tripId)
+      .select('id,note,travelers(id,full_name,date_of_birth,is_lead)').eq('trip_id', tripId),
+    /* ══ NOTERNE ══
+       Fri tekst paa ydelser, prislinjer og delydelser. synlig_for_kunde
+       afgoer, om teksten staar paa rejseplanen — og dermed om den kommer
+       med paa reisebeviset (R411). En frist har allerede skrevet sin
+       raekke i tasks, saa den ogsaa kommer op i morgenbriefen. */
+    db.from('element_notes').select('*').eq('trip_id', tripId).order('created_at')
   ]);
   for(const [hvor, r] of [['rejsen',rt],['elementerne',re],['planen',rp],
                           ['kurserne',rk],['hotellerne',rh],['forplejningen',rf]]){
@@ -17446,7 +18358,9 @@ async function hent(tripId){
     if(r.error) throw new Error('priserne: ' + r.error.message);
     priser = r.data || [];
   }
+  if(window.NOT) NOT.saet((rn && rn.data) || [], tripId);
   return { tur: rt.data, els, priser, plan: rp.data||[], kurser: rk.data||{},
+           noter: (rn && rn.data) || [],
            hoteller: rh.data||[], forplejning: rf.data||[], lev: (rs&&rs.data)||[],
            maal: ((rd&&rd.data)||[]).map(x=>x.destination).filter(Boolean),
            rejsende: (rj&&rj.data)||[] };
@@ -17536,6 +18450,25 @@ function elementFra(e, mine){
    Planen har sine egne raekker, fordi ét koeb kan give to begivenheder
    (ud og hjem), og fordi en transfer kan staa i rejsen uden at vaere et
    koeb i sig selv. */
+/* ══ HVOR MANGE DØGN SENERE LANDER DEN? ═══════════════════════════════
+   Fundet ved test 09.09.2026: en flyvning, der letter 23:50 og lander to
+   doegn senere, viste «+1». Tallet var ikke regnet — det var et boolesk
+   flag, der blev skrevet ud som teksten «+1».
+   Nu taelles doegnene af datoerne, og flaget bruges kun, naar der ikke
+   staar en ankomstdato. Det er ikke kosmetik: en billet med «+1» i stedet
+   for «+2» sender kunden i lufthavnen paa den forkerte dag. */
+function plusDoegn(x){
+  if(!x) return 0;
+  const a = String(x.dato||'').slice(0,10), b = String(x.ankomstDato||'').slice(0,10);
+  if(a && b){
+    const d = Math.round((new Date(b+'T12:00:00') - new Date(a+'T12:00:00')) / 86400000);
+    if(isFinite(d) && d > 0) return d;
+    if(isFinite(d) && d === 0) return 0;
+  }
+  return x.plus ? 1 : 0;
+}
+const plusMrk = (x, kl) => { const d = plusDoegn(x);
+  return d > 0 ? `<span class="${kl}">+${d}</span>` : ''; };
 function planFraDb(r){
   return { id: r.id, elId: r.element_id || undefined, vej: r.vej || 0,
     art: r.art, fra: r.fra || '', til: r.til || '',
@@ -17661,6 +18594,30 @@ async function start(data){
 
   PLAN.length = 0;
   data.plan.forEach(r => PLAN.push(planFraDb(r)));
+
+  /* ══ REJSEPLANEN AFSTEMMES, NÅR SIDEN ÅBNES ═══════════════════════
+     Fundet ved test 09.09.2026 paa en rundrejse med tre etaper: basen
+     havde to planlinjer, den valgte flyplan havde tre — og saa forsvandt
+     hele hjemrejsen i stilhed, mens den linje, der blev tilbage, viste
+     13. oktobers etape under datoen 17. oktober.
+     Aarsagen var, at planlinjerne kun blev afstemt, naar man SELV rettede
+     noget. Nu afstemmes de ogsaa ved indlaesning — men KUN naar de er ude
+     af takt, saa en almindelig aabning af siden ikke skriver i basen.
+     Det er den vaerste slags fejl at lade ligge: planen ser rigtig ud og
+     er forkert, og det er den, reisebeviset bygges paa. */
+  const skaevePlaner = ELEMENTER.filter(e => {
+    if((e.type || e.slags) !== 'fly') return false;
+    const idx = valgteIdx(e.id);
+    const l = idx.map(i => st[e.id].linjer[i]).find(x => (x.segmenter||[]).length);
+    if(!l) return false;
+    const etaper = flyGrupper(l.segmenter).length;
+    const linjer = PLAN.filter(p => p.elId === e.id).length;
+    return etaper !== linjer;
+  }).map(e => e.id);
+  for(const id of skaevePlaner){
+    try { await synkPlanlinjer(id); }
+    catch(err){ console.warn('rejseplanen kunne ikke afstemmes for', id, err && err.message); }
+  }
 
   tegnTrin(); _tegnPlan(); _tegnListe();
   SIDST = snapshot();
@@ -17965,6 +18922,35 @@ function sideHtml(d){
     </div>
   </div>
 
+  <!-- ══ ALLE NOTER SAMLET ÉT STED ══════════════════════════════════
+       Wendie 08.09.2026: «det kunne ogsaa vaere rart, hvis der var et
+       sted, hvor vi samlede alle noter, der var lagt ind paa forskellige
+       ydelser, saa vi kan holde styr paa dem og soerge for, at der er
+       noget, vi ikke gaar glip af. Og specielt hvis der er en note, som
+       har en deadline.»
+       Det er den rigtige indvending: en note inde i en prislinje kan
+       ingen se uden at folde tre ting ud. De med deadline staar foerst —
+       de er reelt anmaerkninger, man bare har skrevet et andet sted. -->
+  <div class="r-kort" id="noterkort">
+    <h2 onclick="RS.foldKort(this)">Noter på rejsen
+      <span class="r-h" id="n-antal">ingen endnu</span><span class="r-fp2">▼</span></h2>
+    <div class="n-liste" id="n-liste"></div>
+    <p class="n-fod">Alt med <b>«på rejseplanen»</b> er det, kunden kommer til at læse —
+      reisebeviset bygges af rejseplanen. En note med en <b>deadline</b> bliver samtidig en
+      opgave, så den også kommer op i morgenbriefen.</p>
+  </div>
+
+  <!-- ══ HISTORIKKEN ══
+       Bygges af audit_log, ikke af en log appen selv skriver — en log,
+       appen fylder, mangler netop det, der skete uden om appen. -->
+  <div class="r-kort r-lukket" id="histkort">
+    <h2 onclick="RS.foldKort(this)">Historikken
+      <span class="r-h" id="h-antal">ingen endnu</span><span class="r-fp2">▼</span></h2>
+    <div class="h-liste" id="h-liste"></div>
+    <p class="n-fod">Historikken er <b>intern</b> og kommer aldrig med på et kundedokument.
+      Den viser hvem der rettede hvad, og hvornår — også de frie noter.</p>
+  </div>
+
   <div class="r-kort r-kontakt r-lukket" id="kontakt">
     <h2 onclick="RS.foldKort(this)">Kunde og kontakt
       <span class="r-h">klik for at folde ud</span><span class="r-fp2">▼</span></h2>
@@ -17989,6 +18975,13 @@ async function aabn(tripId, vaerten){
   const d = await hent(tripId);
   vaerten.innerHTML = sideHtml(d);
   await start(d);
+  if(window.NOT) NOT.oversigt();
+  /* Historikken hentes bagefter — den maa ikke forsinke siden. */
+  if(window.HIST) HIST.hent(tripId, [].concat(
+    (d.els||[]).map(x=>x.id),
+    (d.priser||[]).map(x=>x.id),
+    (d.plan||[]).map(x=>x.id),
+    (d.noter||[]).map(x=>x.id)));
   return d;
 }
 
@@ -18073,6 +19066,406 @@ async function viewMel(id){
   mlRenderBund();
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   NOTER PÅ EN YDELSE, EN PRISLINJE ELLER EN DELYDELSE
+   ══════════════════════════════════════════════════════════════════════
+   Wendie 08.09.2026: «i delydelserne, og egentlig generelt i alle
+   ydelser, skal vi kunne taste en fri tekst ind, hvis der er noget, vi
+   gerne vil have staaende paa rejseplanen … eller om det bare er en
+   intern note.» Og: «det rejsebevis, vi bygger senere, bliver bygget paa
+   de informationer, der fremgaar af rejseplanen.» Og: «det skal ogsaa
+   vaere saadan, at vi kan saette en reminder paa … noget der har en
+   deadline.» Og: «det foeles maerkeligt, naar man udfylder en note, at
+   den ligesom ikke gemmer den.»
+
+   Fire ting foelger af det:
+
+   1) Teksten ligger i sin EGEN tabel, element_notes, ikke i
+      trip_elements.details. En tekst, kunden kommer til at laese, maa
+      ikke ligge i en jsonb-pose, hvor ingen kan soege i den eller se, at
+      den er kundevendt.
+   2) «Paa rejseplanen» er et flag paa noten — og rejseplanen VISER den
+      saa. Ellers ville flaget vaere en loegn.
+   3) En frist skriver en raekke i tasks (triggeren fn_note_frist_til_task
+      goer det), saa der kun findes ÉT sted, hvor systemet husker noget.
+      To slags huskesedler betyder, at den ene bliver glemt.
+   4) Der er ingen kladdetilstand. Noten gemmes, naar feltet forlades, og
+      raekken lukker sig om sig selv, saa man kan SE, at den blev en ting.
+   ══════════════════════════════════════════════════════════════════════ */
+window.NOT = (function(){
+  let TUR = null;             /* rejsens id */
+  let RAEK = [];              /* alle noter paa rejsen */
+  let AABEN = {};             /* hvilke noter staar aabne til rettelse */
+  let NY = {};                /* hvor der er et tomt felt fremme */
+
+  const sik = t => escH(String(t == null ? '' : t));
+  const MDR = ['jan.','feb.','mar.','apr.','maj','jun.','jul.','aug.','sep.','okt.','nov.','dec.'];
+  function dagOrd(iso){
+    if(!iso) return '';
+    const d = new Date(String(iso).slice(0,10) + 'T12:00:00');
+    return isNaN(d) ? String(iso) : d.getDate() + '. ' + MDR[d.getMonth()];
+  }
+  const noegle = (elId, prisId, sub) =>
+    [elId||'', prisId||'', sub||''].join('|');
+
+  /* ── hvilke noter hører hvor ─────────────────────────────────────── */
+  function paa(elId, prisId, sub){
+    return RAEK.filter(n =>
+      String(n.element_id||'') === String(elId||'') &&
+      String(n.price_id||'')   === String(prisId||'') &&
+      String(n.sub_key||'')    === String(sub||''));
+  }
+  /* Alle kundevendte noter paa en ydelse — uanset om de sidder paa
+     ydelsen selv, paa en prislinje eller paa en delydelse. Rejseplanen
+     har kun ÉN linje pr. ydelse, saa den skal vise dem alle. */
+  function kundevendtPaaElement(elId){
+    return RAEK.filter(n => String(n.element_id||'') === String(elId||'') && n.synlig_for_kunde);
+  }
+  function alle(){ return RAEK.slice(); }
+
+  /* ── hent ────────────────────────────────────────────────────────── */
+  async function hentNoter(tripId){
+    TUR = tripId;
+    try {
+      const r = await db.from('element_notes').select('*')
+        .eq('trip_id', tripId).order('created_at');
+      RAEK = (r && r.data) || [];
+    } catch(e){ RAEK = []; console.warn('noterne kunne ikke hentes', e && e.message); }
+    return RAEK;
+  }
+  function saet(raek, tripId){ RAEK = raek || []; if(tripId) TUR = tripId; }
+
+  /* ── gem ─────────────────────────────────────────────────────────────
+     Gemmes med det samme. Fejler skrivningen, staar teksten stadig paa
+     skaermen, og der siges det hoejt — den maa ikke forsvinde i stilhed. */
+  async function gem(id, felter){
+    const nu = RAEK.find(x => x.id === id);
+    if(nu) Object.assign(nu, felter);
+    try {
+      if(id && !String(id).startsWith('ny:')){
+        const r = await db.from('element_notes').update(felter).eq('id', id).select('*');
+        if(r && r.error) throw new Error(r.error.message);
+        if(r && r.data && r.data[0]) Object.assign(nu || {}, r.data[0]);
+      } else {
+        const r = await db.from('element_notes').insert([{...felter, trip_id: TUR,
+          oprettet_af: (window.ME && ME.initialer) || 'WEN'}]).select('*');
+        if(r && r.error) throw new Error(r.error.message);
+        const ny = (r && r.data && r.data[0]) || null;
+        if(ny){ RAEK = RAEK.filter(x => x.id !== id); RAEK.push(ny); return ny; }
+      }
+    } catch(e){
+      if(window.RS && RS.kvitter) RS.kvitter('fejl', 'Noten blev ikke gemt: ' + (e.message||e));
+      else alert('Noten blev ikke gemt: ' + (e.message||e));
+    }
+    return nu;
+  }
+  async function slet(id){
+    const n = RAEK.find(x => x.id === id);
+    RAEK = RAEK.filter(x => x.id !== id);
+    tegnAlt();
+    if(!id || String(id).startsWith('ny:')) return;
+    try {
+      const r = await db.from('element_notes').delete().eq('id', id);
+      if(r && r.error) throw new Error(r.error.message);
+    } catch(e){
+      RAEK.push(n); tegnAlt();
+      if(window.RS && RS.kvitter) RS.kvitter('fejl', 'Noten kunne ikke fjernes: ' + (e.message||e));
+    }
+  }
+
+  /* ── markup ──────────────────────────────────────────────────────── */
+  function gemtHtml(n){
+    return `<div class="n-gemt" onclick="NOT.aabn('${n.id}')" title="Klik for at rette noten">
+      <span class="n-t">${n.synlig_for_kunde ? '<b>Note:</b> ' : ''}${sik(n.tekst)}</span>
+      <span class="n-mrk ${n.synlig_for_kunde ? 'n-plan' : 'n-intern'}">${
+        n.synlig_for_kunde ? 'på rejseplanen' : 'kun os'}</span>${
+      n.frist ? `<span class="n-mrk n-frist">deadline ${sik(dagOrd(n.frist))}</span>` : ''}
+      <span class="n-meta">${sik(n.oprettet_af || '')}${
+        n.created_at ? ' · ' + new Date(n.created_at).toLocaleDateString('da-DK',
+          {day:'numeric', month:'short'}) : ''}</span>
+      <span class="n-ret">ret</span></div>`;
+  }
+  function feltHtml(n, elId, prisId, sub){
+    const id = n ? n.id : 'ny:' + noegle(elId, prisId, sub);
+    return `<div class="n-raek" data-id="${sik(id)}">
+      <div class="n-fr">
+        <span class="n-f n-bred"><label>Fri tekst</label>
+          <input class="n-tx" value="${n ? sik(n.tekst) : ''}"
+            placeholder="står som skrevet — f.eks. «vinduesplads ønsket, ikke garanteret»"
+            oninput="NOT.roert('${sik(id)}')"
+            onblur="NOT.gemFelt(this,'${sik(id)}','${sik(elId||'')}','${sik(prisId||'')}','${sik(sub||'')}')"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"></span>
+        <span class="n-f"><label>Hvor står den</label>
+          <select class="n-hvor"
+            onchange="NOT.gemFelt(this,'${sik(id)}','${sik(elId||'')}','${sik(prisId||'')}','${sik(sub||'')}')">
+            <option value="plan"${n && n.synlig_for_kunde ? ' selected' : ''}>På rejseplanen — kunden ser den</option>
+            <option value="intern"${!n || !n.synlig_for_kunde ? ' selected' : ''}>Intern note — kun os</option>
+          </select></span>
+        <span class="n-f"><label>Deadline</label>
+          <input type="date" class="n-frist" value="${n && n.frist ? sik(n.frist) : ''}"
+            title="Sættes den, kommer noten op som en opgave — og i morgenbriefen"
+            onchange="NOT.gemFelt(this,'${sik(id)}','${sik(elId||'')}','${sik(prisId||'')}','${sik(sub||'')}')"></span>
+        ${n ? `<span class="n-x" title="Fjern noten" onclick="NOT.slet('${n.id}')">×</span>` : ''}
+      </div>
+      <div class="n-vis"></div></div>`;
+  }
+  /* Blokken paa en prislinje eller en ydelse: de gemte noter, og et tomt
+     felt kun naar man har bedt om det. Wendie 08.09.2026: «hvis der ikke
+     er noget, saa er den gemt vaek.» */
+  function blok(elId, prisId, sub, titel){
+    const nk = noegle(elId, prisId, sub);
+    const mine = paa(elId, prisId, sub);
+    const vis = mine.filter(n => !AABEN[n.id]);
+    const ret = mine.filter(n => AABEN[n.id]);
+    return `<div class="n-blok" data-nk="${sik(nk)}">
+      <div class="r-bt">${sik(titel || 'Noter')}
+        <span class="r-n n-lnk" onclick="event.stopPropagation();NOT.nyNote('${sik(elId||'')}','${sik(prisId||'')}','${sik(sub||'')}')">+ tilføj en note</span></div>
+      ${vis.map(gemtHtml).join('')}
+      ${ret.map(n => feltHtml(n, elId, prisId, sub)).join('')}
+      ${NY[nk] ? feltHtml(null, elId, prisId, sub) : ''}</div>`;
+  }
+  /* En delydelse har ikke plads til en hel blok — den faar én linje. */
+  function delyLinje(elId, prisId, sub){
+    const nk = noegle(elId, prisId, sub);
+    const mine = paa(elId, prisId, sub);
+    if(!mine.length && !NY[nk])
+      return `<div class="n-dely"><span class="n-lnk"
+        onclick="event.stopPropagation();NOT.nyNote('${sik(elId||'')}','${sik(prisId||'')}','${sik(sub||'')}')">+ note</span></div>`;
+    return `<div class="n-dely">${mine.filter(n=>!AABEN[n.id]).map(gemtHtml).join('')}
+      ${mine.filter(n=>AABEN[n.id]).map(n=>feltHtml(n, elId, prisId, sub)).join('')}
+      ${NY[nk] ? feltHtml(null, elId, prisId, sub) : ''}</div>`;
+  }
+  /* Linjen i rejseplanen. Wendie 08.09.2026: «der skal bare staa note,
+     kolon, og saa den tekst, vi nu engang har tastet ind.» */
+  /* ══ ÉN GANG PR. YDELSE — IKKE PR. PLANLINJE ══════════════════════
+     Fejl fundet ved test 09.09.2026: et fly har TO planlinjer (ud og
+     hjem), og noten stod paa begge. Tre noter blev fem linjer, og
+     dubletten ville gaa videre til kunden, fordi reisebeviset bygges paa
+     rejseplanen. Noten hoerer til YDELSEN, saa den staar paa ydelsens
+     foerste linje — dér, hvor man ser den foerst. */
+  function planlinje(elId, foerste){
+    if(foerste === false) return '';
+    const k = kundevendtPaaElement(elId);
+    if(!k.length) return '';
+    return `<div class="n-plan">${k.map(n =>
+      `<span class="n-pl"><b>Note:</b> ${sik(n.tekst)}</span>`).join('')}</div>`;
+  }
+  /* Oversigten. Wendie 08.09.2026: «det kunne vaere rart, hvis der var et
+     sted, hvor vi samlede alle noter, der var lagt ind paa forskellige
+     ydelser … specielt hvis der er en note, som har en deadline.» */
+  function hvor(n){
+    const e = (window.RS && RS.ELEMENTER || []).find(x => x.id === n.element_id);
+    const ydn = e ? (e.navn || '—') : 'Rejsen';
+    if(n.sub_key) return ydn + ' · ' + n.sub_key;
+    if(n.price_id){
+      const s = e && RS.st && RS.st[e.id];
+      const l = s && (s.linjer||[]).find(x => x._id === n.price_id);
+      return ydn + (l ? ' · ' + (l.lev || 'prislinjen') : ' · prislinjen');
+    }
+    return ydn;
+  }
+  function oversigt(){
+    const ud = RAEK.slice().sort((a,b) => (b.frist?1:0) - (a.frist?1:0));
+    const m = document.getElementById('n-antal');
+    if(m) m.textContent = ud.length ? ud.length + (ud.length===1 ? ' note' : ' noter') : 'ingen endnu';
+    const l = document.getElementById('n-liste');
+    if(!l) return;
+    l.innerHTML = ud.length ? ud.map(n =>
+      `<div class="n-or"><span class="n-ok">${sik(hvor(n))}</span>
+        <span class="n-ot">${sik(n.tekst)}
+          <span class="n-mrk ${n.synlig_for_kunde ? 'n-plan' : 'n-intern'}">${
+            n.synlig_for_kunde ? 'på rejseplanen' : 'kun os'}</span>${
+          n.frist ? `<span class="n-mrk n-frist">deadline ${sik(dagOrd(n.frist))}</span>` : ''}
+          <em>${sik(n.oprettet_af||'')}${n.created_at ? ' · ' +
+            new Date(n.created_at).toLocaleDateString('da-DK',{day:'numeric',month:'short'}) : ''}</em>
+        </span></div>`).join('')
+      : `<div class="n-tom">Ingen noter lagt ind på ydelserne endnu. De, der får en deadline,
+         står øverst her — en note med en frist er reelt en anmærkning, og den kommer op
+         som en opgave og i morgenbriefen.</div>`;
+  }
+
+  /* ── handlere ────────────────────────────────────────────────────── */
+  function tegnAlt(){
+    try { if(window.RS && RS.tegnListe) RS.tegnListe(); } catch(e){}
+    try { if(window.RS && RS.PLAN) RS.tegnPlan && RS.tegnPlan(); } catch(e){}
+    oversigt();
+  }
+  function nyNote(elId, prisId, sub){
+    NY[noegle(elId, prisId, sub)] = true;
+    tegnAlt();
+    setTimeout(()=>{
+      const b = document.querySelector(`.n-blok[data-nk="${noegle(elId,prisId,sub)}"] .n-tx, .n-dely .n-tx`);
+      if(b) b.focus();
+    }, 30);
+  }
+  function aabn(id){ AABEN[id] = true; tegnAlt(); }
+  function roert(){ /* teksten gemmes ved blur — her holder vi kun styr paa, at der er roert */ }
+  /* ══ ÉN GEMNING PR. NOTE ═══════════════════════════════════════════
+     Fejl fundet ved test: noten blev gemt TO gange. Naar den foerste
+     gemning tegner siden om, forsvinder feltet fra DOM'en, og browseren
+     sender et blur paa vejen ud — som kalder gemFelt igen. Andet kald
+     havde stadig 'ny:'-noeglen og lavede en dubletraekke.
+     To vaern, fordi de daekker hver sin vej: er feltet ikke laengere en
+     del af siden, er blur en afsked og ikke en handling; og den samme
+     noegle gemmes aldrig to gange paa én gang. */
+  const GEMMER = {};
+  async function gemFelt(el, id, elId, prisId, sub){
+    if(el && el.isConnected === false) return;
+    const raek = el.closest('.n-raek');
+    if(!raek) return;
+    /* ══ ÉN GEMNING PR. RÆKKE ══════════════════════════════════════
+       Fejl fundet ved test 09.09.2026: noten blev gemt TO gange, saa
+       der kom to raekker i element_notes, to «Note: …» paa rejseplanen
+       og to opgaver. Aarsagen er raekkefoelgen: gemningen tegner siden
+       om, DOM'en udskiftes, og browseren fyrer onblur paa feltet — som
+       stadig er forbundet i netop det oejeblik. Andet kald havde samme
+       'ny:'-noegle og indsatte igen.
+       Vaernet sidder derfor paa RAEKKEN, ikke paa noeglen, og saettes
+       FOER noget som helst andet: en raekke, der er ved at blive gemt,
+       gemmes ikke igen — uanset hvilken vej kaldet kommer. */
+    if(raek.dataset.laast === '1') return;
+    const laas = String(id);
+    if(GEMMER[laas]) return;
+    const tekst = (raek.querySelector('.n-tx').value || '').trim();
+    const synlig = raek.querySelector('.n-hvor').value === 'plan';
+    const frist = raek.querySelector('.n-frist').value || null;
+    if(!tekst){
+      /* Tom tekst er ikke en note. Er den gemt i forvejen, spoerges der ikke
+         — man fjerner den med krydset. */
+      if(String(id).startsWith('ny:')) return;
+      return;
+    }
+    const felter = {tekst, synlig_for_kunde: synlig, frist,
+      element_id: elId || null, price_id: prisId || null, sub_key: sub || null};
+    raek.dataset.laast = '1';
+    GEMMER[laas] = true;
+    let gemt = null;
+    try { gemt = await gem(id, felter); }
+    finally { delete GEMMER[laas]; }
+    delete NY[noegle(elId, prisId, sub)];
+    if(gemt && gemt.id) delete AABEN[gemt.id];
+    delete AABEN[id];
+    tegnAlt();
+    if(window.RS && RS.kvitter) RS.kvitter('gemt', frist
+      ? 'Noten er gemt — og lagt som opgave ' + dagOrd(frist)
+      : 'Noten er gemt');
+  }
+  return {hentNoter, saet, alle, paa, kundevendtPaaElement, blok, delyLinje, planlinje,
+          oversigt, nyNote, aabn, roert, gemFelt, slet, gem, tegnAlt, dagOrd, hvor};
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   HISTORIKKEN — HVEM GJORDE HVAD, OG HVORNÅR
+   ══════════════════════════════════════════════════════════════════════
+   Wendie 08.09.2026: «de her fritekstnoter skal man kunne tilfoeje flere
+   af, saadan at vi ogsaa kan se nede i historikken nederst, hvem det er,
+   der har tilfoejet hvad, og paa hvilke tidspunkter. Altsaa internt.»
+
+   Historikken er ikke et udviklervindue. Den er et arbejdsredskab: hvem
+   rettede prisen, hvem skrev noten, hvornaar blev flyplanen lagt ind. Og
+   den er allerede skrevet — audit_log har faaet hver aendring fra dag ét
+   via triggeren fn_audit. Derfor bygges den af BASEN og ikke af en ny
+   log, vi selv fylder: en log, appen selv skriver, mangler netop det, der
+   skete uden om appen.
+
+   Den er intern og kommer aldrig med paa et kundedokument.
+   ══════════════════════════════════════════════════════════════════════ */
+window.HIST = (function(){
+  let RAEK = [];
+
+  const TABELNAVN = {
+    trips:'Rejsen', trip_elements:'En ydelse', element_prices:'En prislinje',
+    trip_plan_items:'Rejseplanen', element_notes:'En note',
+    trip_travelers:'De rejsende', travelers:'En rejsende', tasks:'En opgave',
+    trip_destinations:'Destinationerne'
+  };
+  const HANDLING = {INSERT:'lagt ind', UPDATE:'rettet', DELETE:'fjernet'};
+
+  /* Hvad ÆNDREDE sig? En raekke, der siger «rettet», er ubrugelig — det
+     interessante er hvilket felt og fra hvad til hvad. */
+  const SKJUL = new Set(['updated_at','created_at','id','trip_id','element_id',
+                          'price_id','sort','found_at','naar_tekst']);
+  const FELTNAVN = {
+    amount:'beløb', currency:'valuta', supplier_name:'leverandør', slag:'slags',
+    segmenter:'flyplanen', villaer:'værelserne', subs:'delydelserne',
+    hold:'optionen', tekst:'teksten', synlig_for_kunde:'hvor den står',
+    frist:'deadline', description:'beskrivelsen', start_date:'fra-datoen',
+    end_date:'til-datoen', accepted_price:'kundens pris', stadie:'stadiet',
+    chosen_price_ids:'de valgte priser', chosen_price_id:'den valgte pris',
+    buy_amount:'købsprisen', buy_currency:'købsvalutaen', pax_count:'antal rejsende',
+    full_name:'navnet', date_of_birth:'fødselsdatoen', titel:'titlen', sub:'underteksten',
+    fx_overrides:'kurserne', note:'noten', daekker:'hvad prisen dækker'
+  };
+  const kort = v => {
+    if(v == null) return '—';
+    if(typeof v === 'object') return Array.isArray(v) ? v.length + ' stk.' : 'ændret';
+    const s = String(v);
+    return s.length > 42 ? s.slice(0,42) + '…' : (s || '—');
+  };
+  function hvadSkete(r){
+    if(r.action === 'INSERT') return '';
+    if(r.action === 'DELETE') return kort((r.old_row||{}).description
+      || (r.old_row||{}).tekst || (r.old_row||{}).supplier_name || '');
+    const g = r.old_row || {}, n = r.new_row || {};
+    const dele = [];
+    Object.keys(n).forEach(k => {
+      if(SKJUL.has(k)) return;
+      const a = JSON.stringify(g[k] === undefined ? null : g[k]);
+      const b = JSON.stringify(n[k] === undefined ? null : n[k]);
+      if(a === b) return;
+      const navn = FELTNAVN[k] || k;
+      if(typeof n[k] === 'object' && n[k] !== null) dele.push(navn + ' ændret');
+      else dele.push(navn + ': ' + kort(g[k]) + ' → ' + kort(n[k]));
+    });
+    return dele.slice(0,3).join(' · ') + (dele.length > 3 ? ' · +' + (dele.length-3) + ' mere' : '');
+  }
+  function titel(r){
+    const t = TABELNAVN[r.table_name] || r.table_name;
+    const h = HANDLING[r.action] || String(r.action||'').toLowerCase();
+    /* Noter fortjener deres egen tekst — de er dem, hun spurgte om. */
+    if(r.table_name === 'element_notes'){
+      const x = r.new_row || r.old_row || {};
+      const hvor = x.synlig_for_kunde ? 'på rejseplanen' : 'intern';
+      if(r.action === 'INSERT') return 'Note tilføjet (' + hvor + ')';
+      if(r.action === 'DELETE') return 'Note fjernet';
+      return 'Note rettet';
+    }
+    return t + ' ' + h;
+  }
+
+  async function hent(tripId, ids){
+    const alle = [tripId].concat(ids||[]).filter(Boolean);
+    try {
+      const r = await db.from('audit_log').select('*')
+        .in('record_id', alle).order('at', {ascending:false}).limit(80);
+      RAEK = (r && r.data) || [];
+    } catch(e){ RAEK = []; console.warn('historikken kunne ikke hentes', e && e.message); }
+    tegn();
+    return RAEK;
+  }
+  function tegn(){
+    const l = document.getElementById('h-liste');
+    if(!l) return;
+    const m = document.getElementById('h-antal');
+    if(m) m.textContent = RAEK.length ? RAEK.length + (RAEK.length===1?' ændring':' ændringer') : 'ingen endnu';
+    if(!RAEK.length){
+      l.innerHTML = `<div class="h-tom">Der er endnu ingen ændringer på rejsen — eller
+        historikken kunne ikke hentes. Alt, hvad vi retter herinde, lander her.</div>`;
+      return;
+    }
+    l.innerHTML = RAEK.map(r => {
+      const d = r.at ? new Date(r.at) : null;
+      const naar = d ? d.toLocaleDateString('da-DK',{day:'numeric',month:'short'}) + ' '
+        + d.toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'}) : '—';
+      const hvad = hvadSkete(r);
+      return `<div class="h-r"><span class="h-t">${escH(naar)}</span>
+        <span class="h-w">${escH((r.actor||'—').slice(0,4).toUpperCase())}</span>
+        <span class="h-h"><b>${escH(titel(r))}</b>${hvad ? `<em>${escH(hvad)}</em>` : ''}</span></div>`;
+    }).join('');
+  }
+  return {hent, tegn, raek: () => RAEK.slice()};
+})();
+
 /* ══ TEGN SIDEN ══ */
 /* ══ BUNDEN AF SIDEN ══
    Hovedet, rejseplanen og «Kan hvert element stadig koebes?» tegnes af
@@ -18086,9 +19479,6 @@ function mlRenderBund(){
   <div class="mlsh"><span class="txt">Rejsende</span>
     <span class="r">navnet skal stå som i passet, før rejsen bekræftes</span></div>
   <div class="mlkort" id="mlPax"></div>
-
-  <div class="mlsh"><span class="txt">Kurser</span><span class="r">marked · bankmargin · risikobuffer</span></div>
-  <div class="mlkurskort" id="mlKurser"></div>
 
   <div class="mlsh"><span class="txt">Prisberegning</span><span class="r">én metode — alt gennem DKK</span></div>
   <div class="mlregn">
@@ -18136,8 +19526,27 @@ function mlRenderBund(){
         <div class="u" id="mlDbTxt"></div>
         <div class="sam" id="mlDbSam"></div>
       </div>
+      <!-- ══ KUNDENS PRIS I SIN EGEN VALUTA ══════════════════════════
+           Wendie 08.09.2026: «jeg er ikke helt sikker paa, jeg forstaar
+           det der effektive og marked og bla bla bla … salgskursen skal
+           vel ikke aendre sig, hvis jeg ogsaa justerer salgsmargin.»
+           Hun havde ret: der var to haandtag paa samme ting. Nu er der
+           ét tal at skrue paa — salgskursen — og procenten ved siden af
+           er en AFLEDT oplysning om, hvor langt den ligger over markedet.
+           Og sammenligningen sker mod den kurs, vi FAKTISK faar: bankens,
+           samt hvad regnskabet bogfoerer til Nationalbankens kurs. -->
+      <div class="mlsalg" id="mlSalg"></div>
     </div>
   </div>
+
+  <!-- ══ KURSERNE LIGGER UNDER PRISBEREGNINGEN ═══════════════════════
+       Wendie 08.09.2026: «den blok, der har alle kurserne, maa faktisk
+       godt ligge nede under prisberegningen.» Rigtigt: man laeser
+       resultatet foerst og gaar saa ned og ser, hvad det er regnet af —
+       ikke omvendt. -->
+  <div class="mlsh"><span class="txt">Kurserne</span>
+    <span class="r">marked · bankmargin · risikobuffer — det priserne regnes med</span></div>
+  <div class="mlkurskort" id="mlKurser"></div>
 
   <div class="mlbund">
     <div class="status" id="mlStatus"></div>
@@ -18438,17 +19847,109 @@ function mlBeregn(){
   });
   const sub = dele.reduce((s,d)=>s+d.dkk,0);
   const tilbudSub = dele.reduce((s,d)=>s+d.tilbudDkk,0);
-  const gebyr = mlGebyr();
-  const kost = sub + gebyr, kostTilbud = tilbudSub + gebyr;
+  /* ══ BANKGEBYRET ER UDE AF REGNESTYKKET ══════════════════════════
+     Wendie 08.09.2026: «bankgebyret, den fjerner vi … hele det felt
+     bliver jo bare indkoebspris.»
+     Det var et fast tal paa 500 kr., der blev lagt oven i hver rejse,
+     uanset hvor mange overfoersler den faktisk kostede. Et gennemsnit
+     paa en enkelt rejse er ikke en omkostning, det er et gaet — og det
+     forurenede daekningsgraden paa alle rejser lige meget. Bankens
+     faktiske gebyrer hoerer i regnskabet, ikke paa den enkelte rejse.
+     Funktionerne mlGebyr/mlSaetGebyr staar tilbage (de er stadig
+     eksporteret og bruges af de gamle rejser), men gebyret er ikke
+     laengere en del af kostprisen, og feltet tegnes ikke. */
+  const gebyr = 0;
+  const kost = sub, kostTilbud = tilbudSub;
   const kk = mlKundeKurs();
   const accept = Number(ML.trip.accepted_price)||0;
-  /* Hvilke ydelser har slet ingen pris? De taeller som 0 i kostprisen, og
-     saa bliver daekningsgraden for hoej — 34,5 % i stedet for 17,6 % paa
-     Pias rejse, fordi flyet manglede. Listen foelger med, saa den kan
-     siges hoejt i stedet for at blive regnet med som nul. */
-  const udenPris = dele.filter(d=>!(Number(d.beloeb) > 0)).map(d=>d.navn);
+  /* ══ HVILKE YDELSER MANGLER EN PRIS? ═════════════════════════════
+     De taeller som 0 i kostprisen, og saa bliver daekningsgraden for hoej
+     — 34,5 % i stedet for 17,6 % paa Pias rejse, fordi flyets pris
+     manglede. Listen foelger med, saa det kan siges hoejt i stedet for
+     at blive regnet med som nul.
+
+     Wendie 08.09.2026: «det er ogsaa vigtigt, at man sagtens kan have en
+     ydelse, der koster 0 kroner.»
+     Fejl fundet ved test 09.09.2026: proeven var beloebet > 0, saa en
+     transfer, der ER gratis, blev meldt som «mangler en pris» — og
+     spaerrede daekningsgraden for hele rejsen. En rejse med et hotel til
+     0 kr. viste «kan ikke regnes endnu» i stedet for 74,8 %.
+     Det rigtige spoergsmaal er ikke «hvor stort er beloebet», men «har
+     nogen valgt en pris paa ydelsen». Nul er et svar. Ingenting er ikke. */
+  const udenPris = dele.filter(d => !mlHarValgtPris(d.e)).map(d => d.navn);
   return {dele, sub, kost, kostTilbud, gebyr, kk, udenPris,
           dbTilbud: accept ? accept/kk - kostTilbud : null};
+}
+/* ══ SALGSBOKSEN ══════════════════════════════════════════════════════
+   Fire tal, i den raekkefoelge pengene bevaeger sig:
+     kunden betaler   → i sin egen valuta
+     regnet forsigtigt → DKK ved VORES salgskurs (det daekningsgraden bygger paa)
+     veksler vi dem   → DKK ved bankens kurs (det vi reelt faar)
+     i regnskabet     → DKK ved Nationalbankens kurs (det der bogfoeres)
+   Forskellen op til vores salgskurs er puden. Den er ikke en indtaegt,
+   den er et vaern — og derfor staar den ikke med i daekningsgraden. */
+function mlTegnSalg(r, pris, prisDkk){
+  const boks = document.getElementById('mlSalg');
+  if(!boks) return;
+  const v = mlSalgsvaluta();
+  if(v === 'DKK'){ boks.innerHTML = ''; boks.style.display = 'none'; return; }
+  boks.style.display = '';
+  const brugt  = mlSalgskurs();
+  const eff    = mlSalgskursEff();
+  const marked = mlSalgskursMarked();
+  const bank   = mlSalgskursBank();
+  const haand  = mlSalgsHaand() != null;
+  const beloeb = Number(pris) || 0;
+  const dkkVi     = beloeb ? beloeb / brugt  : 0;
+  const dkkBank   = beloeb ? beloeb / bank   : 0;
+  const dkkMarked = beloeb ? beloeb / marked : 0;
+  const raek = (k, val, txt, stor) =>
+    `<tr${stor?' class="stor2"':''}><td class="sk">${k}</td>
+      <td class="sv tal">${val}</td><td class="sbm">${txt}</td></tr>`;
+  boks.innerHTML = `
+    <div class="sh"><span class="st">Kundens pris i <b>${escH(v)}</b></span>
+      <span class="sn">rejsen købes i DKK — omregningen er det sidste led</span></div>
+    <table class="stab">
+      <tr><td class="sk">Salgskurs</td>
+        <td class="sv"><input class="tal" id="mlSalgK" value="${mlNf4(brugt)}"
+          oninput="mlSaetSalgskurs(this.value)"></td>
+        <td class="sbm">${haand
+          ? `rettet i hånden — den effektive er <b>${mlNf4(eff)}</b> · marked <b>${mlNf4(marked)}</b>
+             <span class="lnk" onclick="mlNulstilSalgskurs()">brug den effektive</span>`
+          : `den effektive kurs fra Kurserne · marked <b>${mlNf4(marked)}</b>`}</td></tr>
+      ${raek('Kunden betaler', mlNf(beloeb), '<b>'+escH(v)+'</b>', true)}
+      ${raek('Regnet forsigtigt', mlNf(dkkVi), 'DKK — dét dækningsgraden bygger på')}
+      ${raek('Veksler vi dem', mlNf(dkkBank), 'DKK — bankens kurs <b>'+mlNf4(bank)+'</b> · <b>'
+        + mlNf(dkkBank - dkkVi) + ' DKK</b> mere end vi regnede med')}
+      ${raek('I regnskabet', mlNf(dkkMarked), 'DKK — Nationalbankens kurs <b>'+mlNf4(marked)
+        + '</b> · <b>' + mlNf(dkkMarked - dkkVi) + ' DKK</b> mere end vi regnede med')}
+    </table>
+    <p class="sfod">Pengene går ind på den <b>${v==='NOK'?'norske':'udenlandske'} konto som
+    ${v==='NOK'?'norske kroner':escH(v)}</b> — der veksles ingenting, før vi flytter dem.
+    Bogføringen bruger Nationalbankens kurs den dag; skal de faktisk til DKK, tager banken sin
+    margin, og det er den kurs, vi reelt får. Vores salgskurs ligger et hak under igen — den
+    forskel er <b>puden</b>, og den er derfor ikke en fortjeneste, men et værn.</p>`;
+}
+/* Har ydelsen en pris, nogen har valgt? Det er ikke det samme som at
+   beloebet er stoerre end nul. En prislinje uden id (den syntetiske, der
+   laves naar en gammel rejse slet ingen priser har) taeller ikke med. */
+function mlHarValgtPris(e){
+  if(!e) return false;
+  const s = window.RS && RS.st && RS.st[e.id];
+  if(!s) return false;
+  const valgte = (s.valgte||[]).map(i => (s.linjer||[])[i]).filter(Boolean);
+  /* En linje, der findes i basen (har _id), ER en pris, nogen har lagt
+     ind — ogsaa hvis beloebet er 0. En linje uden _id er den syntetiske,
+     der laves, naar en gammel rejse slet ingen priser har; den taeller
+     kun, hvis den faktisk baerer et beloeb.
+
+     Proeven SKAL spoerge samme kilde, som beregneren summerer. Fejl
+     fundet ved test 09.09.2026: jeg havde et fald tilbage paa
+     e.buy_amount, og saa sagde vaernet «der er en pris», mens beregneren
+     lagde 0 til — resultatet var en daekningsgrad paa 100 % paa en rejse,
+     hvor flyet manglede. To kilder til samme spoergsmaal er én for meget. */
+  if(valgte.some(l => l._id)) return true;
+  return valgte.some(l => Number(l.pris) > 0);
 }
 function mlPrisVed(dgPct, kost){
   const d = dgPct/100, r = Number(ML.std.round_to)||1;
@@ -18462,7 +19963,12 @@ function mlRegn(tegnKurs){
      18.000 kr. manglede. Svaret skal vaere det samme ALLE tre steder paa
      skaermen — venstre spalte, den store boks og bundlinjen — ellers
      laver jeg praecis den fejl, hun spurgte om, én gang mere. */
-  const ufuld = (r.udenPris || []).length > 0;
+  /* Fejl fundet ved test 09.09.2026: en rejse UDEN ydelser gav
+     «Fortjeneste 100,0 %» og et daekningsbidrag paa hele kundeprisen — i
+     stilhed. Vaernet spurgte kun, om en ydelse manglede en pris; nul
+     ydelser var derfor «fuldt oplyst». Ingen ydelser er den mest
+     ufuldstaendige kostpris, der findes. */
+  const ufuld = (r.udenPris || []).length > 0 || !(r.dele || []).length;
   if(tegnKurs===true) mlTegnKurser();
   let h='';
   /* Teksten under hvert element fortaeller, HVILKEN linje i prisstigen der
@@ -18484,17 +19990,13 @@ function mlRegn(tegnKurs){
   const db = prisDkk - r.kost, dg = prisDkk>0 ? db/prisDkk*100 : 0;
   const val = ML.trip.customer_currency||'DKK';
 
-  h += `<div class="mlrr sum"><span class="l">Indkøb i alt</span><span class="v">${mlNf(r.sub)} DKK</span></div>
-    <div class="mlrr"><span class="l">+ Bankgebyr<small>${
-        (ML.overrides||{})._gebyr!=null
-          ? 'rettet på denne rejse · standard '+mlNf(Number(ML.std.bank_fee_dkk)||0)+' DKK'
-          : 'bankens faste gebyr for overførslerne'}</small></span>
-      <span class="v"><input class="mlgf${(ML.overrides||{})._gebyr!=null?' aendret':''}"
-        value="${mlNf(r.gebyr)}" oninput="fmtBelob(this);mlSaetGebyr(this.value)"> DKK</span></div>
+  h += `<div class="mlrr sum"><span class="l">Indkøbspris<small>alt vi køber til rejsen, regnet om til kroner</small></span><span class="v">${mlNf(r.sub)} DKK</span></div>
     <div class="mlrr slut"><span class="l">Rejsen koster os${ufuld
-        ? `<small class="mlmangler">— så langt. ${escH(r.udenPris.join(' og '))} mangler en pris</small>` : ''}</span>
+        ? (r.udenPris.length
+            ? `<small class="mlmangler">— så langt. ${escH(r.udenPris.join(' og '))} mangler en pris</small>`
+            : `<small class="mlmangler">— der er endnu ingen ydelser på rejsen</small>`)
+        : '<small>alt i DKK, med bankmargin og risikobuffer</small>'}</span>
       <span class="v">${mlNf(r.kost)}</span></div>
-    <div class="mlrr fin"><span class="l">alt i DKK, med bankmargin og risikobuffer</span><span class="v"></span></div>
     <div class="mlrr"><span class="l">${ufuld
         ? `+ Fortjeneste<small class="mlmangler">kan ikke regnes, før alle ydelser har en pris</small>`
         : pris ? `+ Fortjeneste ${mlNf1(dg)} %<small>det I sidder tilbage med</small>`
@@ -18506,6 +20008,7 @@ function mlRegn(tegnKurs){
     ${mlNf(mlPrisVed(dg, r.kost))} DKK for den samme dækningsgrad. Forskellen er ikke avance — det er
     bankmarginen og risikobufferen på NOK.</div>`;
   document.getElementById('mlRegn').innerHTML = h;
+  mlTegnSalg(r, pris, prisDkk);
 
   /* ══ ÉT TAL, ÉT STED ══
      Wendie 07.09.2026: «hvorfor er DG'et ikke det samme over det hele?»
@@ -18535,11 +20038,16 @@ function mlRegn(tegnKurs){
      Havde det staaet der i forvejen, var 99,5 og 29,8 blevet fanget med
      det samme — begge kom af en kostpris, der manglede en ydelse. */
   document.getElementById('mlDbTxt').innerHTML = ufuld
-    ? `<b>${escH(r.udenPris.join(' og '))}</b> mangler en pris.
-       Uden den tæller ydelsen som 0, og dækningsgraden ville se
-       ${r.udenPris.length===1?'bedre':'bedre'} ud, end den er.
-       <span class="mlregnestykke">Lige nu er der lagt
-       ${mlNf(r.kost)} DKK ind af købet.</span>`
+    ? (r.udenPris.length
+      ? `<b>${escH(r.udenPris.join(' og '))}</b> mangler en pris.
+         Uden den tæller ydelsen som 0, og dækningsgraden ville se
+         bedre ud, end den er.
+         <span class="mlregnestykke">Lige nu er der lagt
+         ${mlNf(r.kost)} DKK ind af købet.</span>`
+      : `<b>Der er endnu ingen ydelser på rejsen.</b> Uden et køb er der
+         ingen kostpris at måle mod, og en dækningsgrad ville bare være
+         kundens pris i procent af sig selv.
+         <span class="mlregnestykke">Læg flyet og hotellet ind, så regnes den.</span>`)
     : pris
     ? `Dækningsbidrag <b>${mlNf(db)} DKK</b>.
        <span class="mlregnestykke">(${mlNf(r.kk===1?pris:pris/r.kk)}
