@@ -1,5 +1,91 @@
 <!DOCTYPE html>
-<!-- Panda · v1.45 · 09.09.2026 — KLAR TIL UDGIVELSE.
+<!-- Panda · v1.48 · 09.09.2026 — KLAR TIL UDGIVELSE.
+     v1.48 — TO SÆT TRANSFERREGLER, OG PRISER VI SMED VÆK.
+     Wendie 09.09.2026, ordret: «Der skal ikke stå noget med 2 t. efter
+     ankomst. Vi sætter bare en tid, fordi vi ikke kender den — vi behøver
+     ikke skrive hvorfor. Speedbåden sættes automatisk til 1 time efter
+     ankomst uanset tid, men stadig så man er i Malé 3 timer før hjemrejsen.
+     Det samme gælder indenrigsfly + speedbåd. Og ja, lav ændringen i live
+     edge.» Det ændrer tre ting i forhold til v1.47 nedenfor, som ikke
+     længere gælder på disse punkter:
+     · TO SÆT REGLER, ikke ét. Sjøflyet er bundet af lyset: + 2 timer efter
+       ankomst, aldrig afgang efter kl. 16.00, og lander flyet kl. 15.00
+       eller senere flytter transferen til næste morgen kl. 07.00 — med
+       datoen og en overnatningsbesked. Speedbåd, indenrigsfly og bil er
+       IKKE bundet af lyset: + 1 time efter ankomst, uanset klokken. En
+       ankomst 22:10 giver altså speedbåd 23:10 og ikke næste morgen.
+     · HJEMREJSEN regnes nu ens for alle: man skal VÆRE i Malé 3 timer før
+       hjemflyet, så afgangen fra øen er hjemfly − 3 t. − overfartens egen
+       varighed, læst af tilbuddets tekst («ca. 20 min.», «1 t. 15 min.»)
+       af overfartMin(). Sjøflyet får stadig loftet kl. 16.00 oveni.
+       Målt: sjøfly ind 11:00 → 13:00, hjem 21:25 → 16:00 (loftet);
+       sjøfly ind 16:40 → næste dag 07:00 + overnatningsbesked;
+       speedbåd ind 22:10 → 23:10, hjem 21:25 − 3 t. − 45 min. → 17:40;
+       indenrigsfly ind 16:40 → 17:40, hjem 09:00 − 3 t. − 1 t. 15 → 04:45.
+     · INGEN GRUND SKRIVES. Fritteksten er «ca. 17:40» og ikke andet.
+       Tiderne er vores estimater; det stod der før i en parentes, og
+       parentesen kunne læses som en aftale med leverandøren.
+     · HENT DAGENS PRIS SMED RIGTIGE PRISER VÆK. Kagi Island ER kendt hos
+       Hummingbird (kode h5d345062581c3, 2 af 4 villanavne matchede), men
+       villafilteret kastede resten bort i tavshed, og boksen sagde «ingen
+       priser». Edge-funktionen hent-dagspris er derfor deployet i live
+       maldivia-core som version 3 (ACTIVE, læst tilbage og verificeret):
+       den svarer nu additivt — traf[] er uændret, og et nyt alle[] bærer
+       HVER stue kilden tilbød med kildens EGET navn plus villaPasser/
+       mpPasser. Panda viser dem under «Priser» som «Andre muligheder hos
+       kilderne — hedder villaen noget andet hos dem?» med en «brug den»,
+       der lægger prisen ind med kildens eget villanavn og en kvittering,
+       der siger højt at man selv skal tjekke, at det ER den samme villa.
+       Kilden siger nu også «5 værelsestyper, men ingen på præcis de
+       kriterier» i stedet for «ingen priser» — det er et andet svar, og
+       det er netop DET svar, der peger på et andet villanavn.
+     v1.47 — TRANSFERENS TIDER, EFTER WENDIES EGEN REGEL (delvis afløst af v1.48).
+     Wendie 09.09.2026, ordret: «Tidspunktet for transferen i Maldiverne
+     sætter vi altid til 2 timer efter ankomst og ca. 3 timer før deres
+     hjemrejse (dog ikke senere end kl. 16.00). Og som du ved, så er det
+     ikke os, der bestemmer tiderne — derfor disse omtrentelige timer.
+     Ved ankomst efter kl. 15.00 til Malé (på udrejsen) så flyver sjøflyet
+     først næste morgen kl. 07.00 tidligst.»
+     Tiderne regnes nu af den VALGTE billet: ankomsten i Malé + 2 timer ind,
+     hjemflyets afgang − 3 timer ud, med loft kl. 16.00. Lander flyet
+     kl. 15.00 eller senere OG er det et sjøfly, flytter transferen til
+     næste morgen kl. 07.00 — og datoen flytter med, for det betyder en
+     overnatning i Malé. DET siges højt, både i kvitteringen og i
+     delydelsens tekst: det kan kræve et hotel, vi ikke har lagt ind.
+     En speedbåd sejler også i mørke; kun sjøflyet er bundet af lyset.
+     Alle tider skrives med «ca.» og med den grund, der faktisk blev brugt
+     («2 t. efter ankomst», «første sjøfly næste morgen», «sidste afgang
+     kl. 16.00 — hjemflyet går 21:25»). De er vores estimater, ikke
+     leverandørens svar, og de må ikke kunne læses som bekræftede.
+     Målt på tre tilfælde: ankomst 11:00 → ud 13:00; ankomst 16:40 →
+     næste dag 07:00 med overnatningsbesked; hjemfly 09:00 → ud 06:00.
+     v1.46 — TRE TING FRA WENDIE, OG DEN TREDJE VISTE ET FORKERT TAL.
+     · «Nogle bokse og priser opdaterer sig, andre ikke.» Gemmer man en ny
+       pris, kaldte gemningen kun mlRegn(), som tegner tabellen og
+       dækningsgraden. «Kunden accepterede» tegnes i HØJRE spalte og blev
+       derfor stående med det GAMLE tal — 88.500, mens rejsens pris var
+       91.200. Et forkert tal, der ser ud som en kendsgerning, er værre
+       end et tomt. Højre spalte har nu sin egen funktion, og gemningen
+       tegner den om. Målt: 149.000 → 175.000 slår igennem i boksen.
+     · «Hent dagens pris-knappen virker ikke.» Den virkede — den fandt
+       bare ingenting, og det stod INGEN steder. hent-dagspris svarer med
+       en note og en «kilder», der siger hvad hver kilde gjorde; Panda
+       gemte dem i st[id].arkivNote og st[id].kilder og læste dem aldrig.
+       Nu står svaret pr. kilde under «Priser»: Hummingbird (virker, men
+       kun for hoteller vi kan genkende — mindst to villanavne skal
+       matche), Yalago (kan ikke slås op endnu: pris-opslag i editoren
+       tager ikke imod en kilde, så den svarer altid Hummingbird — det er
+       Rasmus'), og Kontrakterne (ikke indlæst). En knap, der ikke siger
+       noget, ER i stykker.
+     · «Hvordan får vi transferen ind automatisk i henhold til tilbuddet?»
+       Slagsen genkendes af teksten siden v1.44, men de transfers, der
+       blev lagt ind FØR, har ingen dato — og uden dato kommer de ikke på
+       rejseplanen. Datoen er ikke et gæt: opholdet ved, hvornår man
+       ankommer og rejser hjem. Turen ind får ankomstdagen, turen hjem
+       hjemrejsedagen, og det sættes når rejsen åbnes. Klokkeslættet
+       udfyldes IKKE — «ca. 20 min.» er en varighed, ikke et tidspunkt, og
+       et gættet klokkeslæt på et reisebevis er værre end et tomt.
+       Varigheden står i navnet og følger med på rejseplanen.
      v1.45 — SALGSBOKSENS PLADS, OG BOOKINGENS DATA IND PÅ KUNDEN.
      · «Den blå boks med priserne i udenlandsk valuta er placeret forkert
        — se mockup vs. live.» Rigtigt: i mockuppen er .salgsboks sidste
@@ -6046,7 +6132,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.45';
+const APP_VERSION = 'v1.48';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -14256,7 +14342,11 @@ function delyPlanTekst(l){
     const navn = String(x.t || x.slags || '').trim();
     const vaek = delyGaelderVaek(l, x);
     const dele = [navn];
-    if(x.ud) dele.push('kl. ' + String(x.ud).trim());
+    /* Staar tiden allerede i den frie tekst («ca. 07:15 (2 t. efter
+       ankomst)»), skal den ikke ogsaa staa som «kl. 07:15» — saa laeste
+       rejseplanen tiden to gange. (Wendie 09.09.2026.) */
+    if(x.ud && !String(x.tekst||'').includes(String(x.ud).trim()))
+      dele.push('kl. ' + String(x.ud).trim());
     if(x.lounge) dele.push(String(x.lounge).trim());
     if(x.tekst) dele.push(String(x.tekst).trim());
     const sd = vaek ? [] : (x.pax || [])
@@ -15807,6 +15897,144 @@ function transferSub(subs, tekst, val, datoer){
     p:0, val: val || 'DKK', hvor:'plan', pax:[],
     dato: (ud ? d.til : d.fra) || d.fra || null, ud:null, an:null });
   return liste;
+}
+
+/* ══ EN TRANSFER UDEN DATO KAN IKKE KOMME PÅ REJSEPLANEN ═════════════
+   Wendie 09.09.2026: «hvordan faar vi transferen ind automatisk i henhold
+   til tilbuddet, saa den bliver udfyldt korrekt og fremgaar af
+   rejseplanen?»
+   Slagsen genkendes nu af teksten (v1.44), men de transfers, der blev
+   lagt ind FOER den rettelse, har ingen dato — og datofeltet stod tomt.
+   Datoen er ikke et gaet: opholdet VED, hvornaar man ankommer og rejser
+   hjem. Turen ind faar ankomstdagen, turen hjem hjemrejsedagen. Kan vi
+   ikke se hvilken vej, tager vi ankomstdagen — det er den, kunden moeder
+   foerst.
+   Klokkeslaettet udfyldes IKKE: tilbuddet siger «ca. 20 min.», og det er
+   en varighed, ikke et tidspunkt. Et gaettet klokkeslaet paa et
+   reisebevis er vaerre end et tomt. Varigheden staar i delydelsens navn
+   og foelger med paa rejseplanen. */
+  /* ══ TIDERNE ER VORES EGNE — VI KENDER DEM IKKE ═══════════════════
+     Wendie 09.09.2026:
+     «Tidspunktet for transferen i Maldiverne saetter vi altid til 2 timer
+      efter ankomst og ca. 3 timer foer deres hjemrejse (dog ikke senere
+      end kl. 16.00) … ved ankomst efter kl. 15.00 til Malé paa udrejsen
+      flyver sjoeflyet foerst naeste morgen kl. 07.00 tidligst.»
+     Og 09.09.2026 igen:
+     «Der skal ikke staa noget med 2 t. efter ankomst. Vi saetter bare en
+      tid, fordi vi ikke kender den — vi behoever ikke skrive hvorfor.
+      Speedbaaden saettes automatisk til 1 time efter ankomst uanset tid,
+      men stadig saa man er i Malé 3 timer foer hjemrejsen. Det samme
+      gaelder indenrigsfly + speedbaad.»
+     TO SÆT REGLER. Forskellen er lyset:
+     · VANDFLY (sjoefly) flyver kun i dagslys.
+       Ind:  ankomst + 2 t. Lander flyet 15.00 eller senere, foerst
+             naeste morgen 07.00 — og saa skal de overnatte i Malé.
+       Ud:   afgang aldrig efter 16.00.
+     · SPEEDBÅD, INDENRIGSFLY og BIL koerer/sejler ogsaa i moerke.
+       Ind:  ankomst + 1 t, uanset klokken.
+       Ud:   intet loft.
+     FÆLLES for turen hjem: de skal VÆRE i Malé 3 timer foer hjemflyet.
+     Det er ankomsten, der er kravet — saa afgangen fra oeen er 3 timer
+     plus overfartens laengde foer flyet. Staar laengden i delydelsens
+     navn («ca. 20 min.», «45 min.»), bruges den; ellers regnes der 3
+     timer, og saa er det et forsigtigt gaet i den rigtige retning.
+     Tiden staar som «ca.» og INTET andet. Vi kender den ikke —
+     leverandoeren bestemmer den — men en begrundelse i kundens dokument
+     er stoej, og den foerste udgave skrev endda en forkert begrundelse
+     paa en tid, der var sat af naeste morgens foerste sjoefly. */
+const T_IND_VANDFLY = 2 * 60;        /* sjoefly: + 2 timer */
+const T_IND_ANDET   = 1 * 60;        /* speedbaad, indenrigsfly, bil: + 1 time */
+const T_I_MALE_FOER = 3 * 60;        /* skal VAERE i Malé 3 timer foer */
+const T_SENEST_UD   = 16 * 60;       /* sjoefly: aldrig afgang efter 16.00 */
+const T_VANDFLY_FOERST = 7 * 60;     /* foerste sjoefly naeste morgen */
+const T_MOERKT_FRA  = 15 * 60;       /* ankomst herefter: ikke samme dag */
+const minTid = t => { const m = /^(\d{1,2}):(\d{2})/.exec(String(t||''));
+  return m ? (+m[1])*60 + (+m[2]) : null; };
+const tidMin = m => String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0');
+/* Overfartens laengde, som den staar i navnet: «ca. 20 min.», «45 min.»,
+   «1 t. 15 min.». Findes den ikke, regnes der 0 — og saa staar de 3 timer
+   alene, hvad der er den forsigtige side. */
+function overfartMin(tekst){
+  const t = String(tekst||'').toLowerCase();
+  let m = /(\d+)\s*t\.?\s*(?:(\d+)\s*min)?/.exec(t);
+  if(m && /\dt|\d\s*t\b|time/.test(t)) return (+m[1])*60 + (+(m[2]||0));
+  m = /(\d+)\s*min/.exec(t);
+  return m ? +m[1] : 0;
+}
+/* Flyets ankomst i Malé og hjemflyets afgang — fra den valgte billet. */
+function flyTilOgFra(){
+  const fly = ELEMENTER.find(x=>x.slags === 'fly');
+  if(!fly) return {};
+  const l = valgtLinje(fly.id);
+  const seg = (l && l.segmenter) || [];
+  if(!seg.length) return {};
+  const gr = flyGrupper(seg);
+  const ind = gr[0] ? gr[0][gr[0].length-1] : null;              /* sidste ben ud */
+  const hjem = gr.length > 1 ? gr[gr.length-1][0] : null;        /* foerste ben hjem */
+  return {
+    ankomst: ind ? {tid: ind.an, dato: ind.ankomstDato || ind.dato, hvor: ind.til} : null,
+    afgang:  hjem ? {tid: hjem.ud, dato: hjem.dato, hvor: hjem.fra} : null };
+}
+async function fyldTransferTider(){
+  const F = flyTilOgFra();
+  let rettet = 0; const overnat = [];
+  for(const e of ELEMENTER){
+    const s3 = st[e.id]; if(!s3) continue;
+    const p = PLAN.find(x => x.elId === e.id || x.id === e.id) || {};
+    const fra = (e.raa && e.raa.fra) || p.fra;
+    const til = (e.raa && e.raa.til) || p.til || fra;
+    if(!fra) continue;
+    for(const l of (s3.linjer||[])){
+      for(const x of (l.subs||[])){
+        const sl = x.slags || transportSlags(x.t);
+        if(!DELY_TRANSPORT.includes(sl)) continue;
+        const navn = String(x.t||'');
+        const vandfly = sl === 'Vandfly';
+        const hjemad = /→\s*mal|til\s*mal|hjem|retur|departure|afrejse/i.test(navn)
+                       && !/mal\w*\s*→/i.test(navn);
+        let dato = x.dato, ud = x.ud, note = null;
+        if(!hjemad){
+          const a = F.ankomst && minTid(F.ankomst.tid);
+          if(!dato) dato = (F.ankomst && F.ankomst.dato) || fra;
+          if(!ud && a != null){
+            if(vandfly && a >= T_MOERKT_FRA){
+              ud = tidMin(T_VANDFLY_FOERST);
+              dato = laegTil((F.ankomst && F.ankomst.dato) || fra, 1);
+              note = 'flyet lander ' + tidMin(a) + ' — sjøflyet flyver først næste morgen, '
+                   + 'så de skal overnatte i Malé';
+              overnat.push(navn);
+            } else {
+              ud = tidMin(Math.min(a + (vandfly ? T_IND_VANDFLY : T_IND_ANDET), 23*60+45));
+            }
+          }
+        } else {
+          const d = F.afgang && minTid(F.afgang.tid);
+          if(!dato) dato = (F.afgang && F.afgang.dato) || til;
+          if(!ud && d != null){
+            /* De skal VAERE i Malé 3 timer foer — derfor ogsaa overfarten. */
+            let t = d - T_I_MALE_FOER - overfartMin(navn);
+            if(vandfly) t = Math.min(t, T_SENEST_UD);
+            ud = tidMin(Math.max(0, t));
+          }
+        }
+        if(dato === x.dato && ud === x.ud && !note) continue;
+        x.dato = dato || null; if(ud) x.ud = ud;
+        if(!x.slags) x.slags = sl;
+        if(!x.hvor) x.hvor = 'plan';
+        /* «ca.» og intet andet. Wendie 09.09.2026. */
+        const est = 'ca. ' + (x.ud||'');
+        const gl = String(x.tekst||'');
+        if(!/ca\.\s*\d/.test(gl)) x.tekst = [gl, est, note].filter(Boolean).join(' · ');
+        else if(note && !gl.includes('overnatte')) x.tekst = gl + ' · ' + note;
+        rettet++;
+      }
+    }
+  }
+  if(!rettet) return;
+  tegnListe(); tegnPlan();
+  kvitter('gemt', (rettet === 1 ? 'Transferen har' : rettet + ' transfers har')
+    + ' fået en tid ud fra flyet — den står som «ca.», for leverandøren bestemmer den'
+    + (overnat.length ? ' · OBS: overnatning i Malé, sjøflyet flyver først næste morgen' : ''));
 }
 
 /* Skriver ydelserne. Prisen faar «Fra tilbuddet» som kilde, saa det for
@@ -17942,6 +18170,74 @@ function tegnListeInd(){
           <div class="r-n3" style="margin:-4px 0 9px">${
             fraTilbuddet(grundlag(e.id)) ? 'grundlaget øverst' : 'den første pris øverst'
             } · alt måles mod den</div>
+          ${(()=>{
+            /* ══ EN KNAP DER IKKE SIGER NOGET, ER I STYKKER ═══════════
+               Wendie 09.09.2026: «hent dagens pris-knappen virker ikke.»
+               Den virkede — den fandt bare ingenting, og det stod ingen
+               steder. hent-dagspris svarer med en `note` og en `kilder`,
+               der siger hvad HVER kilde gjorde; Panda gemte dem i
+               st[id].arkivNote og st[id].kilder og LAESTE dem aldrig.
+               Nu staar svaret. Kilderne er kendte og dokumenterede:
+               · Hummingbird virker, men kun for hoteller vi kan genkende
+                 (villanavnene skal matche — mindst to).
+               · Yalago kan ikke slaas op endnu: pris-opslag i editoren
+                 tager ikke imod en kilde, saa den svarer altid
+                 Hummingbird. Det er Rasmus'.
+               · Kontrakterne er ikke indlaest.
+               Det skal STAA, saa man ikke tror appen er i stykker. */
+            const s3 = st[e.id];
+            if(!s3.hentet) return '';
+            const K = s3.kilder || {};
+            const linje = (navn, k) => {
+              if(!k) return '';
+              const antal = Number(k.traf) || 0;
+              const rum = Number(k.vaerelser) || 0;
+              const hvad = k.fejl ? '<span class="r-mangl">svarede ikke: ' + escH(k.fejl) + '</span>'
+                : k.note ? escH(k.note)
+                : antal ? antal + (antal===1?' pris':' priser') + (k.sikkerhed ? ' · ' + escH(k.sikkerhed) : '')
+                /* Havde kilden vaerelser, men ingen der passede, er det et
+                   ANDET svar end «ingenting» — og det er det, der peger paa
+                   at villaen hedder noget andet hos dem. */
+                : rum ? rum + (rum===1?' værelsestype':' værelsestyper')
+                        + ', men ingen på præcis de kriterier'
+                        + (k.sikkerhed ? ' · ' + escH(k.sikkerhed) : '')
+                : 'ingen priser på præcis de kriterier';
+              return `<div class="r-kil">· <b>${escH(navn)}</b> — ${hvad}</div>`;
+            };
+            return `<div class="r-soegt" style="margin:0 0 10px">
+              <div class="r-sl"><b>Hentet:</b> ${s3.hentetAntal
+                ? s3.hentetAntal + (s3.hentetAntal===1?' pris lagt ind':' priser lagt ind')
+                : 'ingen priser lagt ind'}${s3.arkivNote ? ' — ' + escH(s3.arkivNote) : ''}</div>
+              <div class="r-sl2"><b>Hvad hver kilde svarede:</b>
+                ${linje('Hummingbird', K.hummingbird)}
+                ${linje('Yalago', K.yalago)}
+                ${linje('Kontrakterne', K.kontrakt)}
+                ${(!K.hummingbird && !K.yalago && !K.kontrakt)
+                  ? '<div class="r-kil">· kilderne svarede ikke — prøv igen, eller tjek at EDITOR_KEY står på maldivia-core</div>' : ''}
+              </div>
+              ${(s3.andre||[]).length ? `
+                <!-- Kilden HAVDE vaerelser — de passede bare ikke paa vores
+                     navn. Det er nu det almindelige tilfaelde, fordi
+                     villanavnene ikke stemmer paa tvaers af kilderne. Her
+                     staar de med kildens egne ord, saa et menneske kan se,
+                     om det er den samme villa. -->
+                <div class="r-sl2"><b>Andre muligheder hos kilderne</b>
+                  — hedder villaen noget andet hos dem?
+                  ${s3.andre.slice(0,12).map((r,k)=>`
+                    <div class="r-kil">· <b>${escH(r.villa||'—')}</b>
+                      ${r.mp ? '· ' + escH(r.mp) : ''}
+                      · ${escH(kr(r.pris, r.val))}
+                      <span class="r-n3">${escH(r.lev||'')}${
+                        r.nationalitet ? ' · ' + escH(r.nationalitet) + '-pris' : ''}${
+                        r.villaPasser ? '' : ' · andet villanavn'}${
+                        r.mpPasser ? '' : ' · anden forplejning'}</span>
+                      <span class="y-lnk" onclick="event.stopPropagation();RS.brugAnden('${e.id}',${k})"
+                        >brug den</span></div>`).join('')}
+                  ${s3.andre.length > 12
+                    ? `<div class="r-kil">· … og ${s3.andre.length-12} flere</div>` : ''}
+                </div>` : ''}
+              </div>`;
+          })()}
           <!-- Wendie 01.09.2026: «det her kan vi laegge ind under prislinjen
                for det, der er fundet fra editoren, saa det er gemt vaek fra
                oversiden.» Forklaringen hoerer til den linje, den handler om —
@@ -19486,6 +19782,7 @@ async function hentArkiv(e, q){
   if(ARKIV.length) return ARKIV;          /* proevekoersel med faste data */
   st[e.id].arkivNote = null;
   st[e.id].kilder = null;
+  st[e.id].andre = null;
   const p = PLAN.find(x => x.elId === e.id) || {};
   const fra = q.ankomst || p.fra;
   const til = p.til || (fra && q.naetter ? laegTil(fra, +q.naetter) : null);
@@ -19497,6 +19794,18 @@ async function hentArkiv(e, q){
     if(error) throw error;
     st[e.id].arkivNote = (data && data.note) || null;
     st[e.id].kilder = (data && data.kilder) || null;
+    /* ══ DE ANDRE MULIGHEDER KILDEN HAVDE ═════════════════════════════
+       Wendie 09.09.2026: «Saa der findes resultater fra Hummingbird? Bare
+       ikke paa den villa? Maaske de kalder den noget andet.»
+       hent-dagspris svarer nu (version 3) ogsaa med `alle` — hvert
+       vaerelse kilden tilboed, med KILDENS EGNE NAVNE og to flag. De, der
+       ikke passede, gemmes her, saa de kan VISES i stedet for at blive
+       kastet vaek. `alle` kan mangle, hvis funktionen er en aeldre
+       version — saa staar listen bare tom. */
+    st[e.id].andre = ((data && data.alle) || [])
+      .filter(x => !x.villaPasser || !x.mpPasser)
+      .map(r => ({...r, hentet: r.naar, naetter: q.naetter, voksne: q.voksne,
+                  boern: q.boern, ankomst: fra}));
     return ((data && data.traf) || []).map(r => ({...r,
       hentet: r.naar, naetter: q.naetter, voksne: q.voksne, boern: q.boern,
       ankomst: fra, kilde: 'editor' }));
@@ -19505,6 +19814,28 @@ async function hentArkiv(e, q){
     st[e.id].arkivNote = 'Kilderne svarede ikke: ' + (err.message || err);
     return [];
   }
+}
+/* ══ «BRUG DEN» — ET MENNESKE AFGØR, OM DET ER SAMME VILLA ═══════════
+   Kilden kalder den noget andet; kun et menneske kan sige, om det er den
+   samme vare. Trykker hun her, laegges prisen ind som en almindelig
+   prislinje — med KILDENS navn paa villaen, saa der ikke opstaar tvivl om,
+   hvad der blev koebt. (Wendie 09.09.2026.) */
+function brugAnden(id, k){
+  const r = ((st[id].andre)||[])[k]; if(!r) return;
+  st[id].linjer.push({
+    slag:'editor', lev:r.lev,
+    hvad: (r.villa||'') + (r.mp ? ' · ' + (MP_NAVN[r.mp] || r.mp) : '')
+        + (r.nationalitet ? ' · ' + r.nationalitet + '-pris' : ''),
+    villaer:[{a:1, t:r.villa||'', mp:(MP_NAVN[r.mp] || r.mp || '')}],
+    daekker:`${r.naetter} nætter · ${r.voksne} voksne + ${r.boern} børn · ankomst ${kortDato(r.ankomst)}`,
+    pris:r.pris, val:r.val, st:'hentet hos ' + (r.lev||'kilden'),
+    naar:'hentet ' + (r.hentet||iDag()),
+    kilde: [r.kilde, 'kildens eget villanavn'].filter(Boolean).join(' · '),
+    hold:{aktiv:false,dato:'',tid:'17:00',betal:'',note:''}, aaben:true});
+  st[id].andre.splice(k,1);
+  tegnListe();
+  kvitter('gemt','Prisen er lagt ind med ' + (r.lev||'kildens') + ' eget villanavn — '
+    + 'tjek at det er den samme villa');
 }
 async function hentDagens(id){
   const e = ELEMENTER.find(x=>x.id===id);
@@ -19527,6 +19858,14 @@ async function hentDagens(id){
   const fraKontrakt = KONTRAKTER.filter(passer).map(r=>({...r, kilde:'kontrakt'}));
   const traf = [...fraKontrakt, ...fraArkiv];     /* vores egne foerst */
   st[id].fandt = { kontrakt: fraKontrakt.length, editor: fraArkiv.length };
+  /* Vores egne kontrakter er ikke en af de tre kilder i svaret fra
+     hent-dagspris — de soeges her i Panda. Taellingen laegges ind, saa
+     linjen «Kontrakterne» ogsaa siger noget. */
+  if(!st[id].kilder) st[id].kilder = {};
+  if(!st[id].kilder.kontrakt || !KONTRAKTER.length)
+    st[id].kilder.kontrakt = KONTRAKTER.length
+      ? {traf: fraKontrakt.length}
+      : {traf: 0, note: 'ikke indlæst i Panda endnu'};
   traf.forEach(r => st[id].linjer.push({
     slag: r.kilde === 'kontrakt' ? 'kontrakt' : 'editor', lev:r.lev,
     hvad: r.villa + ' · ' + (MP_NAVN[r.mp] || r.mp)
@@ -21855,7 +22194,8 @@ return {
   /* ── Mockuppens nye felter paa prislinjen (09.09.2026) ── */
   KABINER, DELY_FLY, DELY_ANDET, DELY_TRANSPORT, delySlags, talD,
   ydNavn, ydRest, spanKort, YD_NAVN, linjeSelskab, talInd, harKurs,
-  gaelderTekst, gaelderFrisk, transferSub, transportSlags,
+  gaelderTekst, gaelderFrisk, transferSub, transportSlags, fyldTransferTider, flyTilOgFra,
+  brugAnden,
   rejsendeTekst, datoSpan, langDato, opdaterPaxTop, harPris,
   valutaValg, linjeManglerKurs, delyGaelderVaek, TOM_LINJE,
   delyPlanTekst, retBenBraet, nytBenBraet,
@@ -21946,6 +22286,7 @@ async function viewMel(id){
   mlRenderBund();
   mlStdNation();
   mlFraBooking();
+  try { if(window.RS && RS.fyldTransferTider) RS.fyldTransferTider(); } catch(_){}
   /* ══ REJSEPLANEN TEGNES FØR DE REJSENDE ER HENTET ═════════════════
      Rejseplanens referencetabel skriver, HVEM der staar paa hver
      bookingreference — og den laeser ML.rejsende, som hentes her,
@@ -22389,11 +22730,21 @@ window.HIST = (function(){
    orden med tomme beholdere, og denne funktion fylder dem. Saa er der
    ét sted, der bestemmer, hvad der staar hvor. */
 function mlRenderBund(){
-  const t = ML.trip, els = ML.els;
+  mlTegnHoejre();
+  mlRenderBundResten();
+}
+/* ══ HØJRE SPALTE FOR SIG ════════════════════════════════════════════
+   Wendie 09.09.2026: «naar jeg laegger en ny pris ind, som kunden har
+   accepteret, saa ser det forvirrende ud i prisberegningen — nogle bokse
+   og priser opdaterer sig, andre ikke.»
+   Aarsagen: «Kunden accepterede» tegnes HER, og gemningen kaldte kun
+   mlRegn(), som tegner tabellen og daekningsgraden. Boksen blev derfor
+   staaende med det GAMLE tal — 88.500, mens rejsens pris var 91.200. Et
+   forkert tal, der ser ud som en kendsgerning, er vaerre end et tomt.
+   Spalten har nu sin egen funktion, saa gemningen kan tegne den om. */
+function mlTegnHoejre(){
+  const t = ML.trip;
   const val = t.customer_currency || 'DKK';
-
-  /* hoejre spalte i prisberegningen: prisen til kunden, daekningsgraden,
-     salgsboksen */
   const h = document.getElementById('mlHoejre');
   if(h) h.innerHTML = `
       <div class="mljbox">
@@ -22437,6 +22788,11 @@ function mlRenderBund(){
         <div class="sam" id="mlDbSam"></div>
       </div>
 `;
+  mlGemKnapTekst();
+}
+function mlRenderBundResten(){
+  const t = ML.trip, els = ML.els;
+  const val = t.customer_currency || 'DKK';
 
   /* bekraeftelsesbjaelken, nederst i prisberegningen */
   const bund = document.getElementById('mlBund');
@@ -23712,6 +24068,9 @@ async function mlGemPrisTilKunde(){
     accepted_currency: val}).eq('id',ML.trip.id);
   if(error){ mlKvit('Prisen blev ikke gemt: ' + error.message, true); return; }
   ML.trip.accepted_price = pris; ML.trip.accepted_currency = val;
+  /* Hele hoejre spalte tegnes om — «Kunden accepterede» staar dér, og den
+     var det eneste sted, der IKKE fulgte med. (Wendie 09.09.2026.) */
+  mlTegnHoejre();
   mlRegn();
   mlGemKnapTekst();
   mlKvit(gl && Math.abs(pris - gl) >= 0.5
