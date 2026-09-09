@@ -1,5 +1,64 @@
 <!DOCTYPE html>
-<!-- Panda · v1.49 · 09.09.2026 — KLAR TIL UDGIVELSE.
+<!-- Panda · v1.50 · 09.09.2026 — KLAR TIL UDGIVELSE.
+     v1.50 — TRANSFEREN BEGGE VEJE, OG ÉN DESTINATIONSVÆLGER.
+     Wendie 09.09.2026, to beskeder.
+
+     A · «Det her skal være den samme liste som når vi vælger destinationer
+     andre steder og samme design.» Rejsesiden spurgte med browserens egen
+     prompt() — en grå kasse fra Chrome med et tomt felt og ingen liste.
+     Vælgeren fandtes allerede på henvendelsen: de mest solgte med antal,
+     otte grupper, søgefelt, «tilføj som ny». Opmærkningen er nu lavet ÉN
+     gang og tager et præfiks, så begge sider bruger SAMME liste (HV_TOP +
+     HV_DEST_GROUPS) og SAMME CSS — overlejringen lægges i en .hv7-
+     indpakning, fordi både reglerne og farvevariablerne er scopet dér, så
+     der ikke er én linje CSS kopieret. Målt: 12 af 12 elementer ens.
+     Escape lukker, og et tryk på en valgt fjerner den igen.
+
+     B · «Vandflyet er lagt ind, men det står med gråt og fremgår stadig
+     ikke af rejseplanen. Det var heller ikke begge rejsende som var hakket
+     af. Og det er kun 1 vej — hvorfor bliver det ikke lagt ind som vi
+     havde det i mockuppen? Hvad skal til for at det bliver 100% magen til?
+     Og funktionen spiller automatisk? Der er overskriften også bedre
+     Speedbådstransfer · Malé → Emerald.»
+     Fem fejl, alle fem her:
+     · KUN ÉN VEJ. En transfer på Maldiverne er altid to ture. Nu laves
+       begge: ind fra Malé på ankomstdagen, ud til Malé på hjemrejsedagen.
+     · OVERSKRIFTEN var tilbuddets rå tekst, «Sjøfly · ca. 20 min.» — en
+       varighed, ikke en rute. Nu «Vandflytransfer · Malé → Kagi Island» og
+       «Vandflytransfer · Kagi Island → Malé», med fuge-s i
+       «Speedbådstransfer». Varigheden er ikke tabt: den regner ankomsten.
+     · INGEN REJSENDE var hakket af (pax stod tom). Nu alle på rejsen, fra
+       paxListe() — samme kilde som chipperne, så hak og liste ikke kan
+       sige noget forskelligt. På planen: «alle fire», som i mockuppen.
+     · ANKOMSTFELTET stod tomt og gråt. Mockuppen viser begge: «Afgang
+       15:00 · Ankomst 15:45». Ankomst = afgang + overfarten, som allerede
+       læses af tilbuddets tekst.
+     · FREMGIK IKKE AF REJSEPLANEN. Den STOD der — som en halesætning i
+       hotellinjens undertekst. Mockuppen har den som sin EGEN række, én
+       hver vej, med mærkatet «Transfer», ruten som titel og Afgang/Ankomst
+       som detaljer. Rækkerne afledes af delydelsen hver gang (id
+       «<elId>#tr<n>») og gemmes ikke som egne trip_plan_items, så der ikke
+       kan ligge en forældet transferlinje i basen og love en tid, ingen har
+       sat. Hotellinjen nævner den ikke længere — men advarslen «ingen
+       transfer lagt ind» bliver, når der ingen er.
+     · OG JA, DEN SPILLER AUTOMATISK: hver gang mellemlandingen åbnes, og
+       igen når tilbuddets priser lægges ind. Den rører kun det, der
+       mangler — en tid, et menneske har rettet, laves ikke om.
+
+     To fejl i mit eget nye arbejde, fanget før de kom ud:
+     · REJSEPLANEN SKREV «13:00» på en transfer uden tid. STD_TID er en
+       rækkefølge-hjælp (hotel efter transfer efter fly på samme dag), men
+       den blev også VIST — et klokkeslæt, ingen har sat, præsenteret som
+       en kendsgerning. Sorteringen bruger den stadig; visningen siger «—».
+     · ADVARSLEN KOM IKKE FREM. Blev intet ændret, returnerede funktionen
+       tidligt, og der stod «Gemt» — en kvittering på ingenting. Er der
+       ingen billet, kan tiden ikke regnes, og nu siges det: «2 transfers
+       står på rejseplanen med dato og rute, men uden tid … læg flyet ind,
+       så sættes tiderne af sig selv.»
+     · Og en navnekollision: min nye paxTekst() ville have overskrevet den
+       eksisterende paxTekst(raa), som læser henvendelsens voksne/børn —
+       den sidste vinder, og den anden var forsvundet i tavshed. Omdøbt til
+       transferHvem(). Samme slags fejl som selskabAf (R467).
      v1.49 — KURSBOKSEN, OG HVORFOR PRØVEN IKKE FANGEDE DEN.
      Wendie 09.09.2026, ordret: «det her er ikke 1:1 altså kurserne.»
      Hun havde ret, og det værste var, at oraklet sagde 125 af 125. Det
@@ -6248,7 +6307,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.49';
+const APP_VERSION = 'v1.50';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -13037,20 +13096,33 @@ async function hvAddOffer(){
 function hvCopy(u){ try{ navigator.clipboard.writeText(u); const s=document.getElementById('hvSaved'); if(s){ s.textContent='Link kopieret'; setTimeout(()=>{ if(s.textContent==='Link kopieret') s.textContent=''; },1500);} }catch(e){} }
 
 /* ── destinationsvælger ─────────────────────────────────────────────── */
-function hvDestPicker(){
+/* ══ ÉN DESTINATIONSVÆLGER TIL HELE PANDA ══════════════════════════════
+   Wendie 09.09.2026: «det her skal være den samme liste som når vi vælger
+   destinationer andre steder og samme design.» Rejsesiden spurgte med en
+   browser-prompt() — en grå kasse fra Chrome, med et tomt felt og ingen
+   liste. Vælgeren fandtes allerede paa henvendelsen, med de mest solgte
+   (og hvor mange), otte grupper, søgefelt og «tilføj som ny».
+   Opmærkningen er derfor lavet ÉN gang og tager et præfiks, saa begge
+   sider bruger SAMME liste (HV_TOP + HV_DEST_GROUPS) og SAMME CSS
+   (.dpick/.dopt/.dgrp under .hv7). To kopier af en liste over
+   destinationer ville før eller siden gaa fra hinanden. */
+function pandaDestMarkup(pre, lab, titel){
+  const P = pre || 'hv';
   return `<div class="dpick">
-    <div class="dph"><div><div class="lab">Vælg destination</div><h3>Hvor vil kunden hen?</h3></div>
-      <button class="xb2" onclick="hvCloseDest()">✕</button></div>
-    <div class="dsearch"><input id="hvDq" placeholder="Søg destination…" oninput="hvFiltD(this.value)" autocomplete="off"></div>
-    <div class="dbody" id="hvDbody">
+    <div class="dph"><div><div class="lab">${escH(lab||'Vælg destination')}</div>
+      <h3>${escH(titel||'Hvor vil kunden hen?')}</h3></div>
+      <button class="xb2" onclick="${P}CloseDest()">✕</button></div>
+    <div class="dsearch"><input id="${P}Dq" placeholder="Søg destination…" oninput="${P}FiltD(this.value)" autocomplete="off"></div>
+    <div class="dbody" id="${P}Dbody">
       <div class="dgrp top"><div class="dgh">Jeres mest solgte</div><div class="dwrap">
-        ${HV_TOP.map(([n,c])=>`<button class="dopt big" onclick="hvPickD(this)">${escH(n)}<em>${c}</em></button>`).join('')}
+        ${HV_TOP.map(([n,c])=>`<button class="dopt big" onclick="${P}PickD(this)">${escH(n)}<em>${c}</em></button>`).join('')}
       </div></div>
       ${HV_DEST_GROUPS.map(([g,ls],i)=>`<details class="dgrp" ${i===0?'open':''}><summary>${escH(g)}</summary><div class="dwrap">
-        ${ls.map(n=>`<button class="dopt" onclick="hvPickD(this)">${escH(n)}</button>`).join('')}</div></details>`).join('')}
-      <p class="dnone" id="hvDnone">Ingen match. <button class="dopt add" onclick="hvAddFree()">Tilføj som ny destination</button></p>
+        ${ls.map(n=>`<button class="dopt" onclick="${P}PickD(this)">${escH(n)}</button>`).join('')}</div></details>`).join('')}
+      <p class="dnone" id="${P}Dnone">Ingen match. <button class="dopt add" onclick="${P}AddFree()">Tilføj som ny destination</button></p>
     </div></div>`;
 }
+function hvDestPicker(){ return pandaDestMarkup('hv'); }
 function hvAddDest(){ const q=document.getElementById('hvDq'); if(q){ q.value=''; hvFiltD(''); }
   const have=hvCurDests();
   document.querySelectorAll('.hv7 .dopt').forEach(o=>o.classList.toggle('valgt', have.includes(o.childNodes[0].nodeValue.trim())));
@@ -13090,11 +13162,58 @@ function hvAddAp(sel){
 }
 function hvPickD(o){ hvInsertDest(o.childNodes[0].nodeValue.trim()); o.classList.add('valgt'); }
 function hvAddFree(){ const v=(document.getElementById('hvDq')||{}).value; if(!v||!v.trim()) return; hvInsertDest(v.trim()); hvCloseDest(); }
-function hvFiltD(q){ q=(q||'').toLowerCase().trim(); let hits=0;
-  document.querySelectorAll('#hvDbody .dgrp').forEach(g=>{ let any=false;
+function pandaFiltD(q, pre){ const P=pre||'hv'; q=(q||'').toLowerCase().trim(); let hits=0;
+  document.querySelectorAll('#'+P+'Dbody .dgrp').forEach(g=>{ let any=false;
     g.querySelectorAll('.dopt').forEach(o=>{ const m=!q||o.childNodes[0].nodeValue.toLowerCase().includes(q); o.style.display=m?'':'none'; if(m) any=true; });
     g.style.display=any?'':'none'; if(any) hits++; if(q&&g.tagName==='DETAILS') g.open=true; });
-  const dn=document.getElementById('hvDnone'); if(dn) dn.classList.toggle('on', !!q&&!hits); }
+  const dn=document.getElementById(P+'Dnone'); if(dn) dn.classList.toggle('on', !!q&&!hits); }
+function hvFiltD(q){ return pandaFiltD(q, 'hv'); }
+
+/* ══ VÆLGEREN PÅ REJSESIDEN ════════════════════════════════════════════
+   Samme opmærkning, samme liste, samme CSS. Overlejringen lægges paa
+   <body> i en .hv7-indpakning, fordi BAADE reglerne og farvevariablerne
+   er scopet dér — saa er der ikke én linje CSS at kopiere, og de to
+   vaelgere kan ikke komme til at se forskellige ud.
+   Kaldes med de allerede valgte og en funktion, der faar navnet. */
+window.PDEST = null;
+function pandaAabnDest(valgte, naar, titel){
+  pandaLukDest();
+  PDEST = { valgt:new Set(valgte||[]), naar };
+  const w = document.createElement('div');
+  w.className = 'hv7'; w.id = 'pdestWrap';
+  w.innerHTML = `<div class="ov3 on" onclick="if(event.target===this)pandaLukDest()">`
+    + pandaDestMarkup('pd', 'Vælg destination', titel || 'Hvor går rejsen?') + `</div>`;
+  document.body.appendChild(w);
+  /* De valgte staar markeret, praecis som paa henvendelsen. */
+  w.querySelectorAll('.dopt').forEach(o=>{
+    const n = o.childNodes[0].nodeValue.trim();
+    if(PDEST.valgt.has(n)) o.classList.add('valgt');
+  });
+  const q = document.getElementById('pdDq'); if(q) setTimeout(()=>q.focus(), 60);
+  /* Escape lukker — en overlejring man ikke kan komme ud af er en faelde. */
+  w._esc = e => { if(e.key === 'Escape') pandaLukDest(); };
+  document.addEventListener('keydown', w._esc);
+}
+function pandaLukDest(){
+  const w = document.getElementById('pdestWrap'); if(!w) return;
+  if(w._esc) document.removeEventListener('keydown', w._esc);
+  w.remove(); PDEST = null;
+}
+function pdCloseDest(){ pandaLukDest(); }
+function pdFiltD(q){ return pandaFiltD(q, 'pd'); }
+function pdPickD(o){
+  const n = o.childNodes[0].nodeValue.trim();
+  if(!PDEST) return;
+  /* Tryk paa en valgt fjerner den igen — samme knap, begge veje. */
+  if(PDEST.valgt.has(n)){ PDEST.valgt.delete(n); o.classList.remove('valgt'); }
+  else { PDEST.valgt.add(n); o.classList.add('valgt'); }
+  PDEST.naar([...PDEST.valgt]);
+}
+function pdAddFree(){
+  const f = document.getElementById('pdDq'); const v = f && f.value.trim();
+  if(!v || !PDEST) return;
+  PDEST.valgt.add(v); PDEST.naar([...PDEST.valgt]); pandaLukDest();
+}
 
 
 async function viewLeads(){
@@ -14330,7 +14449,15 @@ function flyHtml(f){
    kl. 12, saa transferen laa FOER flyet paa ankomstdagen. Rettet.
    Skriver man en rigtig tid ind, vinder den altid over standarden. */
 const STD_TID = { Fly:'12:00', Transfer:'13:00', Hotel:'15:00', Billet:'12:00', Andet:'12:00' };
+/* ══ EN TID INGEN HAR SAT, MÅ IKKE STÅ SOM ET KLOKKESLÆT ═══════════════
+   STD_TID er en RÆKKEFØLGE-hjælp: den holder hotellet efter transferen
+   efter flyet paa samme dag. Men den blev ogsaa VIST, saa en transfer
+   uden tid stod med «13:00» paa rejseplanen — et klokkeslaet, ingen har
+   sat, praesenteret som en kendsgerning. Fundet ved efterproevningen
+   09.09.2026, paa netop den sag Wendie sad med (rejse uden billet).
+   Sorteringen bruger stadig standardtiden; visningen siger «—». */
 const planTid = p => p.tid || STD_TID[p.art] || '12:00';
+const planTidVist = p => p.tid ? p.tid : '—';
 function sorterPlan(){
   PLAN.sort((a,b)=>{
     const d = (a.fra||'9999').localeCompare(b.fra||'9999');
@@ -14610,11 +14737,23 @@ function planTekst(p){
     /* Et negativt naettetal er ikke en oplysning — det er en fejl, og
        den staar allerede som advarsel. (Scenarietest 09.09.2026.) */
     const nn = (p.fra && p.til) ? naetterMellem(p.fra, p.til) : null;
+    /* ══ TRANSFEREN STÅR PÅ SIN EGEN LINJE — IKKE OGSÅ HER ═══════════
+       Mockuppens hotellinje er «7 nætter · Two Bedroom Family Beach Villa
+       with Pool · Deluxe All-Inclusive — Dine Around», og transferen har
+       sine egne to raekker. Stod den begge steder, laeste man den samme
+       tid to gange. ADVARSLEN bliver: er der ingen transfer, skal DET
+       kunne ses (Wendie 07.09.2026), og de delydelser, der IKKE er
+       transport — en ekstra seng, en middag — hoerer stadig her. */
+    const harTransfer = PLAN.some(x=>x.afledt === 'transfer' && x.elId === p.elId);
+    const ikkeTransport = linjer.flatMap(l => (l.subs||[])
+      .filter(x => !DELY_TRANSPORT.includes(x.slags || transportSlags(x.t)))
+      .flatMap(x => delyPlanTekst({...l, subs:[x]}))).filter(Boolean);
     sub = [href.length ? 'hotellets ref. ' + escH(href.join(' · ')) : null,
            nn != null && nn > 0 ? nn + (nn===1?' nat':' nætter') : null,
            p.fra && p.til ? kortDato(p.fra) + ' → ' + kortDato(p.til) : null,
            v,
-           dele.length ? [...new Set(dele)].join(' · ')
+           ikkeTransport.length ? [...new Set(ikkeTransport)].join(' · ') : null,
+           harTransfer ? null
              : '<span class="r-mangltr">ingen transfer lagt ind</span>'
           ].filter(Boolean).join(' · ');
   }
@@ -14625,7 +14764,12 @@ function planTekst(p){
      overskrive det. Kun paa ydelsens FOERSTE linje: et fly har to
      planlinjer, og en lounge i CPH hoerer ikke paa hjemrejsen.
      (Efterproevning 09.09.2026.) */
-  if(p.art !== 'Hotel'){
+  /* Den AFLEDTE transferlinje er selv bygget af delydelsen — den maa
+     ikke ogsaa faa delydelsens tekst haengt bagpaa. Fundet ved
+     efterproevningen: «Malé → Emerald Faarufushi · Vandfly · 20 min ·
+     alle fire · med i hotellets pris · Vandflytransfer · Malé → Emer…»
+     — den samme oplysning to gange i samme linje. */
+  if(p.art !== 'Hotel' && p.afledt !== 'transfer'){
     const foerst = PLAN.filter(x=>x.elId === p.elId || x.id === p.id)[0];
     if(!foerst || foerst === p){
       const dele3 = linjer.flatMap(l => delyPlanTekst(l)).filter(Boolean);
@@ -14642,7 +14786,86 @@ function planTekst(p){
   return {sub, lev, titel, afvig:null, segmenter, visPlan, vejNavn:vejNavnet,
           linje:linjer[0], linjer, refs};
 }
+/* ══ TRANSFEREN ER SIN EGEN LINJE PÅ REJSEPLANEN ═══════════════════════
+   Wendie 09.09.2026: «det fremgår stadig ikke af rejseplanen … hvad skal
+   til for at det bliver 100% magen til?»
+   Den STOD paa planen — men som en halesaetning i hotellinjens undertekst.
+   Mockuppen har den som sin EGEN raekke, én hver vej, med mærkatet
+   «Transfer», ruten som titel og Afgang/Ankomst som detaljer:
+     10. okt. 15:00 · Transfer · Malé → Emerald Faarufushi
+       Speedbåd · 45 min · alle fire · med i hotellets pris
+       Afgang 15:00 fra Velana lufthavn · Ankomst 15:45
+   Raekkerne AFLEDES af delydelsen hver gang — de gemmes ikke som egne
+   trip_plan_items. Retter man tiden paa delydelsen, foelger planlinjen
+   med, og der kan ikke ligge en forældet transferlinje i basen og love
+   en tid, ingen har sat. Ids er «<elId>#tr<n>», saa de kan kendes igen
+   og ryddes, naar delydelsen slettes. */
+function synkTransferPlan(){
+  /* Ryd de afledte foerst — ellers hober de sig op. */
+  for(let i = PLAN.length - 1; i >= 0; i--)
+    if(String(PLAN[i].id||'').includes('#tr')) PLAN.splice(i, 1);
+
+  ELEMENTER.forEach(e=>{
+    if(e.slags !== 'hotel') return;
+    const s3 = st[e.id]; if(!s3) return;
+    const vaert = PLAN.find(x => x.elId === e.id || x.id === e.id);
+    const hk = hotelKort(e.hotel || e.navn || '');
+    let n = 0;
+    (s3.linjer||[]).forEach((l, li)=>{
+      if(!valgteIdx(e.id).includes(li)) return;      /* kun den valgte pris */
+      (l.subs||[]).forEach(x=>{
+        const sl = x.slags || transportSlags(x.t);
+        if(!DELY_TRANSPORT.includes(sl)) return;
+        if(x.hvor === 'intern') return;              /* intern = ikke kundens plan */
+        const hjem = (x.vej || '') === 'hjem'
+          || (/→\s*mal/i.test(String(x.t||'')) && !/mal\w*\s*→/i.test(String(x.t||'')));
+        const ov = x.overfart || overfartMin(x.kilde_tekst || x.t);
+        const hvem = transferHvem(x.pax, e.id, l);
+        PLAN.push({
+          id: e.id + '#tr' + (n++), elId: e.id, art: 'Transfer', vej: hjem ? 1 : 0,
+          afledt: 'transfer',
+          fra: x.dato || (hjem ? vaert && vaert.til : vaert && vaert.fra) || null,
+          til: x.dato || (hjem ? vaert && vaert.til : vaert && vaert.fra) || null,
+          tid: x.ud || '',
+          titel: hjem ? (hk || 'resortet') + ' → Malé' : 'Malé → ' + (hk || 'resortet'),
+          sub: [sl, ov ? ov + ' min' : null, hvem,
+                (+x.p || 0) === 0 ? 'med i hotellets pris' : null,
+                x.ud ? null : 'tiden mangler — flyet er ikke lagt ind'
+               ].filter(Boolean).join(' · '),
+          lev: l.lev || e.hotel || null, kilde: 'delydelse', ophold: false,
+          detalje: [
+            ['Afgang', (x.ud ? 'ca. ' + x.ud : 'ikke sat') + (hjem ? ' fra resortet' : ' fra Velana lufthavn')],
+            ['Ankomst', (x.an ? 'ca. ' + x.an : 'ikke sat') + (hjem ? ' i Velana lufthavn' : ' på ' + (hk||'resortet'))],
+            ...(ov ? [['Overfart', ov + ' min.']] : []),
+            ...(x.kilde_tekst ? [['Fra tilbuddet', x.kilde_tekst]] : []),
+            ['Pris', (+x.p||0) === 0 ? 'med i hotellets pris' : mlNf(+x.p) + ' ' + (x.val||'')]
+          ]
+        });
+      });
+    });
+  });
+}
+/* Hvem staar den paa? «alle fire» naar det er alle — som i mockuppen.
+   NB: hedder IKKE paxTekst — det navn er taget af paxTekst(raa), som
+   laeser henvendelsens raa voksne/boern. To funktioner med samme navn i
+   samme lukning betyder, at den sidste vinder, og saa var den anden
+   forsvundet i tavshed. Samme slags kollision som `selskabAf` (R467). */
+function transferHvem(pax, eid, l){
+  const paa = paxPaaLinje(l) || [];
+  const valgt = (pax||[]).filter(y => paa.some(z=>z.id===y.id));
+  if(!valgt.length) return null;
+  if(paa.length && valgt.length === paa.length){
+    const ORD = ['', 'kun én', 'begge', 'alle tre', 'alle fire', 'alle fem', 'alle seks'];
+    return ORD[valgt.length] || 'alle ' + valgt.length;
+  }
+  const navne = valgt.map(y => {
+    const z = paa.find(q=>q.id===y.id); return z ? String(z.navn||'').split(' ')[0] : null;
+  }).filter(Boolean);
+  return navne.length ? navne.join(', ') : valgt.length + ' rejsende';
+}
+
 function tegnPlan(){
+  synkTransferPlan();
   sorterPlan();
   const konf = planKonflikter();
   const antal = Object.keys(konf).length;
@@ -14692,7 +14915,7 @@ function tegnPlan(){
     return `<div class="r-pr ${fejl.length?'r-harfejl':''}" id="el-${p.id}">
       <div class="r-pb" onclick="RS.foldEl('${p.id}')">
         <span class="r-pdag"><span class="r-d">${d ? kortDato(p.fra) : '—'}</span><span
-          class="r-k tal">${planTid(p)}</span></span>
+          class="r-k tal">${planTidVist(p)}</span></span>
         <span class="r-pil2">▶</span>
         <span class="r-art r-${p.art.toLowerCase()}">${p.art}</span>
         <!-- Klippes teksten, staar den hele i en tooltip — ellers kan
@@ -15995,24 +16218,76 @@ function transportSlags(tekst){
   if(/\bbil\b|\bcar\b|taxi|limousine|privat transport/.test(t)) return 'Bil';
   return null;
 }
-function transferSub(subs, tekst, val, datoer){
+/* ══ HOTELLETS KORTE NAVN ═════════════════════════════════════════════
+   Mockuppen skriver «Malé → Emerald Faarufushi», ikke «Emerald Faarufushi
+   (Raa Atoll) — Two Bedroom Family Beach Villa with Pool». */
+function hotelKort(navn){
+  let t = String(navn||'').trim();
+  for(const skil of [' (', ' · ', ' — ', ' - ']){
+    const i = t.indexOf(skil); if(i > 0) t = t.slice(0, i).trim();
+  }
+  return t.replace(/\s+maldives$/i,'').trim();
+}
+/* ══ TRANSFEREN GÅR BEGGE VEJE ═════════════════════════════════════════
+   Wendie 09.09.2026: «det er kun 1 vej, hvorfor bliver det ikke lagt ind
+   som vi havde det i mockuppen? … der er overskriften ogsaa bedre
+   Speedbaadstransfer · Malé → Emerald.»
+   Tre fejl paa én gang, alle tre her:
+   1 · ÉN delydelse blev lagt ind. En transfer paa Maldiverne er altid to
+       ture: ind fra Malé paa ankomstdagen, og ud til Malé paa
+       hjemrejsedagen. Mockuppen har begge, som to linjer paa rejseplanen.
+   2 · NAVNET var tilbuddets raa tekst, «Sjøfly · ca. 20 min.» — en
+       varighed, ikke en rute. Nu «Vandflytransfer · Malé → Kagi Island»
+       og «Vandflytransfer · Kagi Island → Malé», som mockuppen.
+       Varigheden er ikke tabt: den regner ankomsttiden ud.
+   3 · pax var TOM, saa ingen rejsende var hakket af. En transfer er for
+       alle paa rejsen, med mindre nogen tager hakket af. Mockuppen:
+       «alle fire». */
+function transferSub(subs, tekst, val, datoer, hotel){
   const liste = (subs || []).map(x=>({...x}));
   const t = String(tekst || '').trim();
   if(!t) return liste;
-  if(liste.some(x=>String(x.t||'').trim().toLowerCase() === t.toLowerCase()))
-    return liste;                      /* den er der allerede */
   const slags = transportSlags(t);
-  /* Uden en dato staar den ikke paa rejseplanen. Ankomstdagen er den
-     rigtige for turen IND; hjemrejsedagen for turen ud. Kan vi ikke se
-     hvilken vej, tager vi ankomstdagen — det er den, kunden moeder
-     foerst. Tiden staar tom: den ved vi ikke, og et gaettet
-     klokkeslaet paa et reisebevis er vaerre end et tomt. */
   const d = datoer || {};
-  const ud = /→\s*mal|til\s*mal|hjem|departure|afrejse|ud\b/i.test(t) && !/mal\w*\s*→/i.test(t);
-  liste.push({ t, slags: slags || 'Andet', u:'indeholdt i hotellets pris',
-    p:0, val: val || 'DKK', hvor:'plan', pax:[],
-    dato: (ud ? d.til : d.fra) || d.fra || null, ud:null, an:null });
-  return liste;
+  const hk = hotelKort(hotel) || 'resortet';
+  const min = overfartMin(t);
+  /* Alle paa rejsen — ikke ingen. */
+  /* paxListe() er det ene sted, der ved hvem der er paa rejsen — samme
+     kilde som chipperne under delydelsen, saa hakket og listen ikke kan
+     komme til at sige noget forskelligt. */
+  const alle = (typeof paxListe === 'function' ? paxListe() : [])
+    .map(x=>({id:x.id, saede:''}));
+  /* Fuge-s: «Speedbådstransfer», ikke «Speedbådtransfer» — Wendies egen
+     ordlyd 09.09.2026. De andre tre skal ikke have et s. */
+  const FORLED = { 'Speedbåd':'Speedbåds', 'Vandfly':'Vandfly',
+                   'Indenrigsfly':'Indenrigsfly', 'Bil':'Bil' };
+  const navn = (vej) => ((slags ? (FORLED[slags]||slags) + 'transfer' : 'Transfer')) + ' · '
+    + (vej === 'ind' ? 'Malé → ' + hk : hk + ' → Malé');
+  const veje = [
+    {vej:'ind',  t:navn('ind'),  dato: d.fra || null},
+    {vej:'hjem', t:navn('hjem'), dato: d.til || d.fra || null}
+  ];
+  for(const v of veje){
+    /* Findes den allerede — ogsaa under sit gamle raa navn — roeres den
+       ikke. En delydelse, nogen har rettet, maa ikke laves om. */
+    const findes = liste.some(x => {
+      const n = String(x.t||'').trim().toLowerCase();
+      return n === v.t.toLowerCase()
+          || (n === t.toLowerCase() && (x.vej||'ind') === v.vej);
+    });
+    if(findes) continue;
+    liste.push({ t: v.t, vej: v.vej, slags: slags || 'Andet',
+      u:'indeholdt i hotellets pris', p:0, val: val || 'DKK', hvor:'plan',
+      pax: alle.map(x=>({...x})), overfart: min || null,
+      /* Tilbuddets egen ordlyd gemmes — den er kilden, og den maa ikke
+         forsvinde, fordi vi gav delydelsen et paenere navn. */
+      kilde_tekst: t,
+      dato: v.dato, ud:null, an:null });
+  }
+  /* Er den gamle ÉNE delydelse med det raa navn der stadig, er den nu
+     erstattet af de to — den fjernes, saa der ikke staar tre. */
+  return liste.filter(x => String(x.t||'').trim().toLowerCase() !== t.toLowerCase()
+                        || !slags);
 }
 
 /* ══ EN TRANSFER UDEN DATO KAN IKKE KOMME PÅ REJSEPLANEN ═════════════
@@ -16093,7 +16368,7 @@ function flyTilOgFra(){
 }
 async function fyldTransferTider(){
   const F = flyTilOgFra();
-  let rettet = 0; const overnat = [];
+  let rettet = 0; const overnat = []; let udenFly = 0;
   for(const e of ELEMENTER){
     const s3 = st[e.id]; if(!s3) continue;
     const p = PLAN.find(x => x.elId === e.id || x.id === e.id) || {};
@@ -16133,12 +16408,31 @@ async function fyldTransferTider(){
             ud = tidMin(Math.max(0, t));
           }
         }
-        if(dato === x.dato && ud === x.ud && !note) continue;
-        x.dato = dato || null; if(ud) x.ud = ud;
+        /* ══ ANKOMSTEN ER AFGANG + OVERFARTEN ═════════════════════════
+           Mockuppen viser BEGGE: «Afgang 15:00 … Ankomst 15:45» — 45 min.
+           Overfartens laengde staar i tilbuddets egen tekst, og den har
+           vi allerede for at kunne regne hjemturen. Feltet stod tomt og
+           graat, og en tom ankomst er ikke en oplysning. */
+        let an = x.an;
+        const ov = x.overfart || overfartMin(x.kilde_tekst || navn);
+        if(ud && ov > 0){
+          const m = minTid(ud);
+          if(m != null) an = tidMin(Math.min(m + ov, 23*60+59));
+        }
+        /* ══ UDEN FLY KAN TIDEN IKKE REGNES ═══════════════════════════
+           Wendie 09.09.2026: «vandflyet er lagt ind … men det staar med
+           graat.» Netop: paa en rejse UDEN billet er der ingen ankomst i
+           Malé at regne fra, saa afgang og ankomst stod tomme — og den
+           frie tekst blev «ca. » uden et klokkeslaet. Vi gaetter ikke;
+           vi siger det, og vi siger hvad der skal til. */
+        if(!x.ud && !ud) udenFly++;      /* haverken foer eller nu */
+        if(dato === x.dato && ud === x.ud && an === x.an && !note) continue;
+        x.dato = dato || null; if(ud) x.ud = ud; if(an) x.an = an;
         if(!x.slags) x.slags = sl;
         if(!x.hvor) x.hvor = 'plan';
-        /* «ca.» og intet andet. Wendie 09.09.2026. */
-        const est = 'ca. ' + (x.ud||'');
+        /* «ca.» og intet andet — men kun naar der ER et klokkeslaet.
+           «ca. » alene er stoej, og det stod der. */
+        const est = x.ud ? 'ca. ' + x.ud : null;
         const gl = String(x.tekst||'');
         if(!/ca\.\s*\d/.test(gl)) x.tekst = [gl, est, note].filter(Boolean).join(' · ');
         else if(note && !gl.includes('overnatte')) x.tekst = gl + ' · ' + note;
@@ -16146,11 +16440,29 @@ async function fyldTransferTider(){
       }
     }
   }
-  if(!rettet) return;
+  /* Blev intet rettet, men mangler nogen stadig en tid, skal DET siges.
+     Foer stod «Gemt» — en kvittering paa ingenting — og Wendie saa to
+     graa felter uden at kunne se hvorfor. */
+  if(!rettet && !udenFly) return;
+  synkTransferPlan();
   tegnListe(); tegnPlan();
-  kvitter('gemt', (rettet === 1 ? 'Transferen har' : rettet + ' transfers har')
-    + ' fået en tid ud fra flyet — den står som «ca.», for leverandøren bestemmer den'
-    + (overnat.length ? ' · OBS: overnatning i Malé, sjøflyet flyver først næste morgen' : ''));
+  /* Fik nogen af dem INGEN tid, er det flyet der mangler — sig det, og sig
+     hvad der skal til. Det er den besked, der manglede, da Wendie saa to
+     graa felter og ikke kunne se hvorfor. */
+  if(udenFly && !rettet)
+    kvitter('advar', (udenFly === 1 ? 'Transferen står' : udenFly + ' transfers står')
+      + ' på rejseplanen med dato og rute, men uden tid: tiden regnes af flyets '
+      + 'ankomst i Malé, og der er ingen billet lagt ind endnu. Læg flyet ind, '
+      + 'så sættes tiderne af sig selv.');
+  else if(udenFly && udenFly === rettet)
+    kvitter('advar', (udenFly === 1 ? 'Transferen har' : udenFly + ' transfers har')
+      + ' fået dato og rute, men ingen tid: tiden regnes af flyets ankomst i Malé, '
+      + 'og der er ingen billet lagt ind endnu. Læg flyet ind, så sættes tiderne af sig selv.');
+  else
+    kvitter('gemt', (rettet === 1 ? 'Transferen har' : rettet + ' transfers har')
+      + ' fået tid ud fra flyet — den står som «ca.», for leverandøren bestemmer den'
+      + (udenFly ? ' · ' + udenFly + ' mangler stadig en tid, fordi flyet ikke er lagt ind' : '')
+      + (overnat.length ? ' · OBS: overnatning i Malé, sjøflyet flyver først næste morgen' : ''));
 }
 
 /* Skriver ydelserne. Prisen faar «Fra tilbuddet» som kilde, saa det for
@@ -16192,7 +16504,7 @@ async function tilbudLaegInd(){
           /* Wendie 07.09.2026: transferen er en DELYDELSE under hotellet,
              ikke en tekst. Til 0 kr., fordi den er indeholdt i hotellets
              pris — saa siger den «ydelsen findes» uden at flytte summen. */
-          if(x.transfer) g.subs = transferSub(g.subs, x.transfer, x.val, {fra:x.fra, til:x.til});
+          if(x.transfer) g.subs = transferSub(g.subs, x.transfer, x.val, {fra:x.fra, til:x.til}, x.hotel);
           if(g._id){
             const r = await db.from('element_prices').update({
               amount:x.pris, currency:x.val, kilde, supplier_name:g.lev||null,
@@ -16235,7 +16547,7 @@ async function tilbudLaegInd(){
         const g2 = (st[ny.id]||{}).linjer && st[ny.id].linjer[0];
         if(g2){
           g2.kilde = kilde;
-          if(x.transfer) g2.subs = transferSub(g2.subs, x.transfer, x.val, {fra:x.fra, til:x.til});
+          if(x.transfer) g2.subs = transferSub(g2.subs, x.transfer, x.val, {fra:x.fra, til:x.til}, x.hotel);
         }
         nye++;
       }
@@ -17980,10 +18292,16 @@ async function fjernDest(i){
   const liste = (TUR.maal||[]).slice(); liste.splice(i,1); await skrivDest(liste);
 }
 async function nyDest(){
-  const v = (prompt('Hvilken destination?')||'').trim(); if(!v) return;
-  const liste = (TUR.maal||[]).slice();
-  if(liste.some(x=>x.toLowerCase()===v.toLowerCase())) return;
-  liste.push(v); await skrivDest(liste);
+  /* Foer: prompt('Hvilken destination?') — Chromes egen graa kasse, uden
+     liste og uden design. Nu Pandas egen vaelger, den samme som paa
+     henvendelsen: mest solgte, otte grupper, soegefelt, «tilfoej som ny».
+     Wendie 09.09.2026. R493. */
+  if(typeof pandaAabnDest !== 'function'){
+    /* Skulle vaelgeren mangle, siges det — der tastes ikke i en prompt igen. */
+    kvitter('fejl', 'Destinationsvælgeren kunne ikke åbnes'); return;
+  }
+  pandaAabnDest(TUR.maal || [], async liste => { await skrivDest(liste); },
+    'Hvor går rejsen?');
 }
 async function gemPax(el){
   const n = parseInt(String(el.textContent||'').replace(/\D/g,''), 10);
@@ -22368,7 +22686,7 @@ return {
   nyElement, nyInput, nyLSub, nyLinje, nyLinjeHtml, nySub, nyTilstand,
   nyVaelg, nyVilla, nyVillaNy, nyVillaSlet, opdaterBeregner, planAfElement,
   planEl, planFra, planFraDb, planKonflikter, planNaetter, planTekst,
-  planTid, planTil, prisFelter, retElement, retKilde, retLinje, retNote,
+  planTid, planTidVist, planTil, prisFelter, retElement, retKilde, retLinje, retNote,
   roert, ryddHotel, saet, saetFokus, saetForm, saetFra, saetHold, saetKilde,
   saetLinjeHold, saetLinjeLev, saetLinjePris, saetLinjeVal, saetNote, synkPlanlinjer,
   fristOm, minutterTil,
@@ -22430,7 +22748,18 @@ async function viewMel(id){
   mlRenderBund();
   mlStdNation();
   mlFraBooking();
-  try { if(window.RS && RS.fyldTransferTider) RS.fyldTransferTider(); } catch(_){}
+  /* ══ JA, DEN SPILLER AUTOMATISK ════════════════════════════════════
+     Wendie 09.09.2026: «og funktionen spiller automatisk?»
+     Den koeres HER — hver gang mellemlandingen aabnes, efter at rejsen,
+     ydelserne og de rejsende er hentet — og igen naar tilbuddets priser
+     laegges ind (tilbudLaegInd). Der er intet at trykke paa.
+     Den roerer kun det, der mangler: har en delydelse allerede en dato,
+     en tid eller en ankomst, staar den. En tid, et menneske har rettet,
+     bliver altsaa ikke lavet om. */
+  try { if(window.RS && RS.fyldTransferTider) RS.fyldTransferTider(); } catch(e){
+    /* En fejl her maa ikke gaa i tavshed — foer stod transferen bare
+       tom, og ingen kunne se hvorfor. */
+    console.warn('Transfertiderne kunne ikke sættes', e); }
   /* ══ REJSEPLANEN TEGNES FØR DE REJSENDE ER HENTET ═════════════════
      Rejseplanens referencetabel skriver, HVEM der staar paa hver
      bookingreference — og den laeser ML.rejsende, som hentes her,
