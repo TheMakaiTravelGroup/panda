@@ -1,5 +1,62 @@
 <!DOCTYPE html>
-<!-- Panda · v1.48 · 09.09.2026 — KLAR TIL UDGIVELSE.
+<!-- Panda · v1.49 · 09.09.2026 — KLAR TIL UDGIVELSE.
+     v1.49 — KURSBOKSEN, OG HVORFOR PRØVEN IKKE FANGEDE DEN.
+     Wendie 09.09.2026, ordret: «det her er ikke 1:1 altså kurserne.»
+     Hun havde ret, og det værste var, at oraklet sagde 125 af 125. Det
+     sammenlignede kursboksens KOLONNENAVNE — og de var ens hele tiden.
+     Alt det, man kan SE, målte det ikke. En prøve, der ikke kan fejle,
+     er ikke en prøve. Derfor to ting i denne version:
+
+     1 · EN PRØVE DER KAN FEJLE. kmaal.js udtrækker kursboksen fra
+     mockuppen OG fra det byggede med samme funktion, og måler
+     overskriften, hver klikbar ting, hver celles FORM (ren tekst, felt,
+     låst felt, tankestreg), mærker og underlinjer, fodnoterne ordret og
+     håndlisten. ksml.py dømmer: 63 af 63. kstil.js måler de beregnede
+     stilarter mod mockuppens (8 af 8), ktal.js efterregner tallene i
+     hånden (6 af 6), og kknap.js trykker på alle tre knapper.
+
+     2 · BOKSEN BYGGET OM EFTER MOCKUPPENS EGEN OPMÆRKNING:
+     · Overskriften er mockuppens .kh2: «Kurserne» i guld kapitæler,
+       «hentet 8. september 2026 kl. 19:00» i Playfair kursiv. Klokken er
+       ÆGTE — hentet fra fx_rates.fetched_at, ikke opdigtet; datoen alene
+       stod der før, fordi fn_effektive_kurser kun giver den.
+     · Den DOBBELTE overskrift er væk. Boksen havde min egen «Kurserne ·
+       marked · bankmargin · risikobuffer» uden om mockuppens, og lå i et
+       indre kort mockuppen ikke har.
+     · KNAPPEN «Hent dagens fra Nationalbanken» manglede helt. Den læser
+       fx_rates forfra (ECB's referencekurser — netop dem Nationalbanken
+       udgiver og regnskabet bruger; cron henter kl. 17 og kl. 06). Panda
+       kalder IKKE fx-hent selv: den kræver FX_HENT_KEY, og Pandas kilde
+       er offentlig. Er de nyeste kurser ikke fra i dag, siges det højt.
+     · «nulstil N håndrettede kurser» og HÅNDLISTEN under tabellen —
+       hvilke prislinjer regner med deres egen kurs, og en «brug den
+       effektive» pr. linje. Manglede begge.
+     · DKK-RÆKKEN står altid, med tankestreger i margin og pude. Den sagde
+       før ingenting, fordi mlValutaerIBrug() udelader DKK med vilje.
+     · MARKED er ren tekst som i mockuppen — ikke et låst felt med en
+       «hentet»-underlinje. «SKØN»-mærket og underlinjerne «DKK pr. USD»
+       og «fastkurs mod DKK — lav risiko» findes ikke i mockuppen og er
+       taget ud. Valutaen står som «USD», ikke «USD → DKK».
+     · DE TO FODNOTER er lagt ind ordret. Halvsætningen om de øvrige
+       valutaer nævner nu kun dem, kurskilden faktisk har tal for — den
+       skrev «EUR, NOK, salgskurs, salgskurs_marked og salgskurs_valuta».
+     · TO CSS-BLOKKE for samme tabel. Der stod et helt sæt .mlktab-regler
+       MERE fra den gamle opmærkning; de to overskrev hinandens mål, så
+       cellerne blev 8 px og den effektive kurs stod i Cormorant Garamond
+       19 px, hvor mockuppen har Inter 12 px — rækken blev 45 px høj mod
+       mockuppens 38. Nu ét sted. En dublet i CSS er lige så farlig som
+       en dublet i Databanken.
+     · `#rsside input{width:100%}` er en ID-regel og slog `.ml7 .mlpct
+       input` ihjel: procentfelterne blev 207 px brede i stedet for 54.
+       Samme specificitetsfælde som `.ml7 .mlsalg .stab td` mod `.sv`.
+     · Procenten skrives «3», ikke «3.0».
+     · En ADVARSEL er ikke en gemmefejl. `kvitter('fejl', …)` sætter altid
+       «Kunne ikke gemme:» foran, så knappen meldte «Kunne ikke gemme: De
+       nyeste kurser er fra 8. september» — men hentningen LYKKEDES.
+       Tredje tilstand «advar»: bliver stående som en fejl, lyver ikke.
+     · Og en fejl i min egen nye kode, fanget før den kom ud:
+       fn_effektive_kurser returnerer ÉT json-objekt, ikke rækker. Min
+       hentning løb det igennem med forEach og fik altid tomt.
      v1.48 — TO SÆT TRANSFERREGLER, OG PRISER VI SMED VÆK.
      Wendie 09.09.2026, ordret: «Der skal ikke stå noget med 2 t. efter
      ankomst. Vi sætter bare en tid, fordi vi ikke kender den — vi behøver
@@ -2457,6 +2514,8 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 #rsside .r-pdf.r-paa{background:#f6efdc;border-color:var(--gold);color:var(--ink)}
 #rsside .r-vent{display:block;margin-top:9px;font-size:12px;color:var(--mut)}
 #rsside .r-fejl{display:block;margin-top:9px;font-size:12px;color:var(--bad)}
+/* Advarslen: skal ses, men den er ikke roed — der er intet gaaet i stykker. */
+#rsside .r-advar{display:block;margin-top:9px;font-size:12px;color:#8a7238}
 #rsside .r-fund{margin-top:10px;border:1px solid #ddcba4;background:#fdfbf4;border-radius:2px;
   padding:10px 13px;font-size:12px;color:#5d6157}
 #rsside .r-fund b{color:var(--ink)}
@@ -3077,39 +3136,74 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .ml7 .mlpaxr .alder .mgl{color:var(--mladvar);font-size:11.5px}
 .ml7 .mlpaxr .pmini{margin-bottom:5px}
 .ml7 .mlpaxhj{font-size:11px;color:var(--mlmut);align-self:center}
-.ml7 .mlkurskort{background:var(--mlcard);border:1px solid var(--mlline);border-radius:3px;padding:16px 18px}
+/* ══ KURSBOKSEN — MOCKUPPENS EGEN CSS, PORTET SOM DEN ER ═══════════════
+   Ingen indre kort, ingen ramme: en topstreg og saa tabellen. Reglerne
+   mellem raekkerne er halve pixels (transform:scaleY(.5)), som resten af
+   Silke. Procentfelterne er mockuppens .pct — 54 px, hvid bund, indre
+   ramme — og ikke de brede kursfelter jeg havde. R485/R489. */
+.ml7 .mlkh2{display:flex;align-items:baseline;gap:14px;margin:40px 0 16px;padding-top:22px;
+  border-top:1px solid var(--mlline)}
+.ml7 .mlkh2 .t{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--mlgold);font-weight:600}
+.ml7 .mlkh2 .n{font-size:12px;color:var(--mlmut);font-style:italic;
+  font-family:'Playfair Display',serif}
+.ml7 .mlkh2 .sp{flex:1}
+.ml7 .mlknap{font-size:11px;padding:6px 12px;border-radius:7px;cursor:pointer;
+  font-family:inherit;background:#fff;color:#4c4c43;box-shadow:inset 0 0 0 1px var(--mlline);
+  transition:box-shadow .16s ease;white-space:nowrap}
+.ml7 .mlknap:hover{box-shadow:inset 0 0 0 1px var(--mlline2, #ddd0ae)}
+.ml7 .mlhaandlnk{color:#8a7238;border-bottom:1px dotted #d6c9a8;cursor:pointer;font-size:11px}
+.ml7 .mlhaandlnk:hover{color:#6f6d62}
+.ml7 .mlpct{display:inline-flex;align-items:center;gap:3px;justify-content:flex-end}
+.ml7 .mlpct input{width:54px;text-align:right;font-family:inherit;font-size:11.5px;
+  padding:3px 5px;border:0;border-radius:5px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--mlline);height:24px}
+.ml7 .mlpct input:hover{box-shadow:inset 0 0 0 1px #ddd0ae}
+.ml7 .mlpct input:focus{outline:none;
+  box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+.ml7 .mlpct input.aendret{color:var(--mladvar);box-shadow:inset 0 0 0 1px #d6c9a8;font-weight:600}
+.ml7 .mlpct i{font-style:normal;font-size:10px;color:#b3af9f}
+.ml7 .mlkfod{font-size:11px;color:var(--mlmut);margin-top:10px;padding-top:9px;
+  border-top:1px solid var(--mlhair)}
+.ml7 .mlkfod b{color:var(--mlink);font-weight:600}
+.ml7 .mlkfod2{font-size:11px;color:var(--mlmut);margin:9px 0 0}
+.ml7 .mlkfod2 .svag{color:#c0b8a4}
+.ml7 .mlhaandliste{margin-top:9px;font-size:11px;color:#8a7238;display:none}
+.ml7 .mlhaandliste.vis{display:block}
+.ml7 .mlhaandliste .hl{display:flex;align-items:baseline;gap:8px;padding:4px 0;position:relative}
+.ml7 .mlhaandliste .hl+.hl::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eadfc4}
+.ml7 .mlhaandliste .hl b{font-weight:600;color:var(--mlink)}
+.ml7 .mlhaandliste .hl .hvor{color:var(--mlmut);flex:1}
+.ml7 .mlhaandliste .hl .nul{cursor:pointer;border-bottom:1px dotted #d6c9a8;
+  color:var(--mlmut);font-size:10.5px}
+.ml7 .mlhaandliste .hl .nul:hover{color:#6f6d62}
+
 .ml7 .kurstop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
 .ml7 .kurstop .n{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mlmut);font-weight:600}
 .ml7 .kurstop .sml2{font-size:11.5px;color:var(--mlmut)}
 .ml7 .kurstop .hoejre{margin-left:auto}
 .ml7 .kforkl{font-size:11.5px;color:var(--mlink2);line-height:1.6;margin:0 0 14px;max-width:840px}
 .ml7 .kforkl b{color:var(--mlink)}
-.ml7 .mlktab{width:100%;border-collapse:collapse;font-size:12.5px}
-.ml7 .mlktab th{font-size:8.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--mlmut);font-weight:600;
+/* ══ ÉN CSS-BLOK FOR KURSTABELLEN, IKKE TO ════════════════════════════
+   Her stod et helt saet .mlktab-regler MERE — fra den gamle opmaerkning
+   (input.kf, .hj, .sml, .e, .marked, .skoen, .eff i Cormorant 19 px).
+   De to blokke overskrev hinandens maal: cellernes hoejde blev 8 px i
+   stedet for 7, og den effektive kurs stod i en serif paa 19 px, hvor
+   mockuppen har Inter 12 px. Wendie 09.09.2026: «det her er ikke 1:1
+   altsaa kurserne.» To blokke for samme tabel er netop den slags dublet
+   projektreglen forbyder. Alt om kurstabellen staar nu ÉT sted — se
+   «kurstabellen» laengere nede. */
+  height:1px;transform:scaleY(.5);transform-origin:top;background:var(--mlhair)}
   text-align:right;padding:0 10px 8px;border-bottom:1px solid var(--mlhair)}
-.ml7 .mlktab th:first-child{text-align:left}
-.ml7 .mlktab td{padding:9px 10px;border-bottom:1px solid var(--mlhair);text-align:right;vertical-align:middle}
-.ml7 .mlktab td:first-child{text-align:left;font-weight:600}
-.ml7 .mlktab tr:last-child td{border-bottom:0}
-.ml7 .mlktab .hj{font-weight:400;font-size:10.5px;color:var(--mlmut);margin-top:3px;max-width:300px}
-.ml7 .mlktab .sml{font-weight:400;color:var(--mlmut);font-size:10.5px}
-.ml7 .mlktab input.kf{width:80px;font-family:'Inter',sans-serif;font-size:13px;padding:4px 0;
   border:0;border-bottom:1px solid var(--mlhair);background:transparent;color:var(--mlink);
   text-align:right;font-variant-numeric:tabular-nums}
-.ml7 .mlktab input.kf:focus{outline:none;border-bottom-color:var(--mlgold)}
-.ml7 .mlktab input.kf.aendret{color:var(--mladvar);border-bottom-color:var(--mlgold);font-weight:600}
 .ml7 .mlgf{width:74px;text-align:right;border:0;border-bottom:1px solid var(--mllin);
   background:transparent;font:inherit;font-variant-numeric:tabular-nums;color:inherit;
   padding:0 2px 1px;outline:none}
 .ml7 .mlgf:focus{border-bottom-color:var(--mlgul)}
 .ml7 .mlgf.aendret{border-bottom-color:var(--mlgul);color:var(--mlgul)}
-.ml7 .mlktab .e{font-size:9.5px;color:var(--mlmut);display:block;margin-top:3px;line-height:1.3}
-.ml7 .mlktab .eff .e{font-weight:400;font-family:'Inter',sans-serif}
 .ml7 .kurstom{font-size:12.5px;color:var(--mlmut);line-height:1.6}
-.ml7 .mlktab .marked{font-variant-numeric:tabular-nums;color:var(--mlink2)}
-.ml7 .mlktab .marked em{font-style:normal;display:block;font-size:9.5px;color:var(--mlmut);margin-top:2px}
-.ml7 .mlktab .eff{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
-.ml7 .mlktab .skoen{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--mladvar);
   background:rgba(224,201,163,.4);border-radius:2px;padding:2px 6px;margin-left:6px}
 .ml7 .kfod{font-size:11px;color:var(--mlmut);line-height:1.6;margin-top:12px;padding-top:11px;
   border-top:1px solid var(--mlhair)}
@@ -5134,25 +5228,47 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   color:#a68d55}
 .ml7 .kurstop .sml2{font-size:10.5px;letter-spacing:.02em;text-transform:none;font-weight:400;
   color:#a09c8c}
-.ml7 .mlktab{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+/* ══ KURSTABELLEN — MOCKUPPENS .ktab, MÅL FOR MÅL ═════════════════════
+   Maalt mod mockuppen 09.09.2026 (kstil.js): cellehoejde 38 px, td-padding
+   7px 10px 7px 0, effektiv i Inter 12 px/600, procentfeltet 54 px med
+   3px 5px. Regelstregerne mellem raekkerne er halve pixels.
+   #rsside-praefikset er ikke pynt: `#rsside input{width:100%;font-size:
+   12.5px;padding:6px 9px}` er en ID-regel og slog `.ml7 .mlpct input`
+   ihjel — procentfelterne blev 207 px brede i stedet for 54. Samme
+   specificitetsfaelde som `.ml7 .mlsalg .stab td` mod `.sv`. */
+.ml7 .mlktab{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:0}
 .ml7 .mlktab th{text-align:right;font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;
   color:#b0a179;font-weight:600;padding:0 10px 6px 0;border:0;background:none}
-.ml7 .mlktab th:first-child{text-align:left}
-.ml7 .mlktab td{padding:8px 10px 8px 0;text-align:right;position:relative;border:0}
+.ml7 .mlktab th:first-child,.ml7 .mlktab th.v{text-align:left}
+.ml7 .mlktab td{padding:7px 10px 7px 0;text-align:right;position:relative;border:0;
+  vertical-align:middle}
 .ml7 .mlktab td:first-child{text-align:left;font-weight:600;color:#22301f}
+.ml7 .mlktab td.v{text-align:left}
 .ml7 .mlktab tr+tr td::before{content:'';position:absolute;left:0;right:10px;top:0;height:1px;
   transform:scaleY(.5);transform-origin:top;background:#eeeae0}
-.ml7 .mlktab .eff{font-weight:600;color:#22301f}
-.ml7 .mlktab .eff .tal{font-size:15px;letter-spacing:-.2px}
-.ml7 .mlktab .hj{font-size:9.5px;color:#a09c8c;font-weight:400}
-.ml7 .mlktab .e{font-size:9.5px;color:#b3af9f;display:block}
-.ml7 .mlktab input.kf{width:58px;text-align:right;font-family:inherit;font-size:11.5px;
-  padding:3px 5px;border:0;border-radius:5px;background:#fff;box-shadow:inset 0 0 0 1px #e6dfd0;
-  height:24px}
-.ml7 .mlktab input.kf:hover{box-shadow:inset 0 0 0 1px #ddd0ae}
-.ml7 .mlktab input.kf:focus{outline:none;box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
-.ml7 .mlktab .skoen{font-size:7.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:600;
-  padding:2px 6px;border-radius:4px;background:rgba(185,154,95,.16);color:#8a7238;margin-left:6px}
+/* Mockuppen: den effektive kurs staar i samme skrift og stoerrelse som
+   resten — kun vaegten og farven skiller den ud. Her stod den i
+   Cormorant Garamond 19 px, og det var det, der gjorde raekken 45 px hoej. */
+.ml7 .mlktab .eff{font-weight:600;color:#22301f;font-family:inherit;font-size:12px;
+  font-variant-numeric:tabular-nums}
+.ml7 .mlktab .bru{color:#3d6b4c;font-weight:600;font-variant-numeric:tabular-nums}
+.ml7 .mlktab .tal{font-variant-numeric:tabular-nums}
+.ml7 .mlktab .ingen{color:#cdc6b4;text-align:right}
+.ml7 .mlktab .bruges{font-size:10.5px;color:#a09c8c;white-space:nowrap;font-weight:400}
+.ml7 .mlktab .bruges b{font-weight:600;color:#6f6d62}
+/* Procentfeltet: mockuppens .pct, og staerkt nok til at slaa #rsside input. */
+#rsside .ml7 .mlpct{display:inline-flex;align-items:center;gap:3px;justify-content:flex-end}
+#rsside .ml7 .mlpct input{width:54px;text-align:right;font-family:inherit;font-size:11.5px;
+  padding:3px 5px;border:0;border-radius:5px;background:#fff;
+  box-shadow:inset 0 0 0 1px #e6dfd0;height:24px;margin:0;
+  /* Mockuppens felt saetter ingen farve — den er browserens sorte.
+     Maalt: rgb(0,0,0) mod mine rgb(46,51,46). */
+  color:#000}
+#rsside .ml7 .mlpct input:hover{box-shadow:inset 0 0 0 1px #ddd0ae}
+#rsside .ml7 .mlpct input:focus{outline:none;
+  box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+#rsside .ml7 .mlpct input.aendret{box-shadow:inset 0 0 0 1px #d6c9a8;color:#8a7238;font-weight:600}
+#rsside .ml7 .mlpct i{font-style:normal;font-size:10px;color:#b3af9f}
 
 /* ── prisberegneren ─────────────────────────────────────────────── */
 .ml7 .mlregn{display:grid;grid-template-columns:1.45fr 1fr;gap:14px;align-items:start}
@@ -6132,7 +6248,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.48';
+const APP_VERSION = 'v1.49';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -21131,12 +21247,19 @@ const beholder = () => document.getElementById('rsside');
    lister villatyper og forplejning skal vaelges fra. Hentes parallelt;
    siden maa ikke vente seks gange i traek. */
 async function hent(tripId){
-  const [rt, re, rp, rk, rlh, rh, rf, rs, rd, rj, rn] = await Promise.all([
+  const [rt, re, rp, rk, rkt, rlh, rh, rf, rs, rd, rj, rn] = await Promise.all([
     db.from('trips').select('*, customers(first_name,last_name,email,phone,country,postal_address)')
       .eq('id', tripId).single(),
     db.from('trip_elements').select('*').eq('trip_id', tripId).order('sort').order('start_date'),
     db.from('trip_plan_items').select('*').eq('trip_id', tripId).order('sort'),
     db.rpc('fn_effektive_kurser'),
+    /* ══ KLOKKEN PÅ KURSERNE ER ÆGTE ═══════════════════════════════
+       Mockuppen skriver «hentet 7. september 2026 kl. 08:15».
+       fn_effektive_kurser giver kun datoen, saa klokken hentes her fra
+       fx_rates' eget fetched_at — cron henter kl. 17 og kl. 06. Et
+       opdigtet klokkeslaet ville vaere vaerre end ingen. */
+    db.from('fx_rates').select('rate_date,fetched_at,source')
+      .order('rate_date',{ascending:false}).order('fetched_at',{ascending:false}).limit(1),
     /* Lufthavnene: bynavn i VORES stavning og IANA-tidszonen, som
        flyvetiden regnes af. 30 raekker — dem vi flyver til. */
     db.from('airports').select('iata,by_dansk,by_navn,tidszone,navn'),
@@ -21183,7 +21306,12 @@ async function hent(tripId){
     priser = r.data || [];
   }
   if(window.NOT) NOT.saet((rn && rn.data) || [], tripId);
-  return { tur: rt.data, els, priser, plan: rp.data||[], kurser: rk.data||{},
+  /* Klokken laegges paa kursobjektet, saa boksen kan vise den. */
+  const kurser = rk.data || {};
+  const kt = ((rkt && rkt.data) || [])[0];
+  if(kt && kt.fetched_at) kurser.hentet = kt.fetched_at;
+  if(kt && kt.source)     kurser.kilde  = kt.source;
+  return { tur: rt.data, els, priser, plan: rp.data||[], kurser,
            noter: (rn && rn.data) || [],
            hoteller: rh.data||[], forplejning: rf.data||[], lev: (rs&&rs.data)||[],
            maal: ((rd&&rd.data)||[]).map(x=>x.destination).filter(Boolean),
@@ -21796,7 +21924,15 @@ function kvitter(slags, besked){
   const b = beholder(); if(!b) return;
   let k = b.querySelector('.r-gemtegn');
   if(!k){ k = document.createElement('div'); k.className = 'r-gemtegn'; b.appendChild(k); }
-  k.className = 'r-gemtegn' + (slags==='fejl' ? ' r-fejl' : '');
+  /* ══ EN ADVARSEL ER IKKE EN GEMMEFEJL ═════════════════════════════
+     «fejl» faar altid forstavelsen «Kunne ikke gemme:», og den passer
+     kun paa en gemning. «Hent dagens fra Nationalbanken» meldte derfor
+     «Kunne ikke gemme: De nyeste kurser er fra 8. september» — men der
+     var ikke noget at gemme, og hentningen LYKKEDES; kurserne var blot
+     en dag gamle. «advar» staar lige saa laenge som en fejl, men lyver
+     ikke om hvad der skete. Fundet 09.09.2026. */
+  k.className = 'r-gemtegn' + (slags==='fejl' ? ' r-fejl'
+                             : slags==='advar' ? ' r-advar' : '');
   /* ══ BESKEDEN BLEV SMIDT VÆK ═══════════════════════════════════════
      Fundet ved den endelige kontrol 09.09.2026: alt andet end 'fejl'
      endte som ordet «Gemt», uanset hvad der stod i `besked`. Ni
@@ -21811,9 +21947,10 @@ function kvitter(slags, besked){
      kunne LAESE den, foer den forsvinder. */
   k.textContent = slags==='fejl' ? ('Kunne ikke gemme: ' + besked)
                                  : (besked || 'Gemt');
+  /* En advarsel skal LAESES, ikke glide forbi. */
   k.style.opacity = '1';
   clearTimeout(k._t);
-  if(slags!=='fejl') k._t = setTimeout(()=>{ k.style.opacity = '0'; },
+  if(slags!=='fejl' && slags!=='advar') k._t = setTimeout(()=>{ k.style.opacity = '0'; },
     besked ? 5000 : 1600);
 }
 
@@ -22148,10 +22285,17 @@ function sideHtml(d){
       <div class="mlrtab" id="mlRegn"></div>
       <div id="mlHoejre"></div>
     </div>
+    <!-- ══ KURSBOKSEN ER MOCKUPPENS, IKKE MIN ═══════════════════════
+         Wendie 09.09.2026: «det her er ikke 1:1 altså kurserne.» Rigtigt.
+         Boksen havde TO overskrifter (min «Kurserne … risikobuffer» uden
+         om mockuppens egen), laa i et indre kort mockuppen ikke har, og
+         manglede knappen, fodnoterne og DKK-raekken. Oraklet sammenlignede
+         kun kolonnenavnene — og de var ens hele tiden. Nu maales ogsaa
+         form, tekst, knapper og fodnoter (kmaal.js), saa boksen KAN fejle.
+         Mockuppens .kh2 + .ktab + .kfod2 + .haandliste + .kfod, intet
+         andet, intet uden om. -->
     <div class="ml7" id="mlKurserBoks">
-      <div class="r-bt r-mt2">Kurserne
-        <span class="r-n">marked · bankmargin · risikobuffer — det priserne regnes med</span></div>
-      <div class="mlkurskort" id="mlKurser"></div>
+      <div id="mlKurser"></div>
     </div>
     <div class="ml7"><div class="mlbund" id="mlBund"></div></div>
   </div>
@@ -23125,8 +23269,10 @@ async function mlPaxMed(ttId){
   if(r && r.error) return mlKvit('Kunne ikke gemmes: ' + r.error.message, true);
   mlTegnPax();
 }
-function mlKvit(t, fejl){
-  if(window.RS && RS.kvitter) RS.kvitter(fejl ? 'fejl' : 'gemt', t);
+function mlKvit(t, slags){
+  /* Bagudkompatibel: de gamle kald giver true/false, de nye en streng. */
+  const s = slags === true ? 'fejl' : (slags || 'gemt');
+  if(window.RS && RS.kvitter) RS.kvitter(s, t);
 }
 /* ══ Foedselsdatoen ══════════════════════════════════════════════════════
    Rasmus 31.08.2026: «den her er totalt bugged, naar man proever at tilfoeje
@@ -23383,59 +23529,197 @@ function mlKursBruges(v, salg){
 }
 function mlTegnKurser(){
   const k = ML.kurser||{};
-  const brug = mlValutaerIBrug();
   const kv = ML.trip.customer_currency||'DKK';
-  const rettet = Object.keys(ML.overrides||{}).length;
+  const rettet = mlHaandrettede().length;
 
-  if(!brug.length){
+  /* Mockuppens raekkefoelge: koebsvalutaerne, saa DKK, saa salgsraekken
+     nederst. DKK staar ALTID — den er grundlaget, og dens tankestreger
+     siger, at der ikke er margin paa den. mlValutaerIBrug() udelader den
+     med vilje, saa den laegges paa her. */
+  const koeb = mlValutaerIBrug().filter(v=>v!==kv);
+  const orden = [...koeb, 'DKK', ...(kv!=='DKK' ? [kv] : [])];
+
+  if(!koeb.length && kv==='DKK'){
     document.getElementById('mlKurser').innerHTML =
-      `<div class="kurstom">Alt på denne rejse købes og sælges i DKK — ingen kurser i spil.</div>`;
+      `<div class="mlkh2"><span class="t">Kurserne</span>
+         <span class="n">ingen fremmed valuta på denne rejse</span></div>
+       <p class="mlkfod2">Alt på denne rejse købes og sælges i DKK — ingen kurser i spil.
+         <span class="svag">USD, EUR og NOK kommer frem, så snart en ydelse får den valuta.</span></p>`;
     return;
   }
-  const HJ = {EUR:'fastkurs mod DKK — lav risiko', USD:'fri kurs — kan flytte sig meget',
-              GBP:'fri kurs', CHF:'fri kurs', SEK:'fri kurs', THB:'fri kurs', AUD:'fri kurs',
-              NOK:'kundens valuta — hele salget er eksponeret'};
-  const raek = brug.map(v=>{
+
+  /* Mockuppens dato staar paa dansk og med klokken: «hentet 7. september
+     2026 kl. 08:15». fx_rates giver en ren dato; klokken kommer med, naar
+     kilden har et tidsstempel. */
+  const naar = (()=>{
+    /* Klokkeslaettet foerst — det er det mockuppen viser. Kun datoen,
+       hvis kilden ikke har et tidsstempel. */
+    const d = k.hentet || k.dato || '';
+    if(!d) return 'kurserne er ikke hentet';
+    const t = new Date(String(d).length<=10 ? d+'T00:00:00' : d);
+    if(isNaN(t)) return 'hentet ' + d;
+    const dag = t.toLocaleDateString('da-DK',{day:'numeric',month:'long',year:'numeric'});
+    /* da-DK skriver klokken med PUNKTUM («19.00»); mockuppen bruger
+       kolon («kl. 08:15»). Sat i hånden, saa de to staar ens. */
+    const to = n => String(n).padStart(2,'0');
+    return 'hentet ' + dag + (String(d).length>10
+      ? ' kl. ' + to(t.getHours()) + ':' + to(t.getMinutes()) : '');
+  })();
+
+  const raek = orden.map(v=>{
+    const salg = (v===kv && v!=='DKK');
     const t = mlTal3(v);
-    const salg = (v===kv);
-    const eff = salg ? mlSalgskurs() : mlEff(v);
-    /* Salgsraekken vises i retningen DKK → valuta. Markedskursen vendes
-       derfor med, saa den staar samme vej som den effektive. */
-    const markedVist = salg ? (t.marked>0 ? 1/t.marked : 0) : t.marked;
-    const omvendt = x => x>0 ? mlNf4(1/x) : '—';
+    const dkk = (v==='DKK');
+    /* Salgsraekken regnes i retningen kundens valuta pr. DKK — det er den
+       vej, kundens pris saettes. Marked vendes derfor med. */
+    const marked = dkk ? 1 : (salg ? (t.marked>0 ? 1/t.marked : 0) : t.marked);
+    const bru    = dkk ? 1 : marked * (1 + (t.bankmargin||0)/100);
+    const eff    = dkk ? 1 : (salg ? mlSalgskurs() : mlEff(v));
     const r = f => t.rettet.includes(f) ? ' aendret' : '';
+    /* Mockuppen skriver «1.2», «1.5» og «3» — ikke «3.0». Et
+       taltastefelt skal vise tallet, ikke en tvungen decimal. */
+    const pct = (felt, trin) => dkk
+      ? '<td class="ingen">—</td>'
+      : `<td><span class="mlpct"><input type="number" step="${trin}" class="${r(felt)}"
+           value="${(Math.round((t[felt]||0)*100)/100)}"
+           oninput="mlSaetKurs('${v}','${felt}',this.value)"><i>%</i></span></td>`;
     return `<tr>
-      <td>${salg?'DKK → '+v:v+' → DKK'}${salg?' <span class="sml">salgskurs</span>':''}
-        <div class="hj">${HJ[v]||''}</div></td>
-      <td><input class="kf${r('marked')}" value="${mlNf4(markedVist)}" readonly
-            title="Markedskursen er hentet fra kurskilden og kan ikke rettes">
-          <span class="e">${salg?v+' → DKK '+omvendt(markedVist):'hentet '+escH(k.dato||'')}</span></td>
-      <td><input class="kf${r('bankmargin')}" value="${mlNf1(t.bankmargin)}"
-            oninput="mlSaetKurs('${v}','bankmargin',this.value)"> %${t.maalt?'':'<span class="skoen">skøn</span>'}</td>
-      <!-- Kursen vi KOEBER til: marked x bankmargin, uden puden. Forskellen
-           op til den effektive ER puden, og den skal kunne ses. -->
-      <td class="bru tal">${mlNf4(salg
-        ? (t.marked>0 ? (1/t.marked)*(1+t.bankmargin/100) : 0)
-        : t.marked*(1+t.bankmargin/100))}</td>
-      <td><input class="kf${r('buffer')}" value="${mlNf1(t.buffer)}"
-            oninput="mlSaetKurs('${v}','buffer',this.value)"> %</td>
-      <td class="eff"><span class="tal">${mlNf4(eff)}</span>
-        <span class="e">${salg?v+' → DKK '+omvendt(eff):'DKK pr. '+v}</span></td>
-      <td class="v bruges">${escH(mlKursBruges(v, salg))}</td></tr>`;
+      <td>${escH(v)}</td>
+      <td class="tal">${mlNf4(marked)}</td>
+      ${pct('bankmargin','0.1')}
+      <td class="tal bru">${mlNf4(bru)}</td>
+      ${pct('buffer','0.5')}
+      <td class="tal eff">${mlNf4(eff)}</td>
+      <td class="v bruges">${salg
+        ? 'kundens pris — <b>'+escH(v)+' pr. DKK</b>'
+        : escH(mlKursBruges(v, false))}</td></tr>`;
   }).join('');
 
   document.getElementById('mlKurser').innerHTML = `
-    <div class="kurstop"><span class="n">Kurser</span>
-      <span class="sml2">${rettet?rettet+' rettet i hånden':'markedskurser hentet '+escH(k.dato||'—')}</span>
-      ${rettet?`<span class="hoejre"><button class="btn ghost sm" onclick="mlNulstilKurser()">Nulstil</button></span>`:''}
-    </div>
-    <!-- Mockuppens syv kolonner. «Kurs vi koeber til» stod ikke foer, og
-         den er netop den, Wendie 08.09.2026 bad om: «saa du kan se hvor
-         meget af den effektive kurs der er pude.» Og «Bruges paa» siger,
-         hvilke ydelser kursen faktisk rammer. -->
+    <div class="mlkh2"><span class="t">Kurserne</span>
+      <span class="n">${escH(naar)}</span>
+      <span class="sp"></span>
+      <span class="lnk mlhaandlnk" id="mlNulstilLnk"${rettet?'':' style="display:none"'}
+        onclick="event.stopPropagation();mlNulstilKurser()">nulstil ${rettet}
+        ${rettet===1?'håndrettet kurs':'håndrettede kurser'}</span>
+      <span class="mlknap" id="mlHentKursKnap"
+        onclick="event.stopPropagation();mlHentDagens()">Hent dagens fra Nationalbanken</span></div>
+    <!-- Mockuppens syv kolonner, i mockuppens orden. -->
     <table class="mlktab"><thead><tr><th>Valuta</th><th>Marked</th><th>Bankmargin</th>
       <th>Kurs vi køber til</th><th>Pude</th><th>Effektiv</th>
-      <th class="v">Bruges på</th></tr></thead><tbody>${raek}</tbody></table>`;
+      <th class="v">Bruges på</th></tr></thead><tbody>${raek}</tbody></table>
+    <p class="mlkfod2">Kun de valutaer, rejsen faktisk køber i.
+      <span class="svag">${escH(mlKurserResten(orden))}</span></p>
+    <div class="mlhaandliste" id="mlHaandliste"></div>
+    <p class="mlkfod"><b>Den effektive kurs</b> er den, prislinjerne får automatisk: marked ×
+      bankmargin × pude. <b>Kursen vi køber til</b> står ved siden af, så du kan se hvor meget af
+      den effektive kurs der er pude. Retter du en procent, regnes begge om med det samme, og alle
+      prislinjer, du ikke selv har rettet, følger. Vil du justere kursen på ét enkelt køb, gør du
+      det på prislinjen — så bliver den stående, uanset hvad du siden gør heroppe.</p>`;
+  mlTegnHaandliste();
+}
+
+/* Mockuppens svage halvsaetning: hvilke valutaer der VILLE kunne komme
+   frem. Den naevner kun dem, kurskilden faktisk har tal for — ellers
+   lover den noget, boksen ikke kan holde. */
+function mlKurserResten(brugt){
+  /* ══ KUN VALUTAER ══════════════════════════════════════════════
+     ML.kurser baerer ogsaa «dato», «salgskurs», «salgskurs_marked» og
+     «salgskurs_valuta». De stod som valutaer i fodnoten: «EUR, NOK,
+     salgskurs, salgskurs_marked og salgskurs_valuta kommer frem …».
+     Kun tre store bogstaver er en valuta. */
+  const har = Object.keys(ML.kurser||{})
+    .filter(x=>/^[A-Z]{3}$/.test(x) && x!=='DKK');   /* «hentet», «kilde», «dato» er ikke valutaer */
+  const rest = har.filter(v=>!brugt.includes(v)).sort();
+  if(!rest.length) return '';
+  const sidst = rest.pop();
+  return (rest.length ? rest.join(', ') + ' og ' + sidst : sidst)
+    + ' kommer frem, så snart en ydelse får den valuta.';
+}
+
+/* ══ HÅNDRETTEDE KURSER — FREDET, MEN SYNLIG ═══════════════════════════
+   En kurs rettet paa ÉN prislinje bliver staaende, uanset hvad der sker
+   heroppe. Derfor skal man kunne SE hvilke, og nulstille dem enkeltvis
+   eller samlet — ellers regner to linjer i samme valuta forskelligt,
+   uden at nogen kan se hvorfor. Mockuppens .haandliste. */
+function mlHaandrettede(){
+  const ud = [];
+  (ML.els||[]).forEach(e=>{
+    const st = window.RS && RS.st && RS.st[e.id];
+    ((st&&st.linjer)||[]).forEach((l,i)=>{
+      const k = l.raa && l.raa.kurs;
+      if(k!=null && isFinite(+k)) ud.push({eid:e.id, i, val:l.val||'DKK',
+        kurs:+k, hvor:(l.lev||mlYdNavn(e)||'en prislinje')});
+    });
+  });
+  return ud;
+}
+function mlTegnHaandliste(){
+  const li = document.getElementById('mlHaandliste');
+  if(!li) return;
+  const alle = mlHaandrettede();
+  li.classList.toggle('vis', alle.length>0);
+  li.innerHTML = alle.map((x,i)=>`<div class="hl"><b>${mlNf4(x.kurs)}</b>
+    <span class="hvor">${escH(x.val)} · ${escH(x.hvor)} — den effektive er
+      ${mlNf4(x.val===(ML.trip.customer_currency||'DKK') ? mlSalgskurs() : mlEff(x.val))}</span>
+    <span class="nul" onclick="mlSlipHaand(${i})">brug den effektive</span></div>`).join('');
+}
+function mlSlipHaand(i){
+  const x = mlHaandrettede()[i]; if(!x) return;
+  const st = window.RS && RS.st && RS.st[x.eid];
+  const l = st && st.linjer && st.linjer[x.i];
+  if(l && l.raa) delete l.raa.kurs;
+  try { if(window.RS && RS.tegnListe) RS.tegnListe(); } catch(_){}
+  mlRegn(false); mlTegnKurser();
+  mlKvit('Linjen regner nu med den effektive kurs igen');
+}
+
+/* ══ HENT DAGENS ═══════════════════════════════════════════════════════
+   Knappen laeser fx_rates forfra. Kilden er ECB's referencekurser, som er
+   netop de kurser Nationalbanken udgiver og regnskabet bruger; cron
+   henter dem kl. 17 og kl. 06 (fx-hent). Panda maa IKKE kalde fx-hent
+   selv — den kraever FX_HENT_KEY, og Pandas kilde er offentlig.
+   Er de nyeste kurser ikke fra i dag, siges det HOEJT. En gammel kurs,
+   der praesenteres som dagens, er en fejl der ser rigtig ud. */
+async function mlHentDagens(){
+  const kn = document.getElementById('mlHentKursKnap');
+  if(kn){ kn.textContent = 'Henter …'; kn.style.pointerEvents = 'none'; }
+  try{
+    /* ══ ÉT OBJEKT, IKKE EN LISTE ═══════════════════════════════════
+       fn_effektive_kurser returnerer ÉN json — {USD:{...}, dato:...} —
+       praecis som hent() bruger den (kurser: rk.data||{}). Min foerste
+       udgave loeb den igennem som raekker med forEach, og saa var
+       resultatet altid tomt. Fundet ved efterproevningen, foer den kom
+       ud. To steder maa ikke laese den samme kilde forskelligt. */
+    const [r, rt] = await Promise.all([
+      db.rpc('fn_effektive_kurser'),
+      db.from('fx_rates').select('rate_date,fetched_at,source')
+        .order('rate_date',{ascending:false}).order('fetched_at',{ascending:false}).limit(1)
+    ]);
+    if(r.error) throw new Error(r.error.message);
+    const ny = r.data || {};
+    if(!Object.keys(ny).filter(x=>/^[A-Z]{3}$/.test(x)).length)
+      throw new Error('kurskilden svarede uden valutaer');
+    const kt = ((rt && rt.data) || [])[0];
+    if(kt && kt.fetched_at) ny.hentet = kt.fetched_at;
+    if(kt && kt.source)     ny.kilde  = kt.source;
+    ML.kurser = ny;
+    mlTegnKurser(); mlRegn(false); mlKurserTilStigen();
+    const iDag = new Date().toISOString().slice(0,10);
+    const d = String(ny.dato||'').slice(0,10);
+    mlKvit(d ? (d < iDag
+            ? 'De nyeste kurser er fra ' + d + ' — ikke fra i dag. ECB udgiver på bankdage;'
+              + ' de hentes automatisk kl. 17 og kl. 06.'
+            : 'Kurserne er dagens (' + d + ')')
+        : 'Kurserne er hentet, men kilden gav ingen dato',
+      /* En gammel kurs vist som dagens er ikke en kvittering — men
+         hentningen lykkedes, saa det er en advarsel, ikke en fejl. */
+      (d && d < iDag) ? 'advar' : 'gemt');
+  }catch(e){
+    mlKvit('Kurserne kunne ikke hentes: ' + (e.message||e), 'fejl');
+  }finally{
+    if(kn){ kn.textContent = 'Hent dagens fra Nationalbanken'; kn.style.pointerEvents = ''; }
+  }
 }
 /* Retter man et tal, gemmes kun afvigelsen — og kun paa denne rejse. */
 let _mlKursGem = null;
