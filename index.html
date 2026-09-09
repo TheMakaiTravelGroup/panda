@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.30 · 09.09.2026
+<!-- Panda · v1.31 · 09.09.2026
      Versionsnummeret står HER og i APP_VERSION nedenfor — ikke kun i commit-beskeden.
      Ret begge steder ved hver udgivelse, og brug samme nummer i commit-beskeden.
      (v0.13.2-arbejdet blev ved en fejl commit'et som "v0.8", fordi nummeret
@@ -2919,7 +2919,16 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 
 #rsside .r-kort.r-lukket > h2 .r-fp2{transform:rotate(-90deg)}
 
-#rsside .r-kort.r-lukket > .r-ind,#rsside .r-kort.r-lukket > .r-plan,#rsside .r-kort.r-lukket > .r-raekker,#rsside .r-kort.r-lukket > .r-opsum,#rsside .r-kort.r-lukket > .r-felter{display:none}
+/* ══ ET FOLDET KORT SKJULER ALT UNDER HOVEDET ══════════════════════
+   Wendie 09.09.2026: «jeg kan ikke folde ting ind og ud.»
+   Reglen naevnte FEM klassenavne, saa alt nyt indhold — noter,
+   historik, de rejsende, prisberegningen — blev staaende, naar man
+   foldede. En regel, der skal opdateres hver gang der kommer en blok,
+   er ikke en regel. Nu gaelder den ALT, der ikke er kortets hoved. */
+/* !important, fordi en enkelt blok inde i et kort kan have sin egen
+   display (fx prisberegningens grid). En foldning, der virker for seks
+   kort og ikke for det syvende, er ikke en foldning. */
+#rsside .r-kort.r-lukket > *:not(h2){display:none!important}
 
 #rsside .r-kort.r-lukket{padding-bottom:16px}
 
@@ -5055,6 +5064,55 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 #rsside .r-gemtlinje{font-size:9.5px;color:#b3af9f;margin-top:10px;text-align:right}
 
 #rsside .r-plantom{font-size:11.5px;color:#a09c8c;line-height:1.6;max-width:82ch;padding:4px 2px}
+
+/* ══ OM REJSEN ══════════════════════════════════════════════════════ */
+#rsside .r-omk{background:#fff;border-radius:10px;padding:13px 15px;
+  box-shadow:inset 0 0 0 1px #ece7db;margin-bottom:10px}
+#rsside .r-omk.r-varm{background:linear-gradient(180deg,#fffdf4,#fdf9ec);
+  box-shadow:inset 0 0 0 1px #e8dcbd}
+#rsside .r-omk.r-varm .r-bt{color:#8a7238}
+#rsside .r-omk .r-bt{margin-bottom:10px}
+#rsside .r-fr{display:flex;flex-wrap:wrap;gap:9px 14px;align-items:flex-end}
+#rsside .r-f{display:flex;flex-direction:column;gap:2px}
+#rsside .r-f label{font-size:7.5px;letter-spacing:.15em;text-transform:uppercase;
+  color:#a09c8c;font-weight:600}
+#rsside .r-f.r-bred2{flex:1;min-width:320px}
+#rsside .r-f.r-bred2 input{width:100%}
+#rsside .r-onsk{display:flex;align-items:center;gap:9px;padding:6px 0;position:relative}
+#rsside .r-onsk + .r-onsk::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:#eeeae0}
+#rsside .r-ost{flex:none;width:126px;font-size:8px!important;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:600;height:26px;border:0;border-radius:5px;
+  padding:0 6px;background:rgba(160,156,140,.14);color:#7a7666;box-shadow:none}
+#rsside .r-ost.r-ok{background:rgba(111,156,124,.16);color:#3d6b4c}
+#rsside .r-ost.r-spurgt{background:rgba(185,154,95,.18);color:#8a7238}
+#rsside .r-ost.r-mangl{background:rgba(194,101,63,.13);color:#a8552f}
+#rsside .r-otx{flex:1;min-width:0;font-family:inherit;font-size:11.5px;padding:4px 7px;
+  border-radius:6px;border:0;background:#fff;box-shadow:inset 0 0 0 1px #e6dfd0;height:26px}
+#rsside .r-otx:focus{outline:none;box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
+#rsside .r-ox{opacity:.28;cursor:pointer;font-size:12px;padding:0 3px}
+#rsside .r-ox:hover{opacity:1;color:#a8724f}
+#rsside .r-otom{font-size:10.5px;color:#a09c8c;line-height:1.55;max-width:78ch}
+#rsside .r-bt.r-mt2{margin-top:20px}
+#rsside .r-mt2{margin-top:20px}
+
+/* prisberegningen som kort */
+#rsside #beregnkort .mlregn{display:grid;grid-template-columns:1.45fr 1fr;gap:14px;align-items:start}
+#rsside #beregnkort .mlrtab,#rsside #beregnkort .mlkurskort{background:#fff;border:0;
+  border-radius:11px;padding:14px 16px;box-shadow:inset 0 0 0 1px #ece7db}
+#rsside #beregnkort .mljbox{background:#fff;border:0;border-radius:11px;padding:14px 16px;
+  box-shadow:inset 0 0 0 1px #ece7db}
+#rsside #beregnkort .mlbund{margin-top:18px;padding-top:16px;border-top:1px solid #ece7db}
+#rsside #rejsendekort .mlkort{background:none;border:0;box-shadow:none;padding:0}
+@media(max-width:1020px){#rsside #beregnkort .mlregn{grid-template-columns:1fr}}
+
+/* Hovedets foldegreb staar i hoejre hjoerne som paa de andre kort. */
+#rsside .r-top{position:relative}
+#rsside .r-hovedfold{position:absolute;top:16px;right:20px;color:#b99a5f;font-size:9px;
+  opacity:.7;cursor:pointer;transition:transform .18s cubic-bezier(.2,.7,.2,1);z-index:3}
+#rsside .r-top.r-lukket .r-hovedfold{transform:rotate(-90deg)}
+#rsside .r-top.r-lukket > *:not(h1):not(.r-krumme):not(.r-linje2):not(.r-hovedfold){display:none!important}
+#rsside .r-top.r-lukket{padding-bottom:16px}
 </style>
 </head>
 <body>
@@ -5082,7 +5140,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.30';
+const APP_VERSION = 'v1.31';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -18488,6 +18546,71 @@ function planFraDb(r){
 /* Samme tider som STD_TID — der var to lister med hver sit navn og de samme
    tal. To steder at rette er ét for meget. */
 const STD_KL = STD_TID;
+/* ══ ANLEDNINGEN ══════════════════════════════════════════════════════
+   Wendie 08.09.2026: «hvis det er en bryllupsrejse … anmaerkninger og
+   foresporgsler og jubilaeer og you name it.» Listen er hendes egen fra
+   mockuppen, i den raekkefoelge hun skrev den. */
+const ANLEDNINGER = ['Bryllupsrejse','Bryllupsdag','Sølvbryllup','Guldbryllup',
+  'Forlovelse','Babymoon','Fødselsdag — rund','Fødselsdag','Jubilæum','Pensionering',
+  'Studenter- eller eksamensrejse','Familiesammenkomst','Genforening efter sygdom',
+  'Mindetur','Firmatur eller incentive','Andet — skriv selv'];
+const OENSKE_STATUS = ['Ikke afklaret','Spurgt','Aftalt','Kan ikke'];
+const OENSKE_KLASSE = {'Ikke afklaret':'r-mangl','Spurgt':'r-spurgt','Aftalt':'r-ok','Kan ikke':'r-mangl'};
+
+/* Anledningen og oenskerne ligger paa rejsen, ikke paa en ydelse — de
+   gaelder hele turen. De gemmes med det samme, som alt andet herinde. */
+async function gemOm(felt, v){
+  TUR[felt] = v;
+  const r = await db.from('trips').update({[felt]: v}).eq('id', TUR.id);
+  if(r && r.error) return kvitter('fejl', 'Kunne ikke gemmes: ' + r.error.message);
+  kvitter('gemt', 'Gemt');
+}
+/* ══ KUNDENS ØNSKER ══════════════════════════════════════════════════
+   trips.wishes er en jsonb-liste. Hvert oenske er {t, status} — teksten
+   og hvor langt vi er med den. Wendie 08.09.2026 om mockuppen: «Aftalt ·
+   Spurgt · Ikke afklaret». Uden status er et oenske bare en seddel:
+   man kan ikke se, om nogen har spurgt hotellet. */
+function oenskeliste(){
+  const l = document.getElementById('oenskeliste');
+  if(!l) return;
+  const oe = Array.isArray(TUR.wishes) ? TUR.wishes : [];
+  l.innerHTML = oe.map((x,i)=>{
+    const tekst = typeof x === 'string' ? x : (x.t || x.tekst || '');
+    const st2 = (typeof x === 'object' && (x.status||x.s)) || 'Ikke afklaret';
+    return `<div class="r-onsk">
+      <select class="r-ost ${OENSKE_KLASSE[st2]||''}" onchange="RS.saetOenske(${i},'status',this.value)">
+        ${OENSKE_STATUS.map(o=>`<option${o===st2?' selected':''}>${o}</option>`).join('')}</select>
+      <input class="r-otx" value="${escH(tekst)}" placeholder="hvad har kunden bedt om?"
+        onblur="RS.saetOenske(${i},'t',this.value)"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">
+      <span class="r-ox" title="Fjern ønsket" onclick="RS.sletOenske(${i})">×</span></div>`;
+  }).join('') || `<div class="r-otom">Ingen ønsker skrevet ind. Kom rejsen fra en henvendelse,
+    stod ønskerne dér — ellers er det her, de hører.</div>`;
+}
+async function gemOensker(){
+  const r = await db.from('trips').update({wishes: TUR.wishes}).eq('id', TUR.id);
+  if(r && r.error) return kvitter('fejl', 'Ønskerne blev ikke gemt: ' + r.error.message);
+  kvitter('gemt', 'Gemt');
+}
+function nytOenske(){
+  TUR.wishes = Array.isArray(TUR.wishes) ? TUR.wishes : [];
+  TUR.wishes.push({t:'', status:'Ikke afklaret'});
+  oenskeliste();
+  const f = document.querySelectorAll('#oenskeliste .r-otx');
+  if(f.length) f[f.length-1].focus();
+}
+function saetOenske(i, felt, v){
+  const oe = TUR.wishes = Array.isArray(TUR.wishes) ? TUR.wishes : [];
+  if(typeof oe[i] === 'string') oe[i] = {t: oe[i], status:'Ikke afklaret'};
+  if(!oe[i]) return;
+  oe[i][felt === 't' ? 't' : 'status'] = v;
+  if(felt !== 't') oenskeliste();
+  gemOensker();
+}
+function sletOenske(i){
+  const oe = TUR.wishes = Array.isArray(TUR.wishes) ? TUR.wishes : [];
+  oe.splice(i,1); oenskeliste(); gemOensker();
+}
 function planAfElement(e, i){
   const art = ART_AF_TYPE[e.element_type] || 'Andet';
   const d = e.description || '';
@@ -18837,9 +18960,14 @@ function sideHtml(d){
 
   return `<div class="r-wrap">
 
-  <div class="r-top">
+  <!-- ══ 1 · REJSEN ══
+       Wendie 08.09.2026: «super vigtigt, at hver eneste boks kan foldes
+       ind og ud.» Ogsaa hovedet: paa en lang rejse vil man ofte lukke
+       navnet og stadiebjaelken og arbejde nede i ydelserne. -->
+  <div class="r-top r-kort" id="hovedkort">
     <div class="r-krumme">Rejser · <b>${escH(BRANCH_LABEL[t.branch]||t.branch||'')}</b> · ${
       t.ref_no ? escH(t.ref_no) : 'endnu uden ref.nr.'}</div>
+
     <!-- Wendie 03.09.2026: «hvad med de ting, der skulle kunne redigeres paa
          mellemlandingen?» Navn, destinationer og antal rejsende rettes nu
          direkte i toppen. Datoerne foelger rejseplanen (R253) og kan derfor
@@ -18868,6 +18996,8 @@ function sideHtml(d){
     </div>
     <div class="r-trin" id="trin"></div>
     <div class="r-forkl" id="forkl"></div>
+    <span class="r-fp2 r-hovedfold" onclick="RS.foldKort(this)"
+      title="Fold rejsens hoved ind">▼</span>
   </div>
 
   <div class="r-kort">
@@ -18877,13 +19007,94 @@ function sideHtml(d){
     <div class="r-plan" id="plan"></div>
   </div>
 
+  <!-- ══ 3 · OM REJSEN ══════════════════════════════════════════════
+       Mockuppen har den som tredje blok, mellem rejseplanen og de
+       rejsende: anledningen, kundens oensker fra henvendelsen, og
+       noterne. Wendie 08.09.2026: «hvis der er nogle saerlige
+       kommentarer til rejsen eller foresporgsler … anmaerkninger og
+       foresporgsler og jubilaeer og you name it.»
+       Anledningen og oenskerne LAA i basen (trips.occasion,
+       occasion_date, occasion_note, wishes) og blev hentet — men de blev
+       ikke tegnet nogen steder paa mellemlandingen. Den, der sad med
+       bryllupsrejsen, kunne ikke se det paa arbejdsfladen. -->
+  <div class="r-kort" id="omkort">
+    <h2 onclick="RS.foldKort(this)">Om rejsen
+      <span class="r-h">anledning, ønsker og noter</span><span class="r-fp2">▼</span></h2>
+
+    <div class="r-omk r-varm">
+      <div class="r-bt">Anledningen</div>
+      <div class="r-fr">
+        <span class="r-f"><label>Hvad er anledningen</label>
+          <select onchange="RS.gemOm('occasion', this.value)">
+            <option value=""${!t.occasion?' selected':''}>— ingen særlig —</option>
+            ${ANLEDNINGER.map(a=>`<option${t.occasion===a?' selected':''}>${escH(a)}</option>`).join('')}
+          </select></span>
+        <span class="r-f"><label>Dato for anledningen</label>
+          <input type="date" value="${escH(t.occasion_date||'')}"
+            onchange="RS.gemOm('occasion_date', this.value||null)" style="width:132px"></span>
+      </div>
+      <div class="r-fr" style="margin-top:9px">
+        <span class="r-f r-bred2"><label>Hvad skal der ske</label>
+          <input value="${escH(t.occasion_note||'')}"
+            placeholder="f.eks. blomster på værelset, kage ved middagen, romantisk middag på stranden"
+            onblur="RS.gemOm('occasion_note', this.value)"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"></span>
+      </div>
+    </div>
+
+    <div class="r-omk">
+      <div class="r-bt">Kundens ønsker fra henvendelsen
+        <span class="r-n n-lnk" onclick="event.stopPropagation();RS.nytOenske()">+ tilføj et ønske</span></div>
+      <div id="oenskeliste"></div>
+    </div>
+
+    <div class="r-omk">
+      <!-- Noterne hoerer her, som i mockuppen: det er stedet, hvor man
+           holder styr paa, hvad der er lovet og hvad der mangler. -->
+      <div class="r-bt">Noter lagt ind på ydelserne
+        <span class="r-n" id="n-antal">ingen endnu</span></div>
+      <div class="n-liste" id="n-liste"></div>
+      <p class="n-fod">Alt med <b>«på rejseplanen»</b> er det, kunden kommer til at læse —
+        reisebeviset bygges af rejseplanen. En note med en <b>deadline</b> bliver samtidig en
+        opgave, så den også kommer op i morgenbriefen.</p>
+    </div>
+  </div>
+
+  <!-- ══ 4 · DE REJSENDE ═══════════════════════════════════════════
+       Laa foer NEDERST paa siden, under prisberegningen. I mockuppen
+       staar de foer ydelserne — man ved hvem der rejser, foer man
+       prissaetter for dem. «Kunde og kontakt» er lagt ind her som et
+       afsnit: kontaktpersonen ER en af de rejsende. -->
+  <div class="r-kort" id="rejsendekort">
+    <h2 onclick="RS.foldKort(this)">De rejsende
+      <span class="r-h">navnet skal stå som i passet, før rejsen bekræftes</span>
+      <span class="r-fp2">▼</span></h2>
+    <div class="mlkort ml7" id="mlPax"></div>
+
+    <div class="r-bt r-mt2">Kunde og kontakt</div>
+    <div class="r-stribe">${escH([navn, k.email, k.phone, pa.city].filter(Boolean).join(' · '))}</div>
+    <div class="r-felter">
+      ${felt('Navn', navn)}
+      ${felt('E-mail', k.email, true)}
+      ${felt('Telefon', k.phone)}
+      ${felt('Adresse', adresse, true)}
+      ${felt('Land', pa.country || k.country)}
+      ${felt('Ansvarlig', t.owner)}
+      ${felt('Kom fra', t.lead_id ? 'Bookingformular på tilbud' : 'Oprettet i Panda')}
+      ${felt('Tilbud', t.accepted_offer_ref || t.quote_ref)}
+    </div>
+  </div>
+
   <div class="r-kort">
     <!-- Wendie 03.09.2026: «det skal bare staa ydelser paa rejsen — saa
          forstaar vi selv, at vi skal tjekke om prisen holder. Det staar
          ogsaa i beskrivelsen af mellemlandingen.» Og: «fold alt ud, fold
          alt ind fjerner vi, det ser rodet ud — det fungerede fint, at man
          bare kan trykke paa selve elementet.» -->
-    <h2>Ydelser på rejsen
+    <!-- Wendie 09.09.2026: «jeg kan ikke folde ting ind og ud.» Netop
+         denne overskrift manglede sin handler — kun den lille trekant
+         havde den, og den er 9 px bred. Nu folder hele overskriften. -->
+    <h2 onclick="RS.foldKort(this)">Ydelser på rejsen
       <span class="r-h" id="tael"></span>
       <!-- Wendie 04.09.2026: «det kunne vaere fint at se, om vi kunne hente
            hendes priser direkte fra editoren og ind paa mellemlandingen.»
@@ -18905,7 +19116,7 @@ function sideHtml(d){
         <input type="file" accept="application/pdf,image/*" hidden
                onchange="RS.skaermTilRejsen(this.files);this.value=''">
         Træk en billet eller et skærmbillede herind</span>
-      <span class="r-fp2" onclick="RS.foldKort(this.parentNode)">▼</span></h2>
+      <span class="r-fp2">▼</span></h2>
     <div id="tilbudSvar"></div>
     <div id="frister"></div>
     <div class="r-raekker" id="liste"></div>
@@ -18922,25 +19133,27 @@ function sideHtml(d){
     </div>
   </div>
 
-  <!-- ══ ALLE NOTER SAMLET ÉT STED ══════════════════════════════════
-       Wendie 08.09.2026: «det kunne ogsaa vaere rart, hvis der var et
-       sted, hvor vi samlede alle noter, der var lagt ind paa forskellige
-       ydelser, saa vi kan holde styr paa dem og soerge for, at der er
-       noget, vi ikke gaar glip af. Og specielt hvis der er en note, som
-       har en deadline.»
-       Det er den rigtige indvending: en note inde i en prislinje kan
-       ingen se uden at folde tre ting ud. De med deadline staar foerst —
-       de er reelt anmaerkninger, man bare har skrevet et andet sted. -->
-  <div class="r-kort" id="noterkort">
-    <h2 onclick="RS.foldKort(this)">Noter på rejsen
-      <span class="r-h" id="n-antal">ingen endnu</span><span class="r-fp2">▼</span></h2>
-    <div class="n-liste" id="n-liste"></div>
-    <p class="n-fod">Alt med <b>«på rejseplanen»</b> er det, kunden kommer til at læse —
-      reisebeviset bygges af rejseplanen. En note med en <b>deadline</b> bliver samtidig en
-      opgave, så den også kommer op i morgenbriefen.</p>
+  <!-- ══ 6 · PRISBEREGNINGEN OG KURSERNE ═══════════════════════════
+       Mockuppens sjette blok. Laa foer uden for rejsesiden i sin egen
+       .ml7-beholder, som ikke kunne foldes. Nu er den et kort som de
+       andre, og kurserne ligger indeni — under regnestykket, hvor
+       Wendie bad om dem 08.09.2026. -->
+  <div class="r-kort" id="beregnkort">
+    <h2 onclick="RS.foldKort(this)">Prisberegningen
+      <span class="r-h">som rejsen er valgt nu</span><span class="r-fp2">▼</span></h2>
+    <div class="ml7 mlregn" id="mlregnboks">
+      <div class="mlrtab" id="mlRegn"></div>
+      <div id="mlHoejre"></div>
+    </div>
+    <div class="ml7" id="mlKurserBoks">
+      <div class="r-bt r-mt2">Kurserne
+        <span class="r-n">marked · bankmargin · risikobuffer — det priserne regnes med</span></div>
+      <div class="mlkurskort" id="mlKurser"></div>
+    </div>
+    <div class="ml7"><div class="mlbund" id="mlBund"></div></div>
   </div>
 
-  <!-- ══ HISTORIKKEN ══
+  <!-- ══ 7 · HISTORIKKEN ═══════════════════════════════════════════
        Bygges af audit_log, ikke af en log appen selv skriver — en log,
        appen fylder, mangler netop det, der skete uden om appen. -->
   <div class="r-kort r-lukket" id="histkort">
@@ -18949,22 +19162,6 @@ function sideHtml(d){
     <div class="h-liste" id="h-liste"></div>
     <p class="n-fod">Historikken er <b>intern</b> og kommer aldrig med på et kundedokument.
       Den viser hvem der rettede hvad, og hvornår — også de frie noter.</p>
-  </div>
-
-  <div class="r-kort r-kontakt r-lukket" id="kontakt">
-    <h2 onclick="RS.foldKort(this)">Kunde og kontakt
-      <span class="r-h">klik for at folde ud</span><span class="r-fp2">▼</span></h2>
-    <div class="r-stribe">${escH([navn, k.email, k.phone, pa.city].filter(Boolean).join(' · '))}</div>
-    <div class="r-felter">
-      ${felt('Navn', navn)}
-      ${felt('E-mail', k.email, true)}
-      ${felt('Telefon', k.phone)}
-      ${felt('Adresse', adresse, true)}
-      ${felt('Land', pa.country || k.country)}
-      ${felt('Ansvarlig', t.owner)}
-      ${felt('Kom fra', t.lead_id ? 'Bookingformular på tilbud' : 'Oprettet i Panda')}
-      ${felt('Tilbud', t.accepted_offer_ref || t.quote_ref)}
-    </div>
   </div>
 </div>`;
 }
@@ -18975,6 +19172,7 @@ async function aabn(tripId, vaerten){
   const d = await hent(tripId);
   vaerten.innerHTML = sideHtml(d);
   await start(d);
+  oenskeliste();
   if(window.NOT) NOT.oversigt();
   /* Historikken hentes bagefter — den maa ikke forsinke siden. */
   if(window.HIST) HIST.hent(tripId, [].concat(
@@ -19017,7 +19215,8 @@ return {
   skaermLaegInd, skaermLuk, skaermRaa, skaermTal, tstLaes, flyLaesSkaerm,
   ocrLaes, ocrForbered, ocrBibliotek,
   delerEtape, vendEtape, saetBen, nytBen, sletBen, flyBenHtml, retBen, foldPlan, saetNyt, saetTil, saetTrin, saetType, saetVilla,
-  sideHtml, sikrPlan, sletLSub, sletLinje, sletSub, sletVilla, snapshot,
+  sideHtml, sikrPlan, sletLSub, sletLinje,
+  gemOm, oenskeliste, nytOenske, saetOenske, sletOenske, ANLEDNINGER, sletSub, sletVilla, snapshot,
   segTilFly, soegHotel, soegeTekst, sorterPlan, st, start, stigeHtml, tael,
   benSaet, benFaerdigFelt, benOpdaterRegnet, retTid, regnBenFlyvetid,
   sletElement,
@@ -19471,25 +19670,25 @@ window.HIST = (function(){
    Hovedet, rejseplanen og «Kan hvert element stadig koebes?» tegnes af
    rejsesiden ovenfor. Herunder staar det, der bygger paa den: de rejsende,
    kurserne, prisberegningen og bekraeftelsen. */
+/* ══ BUNDEN FYLDER NU KORTENE, DEN IKKE LAENGERE EJER ════════════════
+   Wendie 09.09.2026: «bloggene ligger overhovedet ikke ligesom de skal …
+   jeg kan ikke folde ting ind og ud.»
+   Foer skrev denne funktion HELE bunden af siden som én blok uden for
+   rejsesiden — de rejsende, kurserne, prisberegningen og bekraeftelsen —
+   i sin egen .ml7-beholder, der ikke var et kort og derfor ikke kunne
+   foldes. Og raekkefoelgen blev den, funktionen skrev dem i, ikke den
+   mockuppen har.
+   Nu ejer sideHtml() raekkefoelgen: den tegner de syv kort i mockuppens
+   orden med tomme beholdere, og denne funktion fylder dem. Saa er der
+   ét sted, der bestemmer, hvad der staar hvor. */
 function mlRenderBund(){
   const t = ML.trip, els = ML.els;
   const val = t.customer_currency || 'DKK';
 
-  document.getElementById('mlbund').innerHTML = `
-  <div class="mlsh"><span class="txt">Rejsende</span>
-    <span class="r">navnet skal stå som i passet, før rejsen bekræftes</span></div>
-  <div class="mlkort" id="mlPax"></div>
-
-  <div class="mlsh"><span class="txt">Prisberegning</span><span class="r">én metode — alt gennem DKK</span></div>
-  <div class="mlregn">
-    <div class="mlrtab" id="mlRegn"></div>
-    <div>
-      <!-- ══ PRISEN TIL KUNDEN ══
-           Wendie 07.09.2026: boksen blandede en KENDSGERNING (det kunden
-           accepterede), et VAERKTOEJ (flyt prisen) og et ANDET tal, der hed
-           daekningsgrad ligesom den store boks — men var et indtastningsfelt.
-           Nu: kendsgerningen staar, vaerktoejet ligger bag ét klik, og der er
-           ÉT daekningsgrad-tal paa skaermen. -->
+  /* hoejre spalte i prisberegningen: prisen til kunden, daekningsgraden,
+     salgsboksen */
+  const h = document.getElementById('mlHoejre');
+  if(h) h.innerHTML = `
       <div class="mljbox">
         <div class="mlhvem">Prisen til kunden</div>
         ${t.accepted_price ? `<div class="mlaccept">
@@ -19505,12 +19704,9 @@ function mlRenderBund(){
           <div class="am">Skriv den ind herunder — den er målestokken for, om rejsen tjener det, den skulle.</div></div>`}
         <div class="mljvaerk" id="mlVaerk" ${t.accepted_price?'hidden':''}>
           <div class="mljrk">
-            <div><label>Pris til kunden</label>
+            <div><label>Kundens pris i ${escH(val)}</label>
               <input id="mlPris" value="${t.accepted_price?mlNf(t.accepted_price):''}" oninput="fmtBelob(this);mlFraPris()">
               <span class="e" id="mlPrisE">${escH(val)}</span></div>
-            <!-- Det andet felt er ikke en visning af daekningsgraden — det er
-                 den anden vej ind: skriv 25, og prisen regnes baglaens. Derfor
-                 staar der «Regn ud fra», ikke «Daekningsgrad». -->
             <div><label>Regn ud fra dækningsgrad</label><input id="mlDG" value="" oninput="mlFraDG()">
               <span class="e">% — så regnes prisen</span></div>
           </div>
@@ -19526,33 +19722,15 @@ function mlRenderBund(){
         <div class="u" id="mlDbTxt"></div>
         <div class="sam" id="mlDbSam"></div>
       </div>
-      <!-- ══ KUNDENS PRIS I SIN EGEN VALUTA ══════════════════════════
-           Wendie 08.09.2026: «jeg er ikke helt sikker paa, jeg forstaar
-           det der effektive og marked og bla bla bla … salgskursen skal
-           vel ikke aendre sig, hvis jeg ogsaa justerer salgsmargin.»
-           Hun havde ret: der var to haandtag paa samme ting. Nu er der
-           ét tal at skrue paa — salgskursen — og procenten ved siden af
-           er en AFLEDT oplysning om, hvor langt den ligger over markedet.
-           Og sammenligningen sker mod den kurs, vi FAKTISK faar: bankens,
-           samt hvad regnskabet bogfoerer til Nationalbankens kurs. -->
-      <div class="mlsalg" id="mlSalg"></div>
-    </div>
-  </div>
+      <div class="mlsalg" id="mlSalg"></div>`;
 
-  <!-- ══ KURSERNE LIGGER UNDER PRISBEREGNINGEN ═══════════════════════
-       Wendie 08.09.2026: «den blok, der har alle kurserne, maa faktisk
-       godt ligge nede under prisberegningen.» Rigtigt: man laeser
-       resultatet foerst og gaar saa ned og ser, hvad det er regnet af —
-       ikke omvendt. -->
-  <div class="mlsh"><span class="txt">Kurserne</span>
-    <span class="r">marked · bankmargin · risikobuffer — det priserne regnes med</span></div>
-  <div class="mlkurskort" id="mlKurser"></div>
-
-  <div class="mlbund">
+  /* bekraeftelsesbjaelken, nederst i prisberegningen */
+  const bund = document.getElementById('mlBund');
+  if(bund) bund.innerHTML = `
     <div class="status" id="mlStatus"></div>
     <button class="btn ghost" onclick="mlTilbage()">Send tilbage til henvendelsen</button>
-    <button class="btn gold" id="mlBekraeft" disabled onclick="mlBekraeft()">Bekræft og opret rejsen</button>
-  </div>`;
+    <button class="btn gold" id="mlBekraeft" disabled onclick="mlBekraeft()">Bekræft og opret rejsen</button>`;
+
   mlTegnKurser(); mlTegnPax();
   /* Saetter daekningsgraden efter den pris kunden har accepteret — ellers
      staar feltet tomt, selvom tallet allerede kan regnes. */
