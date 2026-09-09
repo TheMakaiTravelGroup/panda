@@ -1,5 +1,107 @@
 <!DOCTYPE html>
-<!-- Panda · v1.41 · 09.09.2026 — KLAR TIL UDGIVELSE.
+<!-- Panda · v1.45 · 09.09.2026 — KLAR TIL UDGIVELSE.
+     v1.45 — SALGSBOKSENS PLADS, OG BOOKINGENS DATA IND PÅ KUNDEN.
+     · «Den blå boks med priserne i udenlandsk valuta er placeret forkert
+       — se mockup vs. live.» Rigtigt: i mockuppen er .salgsboks sidste
+       barn i VENSTRE, brede spalte under retterækken; jeg havde lagt den
+       i højre spalte, der er 296 px bred, og så brød både tabellen og
+       forklaringerne. Den ligger nu, hvor mockuppen har den (614 px,
+       på linje med tabellen), og smal-formen udløses først under 1080 px
+       i stedet for 1340.
+       Dertil to ting i samme boks: enheden hørte til tallet («149.051,65
+       DKK», ikke «149.051,65DKK» i næste kolonne), og min egen regel
+       «.stab td{padding:9px 0}» havde HØJERE specificitet end «.sv» og
+       slog kolonnernes vandrette afstand ud — derfor rørte tallet og
+       forklaringen hinanden. Afstanden står nu på kolonnen selv.
+     · «Hvorfor er disse ikke udfyldt med infoen fra Formspree? Og hvor er
+       adressen ikke delt ind i felter, så vi kan tracke by, adresse og
+       land?» Målt i basen: bookingformularen leverer ALT — alle 8
+       bookinger har adresse, postnr+by, land og telefon — men det blev
+       liggende i booking_requests. Rejsesiden læser customers, og dér var
+       telefonen udfyldt på 10 af 1.226. Et manglende led, ikke en
+       læsefejl. Og strukturen fandtes allerede: customers.postal_address
+       er jsonb med street, postal_code, city og country — der skulle
+       INGEN migration til; den blev bare vist som én linje.
+       Nu: kontaktpersonen har fire felter (Adresse · Postnr. · By · Land)
+       der gemmes i postal_address, så man kan tælle på by og land direkte
+       i basen; og når rejsen åbnes, hentes telefon, e-mail og adresse fra
+       den matchede booking — «1365 Blommenholm» deles i postnummer og by.
+       Samme tre værn som nationaliteten: kun tomme felter, hvert kald
+       kontrolleret, og der kvitteres for det.
+     v1.44 — TRANSFEREN FIK FLYETS FELTER.
+     Wendie 09.09.2026: «transferen har ikke de korrekte felter og bliver
+     heller ikke lagt korrekt ind, og er derfor ikke synlig i rejseplanen.»
+     Årsagen: tilbuddets transfertekst — «Sjøfly · ca. 20 min.» — blev brugt
+     som SLAGSEN. Den står ikke i listen (som har det danske «Vandfly», ikke
+     det norske «Sjøfly»), så delydelsen fik FLYformen med «Gælder» i stedet
+     for Dato, Afgang og Ankomst — og uden en dato kan den ikke komme på
+     rejseplanen. Teksten blev desuden lagt ind som en valgmulighed i
+     slags-listen.
+     Nu genkendes slagsen AF teksten, på dansk og norsk: sjøfly/vandfly/
+     seaplane → Vandfly, speedbåd/hurtigbåd/boat → Speedbåd, indenrigs/
+     domestic → Indenrigsfly, bil/taxi → Bil. Beskrivelsen bliver
+     delydelsens NAVN, præcis som i mockuppen. Datoen sættes af opholdet:
+     ankomstdagen for turen ind, hjemrejsedagen for turen ud — klokkeslættet
+     står tomt, for det ved vi ikke, og et gættet klokkeslæt på et
+     reisebevis er værre end et tomt. Gamle rækker, der kun har et navn,
+     får også deres datofelter, fordi slagsen genkendes af navnet.
+     Målt: tre transfers lagt ind som tilbuddet giver dem — alle tre fik
+     Dato/Afgang/Ankomst, og alle tre står i rejseplanens hotellinje.
+     v1.43 — FEM TING WENDIE FANDT I DEN KØRENDE UDGAVE.
+     · «Hver gang jeg taster et tal i disse bokse, bliver jeg smidt ud af
+       feltet.» Prisberegnerens to felter kaldte mlRegn() ved hvert
+       tastetryk, og mlRegn satte HELE blokkens innerHTML — inklusive de
+       to <input>, man stod i. Elementet under markøren blev altså
+       slettet og lavet forfra ved hvert tegn. Første forsøg (tag boksen
+       ud, sæt den tilbage) virkede IKKE: fjerner man en node, der
+       indeholder det aktive element, mister det fokus. Tabellen har nu
+       sin egen beholder, og felterne røres slet ikke. Målt: 0 tab af
+       fokus på seks tastetryk, mod 6 af 6 før.
+     · «Hvad er disse to knapper reelt til for?» De sagde det ikke — og
+       værre: «Gem prisen» overskrev accepted_price, altså selve
+       registreringen af hvad kunden har sagt ja til, uden at spørge.
+       Nu regner den første («Regn prisen ud fra målet · 20,3 %») og
+       gemmer intet; den anden viser BELØBET («Gem 91.200 NOK som rejsens
+       pris»), er slået fra når der ikke er noget nyt at gemme, og spørger
+       når den ændrer en accepteret pris — med besked om at kunden skal
+       have det at vide. Ændringen står i Historikken (trg_audit_trips).
+     · «Teksten i boksen står næsten oveni hinanden.» Tre årsager: 6 px
+       luft mellem rækkerne, ingen afstand mellem tal og forklaring (der
+       stod «60.685,31DKK»), og en label-spalte låst til 142 px, så
+       forklaringen brød i fire linjer. Enheden hører til tallet og står
+       nu der; rækkerne har luft; og i en smal spalte står mærkatet for
+       sig med tallet under.
+     · «Fristen på hotel-leverandører skal være betalings- og
+       cancellationsfrister — ikke det samme som en udstedelsesfrist.»
+       Fly: Udstedelsesfrist. Hotel: Afbestillingsfrist (risiko) OG
+       Betalingsfrist (likviditet). Fristtabellen siger nu hvilken slags.
+     · «For 3.-parts leverandører skal der være en reference både fra
+       leverandøren og hotellet.» To felter: «Reference hos leverandøren»
+       (Yalago, Hummingbird …) og «Hotellets reference» — den sidste er
+       den, hotellet selv kender ved check-in, og den følger med på
+       rejseplanen og dermed reisebeviset.
+     v1.42 — TRE TING FRA WENDIE, EFTER v1.41 VAR MELDT FÆRDIG.
+     · «Når det er en norsk rejse, skal de rejsendes nationalitet sættes
+       til norsk automatisk.» MN → Norsk, MD → Dansk, skrevet i basen når
+       rejsen åbnes og på en ny rejsende. Kun TOMME felter udfyldes — en
+       tastet nationalitet overskrives aldrig — og MIT gætter vi ikke på,
+       for Italien står ikke i listen. Feltet faldt før tilbage på «Dansk»
+       også på en MN-rejse: det så udfyldt ud, var forkert, og der stod
+       intet i basen. Kvitteringen siger, hvor mange der blev sat.
+     · «Teksten til højre kan ikke være der.» Rigtigt — hjælpeteksten i
+       «Om rejsen» satte sig ved siden af knappen «Tilføj noten», fordi
+       jeg havde givet den flex:1. I mockuppen er den max-width:340px
+       uden flex og falder ned på sin egen linje. Nu som mockuppen.
+     · «Morten Rydnings tilbud var bygget på en pris fra Yalago, men der
+       står, at den kommer fra en direkte kontrakt.» Målt i editorens egne
+       data: tilbuddets pricing.hotels[] har _id, name, villas, currency,
+       transferCost og linkedHotelId — og INGEN leverandør. Om prisen kom
+       fra Yalago, en bedbank eller en kontrakt, står ikke i tilbuddet.
+       Jeg satte leverandøren til HOTELLETS navn, og det læses som en
+       direkte kontrakt. Panda påstod noget, den ikke kunne vide, og det
+       er den værste slags fejl her: den ser rigtig ud. Feltet står nu
+       tomt, ydelsen siger «mangler en leverandør», og tilbudsboksen
+       siger det, FØR der lægges noget ind.
      v1.41 — de tre sidste fra afstemningen mod live: «sidst opdateret
      ‹dato›» på Rejseplan-kortet (markup droppet ved ombygningen, const
      sidst efterladt som død kode), Noter-kortets fodnote om at alt med
@@ -5135,13 +5237,50 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .ml7 .mlsalg .sv input:hover{box-shadow:inset 0 0 0 1px #b9d0dc}
 .ml7 .mlsalg .sv input:focus{outline:none;
   box-shadow:inset 0 0 0 1px #6f9c7c,0 0 0 3px rgba(111,156,124,.16)}
-.ml7 .mlsalg .sbm{color:#7f97a8;font-size:11.5px}
+/* ══ TALLET OG TEKSTEN STOD OVENI HINANDEN ═══════════════════════════
+   Wendie 09.09.2026: «teksten i boksen staar naesten oveni hinanden.»
+   Tre ting gjorde det: raekkerne havde 6 px luft, forklaringsspalten
+   havde ingen afstand til tallet (saa der stod «60.685,31DKK»), og
+   labelspalten var laast til 142 px, saa forklaringen blev klemt og
+   brød i tre-fire linjer, der loeb sammen paa tvaers af raekkerne. */
+/* NB: «.ml7 .mlsalg .stab td» har HOEJERE specificitet end «.ml7 .mlsalg
+   .sv» (tre klasser + et element mod tre klasser), saa `padding:9px 0`
+   slog kolonnernes vandrette afstand ud — og saa stod der «149.051,65
+   DKKdét dækningsgraden bygger paa». Derfor saettes kun top og bund her,
+   og de vandrette afstande staar paa kolonnerne selv med samme vaegt. */
+.ml7 .mlsalg .stab td{padding-top:9px;padding-bottom:9px}
+.ml7 .mlsalg .stab td.sk{width:34%;min-width:104px;padding-right:10px;line-height:1.35}
+.ml7 .mlsalg .stab td.sv{white-space:nowrap;padding-right:16px}
+.ml7 .mlsalg .stab td.sbm{padding-left:0}
+/* Enheden staar ved tallet, men mindre — som i «91.200 NOK» ovenfor. */
+.ml7 .mlsalg .sv em{font-style:normal;font-size:10px;letter-spacing:.1em;
+  color:#7f97a8;font-weight:600;margin-left:4px}
+.ml7 .mlsalg tr.stor2 .sv em{font-size:11px}
+.ml7 .mlsalg .sbm{color:#7f97a8;font-size:11.5px;line-height:1.5}
 .ml7 .mlsalg .sbm b{color:#26414f;font-weight:600}
 .ml7 .mlsalg .sbm .lnk{margin-left:9px;cursor:pointer;color:#7f97a8;
   border-bottom:1px dotted #b9d0dc;font-size:10.5px}
 .ml7 .mlsalg .sbm .lnk:hover{color:#26414f}
 .ml7 .mlsalg tr.stor2 .sv{font-size:18px;letter-spacing:-.3px}
 .ml7 .mlsalg tr.stor2 .sbm b{font-size:11px;letter-spacing:.1em}
+/* Er spalten smal, giver tre kolonner ikke plads. Saa staar maerkatet
+   for sig, og tallet med sin forklaring under — samme oplysninger, én
+   linje mere. */
+/* Graensen var 1340 px, mens boksen laa i den 296 px smalle hoejre
+   spalte. Nu ligger den i den brede (614 px ved 1290 px vinduesbredde),
+   og saa er der plads til de tre kolonner meget laengere ned. Maalt
+   09.09.2026: raekkerne er 38-56 px hoeje ved 1290 px. */
+@media(max-width:1080px){
+  .ml7 .mlsalg .stab,.ml7 .mlsalg .stab tbody,.ml7 .mlsalg .stab tr{display:block}
+  .ml7 .mlsalg .stab td{display:block;padding:2px 0}
+  .ml7 .mlsalg .stab tr{padding:9px 0;position:relative}
+  .ml7 .mlsalg .stab tr+tr{border-top:1px solid rgba(120,150,165,.22)}
+  .ml7 .mlsalg .stab tr+tr td::before{display:none}
+  .ml7 .mlsalg .sk{width:auto;min-width:0;padding:0}
+  .ml7 .mlsalg .sv{width:auto;text-align:left;padding:2px 0;display:inline-block;
+    margin-right:10px}
+  .ml7 .mlsalg .sbm{padding-left:0;display:inline}
+}
 .ml7 .mlsalg .sfod{font-size:10.5px;color:#7f97a8;margin:11px 0 0;max-width:88ch;line-height:1.55}
 .ml7 .mlsalg .sfod b{color:#26414f;font-weight:600}
 
@@ -5435,8 +5574,13 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
   color:#8a7238;display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 #rsside .r-anh .r-ann{letter-spacing:.02em;text-transform:none;font-size:10px;color:#a09c8c;
   font-weight:400}
-#rsside .r-nnfod{font-size:10px;color:#a09c8c;line-height:1.5;flex:1;min-width:180px;
-  align-self:center}
+/* ══ TEKSTEN LIGGER UNDER RÆKKEN, IKKE VED SIDEN AF KNAPPEN ══════
+   Wendie 09.09.2026: «teksten til hoejre kan ikke vaere der.» Rigtigt —
+   i mockuppen er .nnfod `max-width:340px;align-self:center` UDEN flex,
+   saa den falder ned paa sin egen linje under raekken. Jeg havde givet
+   den `flex:1;min-width:180px`, og saa satte den sig ved siden af
+   «Tilfoej noten» og klemte felterne. */
+#rsside .r-nnfod{font-size:10px;color:#a09c8c;line-height:1.45;max-width:340px;align-self:center;flex:0 0 100%}
 #rsside .r-nnfod b{color:#3d6b4c;font-weight:600}
 
 /* ══ REJSEPLANEN — MOCKUPPENS KOMPAKTE RÆKKER ══════════════════════════
@@ -5869,6 +6013,11 @@ main{min-width:0}
 /* Fristtabellens datocelle klippede «18. sep. 26 kl. 11:00» ved smalle
    vinduer. Klokkeslaettet bryder nu til anden linje i stedet. */
 #rsside .r-fristbox .r-ftab td.r-fd{white-space:normal}
+#rsside .r-fristbox .r-fd .r-fdslags{display:block;font-size:8px;letter-spacing:.14em;
+  text-transform:uppercase;color:#a8a494;font-weight:600;margin-bottom:1px}
+#rsside .r-fristbox .r-fd .r-fdbetal{display:block;font-size:10px;color:#8c8879;margin-top:2px}
+#rsside .r-fristbox .r-fd .r-fdbetal b{font-size:8px;letter-spacing:.14em;
+  text-transform:uppercase;color:#a8a494;font-weight:600}
 
 </style>
 </head>
@@ -5897,7 +6046,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.41';
+const APP_VERSION = 'v1.45';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -14233,6 +14382,11 @@ function planTekst(p){
     /* Flere valgte linjer staar alle i planen — to vaerelser hos hver sin
        leverandoer er stadig ét ophold. */
     const v = linjer.map(villaTekst).filter(Boolean).join('  +  ');
+    /* Wendie 09.09.2026: hotellet kender KUN sin egen reference. Den skal
+       med paa rejseplanen — og dermed paa reisebeviset — for det er den,
+       kunden bliver spurgt om ved check-in. */
+    const href = [...new Set(linjer.map(l2=>(l2.raa||{}).hotelref)
+      .map(x=>String(x||'').trim()).filter(Boolean))];
     /* ══ TRANSFEREN MÅ IKKE FALDE UD ══════════════════════════════════
        Fejl fundet ved test 09.09.2026: delydelserne blev lagt i teksten
        ovenfor og saa OVERSKREVET her. Foelgen var, at speedbaaden og
@@ -14250,7 +14404,8 @@ function planTekst(p){
     /* Et negativt naettetal er ikke en oplysning — det er en fejl, og
        den staar allerede som advarsel. (Scenarietest 09.09.2026.) */
     const nn = (p.fra && p.til) ? naetterMellem(p.fra, p.til) : null;
-    sub = [nn != null && nn > 0 ? nn + (nn===1?' nat':' nætter') : null,
+    sub = [href.length ? 'hotellets ref. ' + escH(href.join(' · ')) : null,
+           nn != null && nn > 0 ? nn + (nn===1?' nat':' nætter') : null,
            p.fra && p.til ? kortDato(p.fra) + ' → ' + kortDato(p.til) : null,
            v,
            dele.length ? [...new Set(dele)].join(' · ')
@@ -15452,6 +15607,13 @@ function tilbudLinjer(){
   if(pakke) advar.push('Tilbuddet er prissat som PAKKE, ikke pr. hotel. '
     + 'Så ligger beløbet samlet i «packageCost» og kan ikke fordeles på ydelserne af sig selv.');
 
+  /* Sig det ÉN gang, hvis der er hotelpriser med: tilbuddet baerer ikke
+     leverandoeren, saa den skal vaelges. Wendie 09.09.2026. */
+  if((p.hotels||[]).some(h=>(h.villas||[]).length))
+    advar.push('Tilbuddet siger ikke, HVOR hotelprisen er købt — '
+      + 'kun hvad den kostede. Vælg leverandøren på prislinjen '
+      + '(Yalago, direkte hos hotellet, en kontrakt …), så dækningsgraden '
+      + 'og betalingen kan følge den rigtige.');
   (p.hotels || []).forEach((ph, i) => {
     const th = (t.hotels || [])[i] || {};
     const val = tilbudVal(ph.currency);
@@ -15466,7 +15628,22 @@ function tilbudLinjer(){
       ud.push({ slags:'hotel', navn: ph.name || th.name || 'Hotel',
         hotel: ph.name || th.name || '', villa: v.name || '', mp: v.mealPlan || '',
         fra, til, naetter: (fra && til) ? naetterMellem(fra, til) : null,
-        pris: tal, val, lev: ph.name || th.name || '',
+        /* ══ TILBUDDET SIGER IKKE, HVOR PRISEN ER KØBT ══════════════
+           Wendie 09.09.2026: «Morten Rydnings tilbud var bygget paa en
+           pris fra Yalago. Men der staar, at den kommer fra en direkte
+           kontrakt, da jeg trykkede hent priser.»
+           Aarsagen maalt i editorens egne data 09.09.2026: tilbuddets
+           pricing.hotels[] har felterne _id, name, villas, currency,
+           transferCost og linkedHotelId — og INGEN leverandoer. Om
+           prisen kom fra Yalago, en bedbank eller en direkte kontrakt,
+           staar ikke i tilbuddet.
+           Jeg satte leverandoeren til HOTELLETS navn, og det laeses som
+           en direkte kontrakt. Panda paastod altsaa noget, den ikke
+           kunne vide — og det er den vaerste slags fejl her: den ser
+           rigtig ud. Feltet staar nu tomt, saa ydelsen siger «mangler en
+           leverandoer», og sælgeren vaelger den. Hotellets navn staar
+           stadig i ydelsens navn, hvor det hoerer. */
+        pris: tal, val, lev: '',
         sted: [th.location, th.transferText].filter(Boolean).join(' · '),
         /* Transferen for SIG, saa den kan foelge med ind paa ydelsen og
            staa paa rejseplanen — ikke kun i tilbudsboksens smaatekst. */
@@ -15592,13 +15769,43 @@ function tilbudLuk(){ TILBUD = null; const b=document.getElementById('tilbudSvar
    Dolphin, netop fordi de er indeholdt. 0 kr. er derfor ikke en manglende
    pris; det er den rigtige pris, og den skal staa. Laegges den samme
    transfer ind igen, bliver den ikke lagt to gange. */
-function transferSub(subs, tekst, val){
+/* ══ HVILKEN SLAGS TRANSPORT ER DET? ═════════════════════════════════
+   Wendie 09.09.2026: «transferen har ikke de korrekte felter og bliver
+   heller ikke lagt korrekt ind, og er derfor ikke synlig i rejseplanen.»
+   Aarsagen: tilbuddets transfertekst — «Sjøfly · ca. 20 min.» — blev
+   brugt som SLAGSEN. Den staar ikke i listen (som har «Vandfly», ikke
+   det norske «Sjøfly»), saa delydelsen fik FLYformen med «Gaelder» i
+   stedet for dato, afgang og ankomst — og uden en dato kan den ikke
+   komme paa rejseplanen.
+   Teksten er en BESKRIVELSE; slagsen skal genkendes af den. Beskrivelsen
+   bliver delydelsens navn, praecis som i mockuppen («Speedbaadstransfer ·
+   Malé → Emerald» som navn, «Speedbaad» som slags).
+   Baade dansk og norsk, for tilbuddene kommer paa begge sprog. */
+function transportSlags(tekst){
+  const t = String(tekst||'').toLowerCase();
+  if(/sj[øo]fly|vandfly|seaplane|sea plane|hydro/.test(t))        return 'Vandfly';
+  if(/speed\s*b[åa]d|speedboat|hurtigb[åa]d|b[åa]dtransfer|\bb[åa]d\b|boat/.test(t)) return 'Speedbåd';
+  if(/indenrigs|domestic|dhc|internal flight|innenriks/.test(t))  return 'Indenrigsfly';
+  if(/\bbil\b|\bcar\b|taxi|limousine|privat transport/.test(t)) return 'Bil';
+  return null;
+}
+function transferSub(subs, tekst, val, datoer){
   const liste = (subs || []).map(x=>({...x}));
   const t = String(tekst || '').trim();
   if(!t) return liste;
   if(liste.some(x=>String(x.t||'').trim().toLowerCase() === t.toLowerCase()))
     return liste;                      /* den er der allerede */
-  liste.push({ t, u:'indeholdt i hotellets pris', p:0, val: val || 'DKK' });
+  const slags = transportSlags(t);
+  /* Uden en dato staar den ikke paa rejseplanen. Ankomstdagen er den
+     rigtige for turen IND; hjemrejsedagen for turen ud. Kan vi ikke se
+     hvilken vej, tager vi ankomstdagen — det er den, kunden moeder
+     foerst. Tiden staar tom: den ved vi ikke, og et gaettet
+     klokkeslaet paa et reisebevis er vaerre end et tomt. */
+  const d = datoer || {};
+  const ud = /→\s*mal|til\s*mal|hjem|departure|afrejse|ud\b/i.test(t) && !/mal\w*\s*→/i.test(t);
+  liste.push({ t, slags: slags || 'Andet', u:'indeholdt i hotellets pris',
+    p:0, val: val || 'DKK', hvor:'plan', pax:[],
+    dato: (ud ? d.til : d.fra) || d.fra || null, ud:null, an:null });
   return liste;
 }
 
@@ -15632,13 +15839,16 @@ async function tilbudLaegInd(){
         const g = (s2.linjer||[]).find(l=>l.slag==='grundlag') || (s2.linjer||[])[0];
         if(g){
           g.pris = x.pris; g.val = x.val; g.kilde = kilde;
-          g.lev = x.lev || g.lev; g.naar = iDag() + ' · ' + (window.ME||'WEN');
+          /* x.lev er nu altid tom fra tilbuddet — en leverandoer, nogen
+             har valgt i forvejen, maa ikke ryddes. */
+          if(x.lev) g.lev = x.lev;
+          g.naar = iDag() + ' · ' + (window.ME||'WEN');
           if(x.villa) g.villaer = [{a:1, t:x.villa, mp:x.mp||''}];
           g.daekker = x.naetter!=null ? x.naetter+' nætter' : (g.daekker||'—');
           /* Wendie 07.09.2026: transferen er en DELYDELSE under hotellet,
              ikke en tekst. Til 0 kr., fordi den er indeholdt i hotellets
              pris — saa siger den «ydelsen findes» uden at flytte summen. */
-          if(x.transfer) g.subs = transferSub(g.subs, x.transfer, x.val);
+          if(x.transfer) g.subs = transferSub(g.subs, x.transfer, x.val, {fra:x.fra, til:x.til});
           if(g._id){
             const r = await db.from('element_prices').update({
               amount:x.pris, currency:x.val, kilde, supplier_name:g.lev||null,
@@ -15681,7 +15891,7 @@ async function tilbudLaegInd(){
         const g2 = (st[ny.id]||{}).linjer && st[ny.id].linjer[0];
         if(g2){
           g2.kilde = kilde;
-          if(x.transfer) g2.subs = transferSub(g2.subs, x.transfer, x.val);
+          if(x.transfer) g2.subs = transferSub(g2.subs, x.transfer, x.val, {fra:x.fra, til:x.til});
         }
         nye++;
       }
@@ -18270,7 +18480,10 @@ function gaelderFrisk(l, g){
 }
 function subHtml(e, l, i, j){
   const s = l.subs[j];
-  const slags = s.slags || s.t || '';
+  /* Gamle raekker har kun `t` (navnet). Kan slagsen genkendes af
+     teksten, bruges den — saa faar en transfer sine datofelter, ogsaa
+     naar den blev lagt ind foer 09.09.2026. */
+  const slags = s.slags || transportSlags(s.t) || s.t || '';
   const transport = DELY_TRANSPORT.includes(slags);
   const navne = paxPaaLinje(l);
   const valgte = Array.isArray(s.pax) ? s.pax : [];
@@ -18303,9 +18516,14 @@ function subHtml(e, l, i, j){
       <span class="y-dx" title="Fjern delydelsen"
         onclick="event.stopPropagation();RS.sletLSub('${e.id}',${i},${j})">×</span></div>
     <div class="y-dr">
+      <!-- Foer blev en hel beskrivelse («Sjøfly · ca. 20 min.») lagt ind
+           som en VALGMULIGHED i listen, fordi den stod i s.slags. Kan
+           slagsen genkendes af teksten, bruges den; ellers staar der
+           «Andet», og beskrivelsen bliver ved med at vaere delydelsens
+           NAVN. (Wendie 09.09.2026.) -->
       <span class="r-f"><label>Slags</label>
         <select onchange="RS.subSlagsSaet('${e.id}',${i},${j},this.value)">${
-          [...new Set([slags, ...delySlags(e)])].filter(Boolean).map(x=>
+          [...new Set([...delySlags(e), 'Andet'])].filter(Boolean).map(x=>
             `<option${x===slags?' selected':''}>${escH(x)}</option>`).join('')}</select></span>
       ${transport ? `
         <span class="r-f"><label>Dato</label>
@@ -18493,7 +18711,7 @@ function foldInHtml(e, l, i){
 function linjeKrop(e, l, i){
   const kanRette = l.slag === 'manuel';
   const R = l.raa || (l.raa = {});
-  const h = l.hold || (l.hold = {aktiv:false, dato:'', tid:'17:00', note:''});
+  const h = l.hold || (l.hold = {aktiv:false, dato:'', tid:'17:00', betal:'', note:''});
   const harPlan = (l.segmenter||[]).length > 0;
   const navne = paxListe();
   const valgtePax = linjePax(l);
@@ -18561,13 +18779,33 @@ function linjeKrop(e, l, i){
         <span class="r-laast"><span class="r-sw ${h.aktiv?'r-on':''}"
           title="Har vi en option — en frist, hvor pladsen holdes?"
           onclick="event.stopPropagation();RS.saetLinjeHold('${e.id}',${i},'aktiv',${!h.aktiv})"></span></span></span>
+      <!-- ══ TRE FORSKELLIGE SLAGS FRISTER ═══════════════════════════
+           Wendie 09.09.2026: «fristen paa hotel-leverandoerer skal vaere
+           betalings- og cancellationsfrister. Det er ikke det samme som en
+           udstedelsesfrist, som flybilletterne har.»
+           Rigtigt, og de tre koster hver sin ting:
+           · UDSTEDELSESFRIST (fly) — udloeber den, er billetten vaek.
+           · AFBESTILLINGSFRIST (hotel) — efter den koster en afbestilling
+             penge, ogsaa hvis kunden aflyser. Det er RISIKO-datoen.
+           · BETALINGSFRIST (hotel) — hvornaar leverandoeren skal have
+             pengene. Det er LIKVIDITET, ikke risiko.
+           Ét felt kaldet «Frist» kunne ikke baere den forskel, og et hotel
+           har brug for to af dem. -->
       <span class="y-optboks"${h.aktiv?'':' style="display:none"'}>
-        <span class="r-f"><label>${e.slags === 'fly' ? 'Udstedelsesfrist' : 'Frist'}</label>
+        <span class="r-f"><label>${e.slags === 'fly' ? 'Udstedelsesfrist' : 'Afbestillingsfrist'}</label>
           <input type="date" value="${escH(h.dato||'')}" style="width:126px"
+            title="${e.slags === 'fly'
+              ? 'Udløber den, er billetten væk'
+              : 'Sidste dag opholdet kan afbestilles uden at koste penge'}"
             onchange="RS.saetLinjeHold('${e.id}',${i},'dato',this.value)"></span>
         <span class="r-f"><label>Klokkeslæt</label>
           <input class="y-tal" value="${escH(h.tid||'17:00')}" style="width:58px"
             onchange="RS.saetLinjeHold('${e.id}',${i},'tid',this.value)"></span>
+        ${e.slags === 'fly' ? '' : `
+        <span class="r-f"><label>Betalingsfrist</label>
+          <input type="date" value="${escH(h.betal||'')}" style="width:126px"
+            title="Hvornår leverandøren skal have pengene"
+            onchange="RS.saetLinjeHold('${e.id}',${i},'betal',this.value)"></span>`}
         <span class="r-f r-bred"><label>Hvad er aftalt</label>
           <input value="${escH(h.note||'')}" placeholder="hvad er aftalt?"
             onchange="RS.saetLinjeHold('${e.id}',${i},'note',this.value)"></span>
@@ -18628,9 +18866,23 @@ function linjeKrop(e, l, i){
         <input type="number" min="1" class="y-tal y-naet" style="width:62px"
           value="${escH(String(R.naetter || naetterAf(e) || ''))}"
           onchange="RS.saetLinjeSpan('${e.id}',${i},'naetter',this.value)"></span>
+      <!-- ══ TO REFERENCER, IKKE ÉN ══════════════════════════════════
+           Wendie 09.09.2026: «for 3.-parts leverandoerer er det ogsaa
+           vigtigt, at der er en reference baade fra leverandoeren og
+           hotelreferencen. Det skal vi kunne taste ind.»
+           Koeber vi gennem Yalago, giver Yalago os deres bookingnummer —
+           og hotellet har sit eget. Ved check-in kender hotellet KUN sit
+           eget, saa det er den, kunden skal have med paa reisebeviset.
+           Begge staar her, og begge foelger med i rejseplanen. -->
       <span class="r-f r-br"><label>Reference hos leverandøren</label>
-        <input value="${escH(l.ref || '')}" placeholder="bookingnr., hvis vi har fået et"
+        <input value="${escH(l.ref || '')}" placeholder="bookingnr. hos Yalago, Hummingbird …"
+          title="Vores bookingnummer hos den, vi køber af"
           onchange="RS.saetLinjeRef('${e.id}',${i},this.value)"></span>
+      <span class="r-f r-br"><label>Hotellets reference</label>
+        <input value="${escH((l.raa||{}).hotelref || '')}"
+          placeholder="hotellets eget bekræftelsesnr."
+          title="Det nummer hotellet selv kender bookingen under — det kunden skal have med"
+          onchange="RS.saetLinjeF('${e.id}',${i},'hotelref',this.value)"></span>
       ${l.datofejl ? `<span class="r-f"><label></label>
         <span class="r-laast r-mangl">${escH(l.datofejl)}</span></span>` : ''}
       ${(()=>{
@@ -19546,9 +19798,17 @@ function tegnFrister(){
              linjeKurs() er det ene sted, der ved, hvad linjen bruger. -->
         <td class="r-fp3">${kr(l.pris, l.val)}${l.val!=='DKK'
           ? ` <span>≈ ${krD(l.pris * linjeKurs(l, l.val))}</span>` : ''}</td>
+        <!-- Wendie 09.09.2026: en udstedelsesfrist, en afbestillingsfrist
+             og en betalingsfrist er tre forskellige ting. Tabellen siger
+             nu HVILKEN slags — ellers kan man ikke se, om en overskredet
+             frist koster en billet, en afbestilling eller et rykkergebyr.
+             Den, der udloeber foerst, staar oeverst (sorteringen bruger
+             h.dato, som er den, der koster noget). -->
         <td class="r-fd">${h.dato
-          ? `${fmtDY(h.dato)}${h.tid ? ` <span>kl. ${escH(h.tid)}</span>` : ''}`
-          : '<span>ingen frist sat</span>'}</td>
+          ? `<span class="r-fdslags">${e.slags === 'fly' ? 'udstedelse' : 'afbestilling'}</span>
+             ${fmtDY(h.dato)}${h.tid ? ` <span>kl. ${escH(h.tid)}</span>` : ''}`
+          : '<span>ingen frist sat</span>'}${h.betal
+          ? `<span class="r-fdbetal"><b>betaling</b> ${fmtDY(h.betal)}</span>` : ''}</td>
         <td class="r-fk">${escH(fristOm(h))}</td>
         <td class="r-fo"${h.note ? ` title="${escH(h.note)}"` : ''}>${h.note ? escH(h.note)
           : '<span class="r-ftom">intet skrevet</span>'}</td></tr>`;
@@ -21595,7 +21855,7 @@ return {
   /* ── Mockuppens nye felter paa prislinjen (09.09.2026) ── */
   KABINER, DELY_FLY, DELY_ANDET, DELY_TRANSPORT, delySlags, talD,
   ydNavn, ydRest, spanKort, YD_NAVN, linjeSelskab, talInd, harKurs,
-  gaelderTekst, gaelderFrisk,
+  gaelderTekst, gaelderFrisk, transferSub, transportSlags,
   rejsendeTekst, datoSpan, langDato, opdaterPaxTop, harPris,
   valutaValg, linjeManglerKurs, delyGaelderVaek, TOM_LINJE,
   delyPlanTekst, retBenBraet, nytBenBraet,
@@ -21684,6 +21944,8 @@ async function viewMel(id){
                 kurser: d.kurser||{}, std: (rd&&rd.data)||{bank_fee_dkk:500,round_to:500,target_dg_pct:20.3},
                 aabne:{} };
   mlRenderBund();
+  mlStdNation();
+  mlFraBooking();
   /* ══ REJSEPLANEN TEGNES FØR DE REJSENDE ER HENTET ═════════════════
      Rejseplanens referencetabel skriver, HVEM der staar paa hver
      bookingreference — og den laeser ML.rejsende, som hentes her,
@@ -22152,9 +22414,20 @@ function mlRenderBund(){
              bliver: maalet og «Gem prisen» hoerer ved prisen til kunden. -->
         <div class="mljvaerk" id="mlVaerk">
           <div class="mlknapper">
+            <!-- ══ EN REGNEMASKINE OG EN GEMNING SER LIGE UD ═══════════
+                 Wendie 09.09.2026: «hvis jeg skal gemme den nye pris paa
+                 91200, hvordan goer jeg saa det? hvad er disse to knapper
+                 reelt til for?» Spoergsmaalet er svaret: de sagde det ikke.
+                 · Den foerste REGNER — den flytter tallet i feltet, saa
+                   daekningsgraden rammer maalet. Intet gemmes.
+                 · Den anden GEMMER feltets tal som kundens pris.
+                 Knappen viser derfor nu BELOEBET, saa man kan se, hvad
+                 man gemmer, foer man trykker. -->
             <button class="btn ghost" onclick="mlBrugMaal()"
-              title="Målet står i indstillingerne (fx_pricing_defaults.target_dg_pct) og gælder alle rejser">Sæt prisen til målet · ${mlNf1(ML.std.target_dg_pct)} %</button>
-            <button class="btn ghost" onclick="mlGemPrisTilKunde()">Gem prisen</button>
+              title="Regner prisen ud, så dækningsgraden rammer målet. Gemmer ikke — målet står i fx_pricing_defaults.target_dg_pct og gælder alle rejser."
+              >Regn prisen ud fra målet · ${mlNf1(ML.std.target_dg_pct)} %</button>
+            <button class="btn ghost" id="mlGemKnap" onclick="mlGemPrisTilKunde()"
+              title="Skriver beløbet i feltet «Kundens pris» som rejsens pris">Gem prisen</button>
           </div>
         </div>
       </div>
@@ -22163,7 +22436,7 @@ function mlRenderBund(){
         <div class="u" id="mlDbTxt"></div>
         <div class="sam" id="mlDbSam"></div>
       </div>
-      <div class="mlsalg" id="mlSalg"></div>`;
+`;
 
   /* bekraeftelsesbjaelken, nederst i prisberegningen */
   const bund = document.getElementById('mlBund');
@@ -22219,6 +22492,24 @@ function mlAlder(dob, paa){
 const TITLER   = ['—','Mr','Mrs','Ms','Miss','Chd','Inf'];
 const KOEN     = ['M','K','X'];
 const NATIONER = ['Dansk','Norsk','Svensk','Anden'];
+/* ══ EN NORSK REJSE HAR NORSKE REJSENDE ══════════════════════════════
+   Wendie 09.09.2026: «naar det er en norsk rejse, saa skal de rejsendes
+   nationalitet saettes til norsk automatisk.»
+   MN er Maldivia NO og saelger i NOK; MD er Maldivia DK. I de tilfaelde
+   VED vi, hvad der skal staa, og feltet skal vaere udfyldt, foer en
+   billet kan udstedes — saa det skrives, ikke bare vises.
+   MIT (EUR) gaetter vi ikke paa: Italien staar ikke i listen, og en
+   forkert nationalitet paa en billet er vaerre end en tom.
+   To ufravigelige regler:
+   · Vi overskriver ALDRIG noget, et menneske har tastet — kun tomme
+     felter udfyldes.
+   · Vi skriver ikke bagefter, naar nogen skifter branche: en rejse, der
+     flyttes fra MD til MN, faar ikke sine rejsende gjort norske i det
+     skjulte. Da skal et menneske se paa det. */
+const BRANCH_NATION = {MN:'Norsk', NO:'Norsk', MD:'Dansk', DK:'Dansk'};
+function stdNation(branch){
+  return BRANCH_NATION[String(branch||'').toUpperCase().trim()] || null;
+}
 const BONUSPROGRAMMER = ['—','EuroBonus (SAS)','Etihad Guest','Skywards (Emirates)',
   'Privilege Club (Qatar)','Miles & More (Lufthansa)','Flying Blue (AF/KL)'];
 /* TSHIRTS er i forvejen taget af rejsegavernes liste et andet sted i
@@ -22252,6 +22543,25 @@ function mlPaxGruppe(a){
    feltet, gemmes det paa personen. Der skrives intet af sig selv — en
    oplysning, appen selv har gemt, kan man ikke se forskel paa fra en,
    nogen har tastet. */
+/* ══ KUNDENS ADRESSE, ÉT FELT AD GANGEN ══════════════════════════════
+   Wendie 09.09.2026. Gemmes i customers.postal_address (jsonb med street,
+   postal_code, city, country) — strukturen fandtes i forvejen, saa der
+   skal ingen ny kolonne til, og man kan taelle paa by og land direkte i
+   basen. Kun det felt, der roeres, skrives; de tre andre staar. */
+async function mlKundeAdresse(felt, v){
+  const c = (ML.trip && ML.trip.customers) || null;
+  const id = ML.trip && ML.trip.customer_id;
+  if(!c || !id) return;
+  const pa = {...(c.postal_address || {})};
+  const t = String(v||'').trim();
+  if(t) pa[felt] = t; else delete pa[felt];
+  const tom = !Object.keys(pa).length;
+  const {error} = await db.from('customers')
+    .update({postal_address: tom ? null : pa}).eq('id', id);
+  if(error){ mlKvit('Adressen kunne ikke gemmes: ' + error.message, true); return; }
+  c.postal_address = tom ? null : pa;
+  mlKvit('Adressen er gemt');
+}
 function mlKundeKladde(){
   const c = (ML.trip && ML.trip.customers) || {};
   const pa = c.postal_address || {};
@@ -22279,6 +22589,8 @@ function mlTegnPax(){
        is_lead. Fundet ved efterproevning 09.09.2026. */
     const nogenValgt = (ML.rejsende||[]).some(x=>x.er_kontaktperson);
     const kontakt = nogenValgt ? !!tt.er_kontaktperson : !!p.is_lead;
+    /* Kundens adresse — den strukturerede, fra customers.postal_address. */
+    const kadr = (ML.trip && ML.trip.customers && ML.trip.customers.postal_address) || {};
     const medf = tt.rejser_med !== false;
     const T = (id, felt) => `mlPaxSaet('${id}','${felt}',this.value)`;
     const vaelg = (liste, valgt) => liste.map(x =>
@@ -22313,8 +22625,16 @@ function mlTegnPax(){
           <span class="r-f"><label>Gruppe</label><span class="r-laast">${escH(gruppe)}</span></span>
           <span class="r-f"><label>Køn</label>
             <select onchange="${T(p.id,'gender')}">${vaelg(KOEN, p.gender)}</select></span>
+          <!-- Feltet faldt tilbage paa «Dansk», naar det var tomt — ogsaa
+               paa en MN-rejse. Det er det vaerste af to onder: det SER
+               udfyldt ud, det er forkert, og der staar intet i basen.
+               Nu falder det tilbage paa branchens egen nationalitet, og
+               kan vi ikke vide det (MIT), staar der «— vaelg —».
+               Wendie 09.09.2026. -->
           <span class="r-f"><label>Nationalitet</label>
-            <select onchange="${T(p.id,'nationality')}">${vaelg(NATIONER, p.nationality||'Dansk')}</select></span>
+            <select onchange="${T(p.id,'nationality')}">${
+              p.nationality ? '' : '<option value="" selected>— vælg —</option>'
+              }${vaelg(NATIONER, p.nationality || stdNation(ML.trip.branch))}</select></span>
         </div>
         <div class="r-bt r-mt">Kontakt</div>
         <div class="r-fr">
@@ -22328,9 +22648,35 @@ function mlTegnPax(){
           <span class="r-f r-br"><label>Mobil</label>
             <input placeholder="${escH(kontakt && kladde.phone ? kladde.phone + ' (fra bookingen)' : 'mangler')}"
               value="${escH(p.phone||'')}" onchange="${T(p.id,'phone')}"></span>
-          <span class="r-f r-bred"><label>Adresse</label>
-            <input placeholder="${escH(kontakt && kladde.adresse ? kladde.adresse + ' (fra bookingen)' : 'vej, postnr., by')}"
-              value="${escH(p.adresse||'')}" onchange="${T(p.id,'adresse')}"></span>
+          <!-- ══ ADRESSEN I FIRE FELTER ══════════════════════════════
+               Wendie 09.09.2026: «hvor er adressen ikke delt ind i felter,
+               saa vi kan tracke data i forhold til by, adresse og land
+               bl.a.»
+               Strukturen fandtes i forvejen: customers.postal_address er
+               jsonb med street, postal_code, city og country. Den blev
+               bare vist som ÉN linje, saa den saa ustruktureret ud — og
+               den var kun udfyldt paa 2 af 1.226 kunder, fordi ingenting
+               flyttede den fra bookingen.
+               Paa KONTAKTPERSONEN staar kundens fire felter, og de gemmes
+               i postal_address, saa man kan taelle paa by og land. Er
+               personen ikke kontaktperson, er det hendes egen adresse,
+               og den er ét felt som i mockuppen. -->
+          ${kontakt ? `
+            <span class="r-f r-br"><label>Adresse</label>
+              <input placeholder="vej og nummer" value="${escH(kadr.street||'')}"
+                onchange="mlKundeAdresse('street',this.value)"></span>
+            <span class="r-f"><label>Postnr.</label>
+              <input style="width:78px" placeholder="1437" value="${escH(kadr.postal_code||'')}"
+                onchange="mlKundeAdresse('postal_code',this.value)"></span>
+            <span class="r-f r-br"><label>By</label>
+              <input placeholder="by" value="${escH(kadr.city||'')}"
+                onchange="mlKundeAdresse('city',this.value)"></span>
+            <span class="r-f"><label>Land</label>
+              <input style="width:110px" placeholder="Danmark" value="${escH(kadr.country||'')}"
+                onchange="mlKundeAdresse('country',this.value)"></span>`
+          : `<span class="r-f r-bred"><label>Adresse</label>
+              <input placeholder="vej, postnr., by"
+                value="${escH(p.adresse||'')}" onchange="${T(p.id,'adresse')}"></span>`}
         </div>
         <div class="r-bt r-mt">Rejsedokumenter</div>
         <div class="r-fr">
@@ -22517,8 +22863,13 @@ async function mlPaxTilfoej(){
      midt i en formular er et brud paa flowet — og navnet skal alligevel
      kunne rettes bagefter, saa det staar som i passet. */
   const navn = 'Ny rejsende';
+  /* En ny rejsende paa en norsk rejse er norsk, indtil nogen siger
+     andet. Wendie 09.09.2026. */
+  const nyNat = stdNation(ML.trip && ML.trip.branch);
   const {data:tr, error:e1} = await db.from('travelers')
-    .insert({customer_id: ML.trip.customer_id, full_name: navn.trim()}).select('id,full_name,date_of_birth,is_lead').single();
+    .insert({customer_id: ML.trip.customer_id, full_name: navn.trim(),
+             ...(nyNat ? {nationality: nyNat} : {})})
+    .select('id,full_name,date_of_birth,is_lead,nationality').single();
   if(e1){ alert(e1.message); return; }
   const {data:tt, error:e2} = await db.from('trip_travelers')
     .insert({trip_id: ML.trip.id, traveler_id: tr.id}).select('id,note').single();
@@ -22538,6 +22889,107 @@ async function mlPaxFjern(ttId){
   if(error){ alert(error.message); return; }
   ML.rejsende = ML.rejsende.filter(x=>x.id!==ttId);
   mlTegnPax();
+}
+
+/* ══ DET LEDET DER MANGLEDE: BOOKINGEN → KUNDEN ══════════════════════
+   Wendie 09.09.2026: «hvorfor er disse ikke udfyldt med infoen fra
+   formspree?»
+   Fordi ingenting flyttede den. Bookingformularen leverer ALT — maalt
+   09.09.2026: alle 8 bookinger har adresse, postnr+by, land og telefon —
+   men det bliver liggende i booking_requests. Rejsesiden laeser
+   customers og travelers, og dér var telefonen udfyldt paa 10 af 1.226.
+   Det var ikke en laesefejl; det var et manglende led.
+   Reglerne er de samme som for nationaliteten:
+   · Kun TOMME felter udfyldes. Vi overskriver aldrig noget, et menneske
+     har tastet — bookingen kan vaere et aar gammel.
+   · Hvert kald kontrolleres, og fejler ét, siges det hoejt.
+   · Der kvitteres for det, saa man kan SE, at appen har skrevet noget.
+     En oplysning, ingen ved kommer fra os, er den slags man stoler paa
+     uden at have tastet den.
+   «1365 Blommenholm» deles i postnummer og by; er der intet postnummer,
+   staar det hele som by — hellere en by uden postnummer end et gaet. */
+function delPostnrBy(s2){
+  const t = String(s2||'').trim();
+  if(!t) return {};
+  const m = /^([0-9][0-9\s]{2,7})\s+(.+)$/.exec(t);
+  if(m) return {postal_code: m[1].replace(/\s+/g,''), city: m[2].trim()};
+  return {city: t};
+}
+async function mlFraBooking(){
+  const t = ML.trip, id = t && t.customer_id;
+  if(!t || !id || !t.lead_id) return;
+  const c = t.customers || {};
+  const pa = c.postal_address || {};
+  /* Er alt udfyldt i forvejen, er der intet at hente. */
+  if(c.phone && pa.street && pa.city && pa.country) return;
+  const {data, error} = await db.from('booking_requests')
+    .select('kontakt_telefon,kontakt_email,adresse,postnr_by,land,created_at')
+    .eq('lead_id', t.lead_id).order('created_at', {ascending:false}).limit(1);
+  if(error){ console.warn('bookingen kunne ikke hentes', error.message); return; }
+  const bk = (data||[])[0];
+  if(!bk) return;
+  const del = delPostnrBy(bk.postnr_by);
+  const nyPa = {...pa};
+  if(!nyPa.street && bk.adresse)     nyPa.street = bk.adresse;
+  if(!nyPa.postal_code && del.postal_code) nyPa.postal_code = del.postal_code;
+  if(!nyPa.city && del.city)         nyPa.city = del.city;
+  if(!nyPa.country && bk.land)       nyPa.country = bk.land;
+  const felter = {};
+  if(!c.phone && bk.kontakt_telefon) felter.phone = String(bk.kontakt_telefon).trim();
+  if(!c.email && bk.kontakt_email)   felter.email = String(bk.kontakt_email).trim();
+  if(JSON.stringify(nyPa) !== JSON.stringify(pa) && Object.keys(nyPa).length)
+    felter.postal_address = nyPa;
+  if(!Object.keys(felter).length) return;
+  const r = await db.from('customers').update(felter).eq('id', id);
+  if(r.error){ mlKvit('Kundens oplysninger kunne ikke gemmes: ' + r.error.message, true); return; }
+  Object.assign(c, felter);
+  t.customers = c;
+  mlTegnPax();
+  const hvad = [];
+  if(felter.phone) hvad.push('telefon');
+  if(felter.email) hvad.push('e-mail');
+  if(felter.postal_address) hvad.push('adresse');
+  mlKvit('Hentet fra bookingen: ' + hvad.join(', ') + ' — tjek at det passer');
+}
+
+/* ══ NATIONALITETEN SÆTTES, NÅR REJSEN ÅBNES ════════════════════════
+   Wendie 09.09.2026: «naar det er en norsk rejse, saa skal de rejsendes
+   nationalitet saettes til norsk automatisk.»
+   Kun de TOMME felter, kun paa en branche vi kender, og hver skrivning
+   kontrolleres — fejler den, siges det hoejt i stedet for at feltet
+   staar og ser udfyldt ud paa skaermen uden at vaere det i basen.
+   Kvitteringen naevner, hvor mange der blev sat, saa man kan se, at
+   appen har skrevet noget — en oplysning, ingen ved kommer fra os, er
+   den slags, man kommer til at stole paa uden at have tastet den. */
+async function mlStdNation(){
+  const nat = stdNation(ML.trip && ML.trip.branch);
+  if(!nat) return;
+  const mangler = (ML.rejsende||[]).filter(tt=>{
+    const p2 = tt.travelers || {};
+    return p2.id && !String(p2.nationality||'').trim();
+  });
+  if(!mangler.length) return;
+  let sat = 0;
+  for(const tt of mangler){
+    const p2 = tt.travelers;
+    const {error} = await db.from('travelers')
+      .update({nationality: nat}).eq('id', p2.id);
+    if(error){
+      mlKvit('Nationaliteten kunne ikke sættes på ' + (p2.full_name||'en rejsende')
+        + ': ' + error.message, true);
+      return;
+    }
+    p2.nationality = nat; sat++;
+  }
+  if(!sat) return;
+  /* RS baerer ogsaa de rejsende — begge steder skal vise det samme. */
+  try { if(window.RS && RS.tegnListe) RS.tegnListe(); } catch(_){}
+  mlTegnPax();
+  mlKvit(sat === 1
+    ? 'Nationaliteten er sat til ' + nat.toLowerCase() + ' på én rejsende — rejsen er '
+      + (BRANCH_LABEL[ML.trip.branch] || ML.trip.branch)
+    : 'Nationaliteten er sat til ' + nat.toLowerCase() + ' på ' + sat + ' rejsende — rejsen er '
+      + (BRANCH_LABEL[ML.trip.branch] || ML.trip.branch));
 }
 
 /* ══ KURSER ══ */
@@ -22824,11 +23276,17 @@ function mlTegnSalg(r, pris, prisDkk){
           ? `rettet i hånden — den effektive er <b>${mlNf4(eff)}</b> · marked <b>${mlNf4(marked)}</b>
              <span class="lnk" onclick="mlNulstilSalgskurs()">brug den effektive</span>`
           : `den effektive kurs fra Kurserne · marked <b>${mlNf4(marked)}</b>`}</td></tr>
-      ${raek('Kunden betaler', mlNf(beloeb), '<b>'+escH(v)+'</b>', true)}
-      ${raek('Regnet forsigtigt', mlNf(dkkVi), 'DKK — dét dækningsgraden bygger på')}
-      ${raek('Veksler vi dem', mlNf(dkkBank), 'DKK — bankens kurs <b>'+mlNf4(bank)+'</b> · <b>'
-        + mlNf(dkkBank - dkkVi) + ' DKK</b> mere end vi regnede med')}
-      ${raek('I regnskabet', mlNf(dkkMarked), 'DKK — Nationalbankens kurs <b>'+mlNf4(marked)
+      <!-- ══ ENHEDEN HØRER TIL TALLET ═══════════════════════════════
+           Wendie 09.09.2026: «teksten i boksen staar naesten oveni
+           hinanden.» En del af det var, at valutaen laa i FORKLARINGS-
+           spalten, saa der stod «60.685,31DKK» uden luft — og i en smal
+           spalte brød linjen mellem tallet og dets enhed. 149.051,65 og
+           DKK er ét tal; nu staar de sammen, og forklaringen for sig. -->
+      ${raek('Kunden betaler', mlNf(beloeb) + ' <em>' + escH(v) + '</em>', '', true)}
+      ${raek('Regnet forsigtigt', mlNf(dkkVi) + ' <em>DKK</em>', 'dét dækningsgraden bygger på')}
+      ${raek('Veksler vi dem', mlNf(dkkBank) + ' <em>DKK</em>', 'bankens kurs <b>'+mlNf4(bank)
+        + '</b> · <b>' + mlNf(dkkBank - dkkVi) + ' DKK</b> mere end vi regnede med')}
+      ${raek('I regnskabet', mlNf(dkkMarked) + ' <em>DKK</em>', 'Nationalbankens kurs <b>'+mlNf4(marked)
         + '</b> · <b>' + mlNf(dkkMarked - dkkVi) + ' DKK</b> mere end vi regnede med')}
     </table>
     <p class="sfod">Pengene går ind på den <b>${v==='NOK'?'norske':'udenlandske'} konto som
@@ -22889,7 +23347,7 @@ const BRANCHER = [['MD','MD · Maldivia DK — DKK'],['MN','MN · Maldivia NO �
                   ['MIT','MIT · Maldivia IT — EUR']];
 function mlRetr(val, pris, dg){
   const t = ML.trip;
-  return `<div class="r-retr">
+  return `<div class="r-retr" id="mlRetrBoks">
     <span class="r-f"><label>Branche</label>
       <select onchange="mlSaetBranche(this.value)">${BRANCHER.map(([k,v])=>
         `<option value="${k}"${(t.branch===k)?' selected':''}>${escH(v)}</option>`).join('')}</select></span>
@@ -23060,14 +23518,61 @@ function mlRegn(tegnKurs){
     bankmarginen og risikobufferen på NOK.</div>`;
   /* Tabellen, ordret mockuppens .btab — med et hoved og en «Ydelser»-
      overskrift over. */
-  document.getElementById('mlRegn').innerHTML =
-    `<div class="r-bt">Ydelser</div>
+  /* ══ FELTET MAN STÅR I MÅ IKKE BLIVE UDSKIFTET ══════════════════════
+     Wendie 09.09.2026: «hver gang jeg taster et tal i disse bokse, saa
+     bliver jeg smidt ud af feltet.»
+     Aarsagen: hvert tastetryk kalder mlFraPris()/mlFraDG() → mlRegn(),
+     og mlRegn satte HELE blokkens innerHTML — inklusive de to <input>,
+     man stod i. Elementet under markoeren blev altsaa slettet og lavet
+     forfra ved hvert tegn, saa fokus og markoerposition gik med.
+     Samme fejl er rettet to gange foer i det her projekt (foedselsdatoen
+     01.09. og prislinjens felter 04.09.); reglen staar allerede skrevet:
+     «Feltet man staar i maa ALDRIG blive erstattet midt i en
+     indtastning.» Den gjaldt ikke prisberegnerens egne felter.
+     Nu: findes boksen, bliver den STAAENDE. Tabellen ovenover tegnes om
+     som foer, og de tal i boksen, der er afledt, opdateres i stedet —
+     det goer mlFraPris/mlFraDG i forvejen. */
+  const regn = document.getElementById('mlRegn');
+  const gl = document.getElementById('mlRetrBoks');
+  const tabel = `<div class="r-bt">Ydelser</div>
      <table class="btab">
        <tr class="hd"><td></td><td class="h">Som købt</td><td class="h">Kurs</td>
          <td class="h">I kroner</td></tr>
        ${h}
-     </table>
-     ${mlRetr(val, pris, dg)}`;
+     </table>`;
+  if(gl){
+    /* ══ AT FLYTTE NODEN ER LIGE SÅ SLEMT SOM AT SLETTE DEN ══════════
+       Foerste forsoeg tog boksen ud med .remove() og satte den tilbage.
+       Det virkede ikke: fjerner man en node, der indeholder det aktive
+       element, MISTER det fokus — browseren har ingen hukommelse om det.
+       Maalt 09.09.2026: seks tastetryk, seks tab af fokus, og feltet endte
+       med ét tegn, fordi de fem sidste gik i ingenting.
+       Tabellen har derfor sin EGEN beholder, og boksen med felterne
+       roeres slet ikke. */
+    const tb = document.getElementById('mlTabel');
+    if(tb) tb.innerHTML = tabel;
+    /* Kun etiketten kan have skiftet (kundens valuta). */
+    const lbl = gl.querySelector('label b');
+    if(lbl && lbl.textContent !== val) lbl.textContent = val;
+    const pE = document.getElementById('mlPrisE');
+    if(pE) pE.textContent = val;
+    mlGemKnapTekst();
+  } else {
+    /* ══ SALGSBOKSEN HØRER I VENSTRE, BREDE SPALTE ══════════════════
+       Wendie 09.09.2026: «den blaa boks med priserne i udenlandsk valuta
+       er placeret forkert — se mockup vs. live.»
+       Rigtigt. I mockuppen er .salgsboks sidste barn i VENSTRE spalte,
+       under retteraekken (.bereg er et grid: minmax(0,1fr) og 296 px, og
+       boksen staar foer .turkis, altsaa i den brede spalte). Jeg havde
+       lagt den i HOEJRE spalte under daekningsgraden — 296 px bred, og
+       saa broed baade tabellen og forklaringerne.
+       Den staar nu, hvor mockuppen har den. Beholderen er en soester til
+       tabellen, saa den ikke bliver tegnet om, naar man taster. */
+    regn.innerHTML = '<div id="mlTabel">' + tabel + '</div>'
+      + mlRetr(val, pris, dg)
+      + '<div class="mlsalg" id="mlSalg"></div>';
+    mlGemKnapTekst();
+  }
   mlTegnSalg(r, pris, prisDkk);
 
   /* ══ ÉT TAL, ÉT STED ══
@@ -23132,6 +23637,7 @@ function mlRegn(tegnKurs){
    «Cannot read properties of null» og stoppede midt i opbygningen, saa
    kostprisen og daekningsgraden stod tomme. */
 function mlFraPris(){
+  setTimeout(mlGemKnapTekst, 0);
   const pf = document.getElementById('mlPris');
   const df = document.getElementById('mlDG');
   if(!pf){ mlRegn(); return; }
@@ -23141,6 +23647,7 @@ function mlFraPris(){
   mlRegn();
 }
 function mlFraDG(){
+  setTimeout(mlGemKnapTekst, 0);
   const pf = document.getElementById('mlPris');
   const df = document.getElementById('mlDG');
   if(!df){ mlRegn(); return; }
@@ -23162,14 +23669,54 @@ function mlBrugMaal(){
   document.getElementById('mlPris').value = mlNf(mlPrisVed(Number(ML.std.target_dg_pct)||20, r.kost) * r.kk);
   mlFraPris();
 }
+/* Knappen viser beloebet, saa man kan se, HVAD man gemmer. Er tallet det
+   samme som det gemte, er der intet at gemme, og knappen siger det. */
+function mlGemKnapTekst(){
+  const k = document.getElementById('mlGemKnap');
+  const pf = document.getElementById('mlPris');
+  if(!k || !pf) return;
+  const val = ML.trip.customer_currency || 'DKK';
+  const nu = mlTal(pf.value), gemt = Number(ML.trip.accepted_price) || 0;
+  if(!nu){ k.textContent = 'Gem prisen'; k.disabled = true; return; }
+  k.disabled = false;
+  k.textContent = Math.abs(nu - gemt) < 0.5
+    ? 'Prisen er gemt' : 'Gem ' + mlNf(nu) + ' ' + val + ' som rejsens pris';
+  if(Math.abs(nu - gemt) < 0.5) k.disabled = true;
+}
 async function mlGemPrisTilKunde(){
   const pris = mlTal(document.getElementById('mlPris').value);
   if(!pris){ alert('Skriv en pris først.'); return; }
+  const val = ML.trip.customer_currency || 'DKK';
+  const gl = Number(ML.trip.accepted_price) || 0;
+  const glVal = ML.trip.accepted_currency || val;
+  /* ══ DET KUNDEN ACCEPTEREDE, ER EN KENDSGERNING ═══════════════════
+     Wendie 09.09.2026 spurgte, hvad knappen er til for. Svaret var
+     vaerre end labelen: den overskrev accepted_price — altsaa selve
+     REGISTRERINGEN af, hvad kunden har sagt ja til, med dato og
+     tilbudsnummer — uden at spoerge og uden at sige det. Boksen lige
+     over siger «Kunden accepterede 88.500 NOK»; ét tryk gjorde det til
+     91.200, og den oprindelige aftale var vaek fra skaermen.
+     Nu spoerges der, naar beloebet ER en aendring af en accepteret
+     pris — og teksten siger, hvad det betyder: kunden skal have det at
+     vide. Selve aendringen gemmes i audit_log af trg_audit_trips, saa
+     den staar i Historikken bagefter (kontrolleret 09.09.2026). */
+  if(gl && Math.abs(pris - gl) >= 0.5){
+    const ok = confirm(
+      'Kunden har accepteret ' + mlNf(gl) + ' ' + glVal + '.\n\n'
+      + 'Gemmer du ' + mlNf(pris) + ' ' + val + ', er DET rejsens pris fra nu '
+      + '— og kunden skal have det at vide.\n\n'
+      + 'Ændringen står i Historikken bagefter.\n\nGem den nye pris?');
+    if(!ok) return;
+  }
   const {error} = await db.from('trips').update({accepted_price:pris,
-    accepted_currency: ML.trip.customer_currency}).eq('id',ML.trip.id);
-  if(error){ alert(error.message); return; }
-  ML.trip.accepted_price = pris;
+    accepted_currency: val}).eq('id',ML.trip.id);
+  if(error){ mlKvit('Prisen blev ikke gemt: ' + error.message, true); return; }
+  ML.trip.accepted_price = pris; ML.trip.accepted_currency = val;
   mlRegn();
+  mlGemKnapTekst();
+  mlKvit(gl && Math.abs(pris - gl) >= 0.5
+    ? 'Rejsens pris er nu ' + mlNf(pris) + ' ' + val + ' — husk at give kunden det at vide'
+    : 'Prisen er gemt: ' + mlNf(pris) + ' ' + val);
 }
 
 /* ══ BUNDEN ══ */
