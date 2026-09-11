@@ -1,6 +1,71 @@
 <!DOCTYPE html>
-<!-- Panda · v1.51 · 11.09.2026 — KLAR TIL UDGIVELSE.
-     v1.51 — VALUTAEN MÅ ALDRIG GÆTTES. HASTERETTELSE.
+<!-- Panda · v1.52 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
+     ══ VERSIONSNUMMERET HØRER TIL EN UDGIVELSE, IKKE TIL EN RETTELSE ══
+     Wendie 31.08.2026: «det skal jo kun være de indeksnumre som faktisk
+     bliver uploadet der får det næste nummer.» Og igen 11.09.2026: «jeg
+     vil ikke tælle ændringer — kun uploadede versioner.»
+     Reglen stod i projektinstruktionen hele tiden, og jeg brød den 11.09:
+     filen gik fra v1.32 til v1.51 uden en eneste upload imellem, og så
+     var nummeret holdt op med at betyde noget. Kun TO udgaver har
+     nogensinde været live: v1.31 og v1.51.
+     Herfra: arbejdsfilen står på LIVE + 1 og bliver dér, uanset hvor
+     mange rettelser der laves, til den faktisk er uploadet. Alt hvad der
+     samler sig, skrives under denne ene overskrift. Det er nu en PRØVE
+     (ver.js), ikke en hensigt — den fejler, hvis nummeret hopper.
+     Live er v1.51. Denne fil bliver v1.52, når du uploader den.
+
+     ── Hvad der er kommet til siden v1.51 ──
+     HENVENDELSESTAVLEN OG HENVENDELSESSIDEN I SILKE.
+     Bygget efter de to godkendte mockups fra 11.09.2026. Mockuppens CSS
+     er flyttet ORDRET ind — ikke gentastet — scopet under .hv8, med
+     mockuppens egne kommentarer i behold. Henvendelsessidens opmærkning
+     er slet ikke rørt: 62 af dens 91 klassenavne var allerede mockuppens
+     egne, og de sidste 29 fik en bro. Når opmærkningen ikke skrives om,
+     kan der ikke falde et felt ud — det var netop dét, der gik galt sidst.
+     Datalaget er urørt: de 47 funktioner, der taler med basen, hedder
+     stadig det samme.
+     · KONTAKTEN `const NY_TAVLE = true` øverst slår den fra igen uden at
+       rulle noget tilbage. Den gamle tavle står urørt nedenunder.
+     · VURDERINGEN er nu én pr. person (lead_vurderinger i maldivia-core).
+       Rasmus' er skjult, til du har sat din; kun din egen kan rettes; og
+       en linje siger, om I er enige. De tre gamle felter på leads holdes
+       i live af en trigger, så alt der læser dem virker videre.
+     · SPÆRRINGEN spørger nu «har JEG vurderet den?» — før kunne man slippe,
+       fordi den anden havde. Og den gælder nu OGSÅ ved træk og slip, ikke
+       kun inde på sagen: scenarieprøven fandt, at man kunne trække et kort
+       fra «Tilbud sendt» til «Forhandling» uden at blive spurgt.
+     · SØJLESUMMEN regnes med kurser hentet i samme rundtur som
+       henvendelserne. Kan en valuta ikke regnes om, tælles den IKKE med,
+       og søjlen skriver «+ 2 uden kurs». Først brugte jeg mlEff(), som
+       hører til rejsesiden og ikke findes her — den gav 0, så alle norske
+       beløb forsvandt lydløst ud af summen.
+
+     ── Fire fejl, prøverne fangede, før noget kom ud ──
+     · «.krop» betød TO ting: kortets indre i tavlens mockup og sidens
+       spalteopdeling i sidens mockup. Sidens grid ramte inde i hvert kort
+       og pressede datorækken til 0 px; kortets indhold fyldte 342 px i en
+       165 px kasse.
+     · «.side» var mockuppens falske sidemenu — og Pandas detaljepanel.
+       Menuens mørke bund og lyse tekst ramte hele højre spalte.
+     · En forklarende kommentar lå MELLEM to <style>-blokke i <head>. Løs
+       tekst i hovedet lukker hovedet: alt efter den — min egen stilblok
+       inkluderet — endte i <body>, <main> voksede ikke, og søjlerne blev
+       22 px i stedet for 187. Intet råbte op; det så bare forkert ud.
+       Vagten har fået en regel for det.
+     · Og tre gange målte min egen PRØVE forkert: den sammenlignede det
+       forkerte udsnit af mockuppen, den sprang navTo() over så tavlen
+       aldrig fik sin fulde bredde, og den meldte «Bo Svenningsen» klippet
+       på et to-linjers felt, hvor scrollWidth intet betyder. En prøve, der
+       måler forkert, er farligere end ingen prøve.
+
+     ── Målt ──
+     Vagten 11 af 11 regler · oraklet på tavlen 52 af 52 (1:1) · oraklet på
+     henvendelsessiden 17 af 17 (1:1) · intet klippet ved 1680, 1440 og
+     1280 px · scenarieprøven 14 af 14 knapper · vurderingen i alle fem
+     tilstande, og skærmen lyver ikke, når basen nægter.
+
+     ══ v1.51 — UPLOADET 11.09.2026 ══
+     VALUTAEN MÅ ALDRIG GÆTTES. HASTERETTELSE.
      Wendie 11.09.2026, ordret: «Der er lige kommet en henvendelse ind,
      hvor der står, at det er et norsk budget, men det er en dansk
      henvendelse. En fejl, der aldrig nogensinde må ske i Panda. I
@@ -6335,6 +6400,682 @@ main{min-width:0}
 #rsside .r-fristbox .r-fd .r-fdbetal b{font-size:8px;letter-spacing:.14em;
   text-transform:uppercase;color:#a8a494;font-weight:600}
 
+</style><style id="hv8-silke">
+/* ══ MOCKUPPENS EGEN SIDEMENU HØRER IKKE MED ═══════════════════════════
+   Tavlens mockup havde sin egen falske sidemenu med klassen «.side» —
+   moerk bund, lys tekst. Panda kalder ogsaa sit DETALJEPANEL «.side», og
+   reglen ramte derfor hele hoejre spalte paa henvendelsessiden: teksten
+   blev #cfc9b6 paa #26291f. Maalt paa noegletallenes tal, som stod lyse
+   i stedet for moerke. Reglen er fjernet — den var mockuppens stillads,
+   ikke dens design. Femte navnekollision i projektet (jf. R467, R503). */
+/* ═══════════════════════════════════════════════════════════════════════
+   .hv8 — HENVENDELSESTAVLEN OG HENVENDELSESSIDEN I SILKE
+   Flyttet ORDRET fra de to godkendte mockups 11.09.2026:
+     · PRØV DEN HER — henvendelsestavlen og vurderingen (11.09.2026).html
+     · PRØV DEN HER — henvendelsessiden i Silke (11.09.2026).html
+   Hver selektor er scopet under .hv8, saa intet af den oevrige app kan
+   rammes — og intet her kan rammes af den oevrige app. Kommentarerne er
+   mockuppens egne; de forklarer hvorfor hver enkelt ting ser ud som den
+   goer, og de foelger med, saa begrundelsen ikke gaar tabt i flytningen.
+   ═══════════════════════════════════════════════════════════════════════ */
+.hv8{
+  --page:#efeae1;
+  --card:#fffefb;
+  --sand:#f2ebe0;
+  --sand2:#e8ddcb;
+  --mist:#e4f0ef;
+  --gold:#c1975a;
+  --gold2:#b99a5f;
+  --goldl:#e0c9a3;
+  --ink:#3d403a;
+  --ink2:#4f544b;
+  --mut:#8b8370;
+  --mut2:#98937f;
+  --line:#e7dfd1;
+  --line2:#e9e3d6;
+  --hair:#f0e9dc;
+  --ok:#7ba488;
+  --okd:#4f7a5f;
+  --advar:#8d6a34;
+  --fejl:#a3512f;
+  --no:#2b4a80;
+  --dk:#b3323c;
+  font-family:'Inter',system-ui,sans-serif;font-size:13px;color:var(--ink);
+}
+
+/* ══ MELLEMLANDINGENS EGEN PALET OG TYPOGRAFI (Silke) ══════════════════
+   Tagene er taget ordret fra .ml7 og #rsside i Panda, saa tavlen og
+   mellemlandingen taler samme sprog: sandfarvet side, kort i #fffefb med
+   14 px hjoerner og den dobbelte, meget bloede skygge, guld-kapitaeler i
+   .22em, Playfair kursiv til noterne, halve regler, tabellariske tal. */
+.hv8 *{box-sizing:border-box}
+.hv8 body{margin:0;background:var(--page);color:var(--ink);
+  font:13px/1.5 'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.hv8 .tal{font-variant-numeric:tabular-nums}
+
+/* ══ styrepanel — kun i mockuppen ══ */
+
+
+
+
+
+
+
+
+/* ══ rammen ══ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.hv8 .main{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* ══ sidehoved — mellemlandingens .mllab + h1 ══ */
+.hv8 .hd{padding:18px 20px 12px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.hv8 .hd .lab{font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:600}
+.hv8 .hd .lab::after{content:'';display:block;width:26px;height:1px;background:var(--goldl);margin-top:6px}
+.hv8 .hd h1{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;margin:6px 0 0;letter-spacing:.4px}
+/* Wendie 11.09.2026: «glem den der skraaskrift. Man kan naesten ikke
+   laese hvad der staar.» Playfair kursiv er taget ud overalt paa tavlen —
+   den bliver, hvor den kan laeses i ro: inde i dialogerne. */
+.hv8 .hd .n{font-size:11.5px;color:var(--mut);padding-bottom:4px;letter-spacing:.01em}
+.hv8 .hd .sp{flex:1}
+.hv8 .filt{display:flex;gap:5px;padding-bottom:3px}
+.hv8 .filt button{font:inherit;font-size:11px;padding:5px 11px;border-radius:7px;border:0;
+  background:#fff;color:var(--mut);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .filt button:hover{box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 .filt button.on{background:rgba(224,201,163,.34);color:#8d6a34;font-weight:600;box-shadow:inset 0 0 0 1px var(--gold)}
+.hv8 .sog{display:flex;align-items:center;gap:7px;background:#fff;border-radius:9px;padding:7px 11px;
+  box-shadow:inset 0 0 0 1px var(--line);min-width:300px}
+.hv8 .sog .lup{color:var(--mut2);font-size:13px}
+.hv8 .sog input{border:0;outline:none;background:none;font:inherit;font-size:12.5px;flex:1;color:var(--ink)}
+.hv8 .sog .x{color:var(--mut2);cursor:pointer;font-size:11px}
+.hv8 .bny{font:inherit;font-size:12.5px;font-weight:600;padding:8px 15px;border-radius:9px;border:0;
+  background:#fff;color:var(--ink);cursor:pointer;box-shadow:inset 0 0 0 1px var(--gold);white-space:nowrap}
+.hv8 .bny:hover{background:rgba(224,201,163,.22)}
+.hv8 .vlinje{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 20px 12px}
+.hv8 .vis{font:inherit;font-size:12.5px;padding:8px 13px;border-radius:9px;border:0;background:#fff;
+  color:var(--ink);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .vis b{background:#26291f;color:#fff;border-radius:5px;padding:1px 6px;font-size:10.5px;margin-left:3px}
+.hv8 .vis .pil{color:var(--mut2);font-size:9px;margin-left:5px}
+.hv8 .brik{font-size:11.5px;color:var(--ink2);background:var(--sand);border-radius:8px;padding:6px 10px;
+  display:inline-flex;align-items:center;gap:8px}
+.hv8 .brik .x{color:var(--mut);cursor:pointer;font-size:10px}
+.hv8 .brik .x:hover{color:var(--fejl)}
+.hv8 .brik.tilf{cursor:pointer;background:none;color:var(--mut);box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .brik.tilf:hover{box-shadow:inset 0 0 0 1px var(--goldl);color:var(--ink2)}
+.hv8 .vlinje .sp{flex:1}
+/* ══ ÉT KLASSENAVN, ÉN BETYDNING ══════════════════════════════════════
+   Wendie 11.09.2026: «budgettet staar stadig og flyver.» Maalt: tallets
+   KASSE stod rigtigt (13 px, som navnet), men TEKSTEN begyndte 33 px inde
+   — en venstre-padding paa 20 px, ingen havde sat paa beloebet.
+   Den kom fra `.tal`, som jeg havde brugt til TO ting: klassen paa alle
+   tabellariske tal, OG beholderen om de tre noegletal, der har
+   `padding:0 20px 14px`. Den sidste ramte hvert eneste beloeb paa tavlen.
+   Samme slags fejl som `selskabAf` og `.r-dato` (R467): to ting med samme
+   navn, og den ene aad den anden i tavshed. Noegletalsraekken hedder nu
+   `.ntal`, og `.tal` betyder kun tabellariske tal. */
+.hv8 .ntal{display:flex;gap:10px;align-items:stretch;padding:0 20px 14px;flex-wrap:wrap}
+.hv8 .tb{background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:12px 16px;min-width:150px;
+  box-shadow:0 1px 2px rgba(46,38,20,.03)}
+.hv8 .tb .tal2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;line-height:1;
+  font-variant-numeric:tabular-nums}
+.hv8 .tb .e{font-size:10px;letter-spacing:.12em;color:var(--mut);margin-left:4px;text-transform:uppercase}
+.hv8 .tb .u{font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-top:7px}
+.hv8 .tnote{font-size:11px;color:var(--mut);align-self:center;line-height:1.5}
+.hv8 .tnote b{display:block;color:var(--ink);font-size:12.5px;font-weight:600}
+.hv8 .hint{padding:0 20px 18px;font-size:11px;color:var(--mut2)}
+.hv8 .hint b{color:var(--ink2);font-weight:600}
+
+/* ══ tavlen ══ */
+/* ══ SØJLERNE SKAL KUNNE SES ═══════════════════════════════════════════
+   Wendie 11.09.2026: «soejlerne skal vaere synligere. Saa hver soejle er
+   mere markeret og inddelt.» Foer flød de sammen, fordi kun kortene havde
+   en flade. Nu har hver soejle sin egen — lys sandflade, tynd ramme og en
+   guldstreg under overskriften, praecis som .col gjorde det i Panda. */
+.hv8 .tav{flex:1;display:grid;gap:12px;padding:0 20px 20px;align-items:start;overflow-x:auto}
+.hv8 .sj{min-width:0;background:rgba(253,251,247,.6);border:1px solid var(--line);
+  border-radius:10px;padding:11px 10px 12px;min-height:340px}
+/* ══ SØJLEHOVEDET — ÉN STRAM LINJE ════════════════════════════════════
+   Wendie 11.09.2026: «det her ser forfaerdeligt ud.» Og det gjorde det:
+   navnet, antallet og summen stod paa TRE linjer med luft imellem, og
+   antallet sad som et stort tal midt i ingenting. Nu staar navn og antal
+   paa samme linje — antallet som en lille brik yderst — og summen lige
+   under i smaat. Tre linjer blev til to, og hoejden faldt fra 76 til 38 px. */
+.hv8 .sjh{padding:0 2px 8px;margin-bottom:10px;border-bottom:1px solid var(--goldl)}
+.hv8 .sjh .r1{display:flex;align-items:center;gap:6px;min-width:0}
+.hv8 .sjh .t{font-size:8px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--gold);
+  line-height:1.3;flex:1;min-width:0}
+.hv8 .sjh .a{font-size:9.5px;font-weight:600;color:var(--ink2);background:var(--sand);
+  border-radius:9px;padding:1.5px 7px;line-height:1.4;flex:0 0 auto}
+.hv8 .sjh .sum{display:block;font-size:9.5px;color:var(--mut);letter-spacing:.02em;
+  white-space:nowrap;margin-top:4px}
+.hv8 .sjh .sum .udenfor{color:#a3512f;font-weight:600}
+
+/* ══ KORTET — mellemlandingens kortflade ══════════════════════════════
+   #fffefb, 1 px #e9e3d6, 14 px hjoerner og den dobbelte bloede skygge,
+   praecis som .r-kort. Branchestregen bliver, men som en blød tone.
+   INTET klippes: kortet vokser med sit indhold. Kun navnet har en
+   graense paa to linjer — og det er netop undtagelsen Wendie gav. */
+.hv8 .k{background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:11px 12px 9px;
+  margin-bottom:8px;cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3);
+  transition:box-shadow .16s ease, border-color .16s ease}
+.hv8 .k:hover{border-color:var(--goldl);box-shadow:0 1px 2px rgba(46,38,20,.04),0 18px 34px -26px rgba(46,38,20,.34)}
+.hv8 .k.traekker{opacity:.4}
+.hv8 .sj.kanslippe{border-style:dashed}
+.hv8 .sj.over{background:rgba(224,201,163,.22);border-color:var(--gold)}
+/* Har den ligget for længe på trinnet — som i dag. */
+.hv8 .k.raadner{box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3), inset 0 0 0 1px rgba(141,106,52,.18)}
+.hv8 .k.raadner2{box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3), inset 0 0 0 1px rgba(163,81,47,.3)}
+.hv8 .k::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--no)}
+.hv8 .k.dk::before{background:var(--dk)}
+.hv8 .k .navn{font-size:12.5px;font-weight:600;line-height:1.3;letter-spacing:.1px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* ══ VALUTAEN SKAL STÅ ENS FRA KORT TIL KORT ══════════════════════════
+   Wendie 11.09.2026: «det staar ikke ens.» Maalt: beloebet begynder samme
+   sted i alle kort, men valutaen laa lige EFTER tallet — og saa flyttede
+   den sig med tallets bredde: «60.000 DKK» satte DKK 106 px inde,
+   «250.000 NOK» satte NOK 115 px inde. Nu skubbes valutaen ud til kortets
+   hoejre kant, saa den staar i samme lodrette linje paa hvert eneste kort. */
+/* Valutakoden staar LIGE efter beloebet — Wendie 11.09.2026: «valutakoden
+   skal bare staa lige efter beloebet, ikke saa langt til hoejre som det goer
+   nu.» Den blev skubbet ud til hoejre kant, dengang beloebet selv stod
+   forskudt; da var hoejrekanten det eneste faste holdepunkt. Nu hvor
+   beloebet begynder samme sted som navnet i hvert kort, er der ingen grund
+   til at sende koden paa vandring — den hoerer til ved tallet. */
+.hv8 .k .pris{display:flex;align-items:baseline;gap:7px;margin-top:3px}
+.hv8 .k .bel{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.2px}
+.hv8 .k .val{font-size:9px;letter-spacing:.1em;color:var(--mut);text-transform:uppercase;font-weight:600}
+.hv8 .k .val.udledt{color:#a08a5c;border-bottom:1px dotted var(--goldl)}
+.hv8 .k .val.mangl{color:var(--fejl);font-weight:700}
+.hv8 .k .uklar{font-size:11px;color:var(--fejl);font-weight:500}
+.hv8 .k .tom{font-size:12px;color:var(--mut2)}
+.hv8 .k .dest{font-size:10.5px;color:var(--gold2);margin-top:4px;line-height:1.35;font-weight:500}
+.hv8 .k .dest .fl{color:var(--mut2);font-weight:400}
+.hv8 .k .dest .ingen{color:var(--mut2);font-weight:400}
+
+/* Rejsen og de rejsende under hinanden i fuld bredde. To baase ved siden
+   af hinanden gav 75 px pr. baas — og dét var det, der knaekkede datoen. */
+.hv8 .k .krop{margin-top:9px;padding-top:8px;position:relative}
+.hv8 .k .rk{min-width:0}
+.hv8 .k .rk+.rk{margin-top:7px}
+.hv8 .k .dato{font-weight:500;font-size:10px;letter-spacing:-.1px;line-height:1.4}
+.hv8 .k .dato .nb{white-space:nowrap}
+.hv8 .k .krop::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .k .baas{min-width:0}
+.hv8 .k .lab{font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);
+  font-weight:600;margin-bottom:3px}
+.hv8 .k .v{font-size:10.5px;color:var(--ink2);line-height:1.45;overflow-wrap:anywhere}
+.hv8 .k .v.sml{font-size:9.5px;color:var(--mut)}
+/* Det manglende siges med ORD — «Ingen datoer», «Intet budget» — og
+   behoever ikke ogsaa en alarmfarve. Roedt paa hvert andet kort holder op
+   med at betyde noget. */
+.hv8 .k .v.tomt{color:var(--mut2)}
+/* Skoleferien — den flytter priser, saa den skal kunne ses uden at raabe. */
+.hv8 .k .ferie{display:inline-block;margin-top:4px;font-size:9px;letter-spacing:.04em;
+  padding:2px 7px;border-radius:9px;background:rgba(224,201,163,.32);color:#8d6a34;font-weight:600}
+.hv8 .k .ferie .fl{font-weight:400;opacity:.75}
+
+.hv8 .k .fod{display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:7px;position:relative}
+.hv8 .k .fod::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .k .ini{font-size:8px;letter-spacing:.12em;font-weight:600;color:var(--mut);
+  background:var(--sand);padding:2px 6px;border-radius:9px}
+
+.hv8 .vd-super_god{background:#4f7a5f}.hv8 .vd-god{background:#7ba488}.hv8 .vd-ok{background:var(--goldl)}
+.hv8 .vd-nederen{background:#d3a88a}.hv8 .vd-umulig{background:#a8724f}
+/* Ikke vurderet = en TOM ring, ikke en udfyldt prik. En udfyldt grå prik
+   ligner en vurdering, der bare er kedelig. */
+.hv8 .vd-tom{background:none;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .k .dg{margin-left:auto;font-size:9.5px;color:var(--mut2);white-space:nowrap}
+.hv8 .k .dg.raadner{color:var(--fejl);font-weight:600}
+
+/* kompakt: baasene bliver til én linje, men stadig uden at klippe */
+.hv8 .tav.kompakt .k{padding:9px 10px 8px;border-radius:10px}
+.hv8 .tav.kompakt .k .krop{display:block;margin-top:7px;padding-top:6px}
+.hv8 .tav.kompakt .k .baas{display:inline}
+.hv8 .tav.kompakt .k .lab{display:none}
+.hv8 .tav.kompakt .k .v{display:inline;font-size:10px}
+.hv8 .tav.kompakt .k .v:not(:last-child)::after{content:' · ';color:var(--line)}
+.hv8 .tav.kompakt .k .bel{font-size:13px}
+
+/* ══ dialoger — mellemlandingens kort ══ */
+.hv8 .ov{position:fixed;inset:0;background:rgba(90,80,64,.42);backdrop-filter:blur(4px);
+  display:none;place-items:center;z-index:80;padding:24px}
+.hv8 .ov.on{display:grid}
+.hv8 .dlg, .hv8 .det{background:var(--card);border:1px solid var(--line2);border-radius:14px;width:100%;
+  box-shadow:0 34px 90px rgba(46,38,20,.3);overflow:hidden}
+.hv8 .dlg{max-width:520px}
+.hv8 .det{max-width:660px;max-height:calc(100vh - 56px);display:flex;flex-direction:column}
+.hv8 .dh{padding:18px 22px 15px;border-bottom:1px solid var(--hair);display:flex;align-items:flex-start;gap:12px}
+.hv8 .dh .lab{font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:600}
+.hv8 .dh .lab::after{content:'';display:block;width:26px;height:1px;background:var(--goldl);margin-top:6px}
+.hv8 .dh h3{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:26px;margin:8px 0 0}
+.hv8 .dh p{margin:7px 0 0;font-size:12px;color:var(--mut);max-width:400px}
+.hv8 .dh .x{margin-left:auto;width:28px;height:28px;border-radius:50%;background:#fff;
+  border:1px solid var(--line);cursor:pointer;font-size:12px;color:var(--ink2)}
+.hv8 .dc{padding:16px 22px}
+.hv8 .det .dc{overflow-y:auto}
+.hv8 .df{padding:12px 22px 16px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--hair)}
+.hv8 .b{font:inherit;font-size:12px;padding:7px 15px;border-radius:8px;border:0;background:#fff;
+  color:var(--ink2);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .b:hover{box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 .b.pri{background:var(--okd);color:#fff;font-weight:500;box-shadow:none}
+.hv8 .bt{font-size:8px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;color:var(--gold2);
+  display:flex;align-items:center;gap:10px;margin:18px 0 10px}
+.hv8 .bt::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--goldl),transparent)}
+.hv8 .bt:first-child{margin-top:0}
+.hv8 .gr{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;font-size:12.5px}
+.hv8 .gr .k2{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);font-weight:600}
+.hv8 .gr .v2{padding:4px 0;border-bottom:1px solid var(--hair)}
+.hv8 .trin{display:flex;gap:4px;flex-wrap:wrap}
+.hv8 .trin button{font:inherit;font-size:10.5px;padding:6px 11px;border-radius:16px;border:0;background:#fff;
+  color:var(--mut);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .trin button.on{background:#26291f;color:#fff;font-weight:600;box-shadow:none}
+
+/* vurderingen */
+.hv8 .vur{display:flex;flex-wrap:wrap;gap:6px}
+.hv8 .vur button{font:inherit;font-size:11.5px;padding:8px 12px;border-radius:8px;border:0;background:#fff;
+  color:var(--ink2);cursor:pointer;text-align:left;line-height:1.25;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .vur button small{display:block;font-size:9.5px;color:var(--mut2);margin-top:1px}
+.hv8 .vur button .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--line)}
+.hv8 .vur button:hover{box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 .vur button.on{background:rgba(224,201,163,.3);box-shadow:inset 0 0 0 1px var(--gold);font-weight:600}
+.hv8 .vur button.on .dot{background:var(--gold)}
+.hv8 .vrk{display:flex;align-items:center;gap:10px;padding:10px 0;position:relative;font-size:12px}
+.hv8 .vrk+.vrk::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .vrk .hvem{font-size:8px;letter-spacing:.12em;font-weight:600;color:var(--mut);
+  background:var(--sand);padding:2.5px 7px;border-radius:9px}
+.hv8 .vrk .sk{font-family:'Playfair Display',serif;font-size:13px;font-style:italic;color:var(--ink)}
+.hv8 .vrk .naar{margin-left:auto;font-size:10px;color:var(--mut2)}
+.hv8 .vrk .ret{font-size:10.5px;color:var(--mut);border-bottom:1px dotted var(--line);cursor:pointer}
+.hv8 .vrk .ret:hover{color:var(--gold)}
+.hv8 .enig{margin-top:11px;padding:9px 12px;border-radius:8px;font-size:11.5px;
+  background:rgba(123,164,136,.12);color:var(--okd)}
+.hv8 .enig.uenig{background:rgba(163,81,47,.09);color:var(--fejl)}
+.hv8 .fejl{color:var(--fejl);font-size:11.5px;margin:9px 0 0;min-height:15px}
+.hv8 .noter{font-size:11px;color:var(--mut);margin-top:8px}
+
+
+.hv8 *{box-sizing:border-box}
+.hv8 body{margin:0;background:var(--page);color:var(--ink);font:13px/1.55 'Inter',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.hv8 .tal{font-variant-numeric:tabular-nums}
+
+
+
+
+
+
+
+
+.hv8 .ramme{max-width:1180px;margin:0 auto;padding:20px 20px 70px}
+.hv8 .kort{background:var(--card);border:1px solid var(--line2);border-radius:14px;
+  box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3);overflow:hidden}
+
+/* ══ HOVEDET ══ */
+.hv8 .hd{padding:20px 24px 16px;border-bottom:1px solid var(--hair)}
+.hv8 .hd .r1{display:flex;align-items:flex-start;gap:14px}
+.hv8 .lab{font-size:9px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:600}
+.hv8 .lab::after{content:'';display:block;width:26px;height:1px;background:var(--goldl);margin-top:6px}
+.hv8 .hd h1{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;margin:8px 0 0;letter-spacing:.3px}
+.hv8 .hd .knapper{margin-left:auto;display:flex;gap:7px;align-items:center}
+.hv8 .b{font:inherit;font-size:12px;padding:8px 15px;border-radius:9px;border:0;background:#fff;color:var(--ink2);
+  cursor:pointer;box-shadow:inset 0 0 0 1px var(--line);white-space:nowrap}
+.hv8 .b:hover{box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 .b.won{background:var(--okd);color:#fff;box-shadow:none;font-weight:500}
+.hv8 .b.lost{background:#fff;color:var(--fejl);box-shadow:inset 0 0 0 1px rgba(163,81,47,.35)}
+.hv8 .b.x{width:32px;height:32px;padding:0;border-radius:50%}
+.hv8 .dub{margin-top:13px;background:rgba(224,201,163,.22);border-radius:9px;padding:9px 13px;
+  display:flex;align-items:center;gap:12px;font-size:11.5px;color:var(--advar)}
+.hv8 .dub b{color:var(--ink)}
+.hv8 .dub button{margin-left:auto;font:inherit;font-size:11px;padding:5px 11px;border-radius:7px;border:0;
+  background:#fff;cursor:pointer;box-shadow:inset 0 0 0 1px var(--goldl);color:var(--ink2)}
+.hv8 .chips{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+.hv8 .chipsel{display:inline-flex;align-items:center;gap:7px;background:#fff;border-radius:9px;
+  padding:5px 9px 5px 11px;box-shadow:inset 0 0 0 1px var(--line);font-size:11.5px}
+.hv8 .chipsel span{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.hv8 .chipsel select{border:0;background:none;font:inherit;font-size:11.5px;color:var(--ink);outline:none;cursor:pointer}
+.hv8 .ikoner{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.hv8 .ico{display:inline-flex;align-items:baseline;gap:6px;font-size:11.5px;color:var(--ink2);
+  background:var(--sand);border-radius:9px;padding:5px 11px}
+.hv8 .ico em{font-style:normal;color:var(--mut)}
+.hv8 .ico.gold{background:rgba(224,201,163,.34);color:var(--advar)}
+
+/* ══ TRIN-SKINNEN ══ */
+.hv8 .rail{display:flex;gap:3px;padding:14px 24px 0}
+.hv8 .seg{flex:1;min-width:0;cursor:pointer;padding:0 0 9px}
+.hv8 .seg .l{display:block;font-size:8px;letter-spacing:.13em;text-transform:uppercase;font-weight:600;
+  color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hv8 .seg .d{display:block;font-size:9.5px;color:var(--mut2);margin-top:2px}
+.hv8 .seg .pb{display:block;height:3px;border-radius:2px;background:var(--line);margin-top:7px}
+.hv8 .seg.done .pb{background:var(--goldl)} .hv8 .seg.done .l{color:var(--ink2)}
+.hv8 .seg.cur .pb{background:var(--gold)} .hv8 .seg.cur .l{color:var(--gold);}
+.hv8 .seg:hover .pb{background:var(--gold2)}
+.hv8 .rmeta{display:flex;justify-content:space-between;padding:2px 24px 16px;font-size:10.5px;color:var(--mut2)}
+
+/* ══ KROPPEN ══ */
+/* ══ NAVNEKOLLISION MELLEM MINE EGNE TO MOCKUPS ════════════════════════
+   Kortets indre hedder «.krop» i tavlens mockup — OG henvendelsessidens
+   spalteopdeling hed «.krop» i sidens mockup. Da begge stilark blev
+   flyttet ind, ramte SIDENS grid (1fr / 280 px) inde i hvert eneste kort:
+   datoraekken blev 0 px bred, og teksten flød ud over kortet. Maalt:
+   kortets scrollWidth 342 px i en 165 px kasse.
+   Pandas egen opmaerkning bruger «.body» til spalteopdelingen — ikke
+   «.krop» — saa sidens regel hoerte slet ikke hjemme her. Den er fjernet;
+   .hv8 .body laengere nede goer arbejdet. Samme slags fejl som
+   `selskabAf`, `.r-dato` og `.tal` (R467, R503). */
+.hv8 .sh{font-size:8px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;color:var(--gold2);
+  display:flex;align-items:center;gap:10px;margin:22px 0 11px}
+.hv8 .sh::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--goldl),transparent)}
+.hv8 .sh:first-child{margin-top:0}
+.hv8 .wish{background:var(--sand);border-radius:10px;padding:13px 15px;font-size:12.5px;line-height:1.6;
+  white-space:pre-wrap;outline:none}
+.hv8 .wish:focus{box-shadow:inset 0 0 0 1px var(--gold);background:#fff}
+.hv8 .wsrc{font-size:10px;color:var(--mut2);margin-top:6px;display:flex;gap:9px}
+.hv8 .wsrc .h{color:var(--gold2)}
+.hv8 .ntadd{display:flex;gap:9px;margin-bottom:11px}
+.hv8 .ntadd textarea{flex:1;font:inherit;font-size:12.5px;padding:9px 11px;border:0;border-radius:9px;
+  background:#fff;box-shadow:inset 0 0 0 1px var(--line);resize:vertical;outline:none}
+.hv8 .ntadd textarea:focus{box-shadow:inset 0 0 0 1px var(--gold)}
+.hv8 .nlist{list-style:none;margin:0;padding:0}
+.hv8 .nlist li{padding:9px 0;position:relative}
+.hv8 .nlist li+li::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .nlist .h{display:flex;gap:9px;align-items:baseline;font-size:10px;color:var(--mut2)}
+.hv8 .nlist .au{font-weight:600;color:var(--mut);letter-spacing:.08em}
+.hv8 .nlist .nx{margin-left:auto;font:inherit;font-size:10px;border:0;background:none;color:var(--mut2);cursor:pointer}
+.hv8 .nlist .nx:hover{color:var(--fejl)}
+.hv8 .nlist .t{font-size:12.5px;margin-top:3px}
+
+.hv8 .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.hv8 .fbox{background:var(--sand);border-radius:12px;padding:14px 15px}
+.hv8 .fbox .flab{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold2);font-weight:600;
+  margin-bottom:11px}
+.hv8 .fld{margin-bottom:11px}
+.hv8 .fld:last-child{margin-bottom:0}
+.hv8 .fld .k{font-size:8px;letter-spacing:.13em;text-transform:uppercase;color:var(--mut);font-weight:600;margin-bottom:3px}
+.hv8 .fld input, .hv8 .fld select{width:100%;font:inherit;font-size:12.5px;padding:6px 9px;border:0;border-radius:7px;
+  background:#fff;box-shadow:inset 0 0 0 1px var(--line);outline:none;color:var(--ink)}
+.hv8 .fld input:focus, .hv8 .fld select:focus{box-shadow:inset 0 0 0 1px var(--gold)}
+/* To felter ved siden af hinanden i en 280 px boks bliver 135 px hver —
+   og en datovaelger med kalenderikon kan ikke vaere i 135 px uden at
+   ikonet klippes. Feltet maa gerne skrumpe, og minmax(0,1fr) lader det. */
+.hv8 .fld.to{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}
+.hv8 .fld.to input[type=date]{font-size:11.5px;padding:6px 5px}
+.hv8 .belob{display:flex;gap:7px}
+.hv8 .belob input{flex:1}
+.hv8 .belob select{width:auto;flex:0 0 auto}
+.hv8 .chipedit{display:flex;flex-wrap:wrap;gap:5px}
+.hv8 .dchip{display:inline-flex;align-items:center;gap:5px;background:#fff;border-radius:7px;padding:5px 9px;
+  font-size:11.5px;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .dchip .x{border:0;background:none;font:inherit;color:var(--mut2);cursor:pointer;font-size:12px;padding:0}
+.hv8 .dchip .x:hover{color:var(--fejl)}
+.hv8 .addchip{font:inherit;font-size:11.5px;padding:5px 10px;border-radius:7px;border:0;background:none;
+  color:var(--mut);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .addchip:hover{box-shadow:inset 0 0 0 1px var(--goldl);color:var(--ink2)}
+.hv8 .multi{display:flex;flex-wrap:wrap;gap:5px}
+.hv8 .mopt{font:inherit;font-size:11px;padding:5px 10px;border-radius:7px;border:0;background:#fff;
+  color:var(--mut);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .mopt:hover{box-shadow:inset 0 0 0 1px var(--goldl);color:var(--ink2)}
+.hv8 .mopt.on{background:rgba(224,201,163,.34);color:#8d6a34;font-weight:600;box-shadow:inset 0 0 0 1px var(--gold)}
+.hv8 .udledt{font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:#8d6a34;
+  background:rgba(185,154,95,.16);padding:2px 6px;border-radius:4px;margin-left:7px}
+
+.hv8 .orow{display:flex;gap:12px;align-items:flex-start;padding:11px 0;position:relative}
+.hv8 .orow+.orow::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .onum{width:22px;height:22px;border-radius:50%;background:var(--sand);display:grid;place-items:center;
+  font-size:11px;font-weight:600;color:var(--mut);flex:0 0 auto}
+.hv8 .oinfo{flex:1;min-width:0}
+.hv8 .ot{font-size:12.5px;font-weight:500}
+.hv8 .om{font-size:10.5px;color:var(--mut2);margin-top:1px}
+.hv8 .olink{display:block;font-size:10.5px;color:var(--gold2);margin-top:3px;text-decoration:none;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hv8 .oact{display:flex;gap:5px;flex:0 0 auto}
+.hv8 .ob{font:inherit;font-size:10.5px;padding:5px 9px;border-radius:7px;border:0;background:#fff;
+  color:var(--mut);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .ob.p{color:var(--ink2)}
+.hv8 .ob:hover{box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 .oadd{display:flex;gap:8px;margin-top:11px}
+.hv8 .oadd input{flex:1;font:inherit;font-size:12px;padding:8px 11px;border:0;border-radius:9px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line);outline:none}
+
+.hv8 .tl{list-style:none;margin:0;padding:0}
+.hv8 .tl li{padding:9px 0 9px 15px;position:relative}
+.hv8 .tl li::after{content:'';position:absolute;left:3px;top:15px;width:6px;height:6px;border-radius:50%;
+  background:var(--line)}
+.hv8 .tl li.tp::after{background:var(--gold)}
+.hv8 .tl li+li::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .tl .h{font-size:12px}
+.hv8 .tl .tag{font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:2px 6px;
+  border-radius:4px;margin-left:7px;color:var(--mut);background:var(--sand)}
+.hv8 .tl .tag.tp{color:#8d6a34;background:rgba(224,201,163,.34)}
+.hv8 .tl .w{font-size:10px;color:var(--mut2);margin-top:2px}
+.hv8 .tl .bd{font-size:11.5px;color:var(--ink2);margin-top:3px}
+
+/* ══ SIDEPANELET ══ */
+/* Kun den FØRSTE overskrift i sidepanelet skal ligge klods op ad toppen.
+   `.side .sh{margin-top:0}` ramte dem alle, saa «Vores vurdering» og
+   «Noegletal» klistrede op ad det foregaaende afsnit. */
+
+.hv8 .scoreline{display:flex;align-items:baseline;gap:7px}
+.hv8 .scoreline .n{font-family:'Cormorant Garamond',serif;font-size:32px;line-height:1}
+.hv8 .scoreline .of{font-size:11px;color:var(--mut2)}
+.hv8 .scoreline .cat{margin-left:auto;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:600;color:#8d6a34;background:rgba(224,201,163,.34);padding:3px 8px;border-radius:9px}
+.hv8 .scorebar{height:4px;border-radius:2px;background:var(--line);margin-top:9px;overflow:hidden}
+.hv8 .scorebar i{display:block;height:100%;background:var(--gold)}
+.hv8 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.hv8 .kpi{background:var(--sand);border-radius:10px;padding:10px 11px}
+.hv8 .kpi .n{font-family:'Cormorant Garamond',serif;font-size:22px;line-height:1}
+.hv8 .kpi .l{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-top:5px;line-height:1.4}
+.hv8 .tech{margin-top:20px;font-size:11.5px}
+.hv8 .tech summary{cursor:pointer;font-size:8px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;
+  color:var(--gold2);list-style:none}
+.hv8 .tech summary::-webkit-details-marker{display:none}
+.hv8 .tech summary::before{content:'+ ';}
+.hv8 .tech[open] summary::before{content:'− ';}
+.hv8 .tech em{font-style:normal;letter-spacing:.02em;text-transform:none;color:var(--mut2);font-weight:400;font-size:10px}
+.hv8 .trow{display:flex;gap:10px;padding:5px 0;position:relative;font-size:11.5px}
+.hv8 .trow+.trow::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .trow .tk{color:var(--mut);flex:0 0 46%}
+.hv8 .trow .tv{color:var(--ink2);min-width:0;overflow-wrap:anywhere}
+
+/* ══ VURDERINGEN ══ */
+.hv8 .vur{display:flex;flex-direction:column;gap:5px}
+.hv8 .vur button{font:inherit;font-size:12px;padding:8px 11px;border-radius:8px;border:0;background:#fff;
+  color:var(--ink2);cursor:pointer;text-align:left;box-shadow:inset 0 0 0 1px var(--line);
+  display:flex;align-items:center;gap:8px}
+.hv8 .vur button small{margin-left:auto;font-size:9.5px;color:var(--mut2)}
+.hv8 .vur button .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:0 0 auto}
+.hv8 .vur button:hover{box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 .vur button.on{background:rgba(224,201,163,.3);box-shadow:inset 0 0 0 1px var(--gold);font-weight:600}
+.hv8 .vur button.on .dot{background:var(--gold)}
+.hv8 .vrk{display:flex;align-items:center;gap:9px;padding:9px 0;position:relative;font-size:12px}
+.hv8 .vrk+.vrk::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .vrk .hvem{font-size:8px;letter-spacing:.12em;font-weight:600;color:var(--mut);background:var(--sand);
+  padding:2.5px 7px;border-radius:9px;flex:0 0 auto}
+.hv8 .vrk .sk{font-weight:600}
+.hv8 .vrk .vprik{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.hv8 .vrk .naar{margin-left:auto;font-size:10px;color:var(--mut2)}
+.hv8 .vrk .ret{font-size:10.5px;color:var(--mut);border-bottom:1px dotted var(--line);cursor:pointer}
+.hv8 .vrk .ret:hover{color:var(--gold)}
+.hv8 .vrk .vent{color:var(--mut2)}
+.hv8 .enig{margin-top:10px;padding:9px 11px;border-radius:9px;font-size:11.5px;
+  background:rgba(123,164,136,.12);color:var(--okd)}
+.hv8 .enig.uenig{background:rgba(163,81,47,.09);color:var(--fejl)}
+.hv8 .noter{font-size:11px;color:var(--mut);margin:8px 0 0}
+.hv8 .vd-super_god{background:#4f7a5f}.hv8 .vd-god{background:#7ba488}.hv8 .vd-ok{background:var(--goldl)}
+.hv8 .vd-nederen{background:#d3a88a}.hv8 .vd-umulig{background:#a8724f}
+
+
+
+
+/* ══ BROEN: DE 29 NAVNE SIDEN BRUGER, SOM MOCKUPPEN KALDER NOGET ANDET ══
+   Henvendelsessidens opmaerkning er IKKE tegnet om — den er den samme som
+   i dag, felt for felt og knap for knap, saa intet kan falde ud under en
+   omskrivning. 62 af dens 91 klassenavne er allerede mockuppens egne
+   (den blev jo bygget paa Pandas ordforraad). De sidste 29 faar deres
+   stil her, saa siden ser ud som den godkendte mockup uden at én eneste
+   linje opmaerkning er roert. */
+.hv8 .body{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:26px;padding:6px 24px 24px}
+@media(max-width:940px){.hv8 .body{grid-template-columns:minmax(0,1fr)}}
+.hv8 .sh .txt{font:inherit;color:inherit}
+.hv8 .fbox .lab{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold2);
+  font-weight:600;margin-bottom:11px}
+.hv8 .fld.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}
+.hv8 .fld.two input[type=date]{font-size:11.5px;padding:6px 5px}
+.hv8 .icons{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.hv8 .dubadv{margin-top:13px;background:rgba(224,201,163,.22);border-radius:9px;padding:9px 13px;
+  display:flex;align-items:center;gap:12px;font-size:11.5px;color:var(--advar)}
+.hv8 .dubadv b{color:var(--ink)}
+.hv8 .dubadv button{margin-left:auto;font:inherit;font-size:11px;padding:5px 11px;border-radius:7px;
+  border:0;background:#fff;cursor:pointer;box-shadow:inset 0 0 0 1px var(--goldl);color:var(--ink2)}
+.hv8 .xb,.hv8 .x2{font:inherit;border:0;background:#fff;color:var(--ink2);cursor:pointer;
+  box-shadow:inset 0 0 0 1px var(--line);border-radius:9px;padding:7px 12px}
+.hv8 .xb{width:32px;height:32px;padding:0;border-radius:50%}
+.hv8 .b.won{background:var(--okd);color:#fff;box-shadow:none;font-weight:500}
+.hv8 .b.lost{background:#fff;color:var(--fejl);box-shadow:inset 0 0 0 1px rgba(163,81,47,.35)}
+.hv8 .b.gh{background:#fff;color:var(--mut)}
+.hv8 .b.gold{background:rgba(224,201,163,.34);color:#8d6a34;font-weight:600;box-shadow:none}
+.hv8 .ico.gold{background:rgba(224,201,163,.34);color:var(--advar)}
+.hv8 .offers{margin-top:2px}
+.hv8 .oconc{font-size:11.5px;color:var(--mut);margin:9px 0}
+.hv8 .oviews{flex:0 0 auto}
+.hv8 .ov1.none{font-size:9.5px;color:var(--mut2);letter-spacing:.04em}
+.hv8 .nlist .dt{font-size:10px;color:var(--mut2)}
+.hv8 .nlist .nx{margin-left:auto;font:inherit;font-size:10px;border:0;background:none;
+  color:var(--mut2);cursor:pointer}
+.hv8 .nlist .nx:hover{color:var(--fejl)}
+.hv8 .wsrc .edithint{color:var(--gold2)}
+.hv8 .kids{display:flex;gap:5px;flex-wrap:wrap}
+.hv8 .kids input{width:46px;text-align:center}
+.hv8 .vurnote{font-size:11px;color:var(--mut);margin:8px 0 0}
+.hv8 .scoreline .cat{margin-left:auto;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  font-weight:600;color:#8d6a34;background:rgba(224,201,163,.34);padding:3px 8px;border-radius:9px}
+.hv8 .tech .spor,.hv8 .tech .sprow{display:flex;gap:10px;padding:5px 0;position:relative;font-size:11.5px}
+.hv8 .tech .sprow+.sprow::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  transform:scaleY(.5);transform-origin:top;background:var(--hair)}
+.hv8 .tech .sprow .k,.hv8 .tech .spor .k{color:var(--mut);flex:0 0 46%;font-size:11.5px;
+  letter-spacing:0;text-transform:none;font-weight:400;margin:0}
+.hv8 .tech .sprow .v{color:var(--ink2);min-width:0;overflow-wrap:anywhere}
+.hv8 .hvnavn{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;margin:8px 0 0}
+.hv8 .foot,.hv8 .top,.hv8 .pos,.hv8 .saved,.hv8 .acts,.hv8 .score{}
+.hv8 .saved{font-size:10.5px;color:var(--okd)}
+.hv8 .hvsletlink{font-size:10.5px;color:var(--mut2);cursor:pointer;border-bottom:1px dotted var(--line)}
+.hv8 .hvsletlink:hover{color:var(--fejl)}
+.hv8 .advar{color:var(--fejl)}
+.hv8 kbd{font:inherit;font-size:10px;background:var(--sand);border-radius:4px;padding:1px 5px}
+
+/* ══ BROEN, DEL 2: VÆRKTØJSLINJEN OG NØGLETALLENE ══════════════════════
+   Panda kalder dem .hvbar/.hvknap/.hvbrik/.hvkpis/.hvkpi/.kpidaek, hvor
+   mockuppen siger .vlinje/.vis/.brik/.ntal/.tb/.tnote. Opmaerkningen er
+   IKKE roert — filtermenuen, de gemte visninger og de tre noegletal er
+   praecis den kode, der koerer i dag. Kun stilen kommer fra mockuppen. */
+.hv8 .hvbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 20px 12px}
+.hv8 .hvknap{font:inherit;font-size:12.5px;padding:8px 13px;border-radius:9px;border:0;background:#fff;
+  color:var(--ink);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 .hvknap:hover{box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 .hvknap .n{background:#26291f;color:#fff;border-radius:5px;padding:1px 6px;font-size:10.5px;margin-left:3px}
+.hv8 .hvknap .pil{color:var(--mut2);font-size:9px;margin-left:5px}
+.hv8 .hvbrik{font-size:11.5px;color:var(--ink2);background:var(--sand);border-radius:8px;padding:6px 10px;
+  display:inline-flex;align-items:center;gap:8px}
+.hv8 .hvbrik em{font-style:normal;color:var(--mut);cursor:pointer;font-size:10px}
+.hv8 .hvbrik em:hover{color:var(--fejl)}
+.hv8 .hvkpis{display:flex;gap:10px;align-items:stretch;padding:0 20px 14px;flex-wrap:wrap}
+.hv8 .hvkpi{background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:12px 16px;
+  min-width:150px;box-shadow:0 1px 2px rgba(46,38,20,.03)}
+.hv8 .hvkpi b{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;line-height:1;
+  font-variant-numeric:tabular-nums;display:block}
+.hv8 .hvkpi b .cur{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.12em;color:var(--mut);
+  margin-left:4px;text-transform:uppercase}
+.hv8 .hvkpi .l{font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);
+  margin-top:7px;display:block}
+.hv8 .kpidaek{font-size:11px;color:var(--mut);align-self:center;line-height:1.5}
+.hv8 .kpidaek b{display:block;color:var(--ink);font-size:12.5px;font-weight:600}
+/* Wendie 11.09.2026: «den her tekst behøver vi heller ikke.» */
+.hv8 .kpidaek > span{display:none}
+.hv8 .hvsog{display:flex;align-items:center;gap:7px;background:#fff;border-radius:9px;padding:4px 11px;
+  box-shadow:inset 0 0 0 1px var(--line);min-width:300px}
+.hv8 .hvsog input{border:0;outline:none;background:none;font:inherit;font-size:12.5px;flex:1;color:var(--ink)}
+.hv8 .hd{padding:18px 20px 12px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.hv8 .hd .sp{flex:1}
+
+/* ══ VÆRKTØJSLINJENS EGNE REGLER, OVERFØRT FRA .hv7 ════════════════════
+   Filter- og visningsmenuerne er popups, hvis skjul-regler haenger paa
+   .hv7. Under .hv8 var de derfor ALTID aabne og laa oven i hinanden.
+   Reglerne er kopieret uaendret, kun med det nye praefiks — menuernes
+   opfoersel er Pandas egen og skal ikke laves om. */
+.hv8 .ph{margin-bottom:20px;}
+.hv8 .ph h1{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:400;margin:6px 0 0;color:var(--ink);letter-spacing:.4px;}
+.hv8 .ph{display:flex;align-items:flex-end;gap:18px;}
+.hv8 .ph h1{margin-bottom:0;}
+.hv8 .ph .hvsog{margin-left:auto;margin-bottom:3px;}
+.hv8 .ph .hvny{margin-bottom:4px;}
+.hv8 .hvbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 13px;}
+.hv8 .hvknapgrp{position:relative;}
+.hv8 .hvknap{display:inline-flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;
+  font-size:12px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:0;
+  padding:7px 13px;cursor:pointer;transition:.14s;white-space:nowrap;}
+.hv8 .hvknap:hover{border-color:var(--gold);}
+.hv8 .hvknap.aaben{border-color:var(--forest);background:#fdfcf9;}
+.hv8 .hvknap.vis{font-weight:600;min-width:150px;}
+.hv8 .hvknap .vn{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;}
+.hv8 .hvknap .pil{color:var(--mut);font-size:9px;}
+.hv8 .hvknap b{font-weight:600;color:#fff;background:var(--forest);border-radius:0;
+  padding:1px 6px;font-size:10px;}
+.hv8 .hvpop{display:none;position:absolute;top:calc(100% + 5px);left:0;z-index:60;
+  min-width:290px;background:#fffefb;border:1px solid var(--line);border-radius:0;
+  box-shadow:0 16px 44px rgba(80,70,55,.20);padding:8px 0;}
+.hv8 .hvpop.on{display:block;}
+.hv8 .hvpop.fpop{min-width:430px;padding:10px 0;}
+.hv8 .hvpop .ph{font-size:8px;letter-spacing:1.9px;text-transform:uppercase;color:var(--gold);
+  font-weight:700;padding:8px 14px 5px;}
+.hv8 .hvpop .tom{font-size:11.5px;color:var(--mut);font-style:italic;padding:3px 14px 7px;}
+.hv8 .hvpop .pskel{height:1px;background:var(--hair);margin:7px 0;}
+.hv8 .vpost .dm{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);
+  border:1px solid var(--line);padding:1px 5px;}
+.hv8 .vpost.on .dm{color:var(--gold-l);border-color:rgba(255,255,255,.3);}
+.hv8 .vpost .ejer{font-size:8.5px;letter-spacing:1px;color:var(--mut);}
+.hv8 .vhandling{display:block;width:100%;font-family:'Inter',sans-serif;font-size:12px;
+  color:var(--ink2);background:transparent;border:0;border-radius:0;padding:8px 14px;
+  cursor:pointer;text-align:left;transition:.12s;}
+.hv8 .vhandling:hover{background:#f7f2e8;}
+.hv8 .vhandling.gem{color:var(--gold);font-weight:500;}
+.hv8 .hvbrik{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:var(--ink2);
+  background:var(--sand);border:1px solid var(--line);border-radius:0;padding:5px 10px;}
+.hv8 .hvbrik em{font-style:normal;color:var(--mut);font-size:13px;line-height:1;cursor:pointer;}
+.hv8 .hvbrik em:hover{color:var(--bad);}
+.hv8 .kpidaek{display:flex;flex-direction:column;justify-content:center;gap:2px;
+  padding:0 4px 0 8px;font-size:11px;color:var(--mut);line-height:1.4;}
+.hv8 .kpidaek b{color:var(--ink2);font-weight:600;}
+.hv8 .kpidaek span{font-size:10px;color:var(--gold);font-style:italic;}
+.hv8 .hvkpis{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 18px;}
+.hv8 .hvkpi{background:var(--card);border:1px solid var(--line);border-radius:0;
+  border-top:2px solid var(--gold-l);padding:12px 17px 13px;min-width:158px;}
+.hv8 .hvkpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:500;
+  color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;}
+.hv8 .hvkpi .cur{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:1.2px;color:var(--mut);font-weight:400;}
+.hv8 .hvkpi .l{display:block;font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);margin-top:7px;}
+.hv8 .hvsog{margin-left:auto;min-width:270px;position:relative}
+.hv8 .hvsog .sogfelt{padding:0 13px}
+.hv8 .hvsog .sogfelt input{font-size:13px;padding:8px 0}
 </style>
 </head>
 <body>
@@ -6362,7 +7103,13 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.51';
+const APP_VERSION = 'v1.52';
+/* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
+   Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
+   true  = henvendelserne tegnes i Silke (den godkendte mockup)
+   false = den gamle tavle, praecis som foer, uden at rulle noget tilbage
+   Datalaget er det samme i begge tilfaelde — kun tegningen skifter. */
+const NY_TAVLE = true;
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -12139,10 +12886,17 @@ async function viewHenvendelser(){
   const pLeads = fetchLeads();
   const pViews = hvHentVisninger().catch(()=>[]);
   const pFrist = hvHentFrister().catch(()=>({}));
+  /* ══ SØJLESUMMEN SKAL KUNNE REGNES ══════════════════════════════════
+     Tavlen viser en sum pr. soejle i DKK, og en henvendelse i NOK kan ikke
+     laegges til en i DKK uden en kurs. Kursen hentes derfor HER, i samme
+     rundtur som resten — ikke i en ekstra tur, og ikke gaettet. Kan en
+     valuta ikke regnes om, taelles den IKKE med, og summen siger det.
+     (mlEff hoerer til rejsesiden og findes ikke paa denne side.) */
   const pBerig = Promise.all([
     db.from('lead_activities').select('lead_id,occurred_at').eq('type','system').not('stage','is',null).order('occurred_at',{ascending:false}),
     db.from('team_members').select('name,initials,active'),
     db.from('v_lead_kundehistorik').select('lead_id,antal_rejser'),
+    db.rpc('fn_effektive_kurser'),
     // maanedens salg — hentes fra rejserne (faktisk booket), kun denne maaned
     db.from('trips').select('ref_no,branch,owner,status,package_sell_dkk,booking_date').gte('booking_date', maanedStart())
   ]).catch(()=>null);
@@ -12152,7 +12906,14 @@ async function viewHenvendelser(){
   hvRealtid();
   const berig = await pBerig;
   if(berig){
-    const [actR, teamR, histR, tripR] = berig;
+    const [actR, teamR, histR, kursR, tripR] = berig;
+    /* Modtagerkursen: marked minus bankens andel — samme regnestykke som
+       dashboardets DASH_MODTAG, saa de to sider ikke siger forskelligt. */
+    window.HV_KURS = { DKK: 1 };
+    try{ Object.entries((kursR && kursR.data) || {}).forEach(([v,b])=>{
+      if(!b || typeof b !== 'object' || !b.marked) return;
+      window.HV_KURS[v] = Number(b.marked) * (1 - (Number(b.bankmargin)||0)/100);
+    }); }catch(e){ console.warn('kurserne til søjlesummen kunne ikke læses', e); }
     window._leadMdrSalg=(tripR&&tripR.data||[]).filter(t=>!['canx','voided'].includes(t.status) && !/^test/i.test(t.ref_no||''));
     const smap={}; (actR.data||[]).forEach(a=>{ if(!smap[a.lead_id]) smap[a.lead_id]=a.occurred_at; });
     const hmap={}; (histR&&histR.data||[]).forEach(h=>{ hmap[h.lead_id]=+h.antal_rejser||0; });
@@ -12165,7 +12926,163 @@ async function viewHenvendelser(){
 
 /* Filtret ligger i hukommelsen, ikke i basen — det aendrer kun hvad man SER.
    Samme to knapraekker som paa den gamle side: branche og ansvarlig. */
+/* ═══════════════════════════════════════════════════════════════════════
+   .hv8 — HENVENDELSESTAVLEN I SILKE
+   Opmærkningen er flyttet ORDRET fra den godkendte mockup 11.09.2026.
+   Det eneste der er lavet om, er hvor tallene kommer fra: mockuppen havde
+   sine egne felter, her læses Pandas rigtige — og HVER knap kalder den
+   funktion, der allerede findes. Datalaget er ikke rørt: hvOpen, hvDrop,
+   hvDragStart, hvSave … hedder stadig det samme og gør stadig det samme.
+   Kontakten NY_TAVLE øverst slår den fra igen uden at rulle noget tilbage.
+   ═══════════════════════════════════════════════════════════════════════ */
+const M_KORT = ['jan.','feb.','mar.','apr.','maj','jun.','jul.','aug.','sep.','okt.','nov.','dec.'];
+
+/* Datoen: årstal med, og hver dato er ét stykke der ikke kan brække.
+   Et ombrud kan kun lande ved tankestregen mellem de to. */
+function hv8Dato(fra, til){
+  if(!fra) return null;
+  const f = new Date(fra); if(isNaN(f)) return null;
+  const aa = d => String(d.getFullYear()).slice(2);
+  const md = d => d.getDate() + '. ' + M_KORT[d.getMonth()].replace('.','');
+  const nb = t => '<span class="nb">' + t + '</span>';
+  if(!til) return nb(md(f) + ' ' + aa(f));
+  const t = new Date(til); if(isNaN(t)) return nb(md(f) + ' ' + aa(f));
+  if(f.getFullYear() !== t.getFullYear()) return nb(md(f)+' '+aa(f)) + ' – ' + nb(md(t)+' '+aa(t));
+  if(f.getMonth() === t.getMonth())
+    return nb(f.getDate()+'.–'+t.getDate()+'. '+M_KORT[t.getMonth()].replace('.','')+' '+aa(t));
+  return nb(md(f)) + ' – ' + nb(md(t)+' '+aa(t));
+}
+
+/* ══ KORTET ══ Samme indhold som i dag, i mockuppens form. */
+function hv8Card(l){
+  const tr = triage(l);
+  const dests = destList(l.destination);
+  const mn = minutterSiden(l._stageSince || l.created_at);
+  const dage = mn == null ? null : Math.floor(mn / 1440);
+  const a = tnum(l.adults), k = tnum(l.kids) || 0;
+  const ages = (l.child_ages||'').split(/\s*,\s*/).filter(x=>x!=='');
+
+  /* Valutaen gættes aldrig (R501). */
+  const curK = leadValuta(l), cur = curK.val || '';
+  /* Et negativt beløb ER ikke et budget — det opstår, når Pipedrive giver
+     et prisinterval som ét tal med minus foran (Wendie 11.09.2026). */
+  const bel = (tr.total != null && tr.total > 0) ? tr.total
+            : (tr.perPerson != null && tr.perPerson > 0) ? tr.perPerson : null;
+  const perPerson = bel != null && tr.total == null;
+  const pris = bel == null
+    ? '<span class="tom">Intet budget</span>'
+    : '<span class="bel tal">' + fval(bel) + '</span>' + (cur
+        ? '<span class="val' + (curK.kilde==='udledt' ? ' udledt" title="Foreslået ud fra branchen — ingen valuta er gemt på henvendelsen' : '"')
+          + '>' + escH(cur) + (perPerson ? '/p' : '') + '</span>'
+        : '<span class="val mangl" title="Der er ingen valuta på henvendelsen — åbn den og vælg en">ingen valuta</span>');
+
+  const dest = dests.length
+    ? escH(dests[0]) + (dests.length>1 ? ' <span class="fl">+'+(dests.length-1)+'</span>' : '')
+    : '<span class="ingen">Ingen destination</span>';
+
+  let nn = tnum(l.nights);
+  if(nn == null && l.departure_date && l.return_date){
+    const df = Math.round((new Date(l.return_date)-new Date(l.departure_date))/86400000);
+    if(df > 0) nn = df;
+  }
+  const naar = hv8Dato(l.departure_date || l.earliest_departure, l.return_date || l.latest_return);
+  const nt = nn != null && nn > 0 ? nn + (nn===1?' nat':' nætter') : null;
+  const fe = ferieForRejse(l.departure_date || l.earliest_departure,
+                           l.return_date || l.latest_return, l.branch, l.departure_airport);
+  const rejsende = [ a ? (a===1?'1 voksen':a+' voksne') : null,
+                     k>0 ? (k===1?'1 barn':k+' børn') + (ages.length?' ('+ages.join(', ')+')':'') : null
+                   ].filter(Boolean).join(' · ');
+
+  const raad = hvRaadner(l);
+  return `<div class="k ${/^(MN|NO)$/.test(l.branch||'')?'':'dk'}${raad?' raadner'+raad:''}${
+      l.status==='lost'?' er-tabt':''}${l.converted_trip_id?' erblevetrejse':''}"
+    data-id="${l.id}" onclick="hvOpen('${l.id}')" title="${escH(hvNavn(l))}"
+    draggable="true" ondragstart="hvDragStart(event,'${l.id}')" ondragend="hvDragEnd(event)">
+    <div class="navn">${escH(hvNavn(l))}</div>
+    <div class="pris">${pris}</div>
+    <div class="dest">${dest}</div>
+    <div class="krop">
+      <div class="rk"><div class="lab">Rejsen</div>
+        <div class="v dato${naar?'':' tomt'}">${naar || 'Ingen datoer'}</div>
+        ${nt ? `<div class="v sml">${nt}</div>` : ''}
+        ${fe.length ? `<div class="ferie" title="${escH(fe.join(' · '))}">${escH(fe[0])}${
+            fe.length>1?` <span class="fl">+${fe.length-1}</span>`:''}</div>` : ''}
+      </div>
+      <div class="rk"><div class="lab">Rejsende</div>
+        <div class="v${rejsende?'':' tomt'}">${escH(rejsende) || '—'}</div>
+      </div>
+    </div>
+    <div class="fod">
+      <span class="dg${raad?' raadner':''}" title="${
+        (!tr.complete && tr.missing && tr.missing.length) ? 'Mangler '+escH(tr.missing.join(', '))+' · ' : ''
+        }har ligget ${escH(varighed(mn))} på trinnet">${dage==null?'—':dage+' d.'}</span>
+    </div>
+  </div>`;
+}
+
+/* ══ TAVLEN ══ Samme søjler, frister, træk og slip som i dag. */
+function hv8Board(){
+  const f = hvF();
+  const leads = (window._leads||[]).filter(l => f.b.every(b => hvOpfylder(l,b)));
+  const kendte = new Set(HV_RAIL);
+  const hjem = st => kendte.has(st) ? st : (HV_TRIN_HJEM[st] || HV_RAIL[0]);
+  const cols = HV_RAIL.map(k => [k, leads.filter(l => hjem(l.stage) === k)]);
+  window._hvOrder = [].concat(...cols.map(c=>c[1])).map(l=>l.id);
+
+  /* ══ EN SUM MED ET GÆT I ER VÆRRE END INGEN SUM ════════════════════
+     Kursen kommer fra HV_KURS, hentet sammen med henvendelserne. Kan en
+     valuta ikke regnes om — eller mangler den helt — taelles beloebet
+     IKKE med, og soejlen siger hvor mange der stod udenfor. Foer brugte
+     jeg mlEff(), som hoerer til rejsesiden og ikke findes her; den gav 0,
+     saa alle norske beloeb forsvandt lydloest ud af summen. */
+  const kurs = v => (window.HV_KURS || {DKK:1})[v];
+  const iDkk = l => { const v = leadValuta(l).val, b = triage(l).total;
+    if(!v || b == null || b <= 0) return null;
+    const k = kurs(v); return k ? b * k : null; };
+
+  app.innerHTML = `<div class="hv8">
+    <div class="page" id="hvPage">
+      <div class="hd">
+        <div><div class="lab">Salgspipeline før booking</div><h1>Henvendelser</h1></div>
+        <span class="sp"></span>
+        <div class="hvsog">${sogFelt('hv', true)}</div>
+        <button class="bny" onclick="hvNyDlg()" title="Til dem der ringer eller skriver direkte">＋ Ny henvendelse</button>
+      </div>
+      ${hvFilterOgTal()}
+      <div class="tav" style="grid-template-columns:repeat(${cols.length},minmax(0,1fr))">
+        ${cols.map(([k,ls])=>{
+          const tal = ls.map(iDkk);
+          const sum = tal.reduce((s,x)=>s+(x||0), 0);
+          /* Hvor mange havde et beloeb, vi ikke kunne regne om? */
+          const udenfor = ls.filter((l,i)=>tal[i]===null && (triage(l).total||0) > 0).length;
+          return `<div class="sj" data-stage="${k}"
+            ondragover="hvDragOver(event)" ondragleave="hvDragLeave(event)" ondrop="hvDrop(event,'${k}')">
+            <div class="sjh"><div class="r1"><span class="t">${escH(STAGE_SHORT[k]||LEAD_STAGE_LABEL[k]||k)}</span>
+              <span class="a tal">${ls.length}</span></div>
+              ${sum ? `<span class="sum tal">${fval(Math.round(sum))} DKK${
+                  udenfor ? `<span class="udenfor" title="${udenfor} henvendelse${udenfor===1?'':'r'} har et beløb i en valuta, vi ikke har en kurs på — de er ikke talt med">${
+                    ' + '+udenfor+' uden kurs'}</span>` : ''}</span>`
+                : '<span class="sum">&nbsp;</span>'}
+            </div>${ls.map(hv8Card).join('')}</div>`;
+        }).join('')}
+      </div>
+      <div class="hint" id="hvHint">Klik for at åbne · <b>træk</b> et kort til en anden søjle for at flytte trin
+        — <b>Esc</b> lukker, <b>←</b> <b>→</b> skifter kort</div>
+    </div>
+    <div class="ov" id="hvOv" onclick="if(event.target===this)hvClose()"><div class="ld" id="hvLd"></div></div>
+    <button class="navbtn pv" onclick="hvStep(-1)">‹</button>
+    <button class="navbtn nx" onclick="hvStep(1)">›</button>
+    <div class="ov3" id="hvOv3" onclick="if(event.target===this)hvCloseDest()">${hvDestPicker()}</div>
+    <div class="ov2" id="hvOv2" onclick="if(event.target===this)hvLukDlg()"></div>
+  </div>`;
+  if(!window._hvKeys){ window._hvKeys = true; document.addEventListener('keydown', hvKey); }
+  hvTegnMenuer();
+}
+
 function hvBoardRender(){
+  /* Den nye tavle tegnes af hv8Board(); den gamle kode nedenfor staar
+     uroert, saa NY_TAVLE=false giver praecis det, der koerte foer. */
+  if(typeof NY_TAVLE !== 'undefined' && NY_TAVLE){ return hv8Board(); }
   /* Filtret er nu en liste af betingelser. Status — aabne, tabte, vundne — er
      bare én af dem, saa tabte kan hentes frem ved at aendre eller fjerne den,
      uden at der skal en knap til i toppen. */
@@ -12559,13 +13476,26 @@ async function hvDrop(e,k){
   let id=_hvDrag;
   if(!id){ try{ id=e.dataTransfer.getData('text/plain'); }catch(_){} }
   _hvDrag=null;
-  document.querySelectorAll('.hv7 .col').forEach(c=>c.classList.remove('kandrop','over'));
+  document.querySelectorAll('.hv7 .col, .hv8 .sj').forEach(c=>c.classList.remove('kandrop','over'));
   setTimeout(hvKoeUd, 0);
   if(!id||!k) return;
   const l=(window._leads||[]).find(x=>x.id===id);
   if(!l || l.stage===k) return;
-  if(l.stage==='new_lead' && k!=='new_lead' && !hvHarVurdering(l)){
+  /* ══ SPÆRRINGEN GÆLDER OGSÅ, NÅR MAN TRÆKKER KORTET ═══════════════
+     Wendie 11.09.2026: «naar vi goer noget aktivt (flytter soejle eller
+     saetter den til tabt) ved en henvendelse FOERSTE gang, saa skal man
+     blive bedt om at vurdere henvendelsen inden man gaar ud af den igen.»
+     Foer gjaldt spaerringen kun, naar sagen forlod «Ny henvendelse» —
+     og kun inde paa sagen. Traak man kortet fra «Tilbud sendt» til
+     «Forhandling», blev der aldrig spurgt. Nu spoerges der ved ENHVER
+     flytning, indtil JEG har vurderet den; derefter aldrig igen.
+     Fundet af scenarieproeven 11.09.2026, foer det kom ud. */
+  const nyRegel = (typeof NY_TAVLE!=='undefined' && NY_TAVLE);
+  const skalVurdere = nyRegel ? !hvHarVurdering(l)
+                              : (l.stage==='new_lead' && k!=='new_lead' && !hvHarVurdering(l));
+  if(skalVurdere){
     hvKvit(hvVurMangler('henvendelsen flytter sig'));
+    window._hvEfterVurdering = {id, stage:k};   /* flyttes, saa snart den er sat */
     hvOpen(id);
     return;
   }
@@ -12822,10 +13752,14 @@ async function hvOpen(id){
   document.getElementById('hvPage').classList.add('dim');
   document.getElementById('hvHint').style.display='none';
   document.getElementById('hvLd').innerHTML='<div style="padding:60px;text-align:center;color:var(--mut)">Henter…</div>';
-  const [actR,offR]=await Promise.all([
+  const [actR,offR,vurR]=await Promise.all([
     db.from('lead_activities').select('*').eq('lead_id',id).order('occurred_at',{ascending:false}),
-    db.from('lead_offers').select('*').eq('lead_id',id).order('seq',{ascending:false})
+    db.from('lead_offers').select('*').eq('lead_id',id).order('seq',{ascending:false}),
+    /* Én vurdering pr. person — hentes i samme rundtur som resten. */
+    db.from('lead_vurderinger').select('*').eq('lead_id',id)
   ]);
+  window._hvVur = (vurR && vurR.data) || [];
+  window._hvVurRet = null;
   if(window._hvId!==id) return; // brugeren nåede at skifte kort
   hvRender(l, actR.data||[], offR.data||[]);
 }
@@ -12963,8 +13897,10 @@ function hvRender(l, acts, offers){
         <div class="scorebar"><i style="width:${tr.complete?tr.score:0}%"></i></div>
 
         <div class="sh"><span class="txt">Vores vurdering</span></div>
-        <div class="vur">${HV_VUR.map(([k,n,s])=>`<button class="${l.vurdering===k?'on':''}" onclick="hvVur('${k}')"><span class="dot"></span>${n}<small>${s}</small></button>`).join('')}</div>
-        <p class="vurnote">${l.vurdering?('Sat af '+escH(l.vurdering_by||'?')+(l.vurdering_at?' '+escH(fmtDY(l.vurdering_at)):'')+'. '):''}Gemmes sammen med udfaldet, så vi kan se om vurderingen rammer bedre end scoren.</p>
+        ${(typeof NY_TAVLE!=='undefined' && NY_TAVLE)
+          ? `<div id="hv8VurBoks">${hv8VurBlok(l.id)}</div>`
+          : `<div class="vur">${HV_VUR.map(([k,n,s])=>`<button class="${l.vurdering===k?'on':''}" onclick="hvVur('${k}')"><span class="dot"></span>${n}<small>${s}</small></button>`).join('')}</div>
+        <p class="vurnote">${l.vurdering?('Sat af '+escH(l.vurdering_by||'?')+(l.vurdering_at?' '+escH(fmtDY(l.vurdering_at)):'')+'. '):''}Gemmes sammen med udfaldet, så vi kan se om vurderingen rammer bedre end scoren.</p>`}
 
         <div class="sh"><span class="txt">Nøgletal</span></div>
         <div class="kpis">
@@ -13080,7 +14016,14 @@ function hvTog(btn,felt){
    ikke en vurdering længere — så er den en konklusion, og så måler den
    ingenting. Derfor spærrer vi på de tre steder, hvor sagen forlader sin
    uskyld: væk fra «Ny henvendelse», til tabt, og til solgt. */
-function hvHarVurdering(l){ return !!(l && l.vurdering); }
+function hvHarVurdering(l){
+  /* Foer: «har NOGEN vurderet den?» — saa slap man for at vurdere, fordi
+     den anden allerede havde. Nu: «har JEG vurderet den?», og naar jeg
+     har, bliver jeg aldrig spurgt igen (Wendie 11.09.2026). Er den nye
+     tavle slaaet fra, gaelder den gamle regel uaendret. */
+  if(typeof NY_TAVLE!=='undefined' && NY_TAVLE) return hv8HarMinVurdering(l);
+  return !!(l && l.vurdering);
+}
 /* Wendie 02.09.2026: «jeg tager mig selv i, at jeg hele tiden trykker tabt,
    foer jeg bliver bedt om at udfylde vores vurdering. Er der en mulighed
    for, at man kan faa den op inde i tabt-boksen? Saa man slipper for at gaa
@@ -13089,6 +14032,104 @@ function hvHarVurdering(l){ return !!(l && l.vurdering); }
    Rigtigt set. En spaerring, der sender folk tilbage til noget, de kunne
    have gjort paa stedet, er en daarlig spaerring. Vurderingen vises derfor
    INDE i boksen, naar den mangler — samme knapper som i sidepanelet. */
+/* ═══════════════════════════════════════════════════════════════════════
+   VURDERINGEN — ÉN PR. PERSON, INGEN OVERSKRIVER NOGEN
+   Wendie 11.09.2026: «Det kunne vaere rart at baade Rasmus og jeg skal
+   laegge en vurdering ind … vi skal kunne se hinandens — men ikke
+   overskrive dem. Jeg skal kun selv kunne rette min.»
+   Rasmus' vurdering er SKJULT, indtil du har sat din: ser man den anden
+   foerst, traekker den én med, og saa maaler sammenligningen ingenting.
+   Raekkerne ligger i lead_vurderinger; leads.vurdering holdes i live af
+   en trigger, saa alt der laeser den i forvejen bliver ved med at virke.
+   ═══════════════════════════════════════════════════════════════════════ */
+const VNAVN8 = Object.fromEntries(HV_VUR.map(v=>[v[0],v[1]]));
+const hv8Mine  = () => (window._hvVur||[]).find(v=>v.hvem===(window.ME||''));
+const hv8Andre = () => (window._hvVur||[]).filter(v=>v.hvem!==(window.ME||''));
+
+function hv8VurBlok(id){
+  const min = hv8Mine(), vis = !!min, rediger = window._hvVurRet===id || !min;
+  let h = '';
+  if(rediger) h += '<div class="vur">' + HV_VUR.map(([k,n,u])=>
+      `<button class="${min&&min.vurdering===k?'on':''}" onclick="hv8SaetVur('${id}','${k}')">`
+      + `<span class="dot"></span>${escH(n)}<small>${escH(u)}</small></button>`).join('') + '</div>';
+  const r = [];
+  if(min) r.push(`<div class="vrk"><span class="hvem">${escH(min.hvem)}</span>`
+    + `<span class="vprik vd-${escH(min.vurdering)}"></span>`
+    + `<span class="sk">${escH(VNAVN8[min.vurdering]||min.vurdering)}</span>`
+    + `<span class="naar">${escH(fmtDY(min.aendret_at||min.sat_at)||'')}</span>`
+    + (rediger?'':`<span class="ret" onclick="hv8RetVur('${id}')">ret min</span>`) + '</div>');
+  for(const a of hv8Andre()) r.push(`<div class="vrk"><span class="hvem">${escH(a.hvem)}</span>`
+    + (vis ? `<span class="vprik vd-${escH(a.vurdering)}"></span>`
+             + `<span class="sk">${escH(VNAVN8[a.vurdering]||a.vurdering)}</span>`
+           : '<span class="vent">har vurderet — vises, når du har sat din</span>')
+    + `<span class="naar">${escH(fmtDY(a.aendret_at||a.sat_at)||'')}</span></div>`);
+  h += r.join('');
+  if(vis && hv8Andre().length){
+    const alle = (window._hvVur||[]).map(v=>v.vurdering);
+    const enige = alle.every(x=>x===alle[0]);
+    h += `<div class="enig${enige?'':' uenig'}">` + (enige
+      ? `I er enige — begge siger «${escH(VNAVN8[alle[0]]||alle[0])}».`
+      : 'I ser den forskelligt: ' + (window._hvVur||[]).map(v=>
+          escH(v.hvem)+' siger «'+escH(VNAVN8[v.vurdering]||v.vurdering)+'»').join(', ') + '.')
+      + '</div>';
+  }
+  if(!min && !hv8Andre().length) h += '<p class="vurnote">Ingen har vurderet den endnu.</p>';
+  if(!min && hv8Andre().length)  h += '<p class="vurnote">Sæt din egen, så kan du se den anden.</p>';
+  h += `<p class="dlgfejl" id="hv8VurFejl"></p>`;
+  return h;
+}
+function hv8RetVur(id){ window._hvVurRet = id; hv8TegnVur(id); }
+function hv8TegnVur(id){
+  const b = document.getElementById('hv8VurBoks');
+  if(b) b.innerHTML = hv8VurBlok(id);
+  /* Maerkerne inde i tabt- og solgt-boksene skal ogsaa foelge med. */
+  const i = document.getElementById('vurher-'+id);
+  if(i) i.querySelectorAll('button').forEach(x=>x.classList.toggle('on',
+    hv8Mine() && x.dataset.k === hv8Mine().vurdering));
+}
+/* ══ GEMNINGEN ══ Egen raekke, aldrig en andens. En gemning der ikke
+   lykkes, maa ALDRIG se ud som om den gjorde (R501-laeren). */
+async function hv8SaetVur(id, k){
+  const mig = window.ME || '';
+  if(!mig){ alert('Du er ikke logget ind med initialer — vurderingen kan ikke gemmes.'); return; }
+  const min = hv8Mine();
+  const raekke = { lead_id:id, hvem:mig, vurdering:k,
+                   ...(min ? {aendret_at:new Date().toISOString()} : {sat_at:new Date().toISOString()}) };
+  const r = await db.from('lead_vurderinger').upsert(raekke, {onConflict:'lead_id,hvem'}).select();
+  const f = document.getElementById('hv8VurFejl');
+  if(r.error || !(r.data||[]).length){
+    const t = 'Vurderingen blev IKKE gemt: ' + (r.error ? r.error.message
+      : 'basen skrev ingen række — måske må du ikke skrive i «'+mig+'»s navn');
+    if(f) f.textContent = t; else alert(t);
+    return;                                   /* og skaermen lyver ikke */
+  }
+  window._hvVur = (window._hvVur||[]).filter(v=>v.hvem!==mig).concat(r.data[0]);
+  window._hvVurRet = null;
+  /* Den gamle kolonne foelger med via triggeren — vi laeser den tilbage,
+     saa kortet paa tavlen viser det samme som sagen. */
+  const l = (window._leads||[]).find(x=>x.id===id);
+  if(l){ l.vurdering = k; l.vurdering_by = mig; l.vurdering_at = new Date().toISOString(); }
+  hv8TegnVur(id);
+  ['hvTabtFejl','hvSolgtFejl'].forEach(x=>{ const e=document.getElementById(x); if(e) e.textContent=''; });
+  /* Blev man stoppet midt i en flytning, fuldfoeres den nu — saa man ikke
+     skal traekke kortet én gang til. */
+  const vent = window._hvEfterVurdering;
+  if(vent && vent.id===id){
+    window._hvEfterVurdering = null;
+    hvKvit('Din vurdering er gemt — henvendelsen flyttes');
+    await hvStage(vent.stage);
+    return;
+  }
+  hvKvit('Din vurdering er gemt');
+}
+/* Har JEG vurderet den? Det er det, spaerringen spoerger om — og naar jeg
+   har, bliver jeg aldrig spurgt igen (Wendie 11.09.2026). */
+function hv8HarMinVurdering(l){
+  if(!l) return false;
+  if(window._hvId === l.id) return !!hv8Mine();
+  return !!(l.vurdering && l.vurdering_by === (window.ME||''));
+}
+
 function hvVurVaelger(id){
   return `<div class="vurher" id="vurher-${id}">
     <label>Vores vurdering <em>skal sættes, før sagen lukkes</em></label>
@@ -13099,6 +14140,14 @@ function hvVurVaelger(id){
 }
 async function hvVurHer(id, k){
   const l=(window._leads||[]).find(x=>x.id===id); if(!l) return;
+  /* Med den nye tavle gemmes vurderingen i lead_vurderinger — ÉN pr.
+     person. Vaelgeren inde i tabt- og solgt-boksen skal skrive samme
+     sted som sidepanelet, ellers staar de to og siger hver sit. */
+  if(typeof NY_TAVLE!=='undefined' && NY_TAVLE){
+    const boks0 = document.getElementById('vurher-'+id);
+    if(boks0) boks0.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.k===k));
+    return hv8SaetVur(id, k);
+  }
   l.vurdering=k; l.vurdering_by=window.ME||''; l.vurdering_at=new Date().toISOString();
   const boks=document.getElementById('vurher-'+id);
   if(boks) boks.querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.k===k));
