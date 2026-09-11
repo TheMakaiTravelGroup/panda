@@ -6920,7 +6920,17 @@ main{min-width:0}
    guldstreg under overskriften, praecis som .col gjorde det i Panda. */
 .hv8 .tav{flex:1;display:grid;gap:12px;padding:0 20px 20px;align-items:start;overflow-x:auto}
 .hv8 .sj{min-width:0;background:rgba(253,251,247,.6);border:1px solid var(--line);
-  border-radius:10px;padding:11px 10px 12px;min-height:340px}
+  border-radius:10px;padding:11px 10px 12px;
+  /* Wendie 11.09.2026: «hvis der ikke er kort i en soejle, skal soejlen
+     stoppe under stregen.» En tom soejle strakte sig foer 340 px ned i
+     ingenting. Nu er hoejden kortets hoejde — men saa snart man begynder
+     at traekke, vokser ALLE soejler, saa der er noget at slippe i. */
+  min-height:0}
+.hv8 .sj:has(.k){min-height:340px}
+.hv8 .sj.kandrop{min-height:220px}
+/* Klassen hedder kandrop i koden. CSS'en sagde kanslippe, saa den stiplede
+   kant blev aldrig vist paa den nye tavle. */
+.hv8 .sj.kandrop{border-style:dashed}
 /* ══ SØJLEHOVEDET — ÉN STRAM LINJE ════════════════════════════════════
    Wendie 11.09.2026: «det her ser forfaerdeligt ud.» Og det gjorde det:
    navnet, antallet og summen stod paa TRE linjer med luft imellem, og
@@ -6948,7 +6958,7 @@ main{min-width:0}
   transition:box-shadow .16s ease, border-color .16s ease}
 .hv8 .sj .k:hover{border-color:var(--goldl);box-shadow:0 1px 2px rgba(46,38,20,.04),0 18px 34px -26px rgba(46,38,20,.34)}
 .hv8 .sj .k.traekker{opacity:.4}
-.hv8 .sj.kanslippe{border-style:dashed}
+/* .kanslippe fandtes ikke i koden — se .kandrop ovenfor */
 .hv8 .sj.over{background:rgba(224,201,163,.22);border-color:var(--gold)}
 /* Har den ligget for længe på trinnet — som i dag. */
 .hv8 .sj .k.raadner{box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3), inset 0 0 0 1px rgba(141,106,52,.18)}
@@ -7388,6 +7398,24 @@ main{min-width:0}
 /* «+ Tilfoej» er en brik, ikke et felt i fuld bredde. Den gamle
    «.fld select{width:100%}» ramte den, fordi vaelgeren ER et select. */
 .hv8 #hvLd .fld select.addchip{width:auto;flex:0 0 auto}
+/* ══ «DU MANGLER AT VURDERE» ══════════════════════════════════════════
+   Silke-guld, ikke en aarvaagen roed advarsel — det er en paamindelse,
+   ikke en fejl. Venter en flytning paa vurderingen, bliver rammen fast
+   guld, saa det er tydeligt at noget staar stille og venter. */
+.hv8 #hvLd .vurkrav{background:rgba(224,201,163,.26);border-radius:9px;
+  padding:10px 12px;margin:0 0 10px;box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 #hvLd .vurkrav b{display:block;font-size:11.5px;font-weight:600;color:#8d6a34;
+  margin-bottom:2px;letter-spacing:.01em}
+.hv8 #hvLd .vurkrav span{display:block;font-size:10.5px;color:var(--ink2);line-height:1.5}
+.hv8 #hvLd .vurkrav.venter{background:rgba(224,201,163,.5);
+  box-shadow:inset 0 0 0 1.5px var(--gold)}
+/* Naar man aabner en uvurderet henvendelse, blinker afsnittet én gang —
+   nok til at oejet finder det, ikke nok til at genere. */
+@keyframes hv8vink{0%{box-shadow:0 0 0 0 rgba(193,151,90,0)}
+  30%{box-shadow:0 0 0 5px rgba(193,151,90,.28)}
+  100%{box-shadow:0 0 0 0 rgba(193,151,90,0)}}
+.hv8 #hvLd #hv8VurBoks.vink{border-radius:10px;animation:hv8vink 1.15s ease-out 2}
+@media (prefers-reduced-motion: reduce){ .hv8 #hvLd #hv8VurBoks.vink{animation:none} }
 .hv8 .hd .top>div:first-child{min-width:0;flex:1 1 auto}
 .hv8 .acts{margin-left:auto;display:flex;align-items:center;gap:7px;flex-wrap:nowrap;flex:0 0 auto}
 .hv8 .pos{font-size:10px;color:var(--mut);letter-spacing:1px;margin-right:4px;white-space:nowrap}
@@ -14433,6 +14461,20 @@ function hvRender(l, acts, offers){
       <span class="kbd">← →</span><span style="font-size:10px;color:var(--mut)">skift kort</span>
       <button class="b gh" onclick="hvClose()">Luk</button></div>`;
   hvKids();
+  /* Wendie 11.09.2026: aabner man en henvendelse, man ikke har vurderet,
+     skal det ses. Afsnittet vinker to gange og ruller i syne — men kun
+     naar der er noget at vurdere, og kun naar jeg ikke allerede har gjort
+     det. Ingen dialog spaerrer vejen; kravet staar, hvor man kigger. */
+  if(typeof NY_TAVLE!=='undefined' && NY_TAVLE && !hv8Mine()){
+    const boks = document.getElementById('hv8VurBoks');
+    if(boks){
+      boks.classList.remove('vink');
+      void boks.offsetWidth;                   /* saa den kan vinke igen */
+      boks.classList.add('vink');
+      if(window._hvEfterVurdering && window._hvEfterVurdering.id===l.id)
+        setTimeout(()=>boks.scrollIntoView({behavior:'smooth',block:'center'}), 120);
+    }
+  }
 }
 
 /* Folder en linje i rejseplanen ud — én ad gangen. */
@@ -14568,8 +14610,28 @@ function hv8VurBlok(id){
           escH(v.hvem)+' siger «'+escH(VNAVN8[v.vurdering]||v.vurdering)+'»').join(', ') + '.')
       + '</div>';
   }
-  if(!min && !hv8Andre().length) h += '<p class="vurnote">Ingen har vurderet den endnu.</p>';
+  /* Kravboksen nedenfor siger allerede at ingen har vurderet, saa den
+     note ville staa dobbelt. Den vises kun, naar kravboksen ikke er der. */
+  if(min && !hv8Andre().length)  h += '<p class="vurnote">Kun du har vurderet den.</p>';
   if(!min && hv8Andre().length)  h += '<p class="vurnote">Sæt din egen, så kan du se den anden.</p>';
+  /* ══ KRAVET, SKREVET HVOR MAN KIGGER ══════════════════════════════
+     Wendie 11.09.2026: «Goer det tydeligt at man skal laegge en vurdering
+     ind naar man aabner eller flytter en henvendelse uden vurdering.»
+     Boksen staaer OEVERST i vurderingsafsnittet, saa laenge JEG ikke har
+     vurderet — og siger noget andet, naar en flytning venter paa den. */
+  if(!min){
+    const venter = window._hvEfterVurdering && window._hvEfterVurdering.id === id;
+    const trin = venter ? (STAGE_SHORT[window._hvEfterVurdering.stage]
+                           || LEAD_STAGE_LABEL[window._hvEfterVurdering.stage]
+                           || window._hvEfterVurdering.stage) : '';
+    h = `<div class="vurkrav${venter?' venter':''}">
+      <b>${venter ? 'Flytningen venter på din vurdering'
+                  : 'Du har ikke vurderet denne henvendelse'}</b>
+      <span>${venter
+        ? 'Vælg én herunder, så flytter den til «'+escH(trin)+'».'
+        : 'Vælg én herunder. Den gemmes med det samme, og du bliver ikke spurgt igen.'}</span>
+    </div>` + h;
+  }
   h += `<p class="dlgfejl" id="hv8VurFejl"></p>`;
   return h;
 }
