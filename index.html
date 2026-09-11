@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.52 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
+<!-- Panda · v1.53 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
      ══ VERSIONSNUMMERET HØRER TIL EN UDGIVELSE, IKKE TIL EN RETTELSE ══
      Wendie 31.08.2026: «det skal jo kun være de indeksnumre som faktisk
      bliver uploadet der får det næste nummer.» Og igen 11.09.2026: «jeg
@@ -12,9 +12,21 @@
      mange rettelser der laves, til den faktisk er uploadet. Alt hvad der
      samler sig, skrives under denne ene overskrift. Det er nu en PRØVE
      (ver.js), ikke en hensigt — den fejler, hvis nummeret hopper.
-     Live er v1.51. Denne fil bliver v1.52, når du uploader den.
+     Live er v1.52 (uploadet 11.09.2026). Denne fil bliver v1.53.
 
-     ── Hvad der er kommet til siden v1.51 ──
+     ── Kommet til siden v1.52 ──
+     SIDEMENUEN SOM I MOCKUPPEN. Wendie 11.09.2026: «sidemenuen er ikke
+     magen til mockuppen, så hele siden ser mærkelig ud inkl. søgefeltet.»
+     Rigtigt — jeg havde med vilje droppet mockuppens menuregler, fordi de
+     hed «.side» ligesom Pandas detaljepanel, og så byggede jeg aldrig
+     menuen på Pandas RIGTIGE bjælke (aside#sidebar). Den er nu den smalle
+     mørke ikonmenu, der folder ud, når man peger på den — bygget på den
+     eksisterende opmærkning, så ingen knap flytter sig. Ikonerne er sat i
+     stilarket pr. data-v, så nav'ens HTML er urørt.
+     Og søgefeltet havde to rammer: Pandas eget .sogfelt inde i min .hvsog.
+     Den ydre er væk.
+
+     ── Kom med i v1.52 ──
      HENVENDELSESTAVLEN OG HENVENDELSESSIDEN I SILKE.
      Bygget efter de to godkendte mockups fra 11.09.2026. Mockuppens CSS
      er flyttet ORDRET ind — ikke gentastet — scopet under .hv8, med
@@ -6401,6 +6413,343 @@ main{min-width:0}
   text-transform:uppercase;color:#a8a494;font-weight:600}
 
 </style><style id="hv8-silke">
+/* ══ RÆKKEFØLGEN AFGØR HVEM DER VINDER ═════════════════════════════════
+   De overfoerte .hv7-regler stod FOERST EFTER Silke-laget og vandt derfor
+   ved samme specificitet: henvendelsessiden kom til at se ud som foer —
+   serif-overskrifter, kassede trin — i stedet for som mockuppen. De
+   ligger nu FOER, saa de kun fylder hullerne ud, og Silke er det, man ser.
+   (Wendie 11.09.2026: «den skulle jo se saadan her ud».) */
+
+/* ══ PANELETS EGNE REGLER, OVERFOERT FRA .hv7 ═══════════════════════════
+   Overlejringen, panelet, trin-skinnen og felterne har deres stil paa
+   .hv7. Under .hv8 stod de helt uden — derfor saa henvendelsessiden
+   ud som en raa formular. Reglerne er kopieret uaendret, kun med det
+   nye praefiks; Silke-laget ovenpaa vinder, hvor det er skarpere. */
+.hv8 forhindrer v7 i at paavirke resten af appen, men ikke
+   det modsatte: Pandas egne globale regler siver ind i den nye side for de
+   egenskaber v7 ikke selv saetter. Det var derfor score-boblen kollapsede
+   (Pandas .tip saetter height:15px) og sektionsoverskrifterne stod med VERSALER
+   (Pandas .sh saetter text-transform). Her nulstilles praecis de egenskaber der
+   siver ind - intet andet - og v7's egne regler staar umiddelbart efter. ═══ */
+.hv8 .board{align-items:unset;padding:unset;}
+.hv8 .dchip{border:unset;font-weight:unset;line-height:unset;}
+.hv8 .foot{color:unset;flex-wrap:unset;font-size:unset;line-height:unset;margin-top:unset;padding-top:unset;}
+.hv8 .kpi{position:unset;}
+.hv8 .lf{background:unset;border:unset;border-radius:unset;color:unset;cursor:unset;font:unset;font-size:unset;font-weight:unset;padding:unset;}
+.hv8 .nlist{border-top:unset;display:unset;flex-direction:unset;gap:unset;}
+.hv8 .saved{font-weight:unset;opacity:unset;transition:unset;}
+.hv8 .seg{border:unset;border-radius:unset;display:unset;margin-left:unset;overflow:unset;}
+.hv8 .sh{color:unset;font-size:unset;font-weight:unset;letter-spacing:unset;margin:unset;text-transform:unset;}
+.hv8 /* sektionsoverskrift: tydelig, .hv8 med linje ud til kanten */
+.sh{margin:34px 0 14px;display:flex;align-items:center;gap:14px;}
+.hv8 .sh:first-child{margin-top:0;}
+.hv8 .sh .txt{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;color:var(--ink);letter-spacing:.2px;white-space:nowrap;}
+.hv8 .sh::after{content:'';flex:1;height:1px;background:var(--line);}
+.hv8 .side .sh::after{background:var(--sand2);}
+.hv8 .lc .dchip{font-size:9.5px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:2px 7px;margin:0;}
+.hv8 /* ══ OVERLAY ══ */
+.ov{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:26px;
+  background:rgba(90,80,64,.28);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:opacity .26s ease,visibility .26s;}
+.hv8 .ov.on{opacity:1;visibility:visible;}
+.hv8 .ld{width:100%;max-width:1160px;max-height:calc(100vh - 52px);overflow-x:hidden;overflow-y:auto;background:var(--card);
+  border-radius:4px;box-shadow:0 40px 110px rgba(80,70,55,.30);
+  transform:translateY(16px) scale(.985);opacity:0;transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .22s;}
+.hv8 .ov.on .ld{transform:none;opacity:1;}
+.hv8 .navbtn{position:fixed;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:var(--card);
+  border:1px solid var(--line);color:var(--gold);font-size:17px;cursor:pointer;z-index:41;display:grid;place-items:center;
+  transition:.15s;opacity:0;visibility:hidden;box-shadow:0 6px 20px rgba(80,70,55,.18);}
+.hv8 .ov.on~.navbtn{opacity:1;visibility:visible;}
+.hv8 .navbtn:hover{background:var(--gold);color:#fff;border-color:var(--gold);}
+.hv8 .navbtn.pv{left:16px;}
+.hv8 .navbtn.nx{right:16px;}
+.hv8 .acts .xb{margin-left:22px;}
+.hv8 .xb{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.6);border:1px solid var(--line);color:var(--ink2);font-size:14px;cursor:pointer;display:grid;place-items:center;transition:.16s;}
+.hv8 .xb:hover{background:var(--bad);color:#fff;border-color:var(--bad);}
+.hv8 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px;}
+.hv8 .icons{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
+.hv8 .ico{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink);background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.9);border-radius:3px;padding:5px 11px 5px 8px;}
+.hv8 .ico b{font-size:14px;line-height:1;font-weight:400;}
+.hv8 .ico em{font-style:normal;color:var(--mut);font-size:11px;}
+.hv8 .ico.gold{border-color:var(--gold-l);background:rgba(224,201,163,.26);}
+.hv8 .ico.score{position:relative;cursor:help;}
+.hv8 .ico.score:hover .tip, .hv8 .ico.score:focus .tip{opacity:1;visibility:visible;transform:none;}
+.hv8 .chipsel{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.95);border-radius:2px;padding:3px 5px 3px 10px;transition:.15s;cursor:pointer;}
+.hv8 .chipsel:hover{border-color:var(--gold-l);background:#fff;}
+.hv8 .chipsel>span{font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);}
+.hv8 .chipsel select{font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);border:0;background:transparent;padding:2px 4px;cursor:pointer;font-weight:500;}
+.hv8 .chipsel select:focus{outline:none;}
+.hv8 .dubadv{margin:10px 0 0;padding:10px 12px;border-radius:3px;background:rgba(224,201,163,.28);border:1px solid var(--gold-l);font-size:12px;color:#8d6a34;display:flex;align-items:center;gap:10px;}
+.hv8 .dubadv b{color:var(--ink);}
+.hv8 .dubadv button{margin-left:auto;font-family:'Inter',sans-serif;font-size:11.5px;padding:5px 12px;border-radius:2px;border:1px solid var(--gold-l);background:#fff;color:#8d6a34;cursor:pointer;white-space:nowrap;}
+.hv8 .dubadv button:hover{background:rgba(224,201,163,.25);}
+.hv8 /* trin */
+.rail{display:flex;background:var(--card);border-bottom:1px solid var(--hair);}
+.hv8 .seg{flex:1;padding:11px 6px 0;text-align:center;cursor:pointer;position:relative;transition:.16s;border-right:1px solid var(--hair);}
+.hv8 .seg:last-child{border-right:0;}
+.hv8 .seg .d{display:block;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--ink);margin:3px 0 9px;white-space:nowrap;}
+.hv8 .seg .l{display:block;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);}
+.hv8 .seg .pb{display:block;height:3px;background:var(--hair);}
+.hv8 .seg .pb i{display:block;height:100%;background:var(--gold-l);}
+.hv8 .seg.cur .pb i{background:var(--gold);}
+.hv8 .seg.done .pb i{background:#9dbfb8;}
+.hv8 .seg.done{background:var(--mist);}
+.hv8 .seg.done .d{color:#4d7a72;}
+.hv8 .seg.done .l{color:#6d8b85;}
+.hv8 .seg.cur{background:var(--sand2);}
+.hv8 .seg.cur .d{color:var(--gold);}
+.hv8 .seg.cur .l{color:#8d6a34;font-weight:600;}
+.hv8 .seg:hover{background:var(--sand);}
+.hv8 .rmeta{display:flex;justify-content:space-between;padding:9px 26px;background:var(--card);border-bottom:1px solid var(--line);font-size:11.5px;color:var(--mut);}
+.hv8 .body{display:grid;grid-template-columns:1fr 232px;align-items:start;}
+.hv8 .main{padding:24px 26px 32px;min-width:0;}
+.hv8 .ld::-webkit-scrollbar{width:8px;}
+.hv8 .ld::-webkit-scrollbar-thumb{background:var(--sand2);border-radius:4px;}
+.hv8 .wish{border-left:2px solid var(--gold-l);padding:2px 0 2px 16px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;line-height:1.62;color:var(--ink);}
+.hv8 .wsrc{font-size:11.5px;font-style:italic;color:var(--mut);margin-top:11px;padding-left:18px;}
+.hv8 .ntadd{display:flex;gap:8px;margin-bottom:10px;}
+.hv8 .ntadd textarea{flex:1;font-family:'Inter',sans-serif;font-size:12.5px;padding:9px 12px;border:1px solid var(--line);border-radius:3px;background:#fff;resize:vertical;color:var(--ink);}
+.hv8 .ntadd textarea:focus{outline:none;border-color:var(--gold-l);}
+.hv8 .nlist{list-style:none;margin:0;padding:0;}
+.hv8 .nlist li{border:1px solid var(--line);border-radius:3px;padding:11px 13px;margin-bottom:7px;background:#fff;}
+.hv8 .nlist .h{display:flex;align-items:baseline;gap:9px;font-size:11.5px;margin-bottom:5px;}
+.hv8 .nlist .au{color:var(--ink);font-weight:600;}
+.hv8 .nlist .dt{color:var(--mut);}
+.hv8 .nlist .via{margin-left:auto;color:var(--mut);border:1px solid var(--hair);border-radius:2px;padding:2px 7px;font-size:10px;}
+.hv8 .nlist .t{font-size:12.5px;line-height:1.6;color:var(--ink2);}
+.hv8 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.hv8 .fbox{border:1px solid var(--line);border-radius:3px;padding:15px 16px;background:#fff;}
+.hv8 .fbox .lab{margin-bottom:13px;}
+.hv8 .fld{margin-bottom:11px;}
+.hv8 .fld:last-child{margin-bottom:0;}
+.hv8 .fld .k{font-size:8.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);margin-bottom:4px;}
+.hv8 .fld input, .hv8 .fld select{width:100%;font-family:'Inter',sans-serif;font-size:12.5px;padding:7px 0;border:0;border-bottom:1px solid var(--hair);background:transparent;color:var(--ink);transition:.15s;border-radius:0;}
+.hv8 .fld input:focus, .hv8 .fld select:focus{outline:none;border-bottom-color:var(--gold);}
+.hv8 .dchip{display:inline-block;font-size:10px;color:#5f8c84;background:var(--mist);border-radius:2px;padding:3px 9px;margin:2px 4px 0 0;letter-spacing:.3px;}
+.hv8 .chipedit .dchip{font-size:13.5px;font-weight:600;letter-spacing:0;color:var(--forest);
+  background:#eaf1e8;border:1px solid #cfdcca;border-radius:4px;padding:5px 10px;margin:0;
+  display:inline-flex;align-items:center;gap:7px;}
+.hv8 .chipedit .dchip .x{font-size:14px;line-height:1;color:#8fa389;background:none;border:0;
+  padding:0;cursor:pointer;}
+.hv8 .chipedit .dchip .x:hover{color:var(--bad);}
+.hv8 .chipedit .addchip{font-size:12px;padding:6px 11px;border-radius:4px;}
+.hv8 .ldlg label», som er en lille guld-etiket i versaler.
+   Derfor stod baade overskrift og forklaring med spaerret versal og loeb
+   sammen. Reglerne her vejer tungere og nulstiller det hele eksplicit. */
+.hv8 .ldlg .vlab{margin-top:16px;}
+.hv8 .ldlg .vsamme{font-size:11px;color:var(--ok);margin:2px 0 4px;}
+.hv8 .ldlg .vnyt{font-size:11px;color:var(--gold);margin:6px 0 2px;line-height:1.5;}
+.hv8 .ldlg .vvalg{display:flex;flex-direction:column;gap:8px;margin:0 0 4px;}
+.hv8 .ldlg label.vopt{display:grid;grid-template-columns:17px 1fr;gap:3px 11px;
+  align-items:start;margin:0;padding:11px 13px;border:1px solid var(--line);
+  cursor:pointer;transition:.14s;
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:400;color:var(--ink2);
+  letter-spacing:0;text-transform:none;}
+.hv8 .ldlg label.vopt:hover{border-color:var(--gold-l);background:#fffdf8;}
+.hv8 .ldlg label.vopt.flad{margin-top:12px;grid-template-rows:auto;align-items:center;}
+.hv8 .ldlg label.vopt input{grid-row:1/3;width:auto;margin:2px 0 0;accent-color:var(--forest);}
+.hv8 .ldlg label.vopt.flad input{grid-row:auto;margin:0;}
+.hv8 .ldlg label.vopt .vt{font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+  color:var(--ink);letter-spacing:0;text-transform:none;line-height:1.3;}
+.hv8 .ldlg label.vopt .vu{font-family:'Inter',sans-serif;font-size:11px;font-weight:400;
+  color:var(--mut);letter-spacing:0;text-transform:none;line-height:1.5;}
+.hv8 .fld .belob{display:flex;gap:10px;align-items:baseline;}
+.hv8 .fld .belob input{flex:1 1 auto;width:auto;min-width:0;}
+.hv8 .fld .k .udledt{font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:600;color:#8a7238;background:rgba(185,154,95,.16);
+  padding:2px 6px;border-radius:4px;margin-left:7px;letter-spacing:.1em}
+.hv8 .fld .k .udledt.advar{color:#a8724f;background:rgba(168,114,79,.14)}
+.hv8 .fld .belob select.valuta{flex:0 0 auto;width:auto;font-family:'Inter',sans-serif;
+  font-size:11px;letter-spacing:.6px;color:var(--mut);background:transparent;border:0;
+  border-bottom:1px solid var(--hair);padding:7px 2px;cursor:pointer;}
+.hv8 .ldlg.bred{max-width:660px;}
+.hv8 .ldlg .lf{padding:14px 22px;border-top:1px solid var(--hair);background:#fdfcf9;}
+.hv8 .tech summary em{font-style:normal;color:var(--mut);text-transform:none;letter-spacing:0;}
+.hv8 .fld.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.hv8 .kids{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.hv8 .kids input{text-align:center;border:1px solid var(--hair);border-radius:2px;padding:5px 2px;}
+.hv8 .kids input::placeholder{color:var(--gold);font-weight:600;opacity:1;}
+.hv8 .kids input.tom{border-color:var(--gold-l);background:rgba(224,201,163,.14);}
+.hv8 /* ── tilføj tilbud ── */
+.oadd{display:flex;gap:8px;align-items:center;padding:13px 16px;border-top:1px solid var(--hair);background:var(--card);}
+.hv8 .oadd input{flex:1;font-family:'Inter',sans-serif;font-size:12.5px;padding:8px 0;border:0;border-bottom:1px dashed var(--gold-l);background:transparent;color:var(--ink);}
+.hv8 .oadd input:focus{outline:none;border-bottom-color:var(--gold);border-bottom-style:solid;}
+.hv8 .oadd input::placeholder{color:var(--mut);}
+.hv8 /* ── flervalg ── */
+.multi{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.hv8 .mopt{font-family:'Inter',sans-serif;font-size:11px;color:var(--mut);background:#fff;border:1px solid var(--line);border-radius:2px;padding:5px 10px;cursor:pointer;transition:.14s;}
+.hv8 .mopt:hover{border-color:var(--gold-l);color:var(--ink2);}
+.hv8 .mopt.on{background:rgba(224,201,163,.34);border-color:var(--gold);color:#8d6a34;font-weight:500;}
+.hv8 .sug .multi .mopt.on{border-style:dashed;}
+.hv8 .fld.sug .k{color:var(--gold);}
+.hv8 /* ── alt kan rettes og fjernes ── */
+.chipedit{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.hv8 .dchip .x{border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:13px;line-height:1;padding:0 0 0 5px;}
+.hv8 .dchip .x:hover{color:var(--bad);}
+.hv8 .addchip{font-family:'Inter',sans-serif;font-size:10px;color:var(--gold);background:transparent;border:1px dashed var(--gold-l);border-radius:2px;padding:3px 9px;cursor:pointer;}
+.hv8 .addchip:hover{background:rgba(224,201,163,.2);}
+.hv8 .edithint{font-style:normal;color:var(--gold);}
+.hv8 .ob.x2{border-color:transparent;color:var(--mut);}
+.hv8 .ob.x2:hover{border-color:var(--bad);color:var(--bad);}
+.hv8 /* ── tilbudsliste ── */
+.offers{border:1px solid var(--line);border-radius:3px;overflow:hidden;background:#fff;}
+.hv8 .orow{display:flex;align-items:center;gap:16px;padding:14px 16px;border-bottom:1px solid var(--hair);transition:.15s;}
+.hv8 .orow:last-of-type{border-bottom:0;}
+.hv8 .orow:hover{background:var(--sand);}
+.hv8 .orow.hot{background:rgba(224,201,163,.18);border-left:2px solid var(--gold);}
+.hv8 .orow.cold{opacity:.62;}
+.hv8 .onum{width:26px;height:26px;flex-shrink:0;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--mut);}
+.hv8 .orow.hot .onum{border-color:var(--gold);color:var(--gold);background:#fff;}
+.hv8 .oinfo{flex:1;min-width:0;}
+.hv8 .ot{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--ink);line-height:1.2;}
+.hv8 .om{font-size:11.5px;color:var(--mut);margin-top:3px;}
+.hv8 .olink{display:inline-block;font-size:11px;color:var(--gold);text-decoration:none;margin-top:5px;border-bottom:1px solid var(--gold-l);}
+.hv8 .olink:hover{color:#96702f;}
+.hv8 .oviews{width:132px;flex-shrink:0;text-align:right;}
+.hv8 .ov1{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:500;color:var(--ink);line-height:1;}
+.hv8 .ov1 span{font-family:'Inter',sans-serif;font-size:10.5px;color:var(--mut);margin-left:3px;}
+.hv8 .ov1.none{font-size:13px;font-style:italic;color:var(--mut);}
+.hv8 .oact{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+.hv8 .ob{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.5px;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:2px;padding:6px 11px;cursor:pointer;white-space:nowrap;transition:.14s;}
+.hv8 .ob:hover{border-color:var(--gold);color:var(--gold);}
+.hv8 .ob.p{background:var(--gold);color:#fff;border-color:var(--gold);}
+.hv8 .ob.p:hover{background:#ad8548;color:#fff;}
+.hv8 .oconc{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--ink2);background:var(--mist);margin:0;padding:12px 16px;line-height:1.5;border-top:1px solid var(--hair);}
+.hv8 .oconc b{font-style:normal;font-weight:600;color:var(--ink);}
+.hv8 .tl{list-style:none;margin:0;padding:0 0 0 15px;border-left:1px solid var(--hair);}
+.hv8 .tl li{position:relative;padding:0 0 15px 15px;}
+.hv8 .tl li::before{content:'';position:absolute;left:-19px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--card);border:1px solid var(--line);}
+.hv8 .tl li.tp::before{background:var(--gold);border-color:var(--gold);}
+.hv8 .tl .h{font-size:12.5px;color:var(--ink);}
+.hv8 .tl .w{font-size:11px;color:var(--mut);margin-top:2px;}
+.hv8 .tl .bd{font-size:12px;color:var(--ink2);margin-top:5px;line-height:1.55;background:var(--sand);border-radius:3px;padding:7px 11px;}
+.hv8 .tl .h{display:flex;align-items:center;flex-wrap:wrap;}
+.hv8 /* sidepanel */
+.scoreline{display:flex;align-items:baseline;gap:10px;}
+.hv8 .scoreline .n{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:400;line-height:.85;color:var(--ink);}
+.hv8 .scoreline .of{font-size:11px;color:var(--mut);}
+.hv8 .scoreline .cat{margin-left:auto;font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:#8d6a34;background:rgba(224,201,163,.4);border:1px solid var(--gold-l);border-radius:2px;padding:4px 9px;}
+.hv8 .scorebar{height:2px;background:var(--sand2);margin-top:12px;}
+.hv8 .scorebar i{display:block;height:100%;background:var(--gold);}
+.hv8 .vurnote{font-size:10px;color:var(--mut);line-height:1.6;margin-top:9px;font-style:italic;}
+.hv8 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.hv8 .kpi{background:#fff;border:1px solid var(--line);border-radius:3px;padding:12px 13px;}
+.hv8 .kpi .n{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;line-height:1;color:var(--ink);}
+.hv8 .kpi .l{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.4;}
+.hv8 details.tech{margin-top:24px;border-top:1px solid var(--sand2);padding-top:14px;}
+.hv8 details.tech summary{cursor:pointer;font-size:8.5px;letter-spacing:2.2px;text-transform:uppercase;color:var(--mut);list-style:none;display:flex;gap:8px;align-items:center;}
+.hv8 details.tech summary::-webkit-details-marker{display:none;}
+.hv8 details.tech summary::before{content:'+';color:var(--gold);font-size:13px;}
+.hv8 details.tech[open] summary::before{content:'−';}
+.hv8 .techrow{display:flex;gap:10px;font-size:10px;margin-top:10px;}
+.hv8 .techrow .k{flex:0 0 84px;color:var(--mut);letter-spacing:.6px;}
+.hv8 .techrow .v{flex:1;word-break:break-all;color:var(--ink2);}
+.hv8 .foot{display:flex;align-items:center;gap:10px;padding:13px 26px;border-top:1px solid var(--line);background:var(--card);position:sticky;bottom:0;z-index:3;}
+.hv8 .foot .sp{margin-left:auto;}
+.hv8 .saved{font-size:11.5px;color:var(--ok);}
+.hv8 .kbd{font-size:9px;letter-spacing:.6px;background:var(--sand);border:1px solid var(--line);border-radius:2px;padding:2px 7px;color:var(--mut);}
+.hv8 .ldlg{background:var(--card);border-radius:4px;max-width:490px;width:100%;overflow:hidden;box-shadow:0 30px 90px rgba(80,70,55,.35);}
+.hv8 .ldlg .h{background:linear-gradient(135deg,var(--sand),var(--sand2));padding:18px 22px;border-bottom:1px solid var(--gold-l);}
+.hv8 .ldlg .h h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;margin:0 0 3px;}
+.hv8 .ldlg .h p{margin:0;font-size:11px;color:var(--ink2);}
+.hv8 .ldlg .c{padding:18px 22px 22px;}
+.hv8 .reasons{display:grid;gap:6px;margin-bottom:15px;}
+.hv8 .reasons button{font-family:'Inter',sans-serif;text-align:left;background:#fff;border:1px solid var(--line);border-radius:3px;padding:12px 14px;cursor:pointer;font-size:12.5px;color:var(--ink2);transition:.15s;}
+.hv8 .reasons button:hover{border-color:var(--gold);}
+.hv8 .reasons button.on{background:rgba(224,201,163,.3);border-color:var(--gold);color:var(--ink);font-weight:500;}
+.hv8 .ldlg label{display:block;font-size:8.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin:0 0 5px;}
+.hv8 .ldlg input, .hv8 .ldlg textarea{width:100%;font-family:'Inter',sans-serif;font-size:12.5px;padding:8px 0;border:0;border-bottom:1px solid var(--hair);background:transparent;margin-bottom:14px;}
+.hv8 .ldlg input:focus, .hv8 .ldlg textarea:focus{outline:none;border-bottom-color:var(--gold);}
+.hv8 .lf{display:flex;gap:8px;justify-content:flex-end;}
+.hv8 .body{grid-template-columns:1fr;}
+.hv8 .grid3{grid-template-columns:1fr;}
+.hv8 .lc .dchip{font-size:9px;padding:1px 6px;}
+.hv8 .lc .foot{margin-top:7px;padding-top:6px;}
+.hv8 .reasons button{display:block;width:100%;text-align:left}
+.hv8 .reasons button b{font-weight:600;display:block}
+.hv8 .reasons button .u{display:block;font-size:10.5px;color:var(--mut);margin-top:2px;line-height:1.4}
+.hv8 .reasons button.on .u{color:#8d6a34}
+.hv8 .ldlg .c{max-height:min(74vh,720px);overflow-y:auto}
+.hv8 .ldlg textarea{min-height:56px;resize:vertical}
+.hv8 .ldlg .dlgfejl{display:block;font-size:11.5px;line-height:1.5;color:#a3512f;
+  min-height:17px;margin:0 0 10px;padding:0;background:none;border:0}
+.hv8 .ldlg.hvsolgt .c{padding-top:16px}
+.hv8 .ldlg .hvsd{display:inline-flex;align-items:center;width:auto;font-size:11.5px;
+  letter-spacing:0;text-transform:none;background:var(--card);border:1px solid var(--line);
+  border-radius:2px;padding:5px 10px;margin:0;cursor:pointer;color:var(--mut);transition:.14s}
+.hv8 .ldlg .hvsd:hover{border-color:var(--gold-l)}
+.hv8 .ldlg .hvsd.on{color:var(--ink);border-color:var(--gold);background:rgba(224,201,163,.14)}
+.hv8 .ldlg .hvsd.on::before{content:'✓';color:var(--gold);font-size:9px;margin-right:6px}
+.hv8 .ldlg.hvsolgt .hvsrk{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin-top:12px}
+.hv8 .ldlg.hvsolgt .fld.hvsbred{margin-top:12px}
+.hv8 .ldlg.hvsolgt .hvsdw{display:flex;flex-wrap:wrap;gap:5px;align-items:center;
+  min-height:31px;padding:2px 0}
+.hv8 .ldlg.hvsolgt .hvsdplus{font-family:inherit;font-size:12px;line-height:1;color:var(--gold);
+  background:none;border:1px dashed var(--gold-l);border-radius:2px;padding:5px 9px;cursor:pointer}
+.hv8 .ldlg.hvsolgt .hvsdplus:hover{background:rgba(224,201,163,.16)}
+.hv8 .ldlg.hvsolgt .hvsdato{display:flex;align-items:center;gap:6px}
+.hv8 .ldlg.hvsolgt .hvsdato input{margin-bottom:0}
+.hv8 .ldlg.hvsolgt .hvsdato span{color:var(--mut);font-size:12px}
+.hv8 .ldlg.hvsolgt .hvsbelob{display:inline-flex;align-items:baseline;gap:8px;
+  border-bottom:1px solid var(--hair);padding-bottom:2px}
+.hv8 .ldlg.hvsolgt .hvsbelob input{flex:none;width:132px;text-align:right;
+  font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--ink);
+  margin-bottom:0;border-bottom:0;padding-bottom:4px}
+.hv8 .ldlg.hvsolgt .hvsbelob select{width:auto;flex:none;font-size:12px;letter-spacing:1.4px;
+  color:var(--ink2);border:0;background:none;padding:0 0 4px}
+.hv8 .ldlg.hvsolgt .hvsbelob:focus-within{border-bottom-color:var(--gold)}
+.hv8 .ldlg.hvsolgt .hvspax{display:flex;gap:18px;align-items:flex-start;margin-top:12px;flex-wrap:wrap}
+.hv8 .ldlg.hvsolgt .hvspax > .fld{margin-bottom:0}
+.hv8 .ldlg.hvsolgt .hvspax input[type=number]{width:52px;text-align:center;margin-bottom:0}
+.hv8 .ldlg.hvsolgt .hvsaldre{display:none}
+.hv8 .ldlg.hvsolgt .hvsaldrew{display:flex;flex-wrap:wrap;gap:5px}
+.hv8 .ldlg.hvsolgt .hvsaldrew select{width:auto;min-width:52px;font-size:12.5px;
+  border:0;border-bottom:1px solid var(--hair);background:none;padding:7px 0;color:var(--ink)}
+.hv8 .ldlg.hvsolgt .hvsaldrew select:focus{border-bottom-color:var(--gold)}
+.hv8 .lc .dchip{font-size:10px;padding:2px 7px;}
+.hv8 .col .lc .foot{position:static;z-index:auto;background:none;box-shadow:none;
+  display:flex;align-items:center;gap:8px;flex-wrap:nowrap;
+  border-top:1px solid var(--hair);padding:7px 0 0;margin-top:8px;
+  font-size:10.5px;line-height:1.25;}
+.hv8 .col .lc .foot .who{margin-left:auto;display:flex;align-items:center;gap:9px;white-space:nowrap;}
+.hv8 .col .lc .foot .brch{flex:0 0 auto;}
+.hv8 .col .lc .foot .age{color:var(--mut);font-variant-numeric:tabular-nums;}
+.hv8 .col .lc .foot .owner{color:var(--gold);font-weight:600;letter-spacing:1.1px;}
+.hv8 .fld .k{font-size:9.5px;letter-spacing:1.3px;}
+.hv8 .fld input, .hv8 .fld select{font-size:13.5px;}
+.hv8 .mopt{font-size:11.5px;color:var(--ink2);}
+.hv8 .kpi .l{font-size:11.5px;}
+.hv8 .board hoejere oppe. Laeg ikke nye
+   grid-template-columns paa .hv8 .board her. */
+/* aldersfelter pr. barn */
+.hv8 .kids{display:flex;flex-wrap:wrap;gap:6px;padding:6px 0;}
+.hv8 .kids .kidage{width:46px;text-align:center;font-family:'Inter',sans-serif;font-size:12.5px;padding:6px 0;border:1px solid var(--line);border-radius:3px;background:#fff;}
+.hv8 .kids .kidage.tom{border-color:var(--gold-l);background:rgba(224,201,163,.18);}
+.hv8 .side .sh{margin:26px 0 11px;}
+.hv8 .side .sh .txt{font-size:16px;}
+.hv8 .scoreline .n{font-size:36px;}
+.hv8 .scoreline .cat{font-size:8px;letter-spacing:1.2px;padding:3px 6px;}
+.hv8 .kpi{padding:10px 11px;}
+.hv8 .kpi .n{font-size:21px;}
+.hv8 .kpi .l{font-size:10px;margin-top:5px;}
+.hv8 .vurnote{font-size:9.5px;}
+.hv8 .nlist .nx{font-family:'Inter',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  width:auto;height:auto;padding:3px 8px;border-radius:2px;color:var(--mut);background:none;border:1px solid transparent;}
+.hv8 .nlist .nx:hover{color:var(--bad);border-color:#e3c4b3;background:#fff;}
+.hv8 .lc .foot{gap:5px;font-size:9px;}
+
+
+/* ══ SJETTE NAVNEKOLLISION — OG DEN NAAEDE UD ══════════════════════════
+   Wendie 11.09.2026: «OMG!!! hvad er der sket paa henvendelsessiden?!»
+   «.k» betyder TO ting i Panda: KORTET paa tavlen og FELTNAVNET inde paa
+   henvendelsen (<div class="k">Destination(er)</div>). Kortets stil ramte
+   derfor hvert eneste felt: hvid kasse, ramme, blaa/roed branchestreg.
+   Alle kortets regler er nu bundet til soejlen (.hv8 .sj .k), saa de ikke
+   kan naa uden for tavlen.
+   Jeg burde have fanget det: oraklet maalte STRUKTUR og enkelte
+   beregnede stilarter — ikke om en regel ramte noget, den ikke maatte.
+   Derfor er der nu ogsaa en proeve, der sammenligner feltnavnenes stil
+   paa henvendelsessiden mod mockuppens. */
+
 /* ══ MOCKUPPENS EGEN SIDEMENU HØRER IKKE MED ═══════════════════════════
    Tavlens mockup havde sin egen falske sidemenu med klassen «.side» —
    moerk bund, lys tekst. Panda kalder ogsaa sit DETALJEPANEL «.side», og
@@ -6442,6 +6791,26 @@ main{min-width:0}
   --dk:#b3323c;
   font-family:'Inter',system-ui,sans-serif;font-size:13px;color:var(--ink);
 }
+
+/* ══ TRIN-SKINNEN SOM I MOCKUPPEN ══════════════════════════════════════
+   Den gamle skinne tegner hvert trin som en fyldt kasse. Mockuppens er
+   en ren raekke med en tynd bjaelke under hvert trin. */
+.hv8 .rail{display:flex;gap:3px;padding:14px 24px 0;background:none;border:0}
+.hv8 .rail .seg{flex:1;min-width:0;cursor:pointer;padding:0 0 9px;background:none;border:0;
+  border-radius:0;box-shadow:none}
+.hv8 .rail .seg .l{display:block;font-size:8px;letter-spacing:.13em;text-transform:uppercase;
+  font-weight:600;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:none;padding:0}
+.hv8 .rail .seg .d{display:block;font-size:9.5px;color:var(--mut2);margin-top:2px;background:none}
+.hv8 .rail .seg .pb{display:block;height:3px;border-radius:2px;background:var(--line);margin-top:7px}
+.hv8 .rail .seg.done .pb{background:var(--goldl)}
+.hv8 .rail .seg.done .l{color:var(--ink2)}
+.hv8 .rail .seg.cur{background:none}
+.hv8 .rail .seg.cur .pb{background:var(--gold)}
+.hv8 .rail .seg.cur .l{color:var(--gold)}
+.hv8 .rail .seg:hover .pb{background:var(--gold2)}
+.hv8 .rmeta{display:flex;justify-content:space-between;padding:2px 24px 16px;font-size:10.5px;
+  color:var(--mut2);background:none;border:0}
 
 /* ══ MELLEMLANDINGENS EGEN PALET OG TYPOGRAFI (Silke) ══════════════════
    Tagene er taget ordret fra .ml7 og #rsside i Panda, saa tavlen og
@@ -6566,20 +6935,20 @@ main{min-width:0}
    praecis som .r-kort. Branchestregen bliver, men som en blød tone.
    INTET klippes: kortet vokser med sit indhold. Kun navnet har en
    graense paa to linjer — og det er netop undtagelsen Wendie gav. */
-.hv8 .k{background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:11px 12px 9px;
+.hv8 .sj .k{background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:11px 12px 9px;
   margin-bottom:8px;cursor:pointer;position:relative;overflow:hidden;
   box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3);
   transition:box-shadow .16s ease, border-color .16s ease}
-.hv8 .k:hover{border-color:var(--goldl);box-shadow:0 1px 2px rgba(46,38,20,.04),0 18px 34px -26px rgba(46,38,20,.34)}
-.hv8 .k.traekker{opacity:.4}
+.hv8 .sj .k:hover{border-color:var(--goldl);box-shadow:0 1px 2px rgba(46,38,20,.04),0 18px 34px -26px rgba(46,38,20,.34)}
+.hv8 .sj .k.traekker{opacity:.4}
 .hv8 .sj.kanslippe{border-style:dashed}
 .hv8 .sj.over{background:rgba(224,201,163,.22);border-color:var(--gold)}
 /* Har den ligget for længe på trinnet — som i dag. */
-.hv8 .k.raadner{box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3), inset 0 0 0 1px rgba(141,106,52,.18)}
-.hv8 .k.raadner2{box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3), inset 0 0 0 1px rgba(163,81,47,.3)}
-.hv8 .k::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--no)}
-.hv8 .k.dk::before{background:var(--dk)}
-.hv8 .k .navn{font-size:12.5px;font-weight:600;line-height:1.3;letter-spacing:.1px;
+.hv8 .sj .k.raadner{box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3), inset 0 0 0 1px rgba(141,106,52,.18)}
+.hv8 .sj .k.raadner2{box-shadow:0 1px 2px rgba(46,38,20,.03),0 22px 48px -38px rgba(46,38,20,.3), inset 0 0 0 1px rgba(163,81,47,.3)}
+.hv8 .sj .k::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--no)}
+.hv8 .sj .k.dk::before{background:var(--dk)}
+.hv8 .sj .k .navn{font-size:12.5px;font-weight:600;line-height:1.3;letter-spacing:.1px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 /* ══ VALUTAEN SKAL STÅ ENS FRA KORT TIL KORT ══════════════════════════
    Wendie 11.09.2026: «det staar ikke ens.» Maalt: beloebet begynder samme
@@ -6593,44 +6962,44 @@ main{min-width:0}
    forskudt; da var hoejrekanten det eneste faste holdepunkt. Nu hvor
    beloebet begynder samme sted som navnet i hvert kort, er der ingen grund
    til at sende koden paa vandring — den hoerer til ved tallet. */
-.hv8 .k .pris{display:flex;align-items:baseline;gap:7px;margin-top:3px}
-.hv8 .k .bel{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.2px}
-.hv8 .k .val{font-size:9px;letter-spacing:.1em;color:var(--mut);text-transform:uppercase;font-weight:600}
-.hv8 .k .val.udledt{color:#a08a5c;border-bottom:1px dotted var(--goldl)}
-.hv8 .k .val.mangl{color:var(--fejl);font-weight:700}
-.hv8 .k .uklar{font-size:11px;color:var(--fejl);font-weight:500}
-.hv8 .k .tom{font-size:12px;color:var(--mut2)}
-.hv8 .k .dest{font-size:10.5px;color:var(--gold2);margin-top:4px;line-height:1.35;font-weight:500}
-.hv8 .k .dest .fl{color:var(--mut2);font-weight:400}
-.hv8 .k .dest .ingen{color:var(--mut2);font-weight:400}
+.hv8 .sj .k .pris{display:flex;align-items:baseline;gap:7px;margin-top:3px}
+.hv8 .sj .k .bel{font-size:14px;font-weight:600;color:var(--ink);letter-spacing:-.2px}
+.hv8 .sj .k .val{font-size:9px;letter-spacing:.1em;color:var(--mut);text-transform:uppercase;font-weight:600}
+.hv8 .sj .k .val.udledt{color:#a08a5c;border-bottom:1px dotted var(--goldl)}
+.hv8 .sj .k .val.mangl{color:var(--fejl);font-weight:700}
+.hv8 .sj .k .uklar{font-size:11px;color:var(--fejl);font-weight:500}
+.hv8 .sj .k .tom{font-size:12px;color:var(--mut2)}
+.hv8 .sj .k .dest{font-size:10.5px;color:var(--gold2);margin-top:4px;line-height:1.35;font-weight:500}
+.hv8 .sj .k .dest .fl{color:var(--mut2);font-weight:400}
+.hv8 .sj .k .dest .ingen{color:var(--mut2);font-weight:400}
 
 /* Rejsen og de rejsende under hinanden i fuld bredde. To baase ved siden
    af hinanden gav 75 px pr. baas — og dét var det, der knaekkede datoen. */
-.hv8 .k .krop{margin-top:9px;padding-top:8px;position:relative}
-.hv8 .k .rk{min-width:0}
-.hv8 .k .rk+.rk{margin-top:7px}
-.hv8 .k .dato{font-weight:500;font-size:10px;letter-spacing:-.1px;line-height:1.4}
-.hv8 .k .dato .nb{white-space:nowrap}
-.hv8 .k .krop::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+.hv8 .sj .k .krop{margin-top:9px;padding-top:8px;position:relative}
+.hv8 .sj .k .rk{min-width:0}
+.hv8 .sj .k .rk+.rk{margin-top:7px}
+.hv8 .sj .k .dato{font-weight:500;font-size:10px;letter-spacing:-.1px;line-height:1.4}
+.hv8 .sj .k .dato .nb{white-space:nowrap}
+.hv8 .sj .k .krop::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
   transform:scaleY(.5);transform-origin:top;background:var(--hair)}
-.hv8 .k .baas{min-width:0}
-.hv8 .k .lab{font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);
+.hv8 .sj .k .baas{min-width:0}
+.hv8 .sj .k .lab{font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold2);
   font-weight:600;margin-bottom:3px}
-.hv8 .k .v{font-size:10.5px;color:var(--ink2);line-height:1.45;overflow-wrap:anywhere}
-.hv8 .k .v.sml{font-size:9.5px;color:var(--mut)}
+.hv8 .sj .k .v{font-size:10.5px;color:var(--ink2);line-height:1.45;overflow-wrap:anywhere}
+.hv8 .sj .k .v.sml{font-size:9.5px;color:var(--mut)}
 /* Det manglende siges med ORD — «Ingen datoer», «Intet budget» — og
    behoever ikke ogsaa en alarmfarve. Roedt paa hvert andet kort holder op
    med at betyde noget. */
-.hv8 .k .v.tomt{color:var(--mut2)}
+.hv8 .sj .k .v.tomt{color:var(--mut2)}
 /* Skoleferien — den flytter priser, saa den skal kunne ses uden at raabe. */
-.hv8 .k .ferie{display:inline-block;margin-top:4px;font-size:9px;letter-spacing:.04em;
+.hv8 .sj .k .ferie{display:inline-block;margin-top:4px;font-size:9px;letter-spacing:.04em;
   padding:2px 7px;border-radius:9px;background:rgba(224,201,163,.32);color:#8d6a34;font-weight:600}
-.hv8 .k .ferie .fl{font-weight:400;opacity:.75}
+.hv8 .sj .k .ferie .fl{font-weight:400;opacity:.75}
 
-.hv8 .k .fod{display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:7px;position:relative}
-.hv8 .k .fod::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+.hv8 .sj .k .fod{display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:7px;position:relative}
+.hv8 .sj .k .fod::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
   transform:scaleY(.5);transform-origin:top;background:var(--hair)}
-.hv8 .k .ini{font-size:8px;letter-spacing:.12em;font-weight:600;color:var(--mut);
+.hv8 .sj .k .ini{font-size:8px;letter-spacing:.12em;font-weight:600;color:var(--mut);
   background:var(--sand);padding:2px 6px;border-radius:9px}
 
 .hv8 .vd-super_god{background:#4f7a5f}.hv8 .vd-god{background:#7ba488}.hv8 .vd-ok{background:var(--goldl)}
@@ -6638,8 +7007,8 @@ main{min-width:0}
 /* Ikke vurderet = en TOM ring, ikke en udfyldt prik. En udfyldt grå prik
    ligner en vurdering, der bare er kedelig. */
 .hv8 .vd-tom{background:none;box-shadow:inset 0 0 0 1px var(--line)}
-.hv8 .k .dg{margin-left:auto;font-size:9.5px;color:var(--mut2);white-space:nowrap}
-.hv8 .k .dg.raadner{color:var(--fejl);font-weight:600}
+.hv8 .sj .k .dg{margin-left:auto;font-size:9.5px;color:var(--mut2);white-space:nowrap}
+.hv8 .sj .k .dg.raadner{color:var(--fejl);font-weight:600}
 
 /* kompakt: baasene bliver til én linje, men stadig uden at klippe */
 .hv8 .tav.kompakt .k{padding:9px 10px 8px;border-radius:10px}
@@ -6881,7 +7250,7 @@ main{min-width:0}
 .hv8 .scorebar i{display:block;height:100%;background:var(--gold)}
 .hv8 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .hv8 .kpi{background:var(--sand);border-radius:10px;padding:10px 11px}
-.hv8 .kpi .n{font-family:'Cormorant Garamond',serif;font-size:22px;line-height:1}
+.hv8 .kpi .n{font-family:'Cormorant Garamond',serif;font-size:22px;line-height:1;font-weight:400}
 .hv8 .kpi .l{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-top:5px;line-height:1.4}
 .hv8 .tech{margin-top:20px;font-size:11.5px}
 .hv8 .tech summary{cursor:pointer;font-size:8px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;
@@ -6975,8 +7344,41 @@ main{min-width:0}
 .hv8 .tech .sprow .k,.hv8 .tech .spor .k{color:var(--mut);flex:0 0 46%;font-size:11.5px;
   letter-spacing:0;text-transform:none;font-weight:400;margin:0}
 .hv8 .tech .sprow .v{color:var(--ink2);min-width:0;overflow-wrap:anywhere}
-.hv8 .hvnavn{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;margin:8px 0 0}
-.hv8 .foot,.hv8 .top,.hv8 .pos,.hv8 .saved,.hv8 .acts,.hv8 .score{}
+.hv8 .hvnavn{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;margin:8px 0 0;
+  width:100%;border:0;background:transparent;color:inherit;padding:2px 4px;border-radius:3px;
+  line-height:1.1;letter-spacing:.3px}
+.hv8 .hvnavn:hover{background:rgba(185,154,95,.10)}
+.hv8 .hvnavn:focus{outline:none;background:#fff;box-shadow:inset 0 -2px 0 var(--gold)}
+.hv8 #hvLd .hd{display:block;padding:20px 24px 16px;border-bottom:1px solid var(--hair);
+  gap:0;flex-wrap:nowrap}
+.hv8 #hvLd .hd .top{display:flex;align-items:flex-start;gap:18px;width:100%}
+.hv8 #hvLd .chips,.hv8 #hvLd .icons,.hv8 #hvLd .dubadv{width:100%}
+.hv8 #hvLd .nlist li{border:0;border-radius:0;padding:9px 0;margin-bottom:0;background:none}
+.hv8 #hvLd .offers:not(:has(.orow)){border:0;background:none;border-radius:0}
+/* Trin-skinnen: mockuppen staar venstrestillet uden lodrette streger.
+   Den gamle .hv8 .seg-regel (midterstillet, border-right) hoerte til
+   rejsesiden og skal ikke gaelde her. */
+.hv8 #hvLd .rail .seg{text-align:left;border-right:0;padding:0 0 9px}
+/* Brikkerne paa henvendelsessiden: mockuppens hvide, ikke den gamle groenne. */
+.hv8 #hvLd .chipedit .dchip{font-size:11.5px;font-weight:400;color:var(--ink);
+  background:#fff;border:0;box-shadow:inset 0 0 0 1px var(--line);border-radius:7px;
+  padding:5px 9px;gap:5px}
+.hv8 #hvLd .chipedit .dchip .x{color:var(--mut2);font-size:12px;padding:0}
+.hv8 #hvLd .chipedit .dchip .x:hover{color:var(--fejl)}
+.hv8 #hvLd .chipedit .addchip{font-size:11.5px;padding:5px 10px;border-radius:7px}
+/* Voksne og Boern staar side om side som i mockuppen (.fld.to). */
+.hv8 #hvLd .to2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:9px}
+.hv8 #hvLd .to2 .fld{margin:0}
+/* Tilbud-knappen: mockuppen har den hvid med kant, ikke fyldt guld. */
+.hv8 #hvLd .ob.p{background:#fff;color:var(--ink2);border:0;box-shadow:inset 0 0 0 1px var(--line)}
+.hv8 #hvLd .ob.p:hover{background:#fff;color:var(--ink2);box-shadow:inset 0 0 0 1px var(--goldl)}
+.hv8 .hd .top>div:first-child{min-width:0;flex:1 1 auto}
+.hv8 .acts{margin-left:auto;display:flex;align-items:center;gap:7px;flex-wrap:nowrap;flex:0 0 auto}
+.hv8 .pos{font-size:10px;color:var(--mut);letter-spacing:1px;margin-right:4px;white-space:nowrap}
+.hv8 .acts .b{white-space:nowrap}
+.hv8 .oconc{background:none;border-top:0;padding:0}
+.hv8 .hvsletlink{background:none;border:0;border-bottom:1px dotted var(--line);padding:0;
+  font-family:'Inter',sans-serif;border-radius:0}
 .hv8 .saved{font-size:10.5px;color:var(--okd)}
 .hv8 .hvsletlink{font-size:10.5px;color:var(--mut2);cursor:pointer;border-bottom:1px dotted var(--line)}
 .hv8 .hvsletlink:hover{color:var(--fejl)}
@@ -7011,9 +7413,17 @@ main{min-width:0}
 .hv8 .kpidaek b{display:block;color:var(--ink);font-size:12.5px;font-weight:600}
 /* Wendie 11.09.2026: «den her tekst behøver vi heller ikke.» */
 .hv8 .kpidaek > span{display:none}
-.hv8 .hvsog{display:flex;align-items:center;gap:7px;background:#fff;border-radius:9px;padding:4px 11px;
-  box-shadow:inset 0 0 0 1px var(--line);min-width:300px}
+/* Pandas soegefelt har SIN EGEN ramme (.sogfelt). Min .hvsog laa udenom
+   med endnu en — to kasser uden om det samme felt. Den ydre er nu bare
+   en holder uden ramme, og Silke-stilen ligger paa Pandas eget felt. */
+.hv8 .hvsog{display:flex;align-items:center;min-width:320px}
+.hv8 .hvsog .sogboks{width:100%}
+.hv8 .hvsog .sogfelt{display:flex;align-items:center;gap:7px;background:#fff;border-radius:9px;
+  padding:7px 11px;box-shadow:inset 0 0 0 1px var(--line);border:0}
+.hv8 .hvsog .sogfelt:focus-within{box-shadow:inset 0 0 0 1px var(--gold)}
 .hv8 .hvsog input{border:0;outline:none;background:none;font:inherit;font-size:12.5px;flex:1;color:var(--ink)}
+.hv8 .hvsog .lup{color:var(--mut2);font-size:13px}
+.hv8 .hvsog .sogryd{border:0;background:none;color:var(--mut2);cursor:pointer;font-size:13px}
 .hv8 .hd{padding:18px 20px 12px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
 .hv8 .hd .sp{flex:1}
 
@@ -7076,6 +7486,71 @@ main{min-width:0}
 .hv8 .hvsog{margin-left:auto;min-width:270px;position:relative}
 .hv8 .hvsog .sogfelt{padding:0 13px}
 .hv8 .hvsog .sogfelt input{font-size:13px;padding:8px 0}
+
+/* ══ SIDEMENUEN — DEN SMALLE IKONMENU FRA MOCKUPPEN ════════════════════
+   Wendie 11.09.2026: «sidemenuen er ikke magen til mockuppen, saa hele
+   siden ser maerkelig ud.» Hun valgte den smalle ikonmenu 11.09.2026:
+   «vis mig begge dele i mockuppen» → og derefter «designet er perfekt nu
+   med smal ikonmenu og fuldt kort».
+   Bygget paa Pandas EGEN bjaelke (aside#sidebar) og dens eksisterende
+   knapper — ingen opmaerkning er roert, saa ingen knap kan falde ud.
+   Ikonerne saettes i stilarket pr. data-v. 58 px smal; peger man paa den,
+   folder den ud til 196 px, og teksten kommer frem.
+   MALDIVIA staar uroert: navnet vises i fuld bredde, og sammenfoldet
+   staar M'et i samme skrift — brandet forsvinder ikke. */
+aside#sidebar{width:58px;background:#26291f;border-right:0;padding:18px 0;
+  transition:width .18s cubic-bezier(.2,.8,.3,1);overflow:hidden;z-index:40}
+aside#sidebar:hover{width:196px}
+aside#sidebar .logo{text-align:left;margin-bottom:22px;padding:0 0 0 17px;white-space:nowrap;overflow:hidden}
+/* Sammenfoldet skal teksten VAERE VAEK — ikke klippet. Foer stod der
+   «M A L» og «To», «Ø», fordi labelen blot floed ud over kanten.
+   font-size:0 skjuler teksten helt; ikonet og M'et har deres egen. */
+aside#sidebar .logo h1{font-size:0;letter-spacing:6px;color:#efeae1;text-indent:0;
+  transition:font-size .14s ease;height:19px}
+aside#sidebar:hover .logo h1{font-size:15px}
+aside#sidebar .logo small{color:#b99a5f;font-size:7px;letter-spacing:2.4px;opacity:0;
+  transition:opacity .14s ease;display:block;white-space:nowrap}
+aside#sidebar:hover .logo small{opacity:.95}
+/* Sammenfoldet: kun M'et — i samme skrift, saa brandet bliver staaende. */
+aside#sidebar .logo h1{position:relative}
+/* Sammenfoldet staar M'et — i samme skrift, saa brandet bliver staaende. */
+aside#sidebar .logo h1::after{content:'M';position:absolute;left:0;top:0;
+  font-family:'Playfair Display',serif;font-size:17px;color:#efeae1;letter-spacing:0;
+  transition:opacity .12s ease}
+aside#sidebar:hover .logo h1::after{opacity:0}
+
+aside#sidebar #nav{display:flex;flex-direction:column;gap:1px}
+aside#sidebar #nav button{display:flex;align-items:center;gap:12px;width:100%;
+  padding:9px 0 9px 17px;background:none;border:0;cursor:pointer;text-align:left;
+  font-family:'Inter',system-ui,sans-serif;font-size:0;color:#cfc9b6;
+  white-space:nowrap;overflow:hidden;border-radius:0;letter-spacing:0;
+  transition:font-size .14s ease}
+aside#sidebar:hover #nav button{font-size:12.5px}
+aside#sidebar #nav button::before{content:'✦';flex:0 0 24px;text-align:center;font-size:13px;
+  opacity:.85;margin-left:-4px;line-height:1}
+aside#sidebar #nav button[data-v="dash"]::before{content:'◧'}
+aside#sidebar #nav button[data-v="hv"]::before,
+aside#sidebar #nav button[data-v="leads"]::before{content:'✉'}
+aside#sidebar #nav button[data-v="team"]::before{content:'◇'}
+aside#sidebar #nav button[data-v="sales"]::before{content:'✈'}
+aside#sidebar #nav button[data-v="finance"]::before{content:'▤'}
+aside#sidebar #nav button[data-v="tasks"]::before{content:'✓'}
+aside#sidebar #nav button[data-v="marketing"]::before{content:'◈'}
+aside#sidebar #nav button[data-v="reports"]::before{content:'▦'}
+aside#sidebar #nav button[data-v="settings"]::before{content:'⚙'}
+aside#sidebar #nav button[data-v="testdata"]::before{content:'⚑'}
+/* «＋ Ny reise» har allerede et plus i sin tekst — ikonet ville give to. */
+aside#sidebar #nav button[data-v="new"]::before{content:'';flex:0 0 24px}
+aside#sidebar #nav button:hover{background:#2f3326;color:#fff}
+aside#sidebar #nav button.on{background:#343829;color:#fff;font-weight:600;
+  box-shadow:inset 3px 0 0 #c1975a}
+aside#sidebar #nav button[data-v="testdata"]{color:#c9a659}
+aside#sidebar #nav button[data-v="new"]{margin-top:10px;color:#b99a5f}
+
+aside#sidebar .foot{padding:14px 17px;color:#8f8a79;font-size:10px;white-space:nowrap;
+  opacity:0;transition:opacity .14s ease}
+aside#sidebar:hover .foot{opacity:1}
+aside#sidebar .foot a{color:#b99a5f}
 </style>
 </head>
 <body>
@@ -7103,7 +7578,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.52';
+const APP_VERSION = 'v1.53';
 /* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
    Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
    true  = henvendelserne tegnes i Silke (den godkendte mockup)
@@ -13820,7 +14295,7 @@ function hvRender(l, acts, offers){
         <div class="wsrc">Kundens egne ord <span class="edithint">klik i teksten for at rette</span></div>
 
         <div class="sh"><span class="txt">Interne noter</span></div>
-        <div class="ntadd"><textarea id="hvNote" rows="2" placeholder="Skriv en intern note…"></textarea><button class="b gold" style="align-self:flex-start" onclick="hvAddNote()">Gem</button></div>
+        <div class="ntadd"><textarea id="hvNote" rows="2" placeholder="Skriv en intern note…"></textarea><button class="b" style="align-self:flex-start" onclick="hvAddNote()">Gem</button></div>
         <ul class="nlist">${notes.length?notes.map(n=>`<li><div class="h"><span class="au">${escH(n.actor||'')}</span><span class="dt">${escH(fmtDT(n.occurred_at))}</span><button class="nx" onclick="hvDelNote('${n.id}')" title="Slet denne note">Slet</button></div><div class="t">${escH(n.body||'')}</div></li>`).join(''):'<li><div class="t" style="color:var(--mut)">Ingen noter endnu.</div></li>'}</ul>
 
         <div class="sh"><span class="txt">Detaljer</span></div>
@@ -13839,8 +14314,8 @@ function hvRender(l, acts, offers){
             <div class="fld"><div class="k">Forplejning — vælg gerne flere</div>${multi('meal_plans',HV_MEAL,meal)}</div>
           </div>
           <div class="fbox"><div class="lab">Rejsende og budget</div>
-            ${fld('Voksne','adults',l.adults)}
-            <div class="fld"><div class="k">Børn</div><input id="hvKc" value="${l.kids==null?'':l.kids}" oninput="hvKids()" onchange="hvSave('kids',this.value===''?null:+this.value)"></div>
+            <div class="to2">${fld('Voksne','adults',l.adults)}
+            <div class="fld"><div class="k">Børn</div><input id="hvKc" value="${l.kids==null?'':l.kids}" oninput="hvKids()" onchange="hvSave('kids',this.value===''?null:+this.value)"></div></div>
             <div class="fld" id="hvKbF"${(tnum(l.kids)||0)>0?'':' style="display:none"'}><div class="k">Alder på børn</div><div class="kids" id="hvKb"></div></div>
             <div class="fld"><div class="k">Budget${
                 curK.kilde==='udledt' ? ' <span class="udledt" title="Ingen valuta er gemt på henvendelsen. Den her er foreslået ud fra branchen — vælg den, hvis den er rigtig.">foreslået ud fra branchen</span>'
