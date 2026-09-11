@@ -1,5 +1,51 @@
 <!DOCTYPE html>
-<!-- Panda · v1.50 · 09.09.2026 — KLAR TIL UDGIVELSE.
+<!-- Panda · v1.51 · 11.09.2026 — KLAR TIL UDGIVELSE.
+     v1.51 — VALUTAEN MÅ ALDRIG GÆTTES. HASTERETTELSE.
+     Wendie 11.09.2026, ordret: «Der er lige kommet en henvendelse ind,
+     hvor der står, at det er et norsk budget, men det er en dansk
+     henvendelse. En fejl, der aldrig nogensinde må ske i Panda. I
+     Pipedrive står den i danske kroner, så fejlen ligger i Panda.»
+     Hun har ret hele vejen. Målt på hendes egen række (Jeanette Bohn,
+     Pipedrive-deal 2207): basen siger DKK, revisionssporet siger DKK fra
+     første sekund, Pipedrive siger DKK 60.000 — kun skærmen sagde NOK.
+
+     TO FEJL, og den anden er den farlige:
+
+     1 · GÆTTET. Reglen var «har rækken ingen valuta, så er den NOK, med
+         mindre branchen er præcis MD». Et gæt forklædt som en oplysning:
+         HQ og IT blev også NOK, selv om branchetabellen siger DKK og EUR,
+         og en række uden branche blev NOK.
+
+     2 · POSITIONEN — og det er den, der forklarer alle symptomerne.
+         Feltet er et <select>, hvis liste begynder med NOK. Matcher
+         værdien ikke en option PRÆCIST, sætter browseren ingen «selected»
+         og viser den FØRSTE. «dkk» med små bogstaver, «DKK » med et
+         mellemrum, en ukendt kode, en række der nåede skærmen før feltet
+         var fyldt — alle viste NOK, uden at noget råbte op. Det er værre
+         end et tomt felt: det ligner et VALG, nogen har truffet, og næste
+         klik ville have gemt det. Samme fælde fandtes i «Hvad blev der
+         solgt?», hvor optionerne ikke engang havde et value — og DEN
+         skriver videre til rejsens customer_currency.
+
+     RETTET:
+     · leadValuta() er nu den ene sandhed: valutaen er GEMT (fra rækken),
+       UDLEDT (af branchetabellen, MD/MN/NO/HQ/IT) eller UKENDT. Den
+       gætter aldrig NOK.
+     · Er den udledt, STÅR DET: «foreslået ud fra branchen». Er den ukendt,
+       står der «— vælg valuta —», og kortet på tavlen viser «?» i stedet
+       for at opfinde en valuta ved siden af et beløb.
+     · Værdien matches trimmet og uden hensyn til store bogstaver, så
+       «dkk » finder DKK. Findes den ikke, er det tomme valg forrest og
+       valgt — positionen kan ikke længere bestemme.
+     · Sætter man en valuta, der ikke passer til branchen — en dansk sag i
+       NOK — spørges der først. Det er sjældent, men ikke umuligt, og
+       derfor skal det være et valg og aldrig en standard.
+     · Den gamle henvendelsesside havde kun tre af de syv valutaer og
+       skrev «Budget (DKK)», også når ingen valuta var gemt. Samme felt nu.
+     · «Hvad blev der solgt?» og bookingen falder ikke længere tilbage på
+       DKK i blinde.
+     Målt (valuta.js, 14 tilfælde): v1.31 — som kører nu — har 5 rigtige
+     og 9 der lyver. v1.51: 14 af 14, ingen lyver.
      v1.50 — TRANSFEREN BEGGE VEJE, OG ÉN DESTINATIONSVÆLGER.
      Wendie 09.09.2026, to beskeder.
 
@@ -2414,6 +2460,15 @@ dialog.lead-dlg.ld{max-width:880px;width:calc(100% - 40px);padding:0;border:1px 
 .hv7 .opretter.fejl{color:var(--bad);}
 .hv7 .fld .belob{display:flex;gap:10px;align-items:baseline;}
 .hv7 .fld .belob input{flex:1 1 auto;width:auto;min-width:0;}
+/* En foreslaaet eller manglende valuta skal SES — ellers ligner den et
+   valg, nogen har truffet. R501. */
+.hv7 .fld .k .udledt{font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:600;color:#8a7238;background:rgba(185,154,95,.16);
+  padding:2px 6px;border-radius:4px;margin-left:7px;letter-spacing:.1em}
+.hv7 .fld .k .udledt.advar{color:#a8724f;background:rgba(168,114,79,.14)}
+.hv7 .belob select.valuta.ivalgt{color:#a8724f;border-bottom-color:#d9b48f}
+.hv7 .kort .val.udledt{color:#a08a5c;border-bottom:1px dotted #d6c9a8}
+.hv7 .kort .val.mangl{color:#a8724f;font-weight:600}
 .hv7 .fld .belob select.valuta{flex:0 0 auto;width:auto;font-family:'Inter',sans-serif;
   font-size:11px;letter-spacing:.6px;color:var(--mut);background:transparent;border:0;
   border-bottom:1px solid var(--hair);padding:7px 2px;cursor:pointer;}
@@ -6307,7 +6362,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.50';
+const APP_VERSION = 'v1.51';
 window.APP_VERSION = APP_VERSION;
 console.log('Panda ' + APP_VERSION);
 const $ = s => document.querySelector(s);
@@ -12421,11 +12476,20 @@ function hvCard(l){
   }
   const naar = hvDatoKort(l.departure_date||l.earliest_departure, l.return_date||l.latest_return);
   const naetter = nn!=null&&nn>0 ? nn+(nn===1?' nat':' nætter') : '—';
-  const cur=leadCur(l);
+  /* Kortet skrev foer en valuta, ingen havde valgt. Et beloeb uden
+     valuta er ubehageligt — et beloeb med den FORKERTE valuta er
+     farligt. Kender vi den ikke, staar der «?» og hvorfor. */
+  const curK=leadValuta(l), cur=curK.val||'';
+  const vTag = cur
+    ? `<span class="val${curK.kilde==='udledt'?' udledt':''}"${
+        curK.kilde==='udledt' ? ' title="Foreslået ud fra branchen — ingen valuta er gemt på henvendelsen"' : ''
+      }>${escH(cur)}</span>`
+    : `<span class="val mangl" title="Der er ingen valuta på henvendelsen — åbn den og vælg en">?</span>`;
   const budFejl = (+l.est_value<0) || (tr.total!=null && tr.total<0) || (tr.perPerson!=null && tr.perPerson<0);
   const bel = budFejl ? '<span class="bel uklar" title="Beløbet i data er negativt — se henvendelsen efter">uklart</span>'
-    : (tr.total!=null ? `<span class="bel">${fval(tr.total)} <span class="val">${escH(cur)}</span></span>`
-    : (tr.perPerson!=null ? `<span class="bel">${fval(tr.perPerson)} <span class="val">${escH(cur)}/p</span></span>`
+    : (tr.total!=null ? `<span class="bel">${fval(tr.total)} ${vTag}</span>`
+    : (tr.perPerson!=null ? `<span class="bel">${fval(tr.perPerson)} ${cur
+        ? vTag.replace('>'+escH(cur)+'<', '>'+escH(cur)+'/p<') : vTag}</span>`
     : '<span class="bel tom">—</span>'));
   const brc = /^(MN|NO)$/.test(l.branch||'') ? 'no' : (l.branch==='MD'?'dk':'');
   const ferier = ferieForRejse(l.departure_date||l.earliest_departure,
@@ -12713,6 +12777,25 @@ function hvLukDlg(){
   const ov=document.getElementById('hvOv2');
   if(ov){ ov.classList.remove('on'); ov.innerHTML=''; }
 }
+/* ══ EN VALUTA, DER IKKE PASSER TIL BRANCHEN, SKAL BEKRÆFTES ══════════
+   En dansk henvendelse i NOK er ikke umulig — men den er saa sjaelden, at
+   den skal vaere et VALG, aldrig en standard. Og det var netop den vej,
+   fejlen kunne blive virkelig: feltet viste NOK af sig selv, og det
+   foerste klik ville have gemt det. R502. */
+function hvSaetValuta(sel){
+  const v = sel.value;
+  if(!v){ return; }                       /* «— vælg valuta —» gemmer intet */
+  const br = (sel.dataset.branche||'').trim().toUpperCase();
+  const vent = HV_BRANCHE_VALUTA[br];
+  if(vent && v !== vent){
+    const ok = confirm('Henvendelsen hører til ' + br + ', som normalt er i ' + vent
+      + '. Du er ved at sætte budgettet til ' + v + '.\n\nEr det rigtigt?');
+    if(!ok){ sel.value = vent; hvSave('currency', vent); return; }
+  }
+  hvSave('currency', v);
+  sel.classList.remove('ivalgt');
+}
+
 /* Kort kvittering nede i hjaelpelinjen — forsvinder af sig selv igen. */
 function hvKvit(tekst){
   const h=document.getElementById('hvHint'); if(!h) return;
@@ -12748,7 +12831,7 @@ async function hvOpen(id){
 }
 
 function hvRender(l, acts, offers){
-  const tr=triage(l), cur=leadCur(l);
+  const tr=triage(l), curK=leadValuta(l), cur=curK.val || '';
   const pos=(window._hvOrder||[]).indexOf(l.id);
   const notes=acts.filter(a=>a.type==='internt_notat');
   const koeb=+(l._koeb||0);
@@ -12825,10 +12908,14 @@ function hvRender(l, acts, offers){
             ${fld('Voksne','adults',l.adults)}
             <div class="fld"><div class="k">Børn</div><input id="hvKc" value="${l.kids==null?'':l.kids}" oninput="hvKids()" onchange="hvSave('kids',this.value===''?null:+this.value)"></div>
             <div class="fld" id="hvKbF"${(tnum(l.kids)||0)>0?'':' style="display:none"'}><div class="k">Alder på børn</div><div class="kids" id="hvKb"></div></div>
-            <div class="fld"><div class="k">Budget</div>
+            <div class="fld"><div class="k">Budget${
+                curK.kilde==='udledt' ? ' <span class="udledt" title="Ingen valuta er gemt på henvendelsen. Den her er foreslået ud fra branchen — vælg den, hvis den er rigtig.">foreslået ud fra branchen</span>'
+              : curK.kilde==='ukendt' ? ' <span class="udledt advar" title="Der står en valuta i data, som vi ikke kender: ' + escH(curK.raa||'') + '">ukendt valuta i data</span>'
+              : curK.kilde==='ingen'  ? ' <span class="udledt advar" title="Hverken valuta eller branche er sat">ingen valuta</span>' : ''}</div>
               <div class="belob"><input value="${l.est_value==null?'':fval(l.est_value)}" onchange="hvSaveTal(this,'est_value')">
-              <select class="valuta" onchange="hvSave('currency',this.value)" title="Foreslås ud fra branchen — kan altid ændres">${
-                HV_VALUTAER.map(v=>`<option value="${v}" ${cur===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
+              <select class="valuta${curK.kilde==='gemt'?'':' ivalgt'}" onchange="hvSaetValuta(this)"
+                title="${curK.kilde==='gemt' ? 'Valutaen står på henvendelsen' : 'Ingen valuta er gemt — vælg den, så den bliver stående'}"
+                data-branche="${escH(l.branch||'')}">${valutaOptions(curK.val)}</select></div></div>
           </div>
           <div class="fbox"><div class="lab">Kontakt og kilde</div>
             ${fld('Kontaktnavn','contact_name',l.contact_name)}
@@ -13251,8 +13338,59 @@ async function viewLeads(){
   } else { window._leadMdrSalg=window._leadMdrSalg||[]; }
   leadBoardRender();
 }
-// valuta: feltet på henvendelsen, ellers udledt af branchen (MD = DKK, NO = NOK)
-const leadCur = l => (l && l.currency) ? l.currency : (l && l.branch==='MD' ? 'DKK' : 'NOK');
+/* ══ EN VALUTA MÅ ALDRIG GÆTTES I TAVSHED ═════════════════════════════
+   Wendie 11.09.2026: «Der er lige kommet en henvendelse ind, hvor der
+   staar, at det er et norsk budget, men det er en dansk henvendelse. En
+   fejl, der aldrig nogensinde maa ske i Panda. I Pipedrive staar den i
+   danske kroner, saa fejlen ligger i Panda.»
+   Hun har ret hele vejen. Basen sagde DKK, Pipedrive sagde DKK — kun
+   skaermen sagde NOK.
+
+   TO FEJL, og den anden er den farlige:
+
+   1 · GÆTTET. Den gamle regel var «har raekken ingen valuta, saa er den
+       NOK, med mindre branchen er praecis MD». Det er et gaet forklaedt
+       som en oplysning: HQ og IT blev ogsaa NOK, selv om branchetabellen
+       siger DKK og EUR, og en raekke helt uden branche blev NOK.
+
+   2 · POSITIONEN. Feltet er et <select>, hvis liste begynder med NOK.
+       Matcher vaerdien ikke en option PRAECIS, saetter browseren ingen
+       «selected» — og viser sa den FOERSTE. «dkk» med smaa bogstaver,
+       «DKK » med et mellemrum, null, en raekke der naaede skaermen foer
+       feltet var fyldt: alle viste NOK. Maalt i proeven (prove.js):
+       fem af ti tilfaelde loej, og ingen af dem raabte op.
+       Det er vaerre end et tomt felt: det ligner et VALG, nogen har
+       truffet, og naeste klik gemmer det.
+
+   Nu: valutaen er enten GEMT (fra raekken), UDLEDT (af branchen, og
+   maerket som udledt) eller UKENDT (og saa staar der ingen valuta —
+   hverken paa kortet eller i feltet). Og listen kan ikke laengere lade
+   positionen bestemme: findes vaerdien ikke, staar «— vælg valuta —»
+   forrest og er valgt. R501. */
+function leadValuta(l){
+  const raa = l && l.currency != null ? String(l.currency).trim().toUpperCase() : '';
+  if(raa && HV_VALUTAER.includes(raa)) return {val: raa, kilde: 'gemt'};
+  /* Stod der noget, vi ikke kender? Det er ikke det samme som ingenting. */
+  if(raa) return {val: null, kilde: 'ukendt', raa: String(l.currency)};
+  const br = l && l.branch ? String(l.branch).trim().toUpperCase() : '';
+  const fra = HV_BRANCHE_VALUTA[br];
+  if(fra) return {val: fra, kilde: 'udledt'};
+  return {val: null, kilde: 'ingen'};
+}
+/* Bagudkompatibel for de steder, der bare skal have en streng at vise.
+   Giver ALDRIG et gaet: er valutaen ukendt, er svaret tomt. */
+const leadCur = l => leadValuta(l).val || '';
+/* Valutalisten som et felt, der ikke kan lyve: vaerdien matches trimmet
+   og uden hensyn til store bogstaver, og er den ukendt, staar et tomt
+   valg forrest — saa NOK aldrig kan blive standard ved et uheld. */
+function valutaOptions(valgt, medTom){
+  const v = valgt ? String(valgt).trim().toUpperCase() : '';
+  const traf = HV_VALUTAER.includes(v);
+  const tom = (!traf && (medTom !== false))
+    ? `<option value="" selected>— vælg valuta —</option>` : '';
+  return tom + HV_VALUTAER.map(x =>
+    `<option value="${x}"${traf && x === v ? ' selected' : ''}>${x}</option>`).join('');
+}
 function setLeadFilter(k,v){ window._leadFilter=Object.assign({branch:'',owner:''},window._leadFilter); window._leadFilter[k]=v; leadBoardRender(); }
 function leadBoardRender(){
   const leads=window._leads||[];
@@ -13446,8 +13584,10 @@ function editLead(id){
           <div class="fld"><div class="k">Voksne</div><input id="l_adults" type="number" min="0" value="${v('adults')}"></div>
           <div class="fld"><div class="k">Børn</div><input id="l_kids" type="number" min="0" max="12" value="${v('kids')}" onchange="renderChildAges()"></div>
           <div class="fld"><div class="k">Alder på børn</div><div id="l_childages"></div><input type="hidden" id="l_child_ages" value="${escH(v('child_ages'))}"></div>
-          <div class="fld"><div class="k">Budget (${escH(l.currency||'DKK')})</div><input id="l_est_value" inputmode="numeric" value="${krFmt(l.est_value)}" onblur="fmtBudget()"></div>
-          <div class="fld"><div class="k">Valuta</div><select id="l_currency"><option ${l.currency==='DKK'||!l.currency?'selected':''}>DKK</option><option ${l.currency==='NOK'?'selected':''}>NOK</option><option ${l.currency==='EUR'?'selected':''}>EUR</option></select></div>
+          <!-- Stod der «Budget (DKK)» ogsaa naar ingen valuta var gemt,
+               og listen havde kun tre af de syv. R501. -->
+          <div class="fld"><div class="k">Budget${leadValuta(l).val ? ' ('+escH(leadValuta(l).val)+')' : ''}</div><input id="l_est_value" inputmode="numeric" value="${krFmt(l.est_value)}" onblur="fmtBudget()"></div>
+          <div class="fld"><div class="k">Valuta</div><select id="l_currency">${valutaOptions(leadValuta(l).val)}</select></div>
         </div>
         <div class="fbox"><h5>Kontakt og kilde</h5>
           <div class="fld"><div class="k">Kontaktnavn</div><input id="l_contact_name" value="${escH(v('contact_name'))}"></div>
@@ -24967,8 +25107,11 @@ function hvSolgtBoks(l){
       <div class="fld hvsbred"><div class="k">Aftalt pris</div>
         <div class="hvsbelob"><input id="hvsPris" inputmode="decimal" oninput="fmtBelob(this)"
             value="${escH(hvsPrisNu() || krFmt(l.est_value))}">
-          <select id="hvsVal">${HV_VALUTAER.map(v=>`<option ${
-            ((f&&f.valuta)||l.currency||HV_BRANCHE_VALUTA[l.branch])===v?'selected':''}>${v}</option>`).join('')}</select></div></div>
+          <!-- Samme faelde som paa henvendelsen: optionerne havde ikke
+               engang et value, og matchede vaerdien ikke, stod NOK forrest
+               og blev valgt i tavshed — og DENNE her skriver videre til
+               rejsens customer_currency. R501. -->
+          <select id="hvsVal">${valutaOptions((f&&f.valuta) || leadValuta(l).val)}</select></div></div>
       <!-- Wendie 03.09.2026: «det er jo bare to felter … det skal bare være
            små felter, man udfylder, på samme måde som i henvendelsen.» -->
       <div class="hvspax">
@@ -25089,7 +25232,9 @@ async function hvsOpret(){
   const voksne = parseInt(v('hvsVoksne'),10)||0, boern = parseInt(v('hvsBoern'),10)||0;
   window._hvSolgt = {
     pris:   tal(v('hvsPris')),
-    valuta: v('hvsVal') || l.currency || HV_BRANCHE_VALUTA[l.branch] || 'DKK',
+    /* Er der ikke valgt en valuta, og kan den ikke udledes af branchen,
+       gemmer vi den IKKE som DKK i blinde — saa spoerges der. */
+    valuta: v('hvsVal') || leadValuta(l).val || null,
     dep:    v('hvsUd') || null,
     ret:    v('hvsHjem') || null,
     pax:    (voksne + boern) || 2,
@@ -25167,7 +25312,7 @@ async function hvSolgtDlg(){
        vaerelse, periode og pris i den besked, og der er intet at spoerge om. */
     window._hvSolgt = {
       pris:   bk.pris != null ? Number(bk.pris) : null,
-      valuta: bk.valuta || l.currency || HV_BRANCHE_VALUTA[l.branch] || 'DKK',
+      valuta: bk.valuta || leadValuta(l).val || null,
       dep:    bk.afrejse || l.departure_date || null,
       ret:    bk.hjemrejse || l.return_date || null,
       pax:    pax,
