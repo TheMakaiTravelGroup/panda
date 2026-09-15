@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.53 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
+<!-- Panda · v1.55 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
      ══ VERSIONSNUMMERET HØRER TIL EN UDGIVELSE, IKKE TIL EN RETTELSE ══
      Wendie 31.08.2026: «det skal jo kun være de indeksnumre som faktisk
      bliver uploadet der får det næste nummer.» Og igen 11.09.2026: «jeg
@@ -12,7 +12,27 @@
      mange rettelser der laves, til den faktisk er uploadet. Alt hvad der
      samler sig, skrives under denne ene overskrift. Det er nu en PRØVE
      (ver.js), ikke en hensigt — den fejler, hvis nummeret hopper.
-     Live er v1.52 (uploadet 11.09.2026). Denne fil bliver v1.53.
+     Live er v1.54 (uploadet 11.09.2026). Denne fil bliver v1.55.
+     (Hovedet her stod stadig paa v1.53, da v1.54 gik ud — nummeret blev
+     kun rettet i APP_VERSION. Rettet nu; ver.js skal ogsaa se hovedet.)
+
+     ── Kommet til siden v1.54 ──
+     LIVE-BESKEDEN MAA IKKE SKRIVE PAA SKAERMEN. HASTERETTELSE 15.09.2026.
+     Rasmus: «Irriterende at ALLE henvendelser kommer ind med INGEN VALUTA
+     nu.» Og: «Den røg i INGEN VALUTA igen nu efter man skifter status.»
+     Basen var rigtig hele tiden. Realtime-beskeden havde valutaen klippet
+     til ét bogstav (leads.currency var character(3); Realtime kaster via
+     typenavnet uden laengde => character(1) => «DKK» blev «D»), og
+     hvAnvend() skrev beskeden direkte ind i raekken paa tavlen. Foer R501
+     blev fejlen daekket af gaettet — v1.51 gjorde den synlig, ikke til.
+     · Kolonnen er skiftet til text i basen (migration 15.09.2026) med en
+       CHECK, saa en klippet vaerdi aldrig kan gemmes.
+     · hvAnvend() bruger nu beskeden KUN som signal og henter raekken
+       frisk med LEAD_FIELDS. Fejler kaldet, roeres kun trin/status (enum).
+     · trips.customer_currency, trips.accepted_currency og
+       trip_elements.buy_currency er stadig character(3) i Realtime-
+       udsendelsen — dashboardet henter paa ny og rammes ikke i dag.
+       Staar paa Manuel kontrol til en planlagt migration.
 
      ── Kommet til siden v1.52 ──
      SIDEMENUEN SOM I MOCKUPPEN. Wendie 11.09.2026: «sidemenuen er ikke
@@ -7622,7 +7642,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.54';
+const APP_VERSION = 'v1.55';
 /* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
    Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
    true  = henvendelserne tegnes i Silke (den godkendte mockup)
@@ -14077,12 +14097,39 @@ function hvKoeUd(){
   const koe = window._hvKoe || []; window._hvKoe = [];
   koe.forEach(hvAnvend);
 }
-function hvAnvend(p){
-  const liste = window._leads; if(!liste) return;
+/* ══ LIVE-BESKEDEN ER ET SIGNAL — IKKE EN SANDHED ═══════════════════════
+   Rasmus 15.09.2026: «Irriterende at ALLE henvendelser kommer ind med
+   INGEN VALUTA nu» — og igen: «Den røg i INGEN VALUTA igen nu efter man
+   skifter status.» Basen var rigtig hele tiden (revisionssporet: DKK/NOK
+   fra første sekund). Men Realtime-beskeden, som denne funktion før
+   skrev DIREKTE ind i rækken, havde valutaen klippet til ét bogstav:
+   leads.currency var character(3), og Realtime kaster via typenavnet
+   uden længde => character(1) => «DKK» blev «D». Panda kender ikke «D»,
+   og siden R501 gætter den ikke — så den sagde ærligt «ingen valuta».
+   Kolonnen er skiftet til text (migration 15.09.2026), men det er ikke
+   nok: beskeden må ALDRIG igen være kilden til det, der står på skærmen.
+   Derfor: beskeden fortæller KUN at noget er sket med hvilken sag. Selve
+   indholdet hentes frisk fra basen med LEAD_FIELDS — samme felter, samme
+   vej som ved indlæsning. Ét lille kald pr. hændelse. Flytningen af et
+   kort føles stadig øjeblikkelig, for den sker lokalt først (hvDrop). */
+async function hvHentFrisk(id){
+  try{
+    const {data, error} = await db.from('leads').select(LEAD_FIELDS).eq('id', id).maybeSingle();
+    if(error) throw error;
+    return data || null;
+  }catch(e){ console.warn('henvendelsen kunne ikke hentes frisk efter live-besked', id, e); return undefined; }
+}
+async function hvAnvend(p){
+  if(!window._leads) return;
   const ny = p.new || {}, gl = p.old || {};
   const id = ny.id || gl.id; if(!id) return;
-  const i = liste.findIndex(x=>x.id===id);
   let besked = null;
+
+  /* Frisk række FØR vi rører listen — og listen slås op igen bagefter,
+     for mens vi ventede, kan en anden hændelse have ændret den. */
+  const frisk = p.eventType === 'DELETE' ? null : await hvHentFrisk(id);
+  const liste = window._leads; if(!liste) return;
+  const i = liste.findIndex(x=>x.id===id);
 
   if(p.eventType === 'DELETE'){
     if(i < 0) return;
@@ -14090,19 +14137,35 @@ function hvAnvend(p){
     liste.splice(i,1);
     if(window._hvId === id) hvClose();
     besked = hvVarMig(id) ? null : navn + ' er slettet';
+  } else if(frisk === null){
+    /* Basen kender ikke rækken (slettet igen, eller RLS skjuler den) —
+       så skal den heller ikke stå på tavlen. */
+    if(i >= 0){ liste.splice(i,1); if(window._hvId === id) hvClose(); }
+  } else if(frisk === undefined){
+    /* Kaldet fejlede. Beskeden bruges KUN til det, der aldrig kan
+       forvanskes — trin og status er enum-koder. Alt andet rører vi ikke;
+       næste besøg på tavlen henter alligevel alt på ny. */
+    if(i >= 0){
+      const foer = liste[i];
+      if(ny.stage && ny.stage !== foer.stage){ foer.stage = ny.stage; foer._stageSince = new Date().toISOString(); }
+      if(ny.status) foer.status = ny.status;
+    }
+    besked = null;
   } else if(i < 0){
-    liste.unshift(Object.assign({}, ny, {_stageSince: ny.created_at}));
-    besked = hvVarMig(id) ? null : 'Ny henvendelse: ' + (ny.contact_name || ny.title || 'uden navn');
+    liste.unshift(Object.assign({}, frisk, {_stageSince: frisk.created_at}));
+    besked = hvVarMig(id) ? null : 'Ny henvendelse: ' + (frisk.contact_name || frisk.title || 'uden navn');
   } else {
     const foer = liste[i];
-    const flyttet = gl.stage && ny.stage && gl.stage !== ny.stage;
-    Object.assign(foer, ny);
+    const flyttet = gl.stage && frisk.stage && gl.stage !== frisk.stage;
+    /* Den friske række overskriver felterne fra basen — men bevarer de
+       lokale _felter (_stageSince, _koeb, _dublet), som ikke kommer derfra. */
+    Object.assign(foer, frisk);
     if(flyttet) foer._stageSince = new Date().toISOString();
     if(!hvVarMig(id)){
       const navn = foer.contact_name || foer.title || 'En henvendelse';
-      if(flyttet) besked = navn + ' er flyttet til «' + (STAGE_SHORT[ny.stage]||LEAD_STAGE_LABEL[ny.stage]||ny.stage) + '»';
-      else if(gl.status !== ny.status && ny.status === 'lost') besked = navn + ' er sat til tabt';
-      else if(gl.status !== ny.status && ny.status === 'won')  besked = navn + ' er solgt';
+      if(flyttet) besked = navn + ' er flyttet til «' + (STAGE_SHORT[frisk.stage]||LEAD_STAGE_LABEL[frisk.stage]||frisk.stage) + '»';
+      else if(gl.status !== frisk.status && frisk.status === 'lost') besked = navn + ' er sat til tabt';
+      else if(gl.status !== frisk.status && frisk.status === 'won')  besked = navn + ' er solgt';
       else besked = navn + ' er rettet';
     }
   }
