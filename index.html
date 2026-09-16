@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.56 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
+<!-- Panda · v1.57 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
      ══ VERSIONSNUMMERET HØRER TIL EN UDGIVELSE, IKKE TIL EN RETTELSE ══
      Wendie 31.08.2026: «det skal jo kun være de indeksnumre som faktisk
      bliver uploadet der får det næste nummer.» Og igen 11.09.2026: «jeg
@@ -12,7 +12,17 @@
      mange rettelser der laves, til den faktisk er uploadet. Alt hvad der
      samler sig, skrives under denne ene overskrift. Det er nu en PRØVE
      (ver.js), ikke en hensigt — den fejler, hvis nummeret hopper.
-     Live er v1.55 (uploadet 15.09.2026). Denne fil bliver v1.56.
+     Live er v1.56 (uploadet 16.09.2026). Denne fil bliver v1.57.
+
+     ── Kommet til siden v1.56 ──
+     MAN SKAL KUNNE SLIPPE ET KORT I HELE SOEJLEN. Rasmus 16.09.2026 (via
+     Wendie): «Man skal kunne hive en boks over i hele feltet (ikke kun
+     oppe i toppen).» Den gamle tavle strakte alle soejler til fuld hoejde;
+     den nye har align-items:start (R520: tomme soejler stopper under
+     stregen), saa en soejle med ét kort kun var ét kort hoej, og resten af
+     feltet tog ikke imod. Nu faar .tav klassen «traek», mens der traekkes:
+     soejlerne strækkes og tavlen faar en bund (60vh). Sluppet => tilbage.
+     Kun CSS + to linjer i hvDragStart/hvDragEnd/hvDrop. Ingen datalag roert.
 
      ── Kommet til siden v1.55 ──
      SOLGT-TABELLEN SAA INGEN ELEMENTER. Wendie 16.09.2026: Claus Beiers
@@ -6970,6 +6980,17 @@ main{min-width:0}
 /* Klassen hedder kandrop i koden. CSS'en sagde kanslippe, saa den stiplede
    kant blev aldrig vist paa den nye tavle. */
 .hv8 .sj.kandrop{border-style:dashed}
+/* ══ MAN SKAL KUNNE SLIPPE I HELE SOEJLEN ═══════════════════════════════
+   Rasmus 16.09.2026: «Man skal kunne hive en boks over i hele feltet (ikke
+   kun oppe i toppen).» Den gamle tavle (.hv7 .board) var et grid med
+   standard-stretch, saa hver soejle var lige saa hoej som den hoejeste, og
+   man kunne slippe hvor som helst. .hv8 .tav fik align-items:start (for at
+   tomme soejler kan stoppe under stregen, R520) — og saa var en soejle med
+   ét kort kun ét kort hoej, og resten af feltet tog ikke imod noget.
+   Loesningen: KUN mens der traekkes (.tav.traek), strækkes alle soejler til
+   fuld hoejde og tavlen faar en bund, saa der er noget at slippe i overalt.
+   Naar kortet er sluppet, falder soejlerne tilbage, og R520 gaelder igen. */
+.hv8 .tav.traek{align-items:stretch;min-height:60vh}
 /* ══ SØJLEHOVEDET — ÉN STRAM LINJE ════════════════════════════════════
    Wendie 11.09.2026: «det her ser forfaerdeligt ud.» Og det gjorde det:
    navnet, antallet og summen stod paa TRE linjer med luft imellem, og
@@ -7661,7 +7682,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.56';
+const APP_VERSION = 'v1.57';
 /* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
    Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
    true  = henvendelserne tegnes i Silke (den godkendte mockup)
@@ -14018,12 +14039,15 @@ function hvDragStart(e,id){
   try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',id); }catch(_){}
   e.currentTarget.classList.add('dragging');
   document.querySelectorAll('.hv7 .col[data-stage], .hv8 .sj[data-stage]').forEach(c=>c.classList.add('kandrop'));
+  /* Soejlerne strækkes til fuld hoejde, saa hele feltet tager imod (v1.57). */
+  document.querySelectorAll('.hv8 .tav').forEach(t=>t.classList.add('traek'));
 }
 function hvDragEnd(e){
   _hvDrag=null;
   setTimeout(hvKoeUd, 0);
   if(e&&e.currentTarget&&e.currentTarget.classList) e.currentTarget.classList.remove('dragging');
   document.querySelectorAll('.hv7 .col, .hv8 .sj').forEach(c=>c.classList.remove('kandrop','over'));
+  document.querySelectorAll('.hv8 .tav.traek').forEach(t=>t.classList.remove('traek'));
 }
 function hvDragOver(e){
   if(!_hvDrag) return;
@@ -14042,6 +14066,7 @@ async function hvDrop(e,k){
   if(!id){ try{ id=e.dataTransfer.getData('text/plain'); }catch(_){} }
   _hvDrag=null;
   document.querySelectorAll('.hv7 .col, .hv8 .sj').forEach(c=>c.classList.remove('kandrop','over'));
+  document.querySelectorAll('.hv8 .tav.traek').forEach(t=>t.classList.remove('traek'));
   setTimeout(hvKoeUd, 0);
   if(!id||!k) return;
   const l=(window._leads||[]).find(x=>x.id===id);
