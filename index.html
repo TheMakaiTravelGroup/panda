@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.55 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
+<!-- Panda · v1.56 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
      ══ VERSIONSNUMMERET HØRER TIL EN UDGIVELSE, IKKE TIL EN RETTELSE ══
      Wendie 31.08.2026: «det skal jo kun være de indeksnumre som faktisk
      bliver uploadet der får det næste nummer.» Og igen 11.09.2026: «jeg
@@ -12,9 +12,28 @@
      mange rettelser der laves, til den faktisk er uploadet. Alt hvad der
      samler sig, skrives under denne ene overskrift. Det er nu en PRØVE
      (ver.js), ikke en hensigt — den fejler, hvis nummeret hopper.
-     Live er v1.54 (uploadet 11.09.2026). Denne fil bliver v1.55.
-     (Hovedet her stod stadig paa v1.53, da v1.54 gik ud — nummeret blev
-     kun rettet i APP_VERSION. Rettet nu; ver.js skal ogsaa se hovedet.)
+     Live er v1.55 (uploadet 15.09.2026). Denne fil bliver v1.56.
+
+     ── Kommet til siden v1.55 ──
+     SOLGT-TABELLEN SAA INGEN ELEMENTER. Wendie 16.09.2026: Claus Beiers
+     mellemlanding stod med «—» for hotel og naetter og «mangler flyet»,
+     skoent Rasmus havde lagt baade hotel og fly ind aftenen foer.
+     Dashboardets opslag paa trip_elements fejlede STILLE (console.warn):
+     «Could not embed because more than one relationship was found for
+     trip_elements and element_prices». Siden 29.08 peger de to tabeller
+     paa hinanden ad TO veje (element_prices.element_id og
+     trip_elements.chosen_price_id), og PostgREST naegter at gaette.
+     Opslaget gav nul raekker, saa ALLE mellemlandinger saa tomme ud.
+     · Rettet med ét ord: element_prices!element_prices_element_id_fkey.
+       Afproevet i konsollen mod live foer rettelsen: begge elementer kom.
+     · BEKRAEFT BEHOLDER ET EKSISTERENDE REF.NR. Claus Beier har MD2107 fra
+       Dolphin, og Wendie: «det er hans». Foer gav mlBekraeft altid et nyt
+       nummer; nu kun til rejser uden.
+     · Dubletten «Beier, Claus» / «Claus Beier» var IKKE denne fejl, men
+       data: Formspree-bookingen (20:13) fandt ingen henvendelse med sin
+       e-mail, og Rasmus' manuelle henvendelse (23:31) havde ingen e-mail,
+       saa konverteringen fandt ikke bookingen. Koblet i basen 16.09 efter
+       Wendies ok. Bedre match (navn + afrejse) afventer en beslutning.
 
      ── Kommet til siden v1.54 ──
      LIVE-BESKEDEN MAA IKKE SKRIVE PAA SKAERMEN. HASTERETTELSE 15.09.2026.
@@ -7642,7 +7661,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.55';
+const APP_VERSION = 'v1.56';
 /* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
    Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
    true  = henvendelserne tegnes i Silke (den godkendte mockup)
@@ -8567,7 +8586,10 @@ async function viewDash(){
   let melEls = [];
   if(melIds.length){
     const r = await db.from('trip_elements')
-      .select('trip_id,element_type,description,start_date,end_date,suppliers:supplier_id(name),element_prices(id,amount,currency,slag)')
+      .select('trip_id,element_type,description,start_date,end_date,suppliers:supplier_id(name),element_prices!element_prices_element_id_fkey(id,amount,currency,slag)')
+      /* !element_prices_element_id_fkey: tabellerne er forbundet ad to veje
+         (prislisten og den valgte pris). Uden navnet paa vejen svarer
+         PostgREST med en fejl, og tabellen stod tom for alle. (v1.56) */
       .in('trip_id', melIds);
     melEls = (r && r.data) || [];
     if(r && r.error) console.warn('Solgt: elementerne kunne ikke hentes', r.error.message);
@@ -26603,8 +26625,16 @@ async function mlBekraeft(){
 
   /* next_ref_no giver «MN-2026-0001». Den rigtige er next_dolphin_ref, som
      fortsaetter Dolphin-serien (MN1765) — og det tal er ogsaa fakturanummeret. */
-  const {data:ref, error:e1} = await db.rpc('next_dolphin_ref', {p_branch: t.branch});
-  if(e1){ alert('Kunne ikke danne ref.nr.: '+e1.message); k.disabled=false; k.textContent='Bekræft og opret rejsen'; return; }
+  /* Har rejsen ALLEREDE et ref.nr., beholdes det. Wendie 16.09.2026: Claus
+     Beier fik MD2107 i Dolphin, og «det er hans — den maa ikke faa et nyt
+     nummer i Panda». Foer gav bekraeft altid et nyt, og han var blevet
+     MD2108. Kun en rejse uden nummer faar det naeste i serien. (v1.56) */
+  let ref = t.ref_no || null;
+  if(!ref){
+    const {data:nyt, error:e1} = await db.rpc('next_dolphin_ref', {p_branch: t.branch});
+    if(e1){ alert('Kunne ikke danne ref.nr.: '+e1.message); k.disabled=false; k.textContent='Bekræft og opret rejsen'; return; }
+    ref = nyt;
+  }
 
   const {error:e2} = await db.from('trips').update({
     ref_no: ref, status:'bekraeftet', stadie:'bekraeftet', accepted_price: pris,
