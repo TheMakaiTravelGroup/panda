@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Panda · v1.57 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
+<!-- Panda · v1.58 · ARBEJDSFIL — IKKE UPLOADET ENDNU.
      ══ VERSIONSNUMMERET HØRER TIL EN UDGIVELSE, IKKE TIL EN RETTELSE ══
      Wendie 31.08.2026: «det skal jo kun være de indeksnumre som faktisk
      bliver uploadet der får det næste nummer.» Og igen 11.09.2026: «jeg
@@ -12,7 +12,26 @@
      mange rettelser der laves, til den faktisk er uploadet. Alt hvad der
      samler sig, skrives under denne ene overskrift. Det er nu en PRØVE
      (ver.js), ikke en hensigt — den fejler, hvis nummeret hopper.
-     Live er v1.56 (uploadet 16.09.2026). Denne fil bliver v1.57.
+     Live er v1.57 (uploadet 16.09.2026). Denne fil bliver v1.58.
+
+     ── Kommet til siden v1.57 ──
+     GAMLE OG NYE VILKAAR. Wendie 25.09.2026, efter sag MD2106: de generelle
+     vilkaar er skrevet om (punkt 1.4, 4.13-4.15, 5.1, 5.3, 6.2.1), og de
+     fem betalingsdokument-mastere har de nye tekster. Eksisterende rejser
+     faar de nye vilkaar, naar kunden faar nye dokumenter tilsendt — og vi
+     skal kunne se, hvor mange der er tilbage paa de gamle.
+     trips.terms_version ('2018-07' = gamle, '2026-09' = nye; migration
+     trips_terms_version_vilkaar_efter_md2106). Alle eksisterende rejser
+     staar paa 2018-07; nye rejser faar 2026-09 automatisk (kolonnens default).
+     Rejsesiden: linjen «Vilkaar» i Kontaktperson-kortet viser saettet og
+     har linket «skift til nye vilkaar» (setTermsVersion). Dashboardet: ét
+     smalt kort «Gamle vilkaar» foer «Ude nu» med tallet og en foldbar liste
+     over de kommende, aktive rejser der mangler — kortet forsvinder af sig
+     selv, naar tallet er nul. Ingen andre data roert.
+     MINUS FORAN ET BUDGET (fra arbejdsfilen af 22.09.2026, aldrig uploadet):
+     budgetTal() fjerner et forkert fortegn fra Pipedrive-budgetter og
+     afviser sammenklistrede tal over syv cifre. Se kommentaren ved
+     BUDGET_MAX_CIFRE. Flettet ind 25.09.2026 sammen med vilkaarsdelen.
 
      ── Kommet til siden v1.56 ──
      MAN SKAL KUNNE SLIPPE ET KORT I HELE SOEJLEN. Rasmus 16.09.2026 (via
@@ -1912,6 +1931,12 @@ dialog::backdrop{background:rgba(46,51,46,.4);}
 .bar i{display:block;height:100%;background:var(--gold);border-radius:4px;}
 .bar i.sea{background:var(--sea);} .bar i.forest{background:#5b7a54;}
 .mini{font-size:10.5px;color:var(--mut);}
+.vilkaar-card summary{cursor:pointer;list-style:none;}
+.vilkaar-card summary::-webkit-details-marker{display:none;}
+.vilkaar-card .vilkaar-liste{margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:4px 16px;}
+.vilkaar-card .vk{display:flex;gap:8px;align-items:baseline;padding:3px 0;cursor:pointer;font-size:12.5px;border-bottom:1px solid rgba(0,0,0,.05);}
+.vilkaar-card .vk b{min-width:64px;}
+.vilkaar-card .vk:hover{color:var(--forest);}
 a{color:var(--gold);}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-left:auto;}
 .seg button{background:#fff;border:0;padding:5px 12px;font-size:11px;cursor:pointer;color:var(--mut);font-family:inherit;}
@@ -7682,7 +7707,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.57';
+const APP_VERSION = 'v1.58';
 /* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
    Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
    true  = henvendelserne tegnes i Silke (den godkendte mockup)
@@ -8303,7 +8328,7 @@ async function fetchTrips(){
      undefined paa hver eneste rejse, saettet blev tomt, og filteret kunne
      aldrig fjerne noget. Derfor stod Holt to gange under Solgt — baade som
      mellemlanding og som den booking, den var blevet til. (Wendie 01.09.2026) */
-  const COLS='id, ref_no, branch, status, lead_id, customer_id, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, accepted_price, accepted_currency, created_at, customers(first_name,last_name), trip_destinations(destination)';
+  const COLS='id, ref_no, branch, status, lead_id, customer_id, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, accepted_price, accepted_currency, created_at, terms_version, customers(first_name,last_name), trip_destinations(destination)';
   let all=[], from=0;
   while(true){
     const { data } = await db.from('trips').select(COLS).not('status','in','("voided")').order('departure_date').range(from, from+999);
@@ -8777,6 +8802,18 @@ async function viewDash(){
        klumpet, og indholdet var bygget til ét login. Hilsenen bliver. Briefen selv
        kommer tilbage i en form der virker for alle brugere. Data og genereringen
        roeres ikke - kun visningen her. -->
+
+  ${(()=>{
+    /* Gamle vilkaar (v1.58): kommende, aktive rejser der stadig staar paa
+       vilkaarene foer 25.09.2026. Skiftes paa rejsesiden, naar kunden faar
+       nye dokumenter. Kortet forsvinder, naar tallet er nul. */
+    const gml = trips.filter(t=>active(t) && t.departure_date>=t0 && t.terms_version==='2018-07' && !/^test/i.test(t.ref_no||''))
+      .sort((a,b)=>a.departure_date.localeCompare(b.departure_date));
+    if(!gml.length) return '';
+    return `<div class="card vilkaar-card" style="margin-bottom:12px"><details>
+      <summary><h3 style="display:inline">Gamle vilkår</h3> <span class="muted">${gml.length} kommende rejse${gml.length===1?'':'r'} mangler stadig de nye vilkår · skiftes på rejsesiden, når kunden får nye dokumenter</span></summary>
+      <div class="vilkaar-liste">${gml.map(t=>`<div class="vk" onclick="viewTrip('${t.id}')"><b>${escH(t.ref_no)}</b><span>${escH(t.customers.last_name)}, ${escH(t.customers.first_name)}</span><span class="muted">${fmtDY(t.departure_date)}</span></div>`).join('')}</div>
+    </details></div>`;})()}
 
   <div class="card" style="margin-bottom:12px">
     <h3>Ude nu <span class="r muted">${outNow.length} rejse${outNow.length===1?'':'r'} · ${paxOut} gæster</span></h3>
@@ -10383,6 +10420,9 @@ async function viewTrip(id){
         if(!a) return '<span class="muted">—</span>';
         return [a.street,[a.postal_code,a.city].filter(Boolean).join(' '),a.country].filter(Boolean).join(', ')||'<span class="muted">—</span>';})()}</div>
       <div class="kv"><span>${tx('sum.seller')}</span><b>${t.owner||'—'}</b>${t.booking_date?` <span class="muted">· ${tx('sum.sold')} ${fmtDY(t.booking_date)}</span>`:''}</div>
+      <div class="kv"><span>Vilkår</span>${t.terms_version==='2026-09'
+        ? `<b>Nye vilkår</b> <span class="muted">· fra 25.09.2026${t.terms_version_at?` · skiftet ${fmtDY(t.terms_version_at.slice(0,10))}`:''}</span>${active(t)?` <a href="#" class="mini" onclick="setTermsVersion('${t.id}','2018-07');return false">fortryd</a>`:''}`
+        : `<b style="color:var(--bad)">Gamle vilkår</b> <span class="muted">· før 25.09.2026</span>${active(t)?` <a href="#" onclick="setTermsVersion('${t.id}','2026-09');return false">skift til nye vilkår</a>`:''}`}</div>
     </div>
 
     <div class="card">
@@ -10651,6 +10691,12 @@ async function viewTrip(id){
   <dialog id="paxdlg"></dialog>`;
 }
 async function setStatus(id,s){ await db.from('trips').update({status:s}).eq('id',id); viewTrip(id); }
+/* Vilkaarsversion (v1.58): skiftes naar kunden har faaet nye dokumenter. Audit-triggeren logger hvem og hvornaar. */
+async function setTermsVersion(id,v){
+  const r = await db.from('trips').update({terms_version:v, terms_version_at:new Date().toISOString()}).eq('id',id);
+  if(r.error){ alert('Vilkårsversionen kunne ikke gemmes: '+r.error.message); return; }
+  viewTrip(id);
+}
 async function setStatusSel(id,s){
   if(!s) return;
   if(s==='canx'){ alert('Brug "Afbestil rejse…" for at afbestille — så håndteres penge, elementer og kundebekræftelse korrekt.'); return viewTrip(id); }
@@ -10663,7 +10709,7 @@ async function setStatusSel(id,s){
 
 // ═══ AFBESTILLINGS-FLOW ═══════════════════════════════════════════════════
 // Gældende afbestillingsvilkår (Generelle vilkår §6.2). Redigér her hvis vilkårene ændres.
-const AFBESTIL_VILKAAR = `Afbestilling mere end 60 dage før afrejse: afbestillingsgebyret svarer til det beløb, der er indbetalt eller forfaldent på afbestillingstidspunktet (typisk depositum, men kan være rejsens fulde pris afhængigt af leverandørens betingelser). Afbestilling færre end 60 dage før afrejse: afbestillingsgebyret er i alle tilfælde 100 %. Ved uundgåelige og ekstraordinære omstændigheder (fx krigshandlinger) på destinationen kan rejsen afbestilles gebyrfrit senest 14 dage før afrejse med fuld refusion. Ovenstående gælder medmindre andet er anført i ordrebekræftelsen.`;
+const AFBESTIL_VILKAAR = `Afbestilling mere end 60 dage før afrejse: afbestillingsgebyret svarer til det beløb, der er indbetalt eller forfaldent på afbestillingstidspunktet (typisk depositum, men kan være rejsens fulde pris afhængigt af leverandørens betingelser). Afbestilling færre end 60 dage før afrejse: afbestillingsgebyret er i alle tilfælde 100 %. Ved uundgåelige og ekstraordinære omstændigheder (fx krigshandlinger) på destinationen kan rejsen afbestilles gebyrfrit senest 14 dage før afrejse med fuld refusion. Ikke-forbrugte skatter og afgifter, som leverandøren refunderer, refunderes til kunden med fradrag af leverandørens gebyr (punkt 6.2.1, vilkår fra 25.09.2026). Ovenstående gælder medmindre andet er anført i ordrebekræftelsen.`;
 const CX_OUTCOMES = {
   ikke_betalt:'Ikke betalt til leverandør — intet tab',
   kreditnota:'Betalt → kreditnota fra leverandør',
@@ -11025,7 +11071,7 @@ async function viewNew(){
     if(L.departure_date)$('#n_dep').value=L.departure_date;
     if(L.return_date)$('#n_ret').value=L.return_date;
     $('#n_dest').value=L.destination||'Maldiverne';
-    if(L.est_value)$('#n_price').value=L.est_value;
+    if(budgetTal(L.est_value))$('#n_price').value=budgetTal(L.est_value);
     if(L.contact_name)$('#n_trav').value=L.contact_name;
     calcPay();
     const head=document.querySelector('.pagehead h2'); if(head){ head.insertAdjacentHTML('afterend',
@@ -11195,14 +11241,40 @@ function luxLevel(t){
   if(/luksus|luksuri|5\s*stjerner|5\s*\*|all\s*inclusive|romantisk|honeymoon|bryllup|premium/i.test(t)) return 'premium';
   return 'standard';
 }
+/* ══ MINUS FORAN ET BUDGET ER ALTID EN FEJL ═══════════════════════════
+   Wendie 22.09.2026: «Der er aldrig nogen der har et minus budget.»
+   Tallet kommer allerede negativt FRA Pipedrive — set i leads.raw:
+   «"value": -80000». Det opstår, naar hjemmesidens formular sender et
+   prisinterval, og bindestregen bliver laest som et minus. Panda er
+   altsaa tro mod kilden; fejlen sker foer os, og rettes paa den nye
+   hjemmeside. Indtil da fjerner vi minusset her — ÉT sted, saa kort,
+   henvendelsesside, soegning og noegletal siger det samme.
+
+   MEN: to af de ti negative er IKKE ét tal med forkert fortegn. De er
+   to tal klistret sammen — «-5000080000» (10 cifre) og «-100150000»
+   (9 cifre). At fjerne minusset dér ville skrive 5 milliarder NOK paa
+   et kort, og en skaerm der lyver er vaerre end en der tier. Et
+   rejsebudget fylder hoejst syv cifre (stoerste rigtige i basen er
+   1.400.000). Over det: behandlet som intet budget og skrevet i
+   «Manuel kontrol», saa et menneske retter dem i haanden. */
+const BUDGET_MAX_CIFRE = 7;
+function budgetTal(v){
+  const n = tnum(v);
+  if(n == null) return null;
+  if(n >= 0) return n;
+  const positiv = Math.abs(n);
+  if(String(Math.round(positiv)).length > BUDGET_MAX_CIFRE) return null;
+  return positiv;
+}
 function triage(l){
   const pax=(tnum(l.adults)||0)+(tnum(l.kids)||0) || (tnum(l.adults)||0);
   const text=((l.wishes||'')+' '+(l.travel_wishes||'')+' '+(l.highlights||'')).toLowerCase();
   const pb=parseBudgetFromText(text);
   let perPerson=null,total=null,src=null;
-  if(tnum(l.max_budget)!=null){ perPerson=+l.max_budget; src='felt: budget pr. person'; }
+  const mbu = budgetTal(l.max_budget), evu = budgetTal(l.est_value);
+  if(mbu!=null){ perPerson=mbu; src='felt: budget pr. person'; }
   else if(pb){ if(pb.perPerson){perPerson=pb.amount;} else {total=pb.amount;} src='læst i fritekst'; }
-  else if(tnum(l.est_value)!=null){ total=+l.est_value; src='felt: budget (samlet)'; }
+  else if(evu!=null){ total=evu; src='felt: budget (samlet)'; }
   if(perPerson==null && total!=null && pax>0) perPerson=Math.round(total/pax);
   if(total==null && perPerson!=null && pax>0) total=perPerson*pax;
   const tier = perPerson==null?null:(perPerson<20000?'low':perPerson<40000?'mid':'good');
@@ -11771,7 +11843,7 @@ function byggIndsigter(trips, leads){
   (()=>{ if(!leads||!leads.length) return;
     const varme=leads.filter(l=>l.status==='open'&&['negotiation','thinking','followed_up'].includes(l.stage));
     if(varme.length<2) return;
-    const sum=varme.reduce((s,l)=>s+ +(l.est_value||0),0);
+    const sum=varme.reduce((s,l)=>s+ (budgetTal(l.est_value)||0),0);
     const grp={}; varme.forEach(l=>{ grp[l.stage]=(grp[l.stage]||0)+1; });
     const mx=Math.max(...Object.values(grp));
     PN('bars','Tæt på en beslutning','lige nu',
@@ -12469,7 +12541,7 @@ function sogRaekkeLead(l){
     fra: vundet ? 'markeret solgt — men ingen rejse er koblet på' : null,
     mrk: tabt?'Tabt':(vundet?'Vundet':(STAGE_SHORT[l.stage]||LEAD_STAGE_LABEL[l.stage]||l.stage||'Åben')),
     mklasse: tabt?'tabt':(vundet?'vundet':'aaben'),
-    bel: (+l.est_value>0) ? fval(l.est_value)+' '+(l.currency||'') : '',
+    bel: (budgetTal(l.est_value)>0) ? fval(budgetTal(l.est_value))+' '+(l.currency||'') : '',
     tid: l.created_at ? 'oprettet '+fmtDY(l.created_at) : '' };
 }
 function sogRaekkeKunde(c){
@@ -13988,7 +14060,8 @@ function hvCard(l){
         curK.kilde==='udledt' ? ' title="Foreslået ud fra branchen — ingen valuta er gemt på henvendelsen"' : ''
       }>${escH(cur)}</span>`
     : `<span class="val mangl" title="Der er ingen valuta på henvendelsen — åbn den og vælg en">?</span>`;
-  const budFejl = (+l.est_value<0) || (tr.total!=null && tr.total<0) || (tr.perPerson!=null && tr.perPerson<0);
+  const budFejl = (tnum(l.est_value)!=null && budgetTal(l.est_value)==null)
+    || (tr.total!=null && tr.total<0) || (tr.perPerson!=null && tr.perPerson<0);
   const bel = budFejl ? '<span class="bel uklar" title="Beløbet i data er negativt — se henvendelsen efter">uklart</span>'
     : (tr.total!=null ? `<span class="bel">${fval(tr.total)} ${vTag}</span>`
     : (tr.perPerson!=null ? `<span class="bel">${fval(tr.perPerson)} ${cur
@@ -14479,7 +14552,7 @@ function hvRender(l, acts, offers){
                 curK.kilde==='udledt' ? ' <span class="udledt" title="Ingen valuta er gemt på henvendelsen. Den her er foreslået ud fra branchen — vælg den, hvis den er rigtig.">foreslået ud fra branchen</span>'
               : curK.kilde==='ukendt' ? ' <span class="udledt advar" title="Der står en valuta i data, som vi ikke kender: ' + escH(curK.raa||'') + '">ukendt valuta i data</span>'
               : curK.kilde==='ingen'  ? ' <span class="udledt advar" title="Hverken valuta eller branche er sat">ingen valuta</span>' : ''}</div>
-              <div class="belob"><input value="${l.est_value==null?'':fval(l.est_value)}" onchange="hvSaveTal(this,'est_value')">
+              <div class="belob"><input value="${budgetTal(l.est_value)==null?'':fval(budgetTal(l.est_value))}" onchange="hvSaveTal(this,'est_value')">
               <select class="valuta${curK.kilde==='gemt'?'':' ivalgt'}" onchange="hvSaetValuta(this)"
                 title="${curK.kilde==='gemt' ? 'Valutaen står på henvendelsen' : 'Ingen valuta er gemt — vælg den, så den bliver stående'}"
                 data-branche="${escH(l.branch||'')}">${valutaOptions(curK.val)}</select></div></div>
@@ -15175,7 +15248,8 @@ function leadCard(l){
   // budget (samme kilde som triage: felt, fritekst eller estimat)
   const cur = leadCur(l);
   // negative beløb findes i data efter Pipedrive-importen (prisintervaller læst som minus) — vis dem ikke som tal
-  const budFejl = (+l.est_value<0) || (tr.total!=null && tr.total<0) || (tr.perPerson!=null && tr.perPerson<0);
+  const budFejl = (tnum(l.est_value)!=null && budgetTal(l.est_value)==null)
+    || (tr.total!=null && tr.total<0) || (tr.perPerson!=null && tr.perPerson<0);
   const bud = budFejl
     ? '<div class="bud none" title="Beløbet i data er negativt — se henvendelsen efter">Budget uklart</div>'
     : (tr.total!=null
@@ -15302,7 +15376,7 @@ function editLead(id){
           <div class="fld"><div class="k">Alder på børn</div><div id="l_childages"></div><input type="hidden" id="l_child_ages" value="${escH(v('child_ages'))}"></div>
           <!-- Stod der «Budget (DKK)» ogsaa naar ingen valuta var gemt,
                og listen havde kun tre af de syv. R501. -->
-          <div class="fld"><div class="k">Budget${leadValuta(l).val ? ' ('+escH(leadValuta(l).val)+')' : ''}</div><input id="l_est_value" inputmode="numeric" value="${krFmt(l.est_value)}" onblur="fmtBudget()"></div>
+          <div class="fld"><div class="k">Budget${leadValuta(l).val ? ' ('+escH(leadValuta(l).val)+')' : ''}</div><input id="l_est_value" inputmode="numeric" value="${krFmt(budgetTal(l.est_value))}" onblur="fmtBudget()"></div>
           <div class="fld"><div class="k">Valuta</div><select id="l_currency">${valutaOptions(leadValuta(l).val)}</select></div>
         </div>
         <div class="fbox"><h5>Kontakt og kilde</h5>
