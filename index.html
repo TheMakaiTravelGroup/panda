@@ -7707,7 +7707,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.58';
+const APP_VERSION = 'v1.59';
 /* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
    Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
    true  = henvendelserne tegnes i Silke (den godkendte mockup)
@@ -8393,7 +8393,15 @@ async function viewDash(){
        og saa ligger en solgt rejse og venter, uden at nogen ved det. */
     db.from('booking_requests')
       .select('id,modtaget_at,kontakt_navn,kontakt_email,hotel,destination,afrejse,hjemrejse,naetter,pris,valuta,branch,lead_id,match_metode,parse_ok,parse_note')
-      .is('trip_id', null).order('modtaget_at',{ascending:false}).limit(20)
+      /* Wendie 27.09.2026: «Vallentin-rejsen gik ikke hjem alligevel pga.
+         aendringer i flybilletterne — vi skal have fundet en maade at afvise
+         en «solgt» rejse paa, selvom de har udfyldt formspree.»
+         Foer forsvandt en booking KUN ved at blive til en rejse. Sagde
+         kunden fra bagefter, laa den i «Solgt» for evigt og talte med i
+         summen. Nu falder de afgjorte fra — afvist, dublet og omdannet. */
+      .is('trip_id', null)
+      .not('status','in','(afvist,dublet,omdannet)')
+      .order('modtaget_at',{ascending:false}).limit(20)
       .then(r=>r.data||[]),
     /* Kurserne. UDEN dem falder tilDkk2 tilbage paa 1, og saa ville
        177.500 NOK staa som 177.500 DKK i Solgt-tabellens DKK-spalte —
@@ -14393,11 +14401,31 @@ async function hvTabtGem(){
   const {error} = await db.from('leads').update(felter).eq('id',id);
   if(error){ if(fejl) fejl.textContent = error.message; return; }
 
+  /* Har kunden trykket «book» paa tilbudssiden, ligger bookingen i
+     «Solgt» paa dashboardet. Taber vi sagen, skal den ogsaa derfra —
+     ellers staar en afvist rejse og taeller med i dagens salg. Kun
+     bookinger uden rejse roeres; er den allerede blevet til en rejse,
+     er det rejsen der skal afbestilles, ikke bookingen. */
+  let bkAfvist = 0;
+  {
+    const {data:bkR, error:bkE} = await db.from('booking_requests')
+      .update({status:'afvist', afvist_grund:aarsag,
+               godkendt_af: window.ME || null, godkendt_at: new Date().toISOString()})
+      .eq('lead_id', id).is('trip_id', null).select('id');
+    if(bkE){
+      /* Skaermen lyver ikke: sagen ER tabt, men bookingen staar endnu. */
+      if(fejl) fejl.textContent = 'Henvendelsen er sat til tabt, men bookingen kunne '
+        + 'ikke afvises: ' + bkE.message + ' — den ligger stadig i «Solgt».';
+    } else bkAfvist = (bkR||[]).length;
+  }
+
   const l=(window._leads||[]).find(x=>x.id===id);
   if(l){ l.status='lost'; l.lost_reason=aarsag; if(talt) l.contacted = true; }
   hvLukDlg(); hvClose(); hvBoardRender();
   hvKvit(`${(l&&l.contact_name)||'Henvendelsen'} markeret tabt — ${navn.toLowerCase()}`
-    + (talt ? ' · sat til talt med' : ''));
+    + (talt ? ' · sat til talt med' : '')
+    + (bkAfvist ? ' · ' + (bkAfvist===1 ? 'bookingen er' : bkAfvist+' bookinger er')
+                  + ' taget af «Solgt»' : ''));
 }
 /* Fortryd: en tabt sag kan aabnes igen. Aarsagen bliver staaende i
    historikken, saa vi kan se at den var lukket én gang. */
@@ -14405,9 +14433,23 @@ async function hvGenaabn(){
   const id = window._hvId; if(!id) return;
   const {error} = await db.from('leads').update({status:'open'}).eq('id',id);
   if(error){ alert(error.message); return; }
+  /* Blev bookingen afvist, da sagen blev tabt, skal den med tilbage —
+     ellers aabner vi en sag, hvis salg er usynligt. Kun de afviste
+     hentes; en dublet bliver ved med at vaere en dublet. */
+  let bkTilbage = 0;
+  {
+    const {data:bkR, error:bkE} = await db.from('booking_requests')
+      .update({status:'modtaget', afvist_grund:null, godkendt_at:null})
+      .eq('lead_id', id).is('trip_id', null).eq('status','afvist').select('id');
+    if(bkE) alert('Henvendelsen er åben igen, men bookingen kunne ikke hentes '
+      + 'tilbage til «Solgt»: ' + bkE.message);
+    else bkTilbage = (bkR||[]).length;
+  }
   const l=(window._leads||[]).find(x=>x.id===id); if(l) l.status='open';
   hvClose(); hvBoardRender();
-  hvKvit(`${(l&&l.contact_name)||'Henvendelsen'} er åben igen`);
+  hvKvit(`${(l&&l.contact_name)||'Henvendelsen'} er åben igen`
+    + (bkTilbage ? ' · ' + (bkTilbage===1 ? 'bookingen er' : bkTilbage+' bookinger er')
+                   + ' tilbage i «Solgt»' : ''));
 }
 function hvLukDlg(){
   const ov=document.getElementById('hvOv2');
