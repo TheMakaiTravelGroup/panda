@@ -7707,7 +7707,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.59';
+const APP_VERSION = 'v1.60';
 /* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
    Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
    true  = henvendelserne tegnes i Silke (den godkendte mockup)
@@ -14512,6 +14512,8 @@ async function hvOpen(id){
   hvRender(l, actR.data||[], offR.data||[]);
 }
 
+/* v1.60: interne noter vises med linjeskift, og overskrifter i VERSALER i starten af en linje bliver fede. */
+function noteHtml(s){ return escH(s||'').replace(/^([A-Z\u00C6\u00D8\u00C5]{2,}(?:[ \u2013-]+[A-Z\u00C6\u00D8\u00C5]{2,})*:?)/gm,'<b>$1</b>').replace(/\n/g,'<br>'); }
 function hvRender(l, acts, offers){
   const tr=triage(l), curK=leadValuta(l), cur=curK.val || '';
   const pos=(window._hvOrder||[]).indexOf(l.id);
@@ -14569,7 +14571,7 @@ function hvRender(l, acts, offers){
 
         <div class="sh"><span class="txt">Interne noter</span></div>
         <div class="ntadd"><textarea id="hvNote" rows="2" placeholder="Skriv en intern note…"></textarea><button class="b" style="align-self:flex-start" onclick="hvAddNote()">Gem</button></div>
-        <ul class="nlist">${notes.length?notes.map(n=>`<li><div class="h"><span class="au">${escH(n.actor||'')}</span><span class="dt">${escH(fmtDT(n.occurred_at))}</span><button class="nx" onclick="hvDelNote('${n.id}')" title="Slet denne note">Slet</button></div><div class="t">${escH(n.body||'')}</div></li>`).join(''):'<li><div class="t" style="color:var(--mut)">Ingen noter endnu.</div></li>'}</ul>
+        <ul class="nlist">${notes.length?notes.map(n=>`<li><div class="h"><span class="au">${escH(n.actor||'')}</span><span class="dt">${escH(fmtDT(n.occurred_at))}</span><button class="nx" onclick="hvDelNote('${n.id}')" title="Slet denne note">Slet</button></div><div class="t">${noteHtml(n.body)}</div></li>`).join(''):'<li><div class="t" style="color:var(--mut)">Ingen noter endnu.</div></li>'}</ul>
 
         <div class="sh"><span class="txt">Detaljer</span></div>
         <div class="grid3">
@@ -15493,7 +15495,7 @@ async function refreshLeadActs(id, l){
   // interne noter (kun internt_notat), nyeste øverst
   const notes=A.filter(a=>a.type==='internt_notat').sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
   const nb=document.getElementById('l_notes');
-  if(nb) nb.innerHTML = notes.length?notes.map(n=>`<li class="n"><div class="h"><b>${escH(n.actor||'—')}</b> · ${fmtDT(n.occurred_at)}</div><div class="t">${escH(n.body||'').replace(/\n/g,'<br>')}</div></li>`).join('')
+  if(nb) nb.innerHTML = notes.length?notes.map(n=>`<li class="n"><div class="h"><b>${escH(n.actor||'—')}</b> · ${fmtDT(n.occurred_at)}</div><div class="t">${noteHtml(n.body)}</div></li>`).join('')
     : '<li class="muted" style="font-size:11.5px;color:var(--mut)">Ingen interne noter endnu.</li>';
   // historik: alt undtagen interne noter, nyeste øverst
   const hist=A.filter(a=>a.type!=='internt_notat').sort((a,b)=>new Date(b.occurred_at)-new Date(a.occurred_at));
