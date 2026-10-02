@@ -7707,7 +7707,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.60';
+const APP_VERSION = 'v1.61';
 /* ══ KONTAKTEN TIL DEN NYE TAVLE ═══════════════════════════════════════
    Wendie 11.09.2026: «jeg vil intet risikere.» Derfor denne ene linje.
    true  = henvendelserne tegnes i Silke (den godkendte mockup)
@@ -14162,8 +14162,23 @@ async function hvDrop(e,k){
      flytning, indtil JEG har vurderet den; derefter aldrig igen.
      Fundet af scenarieproeven 11.09.2026, foer det kom ud. */
   const nyRegel = (typeof NY_TAVLE!=='undefined' && NY_TAVLE);
-  const skalVurdere = nyRegel ? !hvHarVurdering(l)
-                              : (l.stage==='new_lead' && k!=='new_lead' && !hvHarVurdering(l));
+  let skalVurdere = nyRegel ? !hvHarVurdering(l)
+                            : (l.stage==='new_lead' && k!=='new_lead' && !hvHarVurdering(l));
+  /* ══ v1.61 · HASTERETTELSE 02.10.2026 ═══════════════════════════════
+     Rasmus kunne ikke trække Anders Gøransson til «Send e-mail». Han HAVDE
+     vurderet den (lead_vurderinger: RAS), men kortet paa tavlen kender kun
+     den seneste vurdering (leads.vurdering_by = WEN). Spaerringen troede
+     derfor, han manglede sin — sagen aabnede, og flytningen blev haengende,
+     fordi sagen saa, at han allerede havde vurderet. Nu spoerges basen,
+     foer der spaerres: har JEG en raekke i lead_vurderinger, flyttes der. */
+  if(skalVurdere && nyRegel && window.ME){
+    try{
+      const r = await db.from('lead_vurderinger').select('lead_id').eq('lead_id',id).eq('hvem',window.ME).limit(1);
+      if(!r.error && (r.data||[]).length) skalVurdere = false;
+    }catch(_){}
+    const l2=(window._leads||[]).find(x=>x.id===id);
+    if(!l2 || l2.stage===k) return;
+  }
   if(skalVurdere){
     hvKvit(hvVurMangler('henvendelsen flytter sig'));
     window._hvEfterVurdering = {id, stage:k};   /* flyttes, saa snart den er sat */
@@ -14510,6 +14525,14 @@ async function hvOpen(id){
   window._hvVurRet = null;
   if(window._hvId!==id) return; // brugeren nåede at skifte kort
   hvRender(l, actR.data||[], offR.data||[]);
+  /* v1.61: venter en flytning paa en vurdering, som JEG allerede har sat,
+     fuldfoeres den med det samme — ellers blev den haengende uden et ord. */
+  const vent = window._hvEfterVurdering;
+  if(vent && vent.id===id && typeof NY_TAVLE!=='undefined' && NY_TAVLE && hv8Mine()){
+    window._hvEfterVurdering = null;
+    hvKvit('Du har allerede vurderet den — henvendelsen flyttes');
+    await hvStage(vent.stage);
+  }
 }
 
 /* v1.60: interne noter vises med linjeskift, og overskrifter i VERSALER i starten af en linje bliver fede. */
