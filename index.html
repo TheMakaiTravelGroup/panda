@@ -7934,6 +7934,14 @@ body.hvviola .hv8 .flet .fv.on,body.hvviola .hv8 .flet .fv.valgt{background:line
 body.hvviola .hv8 .ldlg,body.hvviola .hv8 .ldlg .h,body.hvviola .hv8 .ldlg .c{color:#fff}
 body.hvviola .hv8 .ldlg .u,body.hvviola .hv8 .ldlg .h p{color:#ddd6f8!important}
 body.hvviola .hv8 .dlgfejl,body.hvviola .hv8 .nyfejl{color:#ff9fb6!important}
+/* Wendie 09.10.2026: «søgefeltet virker ikke» — billedbåndet klippede resultaterne af (overflow:hidden).
+   Billedet holder sig inden for de runde hjørner af sig selv; listen må gerne hænge ud over båndet. */
+body.hvviola .hv8 > .page > .hd,body.hvviola .hv8 .page .hd{overflow:visible!important;z-index:20}
+body.hvviola .hv8 .hvsog{position:relative;z-index:30}
+body.hvviola .hv8 .sogres{z-index:60!important}
+body.hvviola .sogres .soggrp,body.hvviola .sogres .grpblok,body.hvviola .sogres .sogbund,body.hvviola .sogres .sogrw{background:transparent!important}
+body.hvviola .sogres .soggrp{color:#e6e0fb!important;border-color:rgba(255,255,255,.12)!important}
+body.hvviola .sogres .sogik{background:rgba(255,255,255,.08)!important}
 
 </style>
 </head>
@@ -14406,7 +14414,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.66';
+const APP_VERSION = 'v1.67';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
