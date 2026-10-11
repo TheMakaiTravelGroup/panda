@@ -14456,7 +14456,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.69';
+const APP_VERSION = 'v1.70';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
@@ -25709,6 +25709,23 @@ function tstLaes(tekst){
    itinerary, staar de samme ord der, og flyLaesTekst kan det hele.
    Ellers en loesere linjelaesning: en raekke med et flynummer, to
    lufthavne og to klokkeslet ER en flyvning. */
+/* INDGREB 13 (R739): by → lufthavn for skærmbilleder, der viser byer i stedet for koder (Farewise' «Segments»).
+   Afkortede navne («Frankfu») slås op på begyndelsen — kun hvis netop én by passer. */
+const SKAERM_BYER = {OSL:['oslo','gardermoen'],BGO:['bergen'],TRD:['trondheim'],SVG:['stavanger'],TOS:['tromsø','tromso'],BOO:['bodø','bodo'],
+  AES:['ålesund','alesund'],KRS:['kristiansand'],HAU:['haugesund'],CPH:['copenhagen','københavn','kobenhavn','kastrup'],BLL:['billund'],AAR:['aarhus','århus'],
+  AAL:['aalborg','ålborg'],ARN:['stockholm','arlanda'],GOT:['gothenburg','göteborg','goteborg'],HEL:['helsinki'],ZRH:['zürich','zurich','zuerich'],
+  FRA:['frankfurt'],MUC:['munich','münchen','munchen'],VIE:['vienna','wien'],AMS:['amsterdam'],CDG:['paris'],LHR:['london'],IST:['istanbul'],
+  DOH:['doha'],DXB:['dubai'],AUH:['abu dhabi'],MCT:['muscat'],CMB:['colombo'],MLE:['male','malé','velana'],MRU:['mauritius','port louis'],
+  SEZ:['mahe','mahé','seychelles'],SIN:['singapore'],BKK:['bangkok'],BRU:['brussels','bruxelles'],GVA:['geneva','genève','geneve'],
+  MXP:['milan','milano'],FCO:['rome','roma'],MAD:['madrid'],LIS:['lisbon','lisboa'],HAM:['hamburg'],BER:['berlin'],DUS:['düsseldorf','dusseldorf'],
+  ADD:['addis ababa'],KUL:['kuala lumpur'],HKG:['hong kong'],DPS:['denpasar','bali'],JNB:['johannesburg'],CPT:['cape town']};
+function skaermBy(navn){
+  const n = String(navn||'').trim().toLowerCase(); if(n.length < 4 && !['male','malé'].includes(n)) return null;
+  const hele = Object.keys(SKAERM_BYER).filter(k=>SKAERM_BYER[k].includes(n));
+  if(hele.length === 1) return hele[0];
+  const start = Object.keys(SKAERM_BYER).filter(k=>SKAERM_BYER[k].some(b=>b.startsWith(n)));
+  return start.length === 1 ? start[0] : null;
+}
 function flyLaesSkaerm(tekst){
   const via = flyLaesTekst(tekst);
   if(via.ben && via.ben.length) return {...via, maade:'itinerary'};
@@ -25734,6 +25751,12 @@ function flyLaesSkaerm(tekst){
     const iata = [...linje.matchAll(/\b([A-Za-z]{3})\b/g)].map(m=>m[1].toUpperCase())
       .filter(x=>!nr || x !== (nr[1]+nr[2]).slice(0,3).toUpperCase())
       .filter(x=>!['DEP','ARR','FRA','TIL','VIA','THE','AND','NON'].includes(x));
+    /* INDGREB 13 (R739): ingen koder på linjen — så byerne. «(OSL)» bruges, hvis den står der; ellers byens navn, også afkortet */
+    if(nr && kl.length >= 2 && iata.filter(x=>IATA_KENDTE.has(x)).length < 2){
+      const byer = [...linje.matchAll(/([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\-]{2,}(?: [A-Z][A-Za-zÀ-ÿ]+)?)\s*(?:\(\s*([A-Z]{3})?[^)\n]{0,6}\)?|\.{2,}|…)/g)]
+        .map(m=>m[2] && IATA_KENDTE.has(m[2]) ? m[2] : skaermBy(m[1])).filter(Boolean);
+      if(byer.length >= 2){ iata.length = 0; iata.push(byer[0], byer[byer.length-1]); }
+    }
     if(!nr || kl.length < 2 || iata.length < 2) return;
     let dato = null;
     const d1 = /\b(\d{1,2})[-.\/](\d{1,2})[-.\/](\d{2,4})\b/.exec(linje);
@@ -25746,7 +25769,10 @@ function flyLaesSkaerm(tekst){
     const fra = iata[0], til = iata[iata.length-1];
     [fra, til].forEach(k=>{ if(!IATA_KENDTE.has(k))
       advarsler.push('«'+k+'» er ikke en lufthavn, vi kender — tjek den.'); });
-    ben.push({ dato, ud:kl[0], an:kl[1], ankomstDato:dato, plus:false,
+    /* INDGREB 13: lander man før man letter (07:55 efter 18:25), er det dagen efter */
+    const plus1 = !!dato && kl[1] < kl[0];
+    const ankD = plus1 ? (()=>{ const d = new Date(dato+'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+1); return d.toISOString().slice(0,10); })() : dato;
+    ben.push({ dato, ud:kl[0], an:kl[1], ankomstDato:ankD, plus:plus1,
       fra, til, fraBy:null, tilBy:null,
       kode: nr[1], flynr: nr[1]+nr[2], nr: nr[1]+nr[2],
       flyvetid:null, flytype:null, kabine:null, terminal:null,
@@ -34091,12 +34117,19 @@ async function hvSolgtGem(){
      rettes: folk taster forkert, og navnet skal staa som i passet, foer
      rejsen bekraeftes. (R135) */
   if(bk && Array.isArray(bk.rejsende) && bk.rejsende.length){
+    /* INDGREB 14 (R740): hvem er kontaktpersonen? Navnet fra formularen/henvendelsen — ellers den første */
+    const kNavn = String(bk.kontakt_navn || l.contact_name || '').toLowerCase().split(/\s+/).filter(Boolean);
+    const kIdx = (()=>{ const i = bk.rejsende.findIndex(r => { const n = String(r.navn||'').toLowerCase(); return kNavn.length >= 2 && n.includes(kNavn[0]) && n.includes(kNavn[kNavn.length-1]); }); return i < 0 ? 0 : i; })();
+    const kMail = String(bk.kontakt_email || l.contact_email || '').trim() || null;
+    const kTlf  = String(bk.kontakt_telefon || l.contact_phone || '').trim() || null;
     for(const r of bk.rejsende){
       const navn = String(r.navn||'').trim(); if(!navn) continue;
+      const erK = bk.rejsende.indexOf(r) === kIdx;
       const {data:tr, error:et} = await db.from('travelers').insert({
         customer_id: kundeId, full_name: navn,
         date_of_birth: r.foedt || null,
-        is_lead: bk.rejsende.indexOf(r)===0
+        is_lead: erK,   /* kontaktpersonen (før: altid den første — det er stadig den første, når navnet ikke passer) */
+        email: erK ? kMail : null, phone: erK ? kTlf : null
       }).select('id').single();
       if(et || !tr) continue;
       await db.from('trip_travelers').insert({
