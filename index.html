@@ -12069,6 +12069,20 @@ function tbFinderTransfer(navn, hotelE){
   return ydListe().find(e => ydArt(e) === 'transfer' && tbRens((e.raa || {}).rute || e.navn).split(' ').some(w => ord.includes(w))) || null;
 }
 /* leverandøren fra editoren koblet til Pandas egen stavemåde (FareWise → Farewise) — ellers som den står */
+/* R738 · er hotellet på Maldiverne? Rejsens destination eller hotellets beliggenhed (atollen) */
+const tbErMaldiv = (t, th) => /maldiv|malediv/i.test(String((t || {}).destination || '')) || /maldiv|atoll\b|\bmal[eé]\b/i.test(String((th || {}).location || ''));
+/* R738 · transferen som to delydelser på hotellets prislinje: ind fra Malé og hjem til Malé, 0 kr., for alle på rejsen
+   (samme form som den gamle sides transferSub — men med engelske navne, R706) */
+function tbDelySubs(x, val){
+  const R = RSx(), sl = x.slags || (R.transportSlags ? R.transportSlags(x.tekst) : null);
+  const EN = {'Vandfly':'Seaplane transfer', 'Speedbåd':'Speedboat transfer', 'Indenrigsfly':'Domestic flight transfer', 'Bil':'Car transfer'};
+  const forl = EN[sl] || 'Transfer', hk = x.hk || x.hotelNavn || 'the resort';
+  const min = (/(\d+)\s*min/i.exec(x.tekst || '') || [])[1];
+  const alle = (R.paxListe ? R.paxListe() : []).map(z => ({id: z.id, saede: ''}));
+  return [{vej:'ind', t: forl + ' · Malé → ' + hk, dato: x.fra || null}, {vej:'hjem', t: forl + ' · ' + hk + ' → Malé', dato: x.til || x.fra || null}]
+    .map(v => ({t: v.t, vej: v.vej, slags: sl || 'Transfer', u: 'included in the hotel price', p: 0, val: val || 'DKK', hvor: 'plan',
+      pax: alle.map(z => ({...z})), overfart: min ? +min : null, kilde_tekst: x.tekst || '', dato: v.dato, ud: null, an: null}));
+}
 function tbLev(slags, navn){
   const v = String(navn || '').trim(); if(!v) return '';
   const L = levValg({slags, hotel:null}, {}).map(x => Array.isArray(x) ? x[0] : x);
@@ -12131,7 +12145,8 @@ function tbData(){
       const min = (/(\d+)\s*min/i.exec(tt) || [])[1], n = tbPersoner();
       const tx = {k:'t' + i, art:'transfer', hk: tbHotelKort(navn) || navn, hotelNavn: navn, lok: th.location || '', sted: maade,
         hvad: ['return', n ? n + (n === 1 ? ' person' : ' people') : '', min ? 'approx. ' + min + ' min.' : ''].filter(Boolean).join(' · '),
-        bel: pakke ? null : tc.tal, val, sup:'', estimat: true, fra, til, maade, varighed: min ? 'approx. ' + min + ' min.' : '', tekst: tt, gruppe: i, hotelK: x.k};
+        bel: pakke ? null : tc.tal, val, sup:'', estimat: true, fra, til, maade, varighed: min ? 'approx. ' + min + ' min.' : '', tekst: tt, gruppe: i, hotelK: x.k,
+        maldiv: !pakke && tbErMaldiv(t, th), slags};
       if(tx.bel != null && !val){ tx.udenVal = true; udenVal.push('Transfer · ' + tx.hk); }
       /* Wendie 09.10.2026: «jeg kan ikke lave et hak i transferen» — editoren sender ingen pris. Transferen må alligevel vælges:
          den lægges ind som en ydelse uden pris (pris og leverandør skrives på prislinjen bagefter; prisberegningen siger, at den mangler). */
@@ -12155,7 +12170,7 @@ function tbData(){
     fly.push(fx);
   }
   /* transferen findes kun, når dens hotel findes */
-  transfers.forEach(tx => { const h = hoteller.find(z => z.k === tx.hotelK); tx.fandtes = h && h.fandtes ? tbFinderTransfer(tx.hotelNavn, h.fandtes) : null; });
+  transfers.forEach(tx => { const h = hoteller.find(z => z.k === tx.hotelK); tx.fandtes = h && h.fandtes ? tbFinderTransfer(tx.hotelNavn, h.fandtes) : null; tx.hFandtes = h && h.fandtes || null; });
   const linjer = hoteller.concat(fly, transfers);
   linjer.forEach(x => { if(x.fandtes && x.bel != null && x.val && (tbHarLinje(x.fandtes, TB.version, x.bel, x.val) || (x.hotel && x.villas.length > 1 && x.villas.every(v => tbHarLinje(x.fandtes, TB.version, v.tal, x.val))))) x.dublet = true; });
   /* alternativer: hoteller, hvis datoer overlapper et andet hotel i tilbuddet. Resten er et split stay (Wendie 03.10.2026) */
@@ -12184,6 +12199,9 @@ function tbData(){
     if(!r.til){ const h = tx.til && !tbFlyLufthavn(tx.til, true) && andre.find(z => z.fra === tx.til); r.til = h ? 'h:' + h.navn : 'a:'; }
     tx.ind = tbSted(r.fra, r.fraFri, tx, tx.fra, false); tx.ud = tbSted(r.til, r.tilFri, tx, tx.til, true);
     tx.navn = tx.ind + ' → ' + tx.hk;
+    /* R738 · Wendie 11.10.2026: på Maldiverne er transferen en del af hotellets pris — den lægges på hotellet som delydelse til 0 kr.
+       Undtagen transfer mellem to hoteller: dér afhænger leverandøren af, hvilket hotel der står for den, så den vælges i hånden. */
+    tx.dely = !!tx.maldiv && tx.bel == null && r.fra === 'a:' && r.til === 'a:';   /* har editoren en pris på transferen, bruges den som før (R734) */
     tx.valg = [['a:', null]].concat([...new Set(andre.map(h => h.navn))].map(n => ['h:' + n, n]));
   });
   const pk = tbTal(p.packageCost), bf = tbTal(p.bankFee), mg = tbTal(p.margin), sg = tbTal(t.priceTotal);
@@ -12196,7 +12214,7 @@ function tbSted(v, fri, tx, dato, ud){
   return tbLufthavn(tx.hotelNavn, tx.lok, dato, ud).navn;
 }
 const tbKan = x => (x.bel != null || (x.udenPris && !x.fandtes)) && !x.udenVal;
-function tbBliver(x, valg){ valg = valg || TB.valg; if(x.bel == null && !(x.udenPris && !x.fandtes)) return ['none', x.udenPris ? 'already on the trip' : 'no price']; if(x.udenVal) return ['none', 'no currency']; if(!valg[x.k]) return ['ikke', x.dublet ? 'already on the service' : 'not added']; return x.fandtes ? ['paa', 'added to the existing service'] : ['ny', 'new service']; }
+function tbBliver(x, valg){ valg = valg || TB.valg; if(x.bel == null && !(x.udenPris && !x.fandtes)) return ['none', x.udenPris ? 'already on the trip' : 'no price']; if(x.udenVal) return ['none', 'no currency']; if(!valg[x.k]) return ['ikke', x.dublet ? 'already on the service' : 'not added']; if(x.dely) return (valg[x.hotelK] || x.hFandtes) ? ['dely', 'on the hotel — included in its price'] : ['none', 'tick the hotel too']; return x.fandtes ? ['paa', 'added to the existing service'] : ['ny', 'new service']; }
 function tbDkk(bel, val){ const R = RSx(), k = val && val !== 'DKK' && R.mlEffKurs ? R.mlEffKurs(val) : null; return k ? '≈ ' + nf(bel * k) + ' DKK' : ''; }
 const tbDato = ts => { const d = ts ? new Date(ts) : null; return d && !isNaN(d) ? kdA(d.toISOString().slice(0, 10)) : ''; };
 
@@ -12218,8 +12236,8 @@ function tbHtml(){
     const vm = x.hotel && x.villas.length > 1 ? '<div class="tb-rute tb-ett">' + pkSel([['en', 'All villas on one price line'], ['hver', 'One price line per villa']], TB.vmode[x.k] || 'en', 'class="tb-sted" data-m8c="tbvmode" data-k="' + esc(x.k) + '"' + dis) + '</div>' : '';
     return '<tr class="tb-' + bl[0] + '"><td class="tb-v"><label><input type="checkbox"' + (TB.valg[x.k] && kan ? ' checked' : '') + (kan && !TB.laast ? '' : ' disabled') + ' data-m8c="tbvaelg" data-k="' + esc(x.k) + '"><span><b>' + esc(x.navn) + '</b><small>' + esc(ART_NAVN[x.art] || x.art) + (x.sted ? ' · ' + esc(x.sted) : '') + '</small></span></label></td>'
       + '<td>' + (esc(x.hvad) || '—') + vm  + '</td>'
-      + '<td>' + (x.sup ? esc(plKildeEn(x.sup)) : (x.estimat && x.bel != null ? '<span class="mangler">none — estimate</span>' : '<span class="mangler">none</span>')) + '</td>'
-      + '<td class="nw">' + (x.bel != null ? nf(x.bel) + ' ' + (x.val ? esc(x.val) : '<span class="mangler">no currency</span>') + (dk ? '<small>' + dk + '</small>' : '') : '<span class="mangler">' + (D.pakke && x.art !== 'fly' ? 'in the package' : x.udenPris && !x.fandtes ? 'no price — write it on the price line' : 'price missing') + '</span>') + '</td>'
+      + '<td>' + (x.dely ? 'the hotel' : x.sup ? esc(plKildeEn(x.sup)) : (x.estimat && x.bel != null ? '<span class="mangler">none — estimate</span>' : '<span class="mangler">none</span>')) + '</td>'
+      + '<td class="nw">' + (x.dely ? '<span class="grå">included in the hotel price</span>' : x.bel != null ? nf(x.bel) + ' ' + (x.val ? esc(x.val) : '<span class="mangler">no currency</span>') + (dk ? '<small>' + dk + '</small>' : '') : '<span class="mangler">' + (D.pakke && x.art !== 'fly' ? 'in the package' : x.udenPris && !x.fandtes ? 'no price — write it on the price line' : 'price missing') + '</span>') + '</td>'
       + '<td class="tb-bl">' + bl[1] + '</td></tr>'; }).join('');
   const navnRejse = [(T().customers || {}).first_name, (T().customers || {}).last_name].filter(Boolean).join(' ');
   return '<div class="anl aaben tbboks"><div class="tb-hd"><b>Found in the editor:</b> ' + esc(TB.kunde) + ' · version ' + esc(String(TB.version)) + (TB.ts ? ' · saved ' + esc(tbDato(TB.ts)) : '')
@@ -12233,13 +12251,14 @@ function tbHtml(){
       + (D.salg != null ? 'The offer\'s sales price was ' + nf(D.salg) + ' ' + esc(D.salgVal) + '.' : '') + '</p>'
     + '<div class="anl-fod"><button class="b fyldt" data-m8="tblaeg"' + dis + '>' + (TB.laast ? 'Adding …' : 'Add the selected') + '</button><button class="b mini" data-m8="tbluk"' + dis + '>Close</button></div></div>';
 }
-function tbKvitHtml(){ const r = TB.res, noget = r.ny + r.paa > 0, m = [];
-  if(r.ny) m.push(r.ny + (r.ny === 1 ? ' new service' : ' new services')); if(r.paa) m.push(r.paa + ' had the price added');
+function tbKvitHtml(){ const r = TB.res, noget = r.ny + r.paa + (r.dely || []).length > 0, m = [];
+  if(r.ny) m.push(r.ny + (r.ny === 1 ? ' new service' : ' new services')); if((r.dely || []).length) m.push(r.dely.length + (r.dely.length === 1 ? ' transfer on its hotel' : ' transfers on their hotels')); if(r.paa) m.push(r.paa + ' had the price added');
   if(r.ikke) m.push(r.ikke + (r.ikke === 1 ? ' was not selected' : ' were not selected')); if(r.ingen) m.push(r.ingen + ' had no price in the offer');
   return '<div class="anl aaben tbboks tbkvit"><div class="tb-hd"><b>' + (r.ugemt ? 'Not everything was saved' : noget ? 'Added from the offer' : 'Nothing was added') + '</b></div><p class="tb-meta">' + m.join(' · ') + '</p>'
     + r.fejl.map(f => '<p class="advar">⚠ ' + esc(f) + '</p>').join('')
     + (noget ? '<p class="note">The prices are shown as «From the offer · version ' + esc(String(r.ver)) + '» on each price line — they are from then, not from now. The supplier is taken from the offer where it is given.</p>' : '')
     + ((r.est || []).length ? '<p class="advar">' + esc(r.est.join(', ')) + ': the price is an estimate with no supplier — choose the supplier and check the price.</p>' : '')
+    + ((r.dely || []).length ? '<p class="note">' + esc(r.dely.join(', ')) + ': put on the hotel as a sub-service at 0 — the transfer is included in the hotel price.</p>' : '')
     + ((r.udenPris || []).length ? '<p class="advar">' + esc(r.udenPris.join(', ')) + ': added without a price — write the price and the supplier on the price line.</p>' : '')
     + '<div class="anl-fod"><button class="b mini" data-m8="tbkvitluk">Close</button></div></div>'; }
 function tbTegn(){ const b = ROD && ROD.getElementById('tilbudBoks'); if(b) b.innerHTML = tbHtml(); }
@@ -12308,7 +12327,7 @@ HANDL.tblaeg = () => {
     /* er man gået til en anden rejse, stopper importen — den gamle side hører nu til den rejse */
     const her = () => typeof D !== 'undefined' && D && D.tur && D.tur.id === tid;
     if(T().id !== tid || !her()) return;
-    const R = RSx(), kilde = 'Fra tilbuddet · version ' + ver, r = {ny:0, paa:0, ikke:0, ingen:0, fejl:[], est:[], ver};
+    const R = RSx(), kilde = 'Fra tilbuddet · version ' + ver, r = {ny:0, paa:0, ikke:0, ingen:0, fejl:[], est:[], dely:[], ver}, hLinje = {};
     let stoppet = false;
     for(const x of D_.linjer){
       if(!her()){ stoppet = true; break; }
@@ -12318,12 +12337,24 @@ HANDL.tblaeg = () => {
       const hver = x.hotel && x.villas.length > 1 && vmode[x.k] === 'hver';
       const vAlle = x.hotel ? x.villas.map(v => ({a:1, t: v.navn, mp: v.mp})) : null;
       try {
+        if(bl === 'dely'){
+          /* R738: delydelse på hotellets prislinje — den, der lige er lagt ind fra tilbuddet, ellers hotellets valgte linje */
+          let l = hLinje[x.hotelK];
+          if(!l && x.hFandtes){ const s0 = ydSt(x.hFandtes.id); l = (s0.linjer || [])[valgte(x.hFandtes.id)[0] || 0]; }
+          if(!l){ r.fejl.push(x.navn + ': the hotel is not on the trip, so the transfer could not be put on it'); continue; }
+          const TRs = R.DELY_TRANSPORT || [];
+          if((l.subs || []).some(z => TRs.includes(z.slags) || /transfer/i.test(z.t || ''))){ r.ikke++; continue; }
+          l.subs = (l.subs || []).concat(tbDelySubs(x, l.val || x.val));
+          r.dely.push(x.navn); continue;
+        }
         if(bl === 'paa'){
           /* ydelsen findes: tilbudsprisen bliver en NY prislinje — ikke valgt, intet overskrives */
           const e = x.fandtes, s = ydSt(e.id);
           if(String(e.id).startsWith('x')) throw new Error('the service has not been saved yet');
+          const n0 = s.linjer.length;
           if(hver) x.villas.forEach(v => s.linjer.push(tbLinje(x, kildeX, [{a:1, t: v.navn, mp: v.mp}], v.tal)));
           else s.linjer.push(tbLinje(x, kildeX, vAlle, x.bel));
+          if(x.hotel) hLinje[x.k] = s.linjer[n0];
           r.paa++;
         } else {
           const f = {pris: x.bel == null ? '' : String(hver ? x.villas[0].tal : x.bel), val: x.val, lev: x.sup || ''};   /* transfer uden pris: tom (R733) */
@@ -12336,6 +12367,7 @@ HANDL.tblaeg = () => {
           if(res.fejl){ r.fejl.push(x.navn + ': ' + res.fejl); continue; }
           const e = res.e, s = ydSt(e.id), l = (s.linjer || [])[0];
           if(l && x.hotel) l.villaer = (hver ? [x.villas[0]] : x.villas).map(v => ({a:1, t: v.navn, mp: v.mp}));
+          if(l && x.hotel) hLinje[x.k] = l;
           /* én prislinje pr. villa: de øvrige villaer som egne linjer — alle valgt, så de lægges sammen */
           if(hver){ x.villas.slice(1).forEach(v => s.linjer.push(tbLinje(x, kildeX, [{a:1, t: v.navn, mp: v.mp}], v.tal))); s.valgte = s.linjer.map((_, i) => i); }
           /* transferen: turen ind er ydelsens egen linje på rejseplanen; turen ud lægges ved siden af */
@@ -14424,7 +14456,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.68';
+const APP_VERSION = 'v1.69';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
