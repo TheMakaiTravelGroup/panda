@@ -7943,6 +7943,22 @@ body.hvviola .sogres .soggrp,body.hvviola .sogres .grpblok,body.hvviola .sogres 
 body.hvviola .sogres .soggrp{color:#e6e0fb!important;border-color:rgba(255,255,255,.12)!important}
 body.hvviola .sogres .sogik{background:rgba(255,255,255,.08)!important}
 
+/* R741 · «Fra henvendelsen» på rejsesiden (det gamle, lyse design) */
+.hvrj{display:grid;gap:14px;margin-top:10px}
+.hvrj-b{border-top:1px solid rgba(0,0,0,.08);padding-top:10px}
+.hvrj-h{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.hvrj-txt{white-space:pre-wrap;line-height:1.5;font-size:13px}
+.hvrj-hl{margin-top:6px;opacity:.85}
+.hvrj-n{padding:6px 0;border-bottom:1px dashed rgba(0,0,0,.06)}
+.hvrj-n:last-child{border-bottom:0}
+.hvrj-m{font-size:11px;color:var(--mut)}
+.hvrj-dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 16px;margin:0;font-size:13px}
+.hvrj-dl dt{color:var(--mut)}
+.hvrj-dl dd{margin:0}
+.hvrj-tl{list-style:none;margin:0;padding:0;font-size:12.5px}
+.hvrj-tl li{padding:4px 0}
+.hvrj-tom{color:var(--mut);font-size:12.5px;margin:0}
+
 </style>
 </head>
 <body>
@@ -7989,7 +8005,7 @@ const D8_SKAL = "<div class=\"m8html\"><div class=\"m8body\">\n<aside class=\"me
    Kort for kort: det, der endnu ikke er bygget, siger det selv. */
 window.MLNY = (function(){
 'use strict';
-const M8_STIL = M8_GRUND + "\n/* ══ PANDA-TILLÆG til viola-stilarket (30.09.2026) — kun det, prototypen manglede ══ */\n/* en spærret «Confirm» skal SE spærret ud (casetesten 30.09.2026) */\n.cover .b.fyldt:disabled,.cover .b.fyldt[disabled]{opacity:.42!important;filter:saturate(.35)!important;cursor:not-allowed!important;box-shadow:none!important}\n/* mens en gemning er i gang, kan der ikke vælges noget nyt */\n:host(.travl) .covsel,:host(.travl) .destsel,:host(.travl) [data-m8=\"destfjern\"],:host(.travl) [data-m8=\"destny\"]{pointer-events:none;opacity:.6}\n:host(.travl) .m8body{cursor:progress}\n/* lange navne må ikke flyde ud af forsiden */\n#hNavn{overflow-wrap:anywhere}\n/* sidemenuens fod: samme punkter som Pandas egen */\n.menu .fod a{color:inherit;opacity:.72;text-decoration:none;border-bottom:1px dotted currentColor}\n.menu .fod a:hover{opacity:1}\n.menu .fod a.on{opacity:1;border-bottom-style:solid}\n.menu .fod .rolle{opacity:.7;font-weight:400}\n/* mens der gemmes: også navn, antal, menu og de to knapper venter */\n:host(.travl) #hNavn,:host(.travl) #paxAntal,:host(.travl) #nav,:host(.travl) .bknap .b{pointer-events:none}\n:host(.travl) .bknap .b{opacity:.55}\n#nPax .ng{white-space:nowrap}\n/* dropdown-menuen ligger i skyggeroden — samme linjehøjde og farve som i prototypen (designtesten 30.09.2026) */\n.vs-menu{line-height:1.6;color:#f1edff}\n/* anledningen er den sidste linje i sit afsnit: ingen enlig skillelinje under den */\n#omInd .ua .uaind > .linje:last-child{border-bottom:0}\n/* Wendie 01.10.2026: destinationerne må ikke stå oven i hinanden — destinationsfeltet får mere plads,\n   og bliver der alligevel for mange til én linje, får de luft imellem (ingen chips der rører hinanden) */\n@media(min-width:1261px){.n6.flereDest{grid-template-columns:minmax(min-content,1fr) minmax(min-content,1fr) minmax(max-content,1.3fr) minmax(min-content,.7fr) minmax(min-content,.85fr) minmax(min-content,1fr)}}\n#nDest{display:flex;flex-wrap:wrap;align-items:center;gap:6px 6px}\n#nDest .dch{white-space:nowrap}\n/* smal skærm: med flere destinationer står toppens seks felter i to rækker á tre, som under 1100 px */\n@media(min-width:1101px) and (max-width:1260px){.n6.flereDest{grid-template-columns:repeat(3,minmax(0,1fr))}}\n.dsidst{display:inline-flex;align-items:center;white-space:nowrap}\n@media(max-width:1100px){.n6.flereDest{grid-template-columns:repeat(2,minmax(0,1fr))}}\n/* 4.5b · tilbudsboksens transfer (In/Out) og villavalget — kompakte viola-felter inde i tabellen (R612, R652) */\n.tbtab .tb-rute.tb-ett{display:grid;grid-template-columns:minmax(0,1fr);margin-top:7px}\n.tbtab .tb-rute>*{min-width:0}\n.tbtab select.tb-sted{font:inherit;font-size:12px!important;height:32px!important;min-height:32px!important;line-height:30px!important;padding:0 30px 0 11px!important;border-radius:9px!important;width:100%!important;max-width:100%;box-sizing:border-box!important;background-position:right 11px center,0 0!important}\n.tbtab td:nth-child(4){white-space:nowrap}\n.tbtab th:nth-child(4),.tbtab td:nth-child(4){min-width:96px}\n.tbtab th:nth-child(5),.tbtab td:nth-child(5){min-width:110px}\n.b.over{outline:2px dashed var(--lys3);outline-offset:2px}\n\n/* Overskriftsskrift: Wendie 09.10.2026 valgte «5 · Lora» (afløser Playfair Display, som var svær at læse) — Inter til tekst —\n   for både dashboardet og mellemlandingen («Ja, også mellemlandingen»). Før: Cormorant Garamond (04.10.2026).\n   Kun overskrifterne; MALDIVIA-logoets «M» står urørt (firma-brandet). */\n:host{--skrift-navn:\"Lora\",Georgia,serif;--skrift-ui:\"Inter\",system-ui,sans-serif}\n.cover h1,.kh h2,.ph,.rnavn{font-weight:500}\n.sh,.kob,.bt{font-weight:500!important}\n/* samme størrelse som kortene på dashboardet (17px) */\n.kh h2,.ph{font-size:17px;line-height:1.25;letter-spacing:.01em;text-transform:none}\n.sh,.kob,.bt{font-size:15px!important;line-height:1.25}\n.rnavn{font-size:15px;line-height:1.25}\n/* hjælpeteksten ved «Price lines» i tekstskriften (Wendie 04.10.2026) */\n.sh .tael{font-family:var(--skrift-ui)!important}\n/* «Adults / Children per villa» under villarækken (flere villaer) */\n#ydListe .gvaer.gbel{margin-top:-2px;align-items:flex-end}\n#ydListe .gvaer.gbel > .f:nth-child(1),#ydListe .gvaer.gbel > .f:nth-child(2){flex:0 0 120px;min-width:0}\n#ydListe .gvaer.gbel .bel-note{flex:1 1 220px;min-width:0;align-self:center;margin-top:13px;font-size:11.5px;color:var(--lys3);line-height:1.35}\n/* underteksterne ved afsnitsoverskrifterne i tekstskriften (Wendie 04.10.2026: «Ja tak») */\n.kob small,.bt small,.sh small{font-family:var(--skrift-ui)!important}\n/* destinationsvælgeren: står på sin egen linje i destinationsfeltet og fylder kun feltets bredde —\n   før lå den ind over «Nights», og klikket ramte nabofeltet (Wendie 04.10.2026: «fungerer ikke») */\n#nDest:has(.destsel),#nDest:has(.destfri){display:flex;flex-wrap:wrap;align-items:center;gap:6px}\n#nDest .dsidst:has(.destsel){display:contents}\n#nDest .destsel,#nDest .destfri{display:block;width:100%!important;max-width:100%;min-width:0!important;margin:2px 0 0!important;box-sizing:border-box}\n.n6 > div:has(#nDest .destsel),.n6 > div:has(#nDest .destfri){position:relative;z-index:3;min-width:0}\n/* de rejsende: «Contact» efter navnet, så navnene står på linje (Wendie 04.10.2026) */\n#paxInd .rnavnlinje{display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}\n#paxInd .rnavnlinje .art.kontakt{flex:none}\n/* træk og slip af ydelser: ydelsen, der flyttes, dæmpes; et sted, den ikke kan stå, vises tydeligt */\n.rk.yd.traekes{opacity:.45}\n.rk.yd.traekover{outline:2px solid rgba(var(--violetRGB),.85);outline-offset:2px}\n.rk.yd.traeknej{outline:1px dashed rgba(255,255,255,.25);outline-offset:2px;cursor:not-allowed}\n/* rejseplanen: leverandøren højst 22 % med … og tooltip (D5-200) — midten får pladsen */\n#planListe .pelev{max-width:22%;min-width:0;overflow:hidden;text-overflow:ellipsis}\n#planListe .pelev .kildemk{overflow:hidden;text-overflow:ellipsis}\n#planListe .pemid{min-width:0;flex:1}\n/* rejseplanen: under flyselskabet står leverandøren (Wendie 04.10.2026) — ikke hvor prisen kom fra */\n#planListe .pelev .kildemk.levk{font-style:normal;letter-spacing:0;font-size:10px}\n/* rejseplanen: de andre ydelser foldet ud — et resumé som flyets (Wendie 04.10.2026) */\n#planListe .rp-blok .rp-kv{display:flex;gap:14px;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;align-items:baseline}\n#planListe .rp-blok .rp-kv span{flex:0 0 130px;color:var(--lys3);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}\n#planListe .rp-blok .rp-kv b{font-weight:400;color:var(--lys);min-width:0;overflow-wrap:anywhere}\n#planListe .rp-blok .rp-kv em{font-style:normal;color:var(--lys3);margin-left:6px}\n#planListe .rp-blok .fb-rejs{margin-top:10px}\n/* prislinjens periode som et tydeligt mærke (Wendie 04.10.2026: split stay — «hvilke datoer man opererer med») */\n#ydListe .pnavn .pdato{display:inline-block;padding:1px 8px;border-radius:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.5}\n/* kort 06 · salgskursen vist begge veje (Wendie 05.10.2026) */\n.sb-vendt,.kvendt{color:var(--lys3);white-space:nowrap}\n#kursTab .kvendt{display:block;font-size:10.5px;margin-top:2px;font-weight:400}\n#kursTab .kvendt{position:relative;height:14px}\n#kursTab .kvendt i{position:absolute;right:0;top:0;font-style:normal;white-space:nowrap}\n#kursTab td.kurs.aendret{color:var(--guld,#e6c36a)}\n/* «Send back» spørger på siden (05.10.2026) */\n.bstat.sporg{color:var(--hvid)}\n.bstat.sporg .tb-kn{display:flex;gap:8px;margin-top:9px}\n/* R661 · «Send back» med fire valg (Wendie 05.10.2026) */\n.bstat.sporg .tb-liste{display:grid;grid-template-columns:1fr;gap:7px;margin-top:10px}\n.bstat.sporg .tb-valg{display:block;text-align:left;padding:9px 12px;line-height:1.35;height:auto;white-space:normal}\n.bstat.sporg .tb-valg b{display:block;font-weight:600}\n.bstat.sporg .tb-valg span{display:block;font-weight:400;opacity:.8}\n.bstat.sporg .tb-aarsag{display:block;width:100%;box-sizing:border-box;margin-top:9px;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:inherit;font:inherit}\n.bstat .tb-nyt{display:block;margin-bottom:8px;padding:7px 10px;border-radius:8px;background:rgba(224,201,163,.16);border:1px solid rgba(224,201,163,.45)}\n\n/* ══ Læsbarhed som på dashboardet (Wendie 06.10.2026: «det ser bare ikke lige så tydeligt ud, som det gør på dashboardet»)\n   Samme tekstfarver som dashboardet (hvid / lyselilla i stedet for grålilla) og samme grundstørrelse. ══ */\n:host{--lys:#ffffff;--lys2:#f1edff;--lys3:#dcd5f7}\n.m8body{font-size:13.5px}\n.ksum{color:#ddd6f8}\n.eyebrow{color:#e6e0fb}\n/* tallene i samme skrift som dashboardet (Inter), ikke Space Grotesk */\n:host{--skrift-tal:\"Inter\",system-ui,sans-serif}\n.n6 .k,.hd-tal .l,.btal .bk{color:#e6e0fb!important}\n.n6 .v{font-size:13.5px!important;color:#fff!important;font-weight:400}\n.n6 .v em,.n6 .v small,.n6 .v .u{color:#d6cff4!important;font-size:11px!important}\n";
+const M8_STIL = M8_GRUND + "\n/* ══ PANDA-TILLÆG til viola-stilarket (30.09.2026) — kun det, prototypen manglede ══ */\n/* en spærret «Confirm» skal SE spærret ud (casetesten 30.09.2026) */\n.cover .b.fyldt:disabled,.cover .b.fyldt[disabled]{opacity:.42!important;filter:saturate(.35)!important;cursor:not-allowed!important;box-shadow:none!important}\n/* mens en gemning er i gang, kan der ikke vælges noget nyt */\n:host(.travl) .covsel,:host(.travl) .destsel,:host(.travl) [data-m8=\"destfjern\"],:host(.travl) [data-m8=\"destny\"]{pointer-events:none;opacity:.6}\n:host(.travl) .m8body{cursor:progress}\n/* lange navne må ikke flyde ud af forsiden */\n#hNavn{overflow-wrap:anywhere}\n/* sidemenuens fod: samme punkter som Pandas egen */\n.menu .fod a{color:inherit;opacity:.72;text-decoration:none;border-bottom:1px dotted currentColor}\n.menu .fod a:hover{opacity:1}\n.menu .fod a.on{opacity:1;border-bottom-style:solid}\n.menu .fod .rolle{opacity:.7;font-weight:400}\n/* mens der gemmes: også navn, antal, menu og de to knapper venter */\n:host(.travl) #hNavn,:host(.travl) #paxAntal,:host(.travl) #nav,:host(.travl) .bknap .b{pointer-events:none}\n:host(.travl) .bknap .b{opacity:.55}\n#nPax .ng{white-space:nowrap}\n/* dropdown-menuen ligger i skyggeroden — samme linjehøjde og farve som i prototypen (designtesten 30.09.2026) */\n.vs-menu{line-height:1.6;color:#f1edff}\n/* anledningen er den sidste linje i sit afsnit: ingen enlig skillelinje under den */\n#omInd .ua .uaind > .linje:last-child{border-bottom:0}\n/* Wendie 01.10.2026: destinationerne må ikke stå oven i hinanden — destinationsfeltet får mere plads,\n   og bliver der alligevel for mange til én linje, får de luft imellem (ingen chips der rører hinanden) */\n@media(min-width:1261px){.n6.flereDest{grid-template-columns:minmax(min-content,1fr) minmax(min-content,1fr) minmax(max-content,1.3fr) minmax(min-content,.7fr) minmax(min-content,.85fr) minmax(min-content,1fr)}}\n#nDest{display:flex;flex-wrap:wrap;align-items:center;gap:6px 6px}\n#nDest .dch{white-space:nowrap}\n/* smal skærm: med flere destinationer står toppens seks felter i to rækker á tre, som under 1100 px */\n@media(min-width:1101px) and (max-width:1260px){.n6.flereDest{grid-template-columns:repeat(3,minmax(0,1fr))}}\n.dsidst{display:inline-flex;align-items:center;white-space:nowrap}\n@media(max-width:1100px){.n6.flereDest{grid-template-columns:repeat(2,minmax(0,1fr))}}\n/* 4.5b · tilbudsboksens transfer (In/Out) og villavalget — kompakte viola-felter inde i tabellen (R612, R652) */\n.tbtab .tb-rute.tb-ett{display:grid;grid-template-columns:minmax(0,1fr);margin-top:7px}\n.tbtab .tb-rute>*{min-width:0}\n.tbtab select.tb-sted{font:inherit;font-size:12px!important;height:32px!important;min-height:32px!important;line-height:30px!important;padding:0 30px 0 11px!important;border-radius:9px!important;width:100%!important;max-width:100%;box-sizing:border-box!important;background-position:right 11px center,0 0!important}\n.tbtab td:nth-child(4){white-space:nowrap}\n.tbtab th:nth-child(4),.tbtab td:nth-child(4){min-width:96px}\n.tbtab th:nth-child(5),.tbtab td:nth-child(5){min-width:110px}\n.b.over{outline:2px dashed var(--lys3);outline-offset:2px}\n\n/* Overskriftsskrift: Wendie 09.10.2026 valgte «5 · Lora» (afløser Playfair Display, som var svær at læse) — Inter til tekst —\n   for både dashboardet og mellemlandingen («Ja, også mellemlandingen»). Før: Cormorant Garamond (04.10.2026).\n   Kun overskrifterne; MALDIVIA-logoets «M» står urørt (firma-brandet). */\n:host{--skrift-navn:\"Lora\",Georgia,serif;--skrift-ui:\"Inter\",system-ui,sans-serif}\n.cover h1,.kh h2,.ph,.rnavn{font-weight:500}\n.sh,.kob,.bt{font-weight:500!important}\n/* samme størrelse som kortene på dashboardet (17px) */\n.kh h2,.ph{font-size:17px;line-height:1.25;letter-spacing:.01em;text-transform:none}\n.sh,.kob,.bt{font-size:15px!important;line-height:1.25}\n.rnavn{font-size:15px;line-height:1.25}\n/* hjælpeteksten ved «Price lines» i tekstskriften (Wendie 04.10.2026) */\n.sh .tael{font-family:var(--skrift-ui)!important}\n/* «Adults / Children per villa» under villarækken (flere villaer) */\n#ydListe .gvaer.gbel{margin-top:-2px;align-items:flex-end}\n#ydListe .gvaer.gbel > .f:nth-child(1),#ydListe .gvaer.gbel > .f:nth-child(2){flex:0 0 120px;min-width:0}\n#ydListe .gvaer.gbel .bel-note{flex:1 1 220px;min-width:0;align-self:center;margin-top:13px;font-size:11.5px;color:var(--lys3);line-height:1.35}\n/* underteksterne ved afsnitsoverskrifterne i tekstskriften (Wendie 04.10.2026: «Ja tak») */\n.kob small,.bt small,.sh small{font-family:var(--skrift-ui)!important}\n/* destinationsvælgeren: står på sin egen linje i destinationsfeltet og fylder kun feltets bredde —\n   før lå den ind over «Nights», og klikket ramte nabofeltet (Wendie 04.10.2026: «fungerer ikke») */\n#nDest:has(.destsel),#nDest:has(.destfri){display:flex;flex-wrap:wrap;align-items:center;gap:6px}\n#nDest .dsidst:has(.destsel){display:contents}\n#nDest .destsel,#nDest .destfri{display:block;width:100%!important;max-width:100%;min-width:0!important;margin:2px 0 0!important;box-sizing:border-box}\n.n6 > div:has(#nDest .destsel),.n6 > div:has(#nDest .destfri){position:relative;z-index:3;min-width:0}\n/* de rejsende: «Contact» efter navnet, så navnene står på linje (Wendie 04.10.2026) */\n#paxInd .rnavnlinje{display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}\n#paxInd .rnavnlinje .art.kontakt{flex:none}\n/* træk og slip af ydelser: ydelsen, der flyttes, dæmpes; et sted, den ikke kan stå, vises tydeligt */\n.rk.yd.traekes{opacity:.45}\n.rk.yd.traekover{outline:2px solid rgba(var(--violetRGB),.85);outline-offset:2px}\n.rk.yd.traeknej{outline:1px dashed rgba(255,255,255,.25);outline-offset:2px;cursor:not-allowed}\n/* rejseplanen: leverandøren højst 22 % med … og tooltip (D5-200) — midten får pladsen */\n#planListe .pelev{max-width:22%;min-width:0;overflow:hidden;text-overflow:ellipsis}\n#planListe .pelev .kildemk{overflow:hidden;text-overflow:ellipsis}\n#planListe .pemid{min-width:0;flex:1}\n/* rejseplanen: under flyselskabet står leverandøren (Wendie 04.10.2026) — ikke hvor prisen kom fra */\n#planListe .pelev .kildemk.levk{font-style:normal;letter-spacing:0;font-size:10px}\n/* rejseplanen: de andre ydelser foldet ud — et resumé som flyets (Wendie 04.10.2026) */\n#planListe .rp-blok .rp-kv{display:flex;gap:14px;padding:7px 2px;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;align-items:baseline}\n#planListe .rp-blok .rp-kv span{flex:0 0 130px;color:var(--lys3);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}\n#planListe .rp-blok .rp-kv b{font-weight:400;color:var(--lys);min-width:0;overflow-wrap:anywhere}\n#planListe .rp-blok .rp-kv em{font-style:normal;color:var(--lys3);margin-left:6px}\n#planListe .rp-blok .fb-rejs{margin-top:10px}\n/* prislinjens periode som et tydeligt mærke (Wendie 04.10.2026: split stay — «hvilke datoer man opererer med») */\n#ydListe .pnavn .pdato{display:inline-block;padding:1px 8px;border-radius:6px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.5}\n/* kort 06 · salgskursen vist begge veje (Wendie 05.10.2026) */\n.sb-vendt,.kvendt{color:var(--lys3);white-space:nowrap}\n#kursTab .kvendt{display:block;font-size:10.5px;margin-top:2px;font-weight:400}\n#kursTab .kvendt{position:relative;height:14px}\n#kursTab .kvendt i{position:absolute;right:0;top:0;font-style:normal;white-space:nowrap}\n#kursTab td.kurs.aendret{color:var(--guld,#e6c36a)}\n/* «Send back» spørger på siden (05.10.2026) */\n.bstat.sporg{color:var(--hvid)}\n.bstat.sporg .tb-kn{display:flex;gap:8px;margin-top:9px}\n/* R661 · «Send back» med fire valg (Wendie 05.10.2026) */\n.bstat.sporg .tb-liste{display:grid;grid-template-columns:1fr;gap:7px;margin-top:10px}\n.bstat.sporg .tb-valg{display:block;text-align:left;padding:9px 12px;line-height:1.35;height:auto;white-space:normal}\n.bstat.sporg .tb-valg b{display:block;font-weight:600}\n.bstat.sporg .tb-valg span{display:block;font-weight:400;opacity:.8}\n.bstat.sporg .tb-aarsag{display:block;width:100%;box-sizing:border-box;margin-top:9px;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:inherit;font:inherit}\n.bstat .tb-nyt{display:block;margin-bottom:8px;padding:7px 10px;border-radius:8px;background:rgba(224,201,163,.16);border:1px solid rgba(224,201,163,.45)}\n\n/* ══ Læsbarhed som på dashboardet (Wendie 06.10.2026: «det ser bare ikke lige så tydeligt ud, som det gør på dashboardet»)\n   Samme tekstfarver som dashboardet (hvid / lyselilla i stedet for grålilla) og samme grundstørrelse. ══ */\n:host{--lys:#ffffff;--lys2:#f1edff;--lys3:#dcd5f7}\n.m8body{font-size:13.5px}\n.ksum{color:#ddd6f8}\n.eyebrow{color:#e6e0fb}\n/* tallene i samme skrift som dashboardet (Inter), ikke Space Grotesk */\n:host{--skrift-tal:\"Inter\",system-ui,sans-serif}\n.n6 .k,.hd-tal .l,.btal .bk{color:#e6e0fb!important}\n.n6 .v{font-size:13.5px!important;color:#fff!important;font-weight:400}\n.n6 .v em,.n6 .v small,.n6 .v .u{color:#d6cff4!important;font-size:11px!important}\n\n/* ══ R741 · «From the enquiry» i About the trip (Wendie 11.10.2026) ══ */\n.hvrj{display:grid;gap:14px}\n.hvrj-b{border-top:1px solid rgba(255,255,255,.10);padding-top:10px}\n.hvrj-b:first-child{border-top:0;padding-top:0}\n.hvrj-h{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#e6e0fb;margin-bottom:6px}\n.hvrj-txt{white-space:pre-wrap;line-height:1.55;font-size:12.5px;color:#fff}\n.hvrj-txt a{color:#f2a7c4}\n.hvrj-hl{margin-top:6px;color:#f1edff}\n.hvrj-n{padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.08)}\n.hvrj-n:last-child{border-bottom:0}\n.hvrj-m{font-size:10.5px;color:#d6cff4}\n.hvrj-dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 16px;margin:0;font-size:12.5px}\n.hvrj-dl dt{color:#d6cff4}\n.hvrj-dl dd{margin:0;color:#fff}\n.hvrj-tl{list-style:none;margin:0;padding:0;font-size:12px;color:#f1edff}\n.hvrj-tl li{padding:4px 0}\n.hvrj-tl b{font-weight:500;color:#fff}\n.hvrj-tom{color:#ddd6f8;font-size:12.5px;margin:0}\n.hvrj-fod{margin:12px 0 0;font-size:12px}\n.hvrj-fod button{border:0;background:none;padding:0;color:#f2a7c4;font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:3px}\n";
 const M8_SKAL = "<div class=\"m8html\"><div class=\"m8body\">\n<div class=\"motiv\" aria-hidden=\"true\">\n  <div class=\"foto\"><\/div>\n  <div class=\"slor\"><\/div>\n<\/div>\n<svg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\"><defs>\n  <linearGradient id=\"ringgrad\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\">\n    <stop offset=\"0\" stop-color=\"var(--turkis)\"><\/stop><stop offset=\".55\" stop-color=\"var(--blaa)\"><\/stop>\n    <stop offset=\"1\" stop-color=\"var(--violet)\"><\/stop><\/linearGradient>\n<\/defs><\/svg>\n\n  <aside class=\"menu skal-menu\" id=\"sidebar\">\n    <div class=\"mrk-logo\"><h1>MALDIVIA<\/h1><small>Travel Design · Panda<\/small><\/div>\n    <nav id=\"nav\">\n      <button data-v=\"dash\" title=\"Dashboard\"><span class=\"ik\">◧<\/span><span class=\"tx\">Dashboard<\/span><\/button>\n      <button data-v=\"hv\" title=\"Enquiries\"><span class=\"ik\">✉<\/span><span class=\"tx\">Enquiries<\/span><\/button>\n      <button data-v=\"team\" title=\"Team Maldivia\"><span class=\"ik\">◇<\/span><span class=\"tx\">Team Maldivia<\/span><\/button>\n      <button data-v=\"sales\" class=\"on\" title=\"Sales\"><span class=\"ik\">✈<\/span><span class=\"tx\">Sales<\/span><\/button>\n      <button data-v=\"finance\" title=\"Finance\"><span class=\"ik\">▤<\/span><span class=\"tx\">Finance<\/span><\/button>\n      <button data-v=\"tasks\" title=\"Tasks\"><span class=\"ik\">✓<\/span><span class=\"tx\">Tasks<\/span><\/button>\n      <button data-v=\"marketing\" title=\"Marketing\"><span class=\"ik\">◈<\/span><span class=\"tx\">Marketing<\/span><\/button>\n      <button data-v=\"reports\" title=\"Reports\"><span class=\"ik\">▦<\/span><span class=\"tx\">Reports<\/span><\/button>\n      <button data-v=\"settings\" title=\"Settings\"><span class=\"ik\">⚙<\/span><span class=\"tx\">Settings<\/span><\/button>\n      <button data-v=\"new\" class=\"ny\" title=\"New trip\"><span class=\"ik\">＋<\/span><span class=\"tx\">New trip<\/span><\/button>\n    <\/nav>\n    <div class=\"fod\" id=\"m8fod\"><\/div>\n  <\/aside>\n\n<div class=\"scene\">\n<aside class=\"cover\">\n  <div class=\"cover-foto\"><\/div>\n  <div class=\"cover-slor\"><\/div>\n  <div class=\"cover-lys\"><\/div>\n  <div class=\"cover-ind\">\n    <div class=\"hd-r1\">\n      <div>\n        <div class=\"eyebrow\">Layover · trip being built<\/div>\n        <h1 id=\"hNavn\"><\/h1>\n        <div class=\"sub\"><span class=\"pill\" id=\"hBranche\"><\/span><span class=\"nw\">Agent <b id=\"hSaelger\"><\/b><\/span><span class=\"nw\">Accepted <b id=\"hAccept\"><\/b><\/span><span class=\"nw htb\" id=\"hTilbud\" hidden>Offer <b><\/b><\/span><\/div>\n      <\/div>\n      <div class=\"hd-hoej\">\n        <div class=\"hd-tal\"><div class=\"n\" id=\"hdPris\"><\/div><div class=\"l\">Customer price<\/div><\/div>\n        <div class=\"hd-tal\"><div class=\"n\" id=\"hdKost\"><\/div><div class=\"l\">Cost<\/div><\/div>\n        <div class=\"hd-tal\"><div class=\"n\" id=\"hdDb\"><\/div><div class=\"l\">Profit<\/div><\/div>\n      <\/div>\n    <\/div>\n    <div class=\"cover-bund\">\n      <div class=\"bundr\"><div class=\"btal\" id=\"bTal\"><\/div><\/div>\n      <div class=\"bundr\">\n        <div class=\"bstat\" id=\"bStat\"><\/div>\n        <div class=\"bknap\">\n          <button class=\"b\" id=\"bTilbage\" data-m8=\"tilbage\">Send back to the enquiry<\/button>\n          <button class=\"b fyldt\" id=\"bBekraeft\" data-m8=\"bekraeft\" disabled>Confirm and create the booking<\/button>\n        <\/div>\n      <\/div>\n    <\/div>\n  <\/div>\n<\/aside>\n\n<div class=\"app\">\n  <header class=\"hd\">\n\n    <div class=\"n6\">\n      <div><div class=\"k\">The trip<\/div><div class=\"v\" id=\"nRejse\"><\/div><\/div>\n      <div><div class=\"k\">Travellers<\/div><div class=\"v\" id=\"nPax\"><\/div><\/div>\n      <div><div class=\"k\">Destination<\/div><div class=\"v\" id=\"nDest\"><\/div><\/div>\n      <div><div class=\"k\">Nights<\/div><div class=\"v\" id=\"nNaetter\"><\/div><\/div>\n      <div><div class=\"k\">Departure in<\/div><div class=\"v\" id=\"nAfrejse\"><\/div><\/div>\n      <div hidden><div class=\"k\">Occasion<\/div><div class=\"v\" id=\"nAnl\"><\/div><\/div>\n      <div><div class=\"k\">Reference<\/div><div class=\"v tom\" id=\"nRef\"><\/div><\/div>\n    <\/div>\n\n    <div class=\"rail\" id=\"rail\"><\/div>\n    <div class=\"rforkl\" id=\"rforkl\"><\/div>\n    <button class=\"topfold\" id=\"topFold\" data-m8=\"topfold\"><\/button>\n\n  <\/header>\n\n  <div class=\"grid2\" id=\"grid2\">\n    <div class=\"venstre\">\n      <div class=\"foldalt\"><button data-m8=\"foldalt\" data-ind=\"1\">Collapse all<\/button><span>·<\/span><button data-m8=\"foldalt\" data-ind=\"0\">Expand all<\/button><\/div>\n      <section class=\"kort\" id=\"k-frist\">\n        <button class=\"kh\" data-m8=\"fold\" aria-expanded=\"false\">\n          <span class=\"knum\">01<\/span><h2>Options &amp; deadlines<\/h2><span class=\"ksum\" id=\"s-frist\"><\/span>\n          <span class=\"kmrk\" id=\"m-frist\"><i class=\"prik\"><\/i><span><\/span><\/span><span class=\"kpil\">›<\/span>\n        <\/button>\n        <div class=\"kkrop\"><div><div class=\"kind\" id=\"i-frist\"><\/div><\/div><\/div>\n      <\/section>\n\n      <section class=\"kort\" id=\"k-om\">\n        <button class=\"kh\" data-m8=\"fold\" aria-expanded=\"false\">\n          <span class=\"knum\">02<\/span><h2>About the trip<\/h2><span class=\"ksum\" id=\"s-om\"><\/span>\n          <span class=\"kmrk\" id=\"m-om\"><i class=\"prik\"><\/i><span><\/span><\/span><span class=\"kpil\">›<\/span>\n        <\/button>\n        <div class=\"kkrop\"><div><div class=\"kind\" id=\"omInd\"><\/div><\/div><\/div>\n      <\/section>\n\n      <section class=\"kort\" id=\"k-pax\">\n        <button class=\"kh\" data-m8=\"fold\" aria-expanded=\"false\">\n          <span class=\"knum\">03<\/span><h2>Travellers<\/h2><span class=\"ksum\" id=\"s-pax\"><\/span>\n          <span class=\"kmrk\" id=\"m-pax\"><i class=\"prik\"><\/i><span><\/span><\/span><span class=\"kpil\">›<\/span>\n        <\/button>\n        <div class=\"kkrop\"><div><div class=\"kind\" id=\"paxInd\"><\/div><\/div><\/div>\n      <\/section>\n\n      <section class=\"kort\" id=\"k-yd\">\n        <button class=\"kh\" data-m8=\"fold\" aria-expanded=\"false\">\n          <span class=\"knum\">04<\/span><h2>Services on the trip<\/h2><span class=\"ksum\" id=\"s-yd\"><\/span>\n          <span class=\"kmrk\" id=\"m-yd\"><i class=\"prik\"><\/i><span><\/span><\/span><span class=\"kpil\">›<\/span>\n        <\/button>\n        <div class=\"kkrop\"><div><div class=\"kind\" id=\"i-yd\"><\/div><\/div><\/div>\n      <\/section>\n\n      <section class=\"kort\" id=\"k-plan\">\n        <button class=\"kh\" data-m8=\"fold\" aria-expanded=\"false\">\n          <span class=\"knum\">05<\/span><h2>Itinerary<\/h2><span class=\"ksum\" id=\"s-plan\"><\/span>\n          <span class=\"kmrk\" id=\"m-plan\"><i class=\"prik\"><\/i><span><\/span><\/span><span class=\"kpil\">›<\/span>\n        <\/button>\n        <div class=\"kkrop\"><div><div class=\"kind\" id=\"i-plan\"><\/div><\/div><\/div>\n      <\/section>\n\n      <section class=\"kort\" id=\"k-pris\">\n        <button class=\"kh\" data-m8=\"fold\" aria-expanded=\"false\">\n          <span class=\"knum\">06<\/span><h2>Pricing<\/h2><span class=\"ksum\" id=\"s-pris\"><\/span>\n          <span class=\"kmrk\" id=\"m-pris\"><i class=\"prik\"><\/i><span><\/span><\/span><span class=\"kpil\">›<\/span>\n        <\/button>\n        <div class=\"kkrop\"><div><div class=\"kind\" id=\"i-pris\"><\/div><\/div><\/div>\n      <\/section>\n\n      <section class=\"kort\" id=\"k-hist\">\n        <button class=\"kh\" data-m8=\"fold\" aria-expanded=\"false\">\n          <span class=\"knum\">07<\/span><h2>History<\/h2><span class=\"ksum\" id=\"s-hist\"><\/span>\n          <span class=\"kmrk\" id=\"m-hist\"><i class=\"prik\"><\/i><span><\/span><\/span><span class=\"kpil\">›<\/span>\n        <\/button>\n        <div class=\"kkrop\"><div><div class=\"kind\" id=\"i-hist\"><\/div><\/div><\/div>\n      <\/section>\n    <\/div>\n  <\/div>\n<\/div>\n\n<\/div>\n<div class=\"kvit\" id=\"kvit\" role=\"status\" aria-live=\"polite\"><\/div>\n<\/div><\/div>\n";
 
 /* ── skallen ─────────────────────────────────────────────────────── */
@@ -9162,6 +9178,7 @@ function uas(k){
   if(k === 'oe'){ const o = oensker(); if(!o.length) return 'none yet';
     const c = {}; o.forEach(x => { const st = oeStatus(x); const s = oeKendt(st) ? OE_EN[oeIdx(st)] : st; c[s] = (c[s] || 0) + 1; });
     return flertal(o.length, 'request', 'requests') + ' · ' + Object.keys(c).sort((a, b) => (OE_EN.indexOf(a) + 9) % 9 - (OE_EN.indexOf(b) + 9) % 9).map(s => c[s] + ' ' + (OE_EN.indexOf(s) >= 0 ? s.toLowerCase() : esc(s))).join(', '); }
+  if(k === 'hv') return !OM.hv ? 'fetching …' : OM.hv.fejl ? 'could not be fetched' : esc(hvRjSum(OM.hv, 'en'));
   if(k === 'opg'){ const L = OM.opg, ab = L.filter(x => x.status === 'aaben').length;
     return L.length ? ab + ' open · ' + (L.length - ab) + ' fixed' : 'none'; }
   const n = rejseNoter(), p = n.filter(x => x.frist).length;
@@ -9312,6 +9329,9 @@ KROP.om = function(tving){
     /* ny rejse: intet står åbent, og den forrige rejses opgaver vises ikke */
     OM.hentet = T().id; OM.ret = {anl:-1, oe:-1, no:-1}; OM.nyOe = OM.nyNo = false; OM.anlFri = -1; OM.opg = [];
     hentOpg().then(() => tegn());
+    /* R741: henvendelsen hentes frisk, hver gang rejsen åbnes — kun til at læse */
+    OM.hv = null; const tid = T().id; if(typeof HVRJ !== 'undefined') delete HVRJ.cache[tid];
+    if(typeof hvRjHent === 'function') hvRjHent(T()).then(d => { if(T().id === tid){ OM.hv = d; tegn(); } }, err => { if(T().id === tid){ OM.hv = {fejl: (err && err.message) || String(err)}; tegn(); } });
   }
   const f = ROD.activeElement;
   /* anledningens og ønskets felter gemmes ved hver ændring, så de tåler at blive tegnet om;
@@ -9319,17 +9339,28 @@ KROP.om = function(tving){
   const aaben = OM.ret.no !== -1 || OM.nyOe || OM.nyNo;
   if(!tving && (aaben || (f && ind.contains(f) && /^(INPUT|TEXTAREA)$/.test(f.tagName)))){
     /* en åben formular tegnes aldrig om af baggrunden — kun overskrifterne følger med */
-    ['anl','oe','no','opg'].forEach(k => { const s = $('uas-' + k); if(s) s.innerHTML = uas(k); });
+    ['anl','oe','no','opg','hv'].forEach(k => { const s = $('uas-' + k); if(s) s.innerHTML = uas(k); });
     return;
   }
   ind.innerHTML = sek('anl', 'The occasion', anlHtml()) + sek('oe', 'Customer requests', oeHtml())
-    + sek('no', 'Notes and reminders', noHtml()) + sek('opg', 'Tasks on the trip', opgHtml());
+    + sek('no', 'Notes and reminders', noHtml()) + sek('opg', 'Tasks on the trip', opgHtml())
+    + (OM.hv && !OM.hv.lead && !OM.hv.fejl ? '' : sek('hv', 'From the enquiry', hvRjOm()));   /* R741 */
   ind.querySelectorAll('textarea').forEach(vokse);
 };
 /* Ét sted at tegne kortet om — også når man står i et felt, fordi handlingen selv har afsluttet det */
 function omTegn(){ const f = ROD.activeElement; if(f && f.blur && $('omInd').contains(f)) f.blur(); tegn(); KROP.om(true);
   /* det første felt i en formular, der lige er åbnet, får fokus */
   setTimeout(() => { const a = ROD.querySelector('#omInd .anl.aaben'); if(a && !a.contains(ROD.activeElement)){ const x = a.querySelector('select, textarea, input'); if(x) x.focus({preventScroll:true}); } }, 0); }
+
+/* R741 · «From the enquiry»: kun til at læse — det, der skal handles på, flyttes selv over i ønsker eller noter */
+function hvRjOm(){
+  const d = OM.hv; if(typeof hvRjHtml !== 'function') return '';
+  const l = d && d.lead;
+  return hvRjHtml(d, 'en') + (l && !l.converted_trip_id ? '<p class="hvrj-fod"><button data-m8="omhvaabn" data-id="' + esc(l.id) + '">Open the enquiry ›</button></p>' : '');
+}
+HANDL.omhvaabn = el => { const id = el.dataset.id;
+  try { navTo('hv'); viewHenvendelser(); } catch(e){ console.error(e); return; }
+  let n = 0; const vent = () => { if((window._leads || []).some(x => x.id === id)) return hvOpen(id); if(++n < 50) setTimeout(vent, 100); }; vent(); };
 
 /* ── handlingerne ── */
 HANDL.omfold = el => { const k = el.dataset.k; OM.aab[k] = !OM.aab[k]; el.closest('.ua').classList.toggle('aab', OM.aab[k]); };
@@ -9854,6 +9885,20 @@ const nfD = n => { if(n == null || !isFinite(Number(n))) return '—'; n = Numbe
 const nf4 = n => (n == null || !isFinite(n)) ? '—' : Number(n).toLocaleString('da-DK', {minimumFractionDigits:4, maximumFractionDigits:4});
 const fraTilbud = l => /^Fra tilbuddet/i.test(String((l && l.kilde) || ''));
 const harLev = l => !!(l && l.lev && l.lev.trim() && l.lev.trim() !== '—');
+/* R742 · den tomme baseline fjernes også i basen. Basen har én baseline pr. ydelse (element_prices_et_grundlag) og en trigger,
+   der nægter at slette en baseline (fn_vaern_grundlag). Pladsholderen gøres derfor først til en almindelig linje og slettes så —
+   kun når den stadig er tom (beløb 0) i basen. Wendie 11.10.2026 valgte «Begge». */
+async function plFjernTomGrundDb(l){
+  if(!l || !l._id) return '';
+  const r1 = await db.from('element_prices').update({slag:'manuel'}).eq('id', l._id).eq('slag', 'grundlag').or('amount.is.null,amount.eq.0');
+  if(r1 && r1.error) return r1.error.message;
+  const r2 = await db.from('element_prices').delete().eq('id', l._id).neq('slag', 'grundlag');
+  if(r2 && r2.error) return r2.error.message;
+  return '';
+}
+/* R742 · en tom pladsholder-baseline (fx fra bookingformularen): ingen pris, ingen villa, ingen leverandør, intet på den */
+const plTomGrund = l => !!l && l.slag === 'grundlag' && !(+l.pris) && !harLev(l) && !(l.villaer || []).some(v => v && String(v.t || '').trim())
+  && !(l.subs || []).length && !((RSx().billeder ? RSx().billeder(l) : l.billeder) || []).length && !(l.hold && (l.hold.aktiv || l.hold.udstedt)) && !(l.segmenter || []).length;
 /* Kilden er dansk fritekst i basen — på skærmen står den på engelsk (R706) */
 function plKildeEn(k){
   let t = String(k || '').trim(); if(!t) return '';
@@ -9967,7 +10012,8 @@ function plHtml(e, l, i){
   const mg = plMangler(e, l);
   const nb = (RSx().billeder ? RSx().billeder(l) : (l.billeder || [])).length;
   let dif = '';
-  if(l.slag === 'grundlag') dif = '<span class="diff nul">' + (fraTilbud(l) || !String(l.kilde || '').trim() ? 'the one the offer was built on' : 'the first price — everything else is measured against it') + '</span>';
+  if(plTomGrund(l)) dif = '<span class="diff nul">empty — no price yet</span>';
+  else if(l.slag === 'grundlag') dif = '<span class="diff nul">' + (fraTilbud(l) || !String(l.kilde || '').trim() ? 'the one the offer was built on' : 'the first price — everything else is measured against it') + '</span>';
   else if(p == null || gp == null) dif = '';
   else { const d = p - gp; dif = Math.abs(d) < 0.5 ? '<span class="diff nul">same as the baseline</span>'
     : '<span class="diff' + (d < 0 ? ' ned' : '') + '">' + (d > 0 ? '+' : '−') + nf(Math.abs(d)) + ' DKK vs the baseline</span>'; }
@@ -10401,7 +10447,9 @@ function plKrop(e, l, i){
   const holdHd = '<div class="kob klik kfold' + (holdAab ? ' aab' : '') + '" data-m8="pksek" ' + A + ' data-n="h"><span class="kpil">›</span>' + (udst ? (fly ? 'Issued' : 'Confirmed') : 'On hold') + ' <small>' + holdRes + '</small></div>';
   const sek = (n, t, sm, html) => html ? pkKob(id, i, n, t, sm) + (sekAab(id, i, n) ? html : '') : '';
   const sidst = sidstRettet(l);
-  const fod = '<div class="plfod">' + (l.slag === 'grundlag'
+  const fod = '<div class="plfod">' + (plTomGrund(l) && (ydSt(id).linjer || []).length > 1
+      ? '<button class="b mini lille" data-m8="plsletgrund" ' + A + '>Remove the empty baseline</button><span class="note" style="margin:0">The next price line becomes the baseline and is selected.</span>'
+      : l.slag === 'grundlag'
       ? '<span class="note" style="margin:0">' + (fraTilbud(l) || !kilde ? 'The baseline cannot be removed — it is the price the offer was built on.' : 'The first price cannot be removed — everything else on the service is measured against it.') + '</span>'
       : '<button class="b mini lille" data-m8="plslet" ' + A + '>Remove the price line</button>')
     + (sidst ? '<span class="gemtkl">last edited ' + esc(sidst) + '</span>' : '')
@@ -10558,6 +10606,21 @@ HANDL.plny = el => { const id = el.dataset.yd; const e = (RSx().ELEMENTER || [])
     ydTegn();
     if(f) return kvitter('fejl', 'The price line could not be saved: ' + f);
     kvitter('gemt', 'A new price line has been added — Price ' + (i + 1));
+  }); };
+/* ── R742 · fjern en TOM baseline (Wendie 11.10.2026: «jeg kan ikke fjerne dette»): den næste linje bliver baseline og vælges ── */
+HANDL.plsletgrund = el => { const id = el.dataset.yd, i = +el.dataset.i;
+  return iKoe(async () => { const R = RSx(), s = ydSt(id), foer = ydFoer(), l = s.linjer[i];
+    if(!plTomGrund(l) || s.linjer.length < 2) return ydTegn();
+    const j = i === 0 ? 1 : 0, ny = s.linjer[j];
+    const fe = await plFjernTomGrundDb(l);
+    if(fe) return kvitter('fejl', 'The empty baseline could not be removed: ' + fe);
+    ny.slag = 'grundlag'; l.slag = 'manuel';
+    R.sletLinje(id, i);
+    const k = s.linjer.indexOf(ny); if(k >= 0 && !valgte(id).includes(k)) R.laegTilValg(id, k);
+    YD.plaab = {}; PK.sek = {};
+    const f = await ydGem(foer); ydTegn();
+    if(f) return kvitter('fejl', 'Could not be removed: ' + f);
+    kvitter('gemt', 'The empty baseline has been removed — the next price line is now the baseline');
   }); };
 /* ── fjern prislinjen (ikke grundlaget, ikke den sidste valgte) ── */
 HANDL.plslet = el => { const id = el.dataset.yd, i = +el.dataset.i;
@@ -11832,7 +11895,9 @@ async function nyRydOp(e, foerIds){
   if(r.error) return r.error.message;
   const nye = (r.data || []).map(x => x.id).filter(x => !foerIds.has(x));
   for(const id of nye){
-    for(const t of ['trip_plan_items', 'element_prices']){ const d = await db.from(t).delete().eq('element_id', id); if(d.error) return d.error.message; }
+    /* baseline-prisen må ikke slettes for sig (fn_vaern_grundlag) — den forsvinder med ydelsen (ON DELETE CASCADE). Fundet 11.10.2026 */
+    { const d = await db.from('trip_plan_items').delete().eq('element_id', id); if(d.error) return d.error.message; }
+    { const d = await db.from('element_prices').delete().eq('element_id', id).neq('slag', 'grundlag'); if(d.error) return d.error.message; }
     const d = await db.from('trip_elements').delete().eq('id', id); if(d.error) return d.error.message;
   }
   return '';
@@ -12258,6 +12323,7 @@ function tbKvitHtml(){ const r = TB.res, noget = r.ny + r.paa + (r.dely || []).l
     + r.fejl.map(f => '<p class="advar">⚠ ' + esc(f) + '</p>').join('')
     + (noget ? '<p class="note">The prices are shown as «From the offer · version ' + esc(String(r.ver)) + '» on each price line — they are from then, not from now. The supplier is taken from the offer where it is given.</p>' : '')
     + ((r.est || []).length ? '<p class="advar">' + esc(r.est.join(', ')) + ': the price is an estimate with no supplier — choose the supplier and check the price.</p>' : '')
+    + ((r.erstat || []).length ? '<p class="note">' + esc(r.erstat.join(', ')) + ': the empty baseline was replaced by the price from the offer, and it is selected.</p>' : '')
     + ((r.dely || []).length ? '<p class="note">' + esc(r.dely.join(', ')) + ': put on the hotel as a sub-service at 0 — the transfer is included in the hotel price.</p>' : '')
     + ((r.udenPris || []).length ? '<p class="advar">' + esc(r.udenPris.join(', ')) + ': added without a price — write the price and the supplier on the price line.</p>' : '')
     + '<div class="anl-fod"><button class="b mini" data-m8="tbkvitluk">Close</button></div></div>'; }
@@ -12355,6 +12421,20 @@ HANDL.tblaeg = () => {
           if(hver) x.villas.forEach(v => s.linjer.push(tbLinje(x, kildeX, [{a:1, t: v.navn, mp: v.mp}], v.tal)));
           else s.linjer.push(tbLinje(x, kildeX, vAlle, x.bel));
           if(x.hotel) hLinje[x.k] = s.linjer[n0];
+          /* R742: er ydelsens baseline en tom pladsholder (fx fra bookingformularen), ERSTATTER tilbuddet den — og er valgt.
+             Ellers bliver den nye linje ved siden af, ikke valgt — intet overskrives (som før) */
+          const g0 = s.linjer.findIndex(z => z.slag === 'grundlag');
+          if(g0 >= 0 && g0 < n0 && plTomGrund(s.linjer[g0])){
+            const tom = s.linjer[g0], nye = s.linjer.slice(n0), foerValgt = valgte(e.id).map(q => s.linjer[q]).filter(z => z && z !== tom);
+            const fe = await plFjernTomGrundDb(tom);
+            if(fe) throw new Error('the empty baseline could not be replaced — ' + fe);
+            nye[0].slag = 'grundlag'; tom.slag = 'manuel';
+            R.sletLinje(e.id, g0);
+            /* valgt bagefter: det, man selv havde valgt (uden pladsholderen), plus tilbuddets nye linje(r) */
+            s.valgte = foerValgt.concat(nye).map(z => s.linjer.indexOf(z)).filter(q => q >= 0).sort((a, b) => a - b);
+            try { R.tegnListe && R.tegnListe(); R.tegnPlan && R.tegnPlan(); } catch(_){}
+            r.erstat = (r.erstat || []).concat(x.navn);
+          }
           r.paa++;
         } else {
           const f = {pris: x.bel == null ? '' : String(hver ? x.villas[0].tal : x.bel), val: x.val, lev: x.sup || ''};   /* transfer uden pris: tom (R733) */
@@ -14456,7 +14536,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.70';
+const APP_VERSION = 'v1.71';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
@@ -17451,6 +17531,8 @@ async function viewTrip(id){
       <span style="flex:1;${k.status!=='aaben'?'text-decoration:line-through':''}">${k.title}</span>
       <span class="muted">${k.assignee||''} · ${fmtD(k.due_date)}</span></div>`).join('')||'<p class="muted">Ingen opgaver.</p>'}
   </div>
+  <details class="card histcard hvrjcard" id="hvrjKort"><summary><h3 style="display:inline">Fra henvendelsen</h3> <span class="muted" id="hvrjSum">henter …</span></summary>
+    <div id="hvrjInd"><p class="muted">Henter henvendelsen …</p></div></details>
 
   ${(()=>{ /* ── Historik: hvem gjorde hvad, hvornår ── */
     const WHAT={trips:tx('hist.trip'), trip_elements:tx('hist.element'), payments:tx('hist.payment'),
@@ -17474,6 +17556,7 @@ async function viewTrip(id){
     </details>`;})()}
   <dialog id="eldlg"></dialog>
   <dialog id="paxdlg"></dialog>`;
+  hvRjFyld(t);   /* INDGREB 15 (R741) */
 }
 async function setStatus(id,s){ await db.from('trips').update({status:s}).eq('id',id); viewTrip(id); }
 /* Vilkaarsversion (v1.58): skiftes naar kunden har faaet nye dokumenter. Audit-triggeren logger hvem og hvornaar. */
@@ -18253,6 +18336,106 @@ async function delLeadOffer(offId,id){ if(!confirm('Slet dette tilbud?')) return
 async function toggleOfferSms(offId,id,val){ const {error}=await db.from('lead_offers').update({sms_sent:val}).eq('id',offId); if(error){alert(error.message);return;} window._leadDirty=true; refreshLeadOffers(id); }
 const BRANCH_OPTS=[['NO','Maldivia NO'],['MD','Maldivia DK'],['IT','Maldivia IT']];
 const ACT_LABEL={system:'System',internt_notat:'Internt notat',opkald:'Opkald til kunde',besked:'Besked til kunde',email_ind:'E-mail fra kunde',email_ud:'E-mail til kunde'};
+/* ══ R741 · FRA HENVENDELSEN — på mellemlandingen og rejsesiden (Wendie 11.10.2026) ══════════════
+   «informationen vi har i henvendelsen skal også med over på mellemlandingen og rejsesiden. tidligere
+   noter og kommentarer, ønsker.» Wendie valgte: en VISNING, kun til at læse — intet kopieres. Rejsen
+   kender sin henvendelse (trips.lead_id; ellers leads.converted_trip_id), og alt hentes derfra, så en
+   note skrevet på henvendelsen bagefter også kommer med. Ét sæt kode til begge sider:
+   mellemlandingen viser den på engelsk (R706), rejsesiden på dansk som resten af den side. */
+const HVRJ = {cache:{}};
+const HVRJ_T = {
+  en:{intet:'This trip was not created from an enquiry.', henter:'Fetching the enquiry …', fejl:'The enquiry could not be fetched: ',
+      oensker:'The customer\'s wishes', fakta:'From the form', noter:'Notes and comments', tilbud:'Offers sent', vurd:'Assessment',
+      hist:'History', booking:'The customer\'s booking form', ingenNoter:'No notes on the enquiry.', ingenHist:'No history.',
+      dest:'Destination', datoer:'Dates', fleks:'Flexible', naetter:'Nights', rejs:'Travellers', voksne:'adults', boern:'children', alder:'ages',
+      villaer:'Villas', villatype:'Villa types', mp:'Meal plan', anl:'Occasion', luft:'Departure airport', budget:'Max budget',
+      kontakt:'Contact by', hoert:'Heard about us', kilde:'Source', modtaget:'Received', ejer:'Agent', flyttet:'Moved to', aabn:'Open the enquiry',
+      sum:(n,o,k)=>[n+(n===1?' note':' notes'), o+(o===1?' offer':' offers'), k].filter(Boolean).join(' · '),
+      akt:{system:'System',internt_notat:'Internal note',opkald:'Call to the customer',besked:'Message to the customer',email_ind:'Email from the customer',email_ud:'Email to the customer',note:'Note'}},
+  da:{intet:'Rejsen er ikke oprettet fra en henvendelse.', henter:'Henter henvendelsen …', fejl:'Henvendelsen kunne ikke hentes: ',
+      oensker:'Kundens ønsker', fakta:'Fra formularen', noter:'Noter og kommentarer', tilbud:'Sendte tilbud', vurd:'Vurdering',
+      hist:'Historik', booking:'Kundens bookingformular', ingenNoter:'Ingen noter på henvendelsen.', ingenHist:'Ingen historik.',
+      dest:'Destination', datoer:'Datoer', fleks:'Fleksibel', naetter:'Nætter', rejs:'Rejsende', voksne:'voksne', boern:'børn', alder:'alder',
+      villaer:'Villaer', villatype:'Villatyper', mp:'Forplejning', anl:'Anledning', luft:'Udrejselufthavn', budget:'Maks. budget',
+      kontakt:'Kontakt via', hoert:'Hørt om os', kilde:'Kilde', modtaget:'Modtaget', ejer:'Sælger', flyttet:'Flyttet til', aabn:'Åbn henvendelsen',
+      sum:(n,o,k)=>[n+(n===1?' note':' noter'), o+(o===1?' tilbud':' tilbud'), k].filter(Boolean).join(' · '),
+      akt:{system:'System',internt_notat:'Internt notat',opkald:'Opkald til kunde',besked:'Besked til kunde',email_ind:'E-mail fra kunde',email_ud:'E-mail til kunde',note:'Note'}}
+};
+async function hvRjHent(t){
+  if(!t || !t.id) return {lead:null};
+  if(HVRJ.cache[t.id]) return HVRJ.cache[t.id];
+  const p = (async () => {
+    let lead = null;
+    if(t.lead_id){ const r = await db.from('leads').select(LEAD_FIELDS).eq('id', t.lead_id).maybeSingle(); if(r.error) throw r.error; lead = r.data; }
+    if(!lead){ const r = await db.from('leads').select(LEAD_FIELDS).eq('converted_trip_id', t.id).limit(1); if(r.error) throw r.error; lead = (r.data || [])[0] || null; }
+    if(!lead) return {lead:null};
+    const [a, o, v, b] = await Promise.all([
+      db.from('lead_activities').select('*').eq('lead_id', lead.id).order('occurred_at', {ascending:false}),
+      db.from('lead_offers').select('*').eq('lead_id', lead.id).order('seq', {ascending:false}),
+      db.from('lead_vurderinger').select('*').eq('lead_id', lead.id),
+      db.from('booking_requests').select('*').or('lead_id.eq.' + lead.id + ',trip_id.eq.' + t.id).order('modtaget_at', {ascending:false})
+    ]);
+    return {lead, akt:(a && a.data) || [], tilbud:(o && o.data) || [], vurd:(v && v.data) || [], booking:(b && b.data) || []};
+  })();
+  HVRJ.cache[t.id] = p;
+  try { return await p; } catch(e){ delete HVRJ.cache[t.id]; throw e; }
+}
+function hvRjNoter(d){ return (d.akt || []).filter(a => a.type === 'internt_notat' || a.type === 'note'); }
+function hvRjSum(d, sp){
+  const T = HVRJ_T[sp || 'en'];
+  if(!d || !d.lead) return T.intet.replace(/\.$/, '').toLowerCase();
+  const l = d.lead, n = hvRjNoter(d).length + (String(l.notes || '').trim() ? 1 : 0);
+  return T.sum(n, (d.tilbud || []).length, [l.source_channel || l.source, l.created_at ? fmtDY(l.created_at) : ''].filter(Boolean).join(' · '));
+}
+function hvRjHtml(d, sp){
+  const T = HVRJ_T[sp || 'en'], e = x => escH(x == null ? '' : String(x));
+  if(!d) return '<p class="hvrj-tom">' + T.henter + '</p>';
+  if(d.fejl) return '<p class="hvrj-tom">' + e(T.fejl + d.fejl) + '</p>';
+  if(!d.lead) return '<p class="hvrj-tom">' + T.intet + '</p>';
+  const l = d.lead, arr = x => Array.isArray(x) ? x.filter(Boolean) : (x ? String(x).split(',').map(s => s.trim()).filter(Boolean) : []);
+  const dt = x => x ? fmtDY(x) : '';
+  const fakta = [
+    [T.dest, l.destination],
+    [T.datoer, [l.departure_date && l.return_date ? dt(l.departure_date) + ' – ' + dt(l.return_date) : dt(l.departure_date),
+                (l.earliest_departure || l.latest_return) ? T.fleks + ': ' + [dt(l.earliest_departure), dt(l.latest_return)].filter(Boolean).join(' – ') : ''].filter(Boolean).join(' · ')],
+    [T.naetter, l.nights],
+    [T.rejs, (l.adults || l.kids) ? [(l.adults || 0) + ' ' + T.voksne, l.kids ? l.kids + ' ' + (+l.kids === 1 && sp !== 'da' ? 'child' : +l.kids === 1 ? 'barn' : T.boern) + (l.child_ages ? ' (' + T.alder + ' ' + l.child_ages + ')' : '') : ''].filter(Boolean).join(', ') : ''],
+    [T.villaer, l.villas], [T.villatype, arr(l.villa_types).join(', ')], [T.mp, arr(l.meal_plans).join(', ')], [T.anl, arr(l.occasions).join(', ')],
+    [T.luft, l.departure_airport], [T.budget, l.max_budget ? Number(l.max_budget).toLocaleString('da-DK') + ' ' + (l.currency || '') : ''],
+    [T.kontakt, l.contact_pref], [T.hoert, l.heard_about_us], [T.kilde, [l.source, l.source_channel].filter(Boolean).join(' · ')],
+    [T.modtaget, l.created_at ? fmtDT(l.created_at) : ''], [T.ejer, l.owner]
+  ].filter(([k, v]) => v != null && String(v).trim() !== '');
+  const oensk = (typeof hvRensOnsker === 'function' ? hvRensOnsker(l.travel_wishes || l.wishes || '') : (l.travel_wishes || l.wishes || '')).trim();
+  const hl = String(l.highlights || '').trim();
+  const noter = hvRjNoter(d), lnote = String(l.notes || '').trim();
+  const hist = (d.akt || []).filter(a => !(a.type === 'internt_notat' || a.type === 'note'));
+  const blok = (titel, indhold) => '<div class="hvrj-b"><div class="hvrj-h">' + titel + '</div>' + indhold + '</div>';
+  let h = '';
+  if(oensk || hl) h += blok(T.oensker, (oensk ? '<div class="hvrj-txt">' + e(oensk) + '</div>' : '') + (hl ? '<div class="hvrj-txt hvrj-hl">' + e(hl) + '</div>' : ''));
+  h += blok(T.noter, (lnote ? '<div class="hvrj-n"><div class="hvrj-txt">' + (typeof noteHtml === 'function' ? noteHtml(lnote) : e(lnote)) + '</div></div>' : '')
+    + (noter.length ? noter.map(n => '<div class="hvrj-n"><div class="hvrj-m">' + e(n.actor || '') + (n.actor ? ' · ' : '') + e(fmtDT(n.occurred_at)) + '</div><div class="hvrj-txt">'
+        + (typeof noteHtml === 'function' ? noteHtml(n.body || '') : e(n.body)) + '</div></div>').join('') : (lnote ? '' : '<p class="hvrj-tom">' + T.ingenNoter + '</p>')));
+  if(fakta.length) h += blok(T.fakta, '<dl class="hvrj-dl">' + fakta.map(([k, v]) => '<dt>' + e(k) + '</dt><dd>' + e(v) + '</dd>').join('') + '</dl>');
+  if((d.booking || []).length) h += blok(T.booking, d.booking.map(b => '<div class="hvrj-n"><div class="hvrj-m">' + e(fmtDT(b.modtaget_at)) + (b.kilde ? ' · ' + e(b.kilde) : '') + '</div><div class="hvrj-txt">'
+      + e([b.hotel, b.afrejse && b.hjemrejse ? dt(b.afrejse) + ' – ' + dt(b.hjemrejse) : '', b.pris ? Number(b.pris).toLocaleString('da-DK') + ' ' + (b.valuta || '') : ''].filter(Boolean).join(' · ')) + '</div></div>').join(''));
+  if((d.tilbud || []).length) h += blok(T.tilbud, d.tilbud.map(o => '<div class="hvrj-n"><div class="hvrj-m">' + e(o.sent_at ? fmtDY(o.sent_at) : o.created_at ? fmtDY(o.created_at) : '') + '</div><div class="hvrj-txt">'
+      + e(o.note || o.label || (sp === 'da' ? 'Tilbud' : 'Offer')) + (o.offer_url || o.url ? ' · <a href="' + e(o.offer_url || o.url) + '" target="_blank" rel="noopener">' + e(o.offer_url || o.url) + '</a>' : '') + '</div></div>').join(''));
+  if((d.vurd || []).length || l.vurdering) h += blok(T.vurd, '<div class="hvrj-txt">' + e(((d.vurd || []).length ? d.vurd.map(v => (v.hvem || '') + ': ' + (v.vurdering || '')) : [(l.vurdering_by || '') + ': ' + l.vurdering]).join(' · ')) + '</div>');
+  h += blok(T.hist, hist.length ? '<ul class="hvrj-tl">' + hist.slice(0, 40).map(a => '<li><span class="hvrj-m">' + e(fmtDT(a.occurred_at)) + (a.actor ? ' · ' + e(a.actor) : '') + '</span> '
+      + (a.type === 'system' ? (a.stage ? e(T.flyttet + ' «' + ((typeof LEAD_STAGE_LABEL !== 'undefined' && LEAD_STAGE_LABEL[a.stage]) || a.stage) + '»') : e(a.body || 'System'))
+        : '<b>' + e(T.akt[a.type] || a.type) + '</b>' + (a.body ? ' — ' + e(a.body) : '')) + '</li>').join('') + '</ul>' : '<p class="hvrj-tom">' + T.ingenHist + '</p>');
+  return '<div class="hvrj">' + h + '</div>';
+}
+/* rejsesiden (dansk): kortet fyldes, når siden er tegnet */
+async function hvRjFyld(t){
+  delete HVRJ.cache[t.id];   /* altid frisk, når siden åbnes — en ny note på henvendelsen skal med */
+  const ind = document.getElementById('hvrjInd'), sum = document.getElementById('hvrjSum'); if(!ind) return;
+  let d; try { d = await hvRjHent(t); } catch(err){ d = {fejl: (err && err.message) || String(err)}; }
+  if(!document.getElementById('hvrjInd') || (window.TRIP && window.TRIP.id !== t.id)) return;
+  ind.innerHTML = hvRjHtml(d, 'da'); if(sum) sum.textContent = d.fejl ? '' : hvRjSum(d, 'da');
+  const kort = document.getElementById('hvrjKort'); if(kort && !d.lead && !d.fejl) kort.style.display = 'none';
+}
+
 function TEAM_OPTS(cur){ const t=window._TEAM||[]; let o=t.map(([ini,nm])=>`<option value="${escH(ini)}" ${cur===ini?'selected':''}>${escH(nm)}</option>`).join(''); if(cur && !t.some(x=>x[0]===cur)) o=`<option value="${escH(cur)}" selected>${escH(cur)}</option>`+o; if(!cur) o='<option value="">—</option>'+o; return o; }
 const maanedStart = () => today().slice(0,7)+'-01';
 // ── varsel: har samme person skrevet til os igen inden for de seneste 30 dage? ──
