@@ -14615,7 +14615,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.74';
+const APP_VERSION = 'v1.75';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
@@ -16349,25 +16349,13 @@ async function viewMarketing(){
 // {columns:[{key,label,type}], rows:[{...}], footer?:{...}} — samme format kan
 // senere fyldes af en fri rapportbygger, og genbruger eksportørerne nedenfor.
 // type: 'text' | 'num' (heltal) | 'kr' (DKK, 2 dec) | 'pct' | 'date'
-const REP_STATE = {id:null, from:'2026-01-01', to:'2026-12-31', last:null, uhtBranch:'ALL', genMode:'rejser'};
+const REP_STATE = {id:null, from:'2026-01-01', to:'2026-12-31', last:null, genMode:'rejser'};
+/* v1.75 (15.10.2026): den gamle Virk-rapport (uht_virk, UHT_*-konstanterne, exportUHT, detailCard) er fjernet
+   efter Wendies «slet den». Den fulgte rejsedestination og var forkert. UHT efter modpartens land kommer i Finance (R832). */
 const activeRep = t => !['canx','voided','tabt'].includes(t.status);
 const inRange = (d,f,t) => d && d>=f && d<=t;
 const nRejser = a => a.length;
 
-// ═══ Udenrigshandel med tjenester (DST/Virk) ══════════════════════════════
-// DST bruger ISO alpha-2 landekoder (UHT-landeliste, jan. 2025). Destination → land.
-const UHT_LAND = {
-  'Maldiverne':'MV','Maldivene':'MV','Mauritius':'MU','Oman':'OM','Dubai':'AE','Abu Dhabi':'AE',
-  'Koh Samui':'TH','Phuket':'TH','Bangkok':'TH','Seychellerne':'SC','Singapore':'SG','Zanzibar':'TZ',
-  'Den Dominikanske Republik':'DO','Sri Lanka':'LK','Barbados':'BB','Bali':'ID','Grenada':'GD',
-  'Istanbul':'TR','Mexico':'MX'
-  // 'Karibia' = region, ikke ét land → føres som (mangler) og udelades af Virk-filen
-};
-const UHT_LANDNAVN = {MV:'Maldiverne',MU:'Mauritius',OM:'Oman',AE:'Forenede Arabiske Emirater',TH:'Thailand',
-  SC:'Seychellerne',SG:'Singapore',TZ:'Tanzania',DO:'Dominikanske Republik',LK:'Sri Lanka',BB:'Barbados',
-  ID:'Indonesien',GD:'Grenada',TR:'Tyrkiet',MX:'Mexico'};
-const UHT_TJENESTEKODE = '203.1'; // Rejserelaterede tjenester (logi, konferencer mv.)
-const uhtLand = dest => UHT_LAND[dest] || '';
 
 /* v0.9.7: REP_ALL = flad pulje af rapportdefinitioner. Menustrukturen (REPORTS)
    sammensættes NEDENFOR ud fra id'er i REP_MENU. Tilføjer du en ny rapport:
@@ -16375,38 +16363,6 @@ const uhtLand = dest => UHT_LAND[dest] || '';
    havner rapporten automatisk under "Øvrige rapporter" — så intet forsvinder,
    når flere arbejder i filen samtidig. */
 const REP_ALL = [
- {group:'Myndighedsindberetning', items:[
-  {id:'uht_virk', name:'Udenrigshandel med tjenester (Virk)', period:true, periodLabel:'Afrejse i perioden',
-   controls:()=>`<div><label>Omfang</label><select onchange="REP_STATE.uhtBranch=this.value;renderReport()">
-       <option value="ALL"${(REP_STATE.uhtBranch||'ALL')==='ALL'?' selected':''}>Alle afrejser (MD + MN)</option>
-       <option value="MD"${REP_STATE.uhtBranch==='MD'?' selected':''}>Kun MD</option>
-       <option value="MN"${REP_STATE.uhtBranch==='MN'?' selected':''}>Kun MN</option>
-     </select></div>`,
-   build:(trips,{from,to})=>{
-     const br=REP_STATE.uhtBranch||'ALL';
-     const inScope=t=>br==='ALL'?true:(br==='MD+HQ'?(t.branch==='MD'||t.branch==='HQ'):t.branch===br);
-     const y=trips.filter(t=>activeRep(t)&&inRange(t.departure_date,from,to)&&inScope(t));
-     const m={}, detail=[];
-     y.forEach(t=>{
-       const dest=((t.trip_destinations||[])[0]||{}).destination||'';
-       const code=uhtLand(dest);
-       const key=code||('?'+dest);
-       const ind=Math.round(+t.package_sell_dkk||0), udg=Math.round(+t.buy_dkk||0);
-       (m[key]=m[key]||{land:code,dest,ind:0,udg:0,n:0});
-       m[key].ind += ind; m[key].udg += udg; m[key].n++;
-       detail.push({land:code||'(mangler)',dest,ref:t.ref_no,branch:t.branch,kunde:kName(t),afrejse:t.departure_date,ind,udg});
-     });
-     detail.sort((a,b)=>(a.land+a.afrejse+a.ref).localeCompare(b.land+b.afrejse+b.ref));
-     const rows=Object.values(m).sort((a,b)=>b.udg-a.udg).map(v=>({
-       land:v.land||'(mangler)', landnavn:v.land?(UHT_LANDNAVN[v.land]||v.land):v.dest||'—',
-       kode:UHT_TJENESTEKODE, rejser:v.n, ind:v.ind, udg:v.udg}));
-     const tot=rows.reduce((s,r)=>({ind:s.ind+r.ind,udg:s.udg+r.udg,rejser:s.rejser+r.rejser}),{ind:0,udg:0,rejser:0});
-     const mangler=rows.filter(r=>r.land==='(mangler)').reduce((s,r)=>s+r.rejser,0);
-     return {columns:[['land','Oprindelsesland','text'],['landnavn','Land','text'],['kode','Tjenestekode','text'],['rejser','Rejser','num'],['ind','Indtægter','kr0'],['udg','Udgifter','kr0']].map(colObj),
-       rows, detail, footer:{land:'I alt',landnavn:'',kode:'',rejser:tot.rejser,ind:tot.ind,udg:tot.udg},
-       meta:'Hele kr. · afrejsedato · tjenestekode '+UHT_TJENESTEKODE+' (Rejserelaterede tjenester) · Indtægter = pakkesalg, Udgifter = indkøb hos leverandør · flerdest.-rejser føres på 1. destination'+(mangler?' · OBS: '+mangler+' rejse(r) uden landekode udelades af Virk-filen':'')};
-   }},
- ]},
  {group:'Økonomi & bogføring', items:[
   {id:'oms_maaned', name:'Omsætning & margin pr. måned', period:true, periodLabel:'Afrejse i perioden',
    build:(trips,{from,to})=>{
@@ -16710,7 +16666,6 @@ const REP_MENU = [
  ['Kundestatistik',        ['gengangere','bedste_kunder']],
  ['Leverandørstatistik',   ['hotelstat','lev_forfald','lev_pr_leverandoer','lev_kreditter']],
  ['Økonomi',               ['oms_maaned','oms_branch','bogf_grundlag','afbestillinger']],
- ['Myndighedsindberetning',['uht_virk']],
 ];
 const REPORTS = (()=>{
   const m={}; REP_ALL.forEach(g=>g.items.forEach(it=>m[it.id]=it));
@@ -16810,10 +16765,9 @@ function renderReport(){
       ${periodUI}
       ${rep.controls?rep.controls():''}
       <div class="exp-btns">
-        ${rep.id==='uht_virk'?`<button class="btn gold" onclick="exportUHT()">Virk-fil (UHT Excel Line)</button>`:''}
         <button class="btn ghost" onclick="exportCSV()">CSV</button>
         <button class="btn ghost" onclick="exportXLSX()">Excel</button>
-        <button class="btn ${rep.id==='uht_virk'?'ghost':'gold'}" onclick="exportPDF()">PDF</button>
+        <button class="btn gold" onclick="exportPDF()">PDF</button>
       </div>
     </div>
     <div class="card">
@@ -16822,24 +16776,10 @@ function renderReport(){
       ${periodTxt||res.meta?`<div class="rep-meta">${[periodTxt,res.meta].filter(Boolean).join(' · ')}</div>`:''}
       <div style="overflow-x:auto"><table class="rep"><thead><tr>${th}</tr></thead><tbody>${body}</tbody>${foot}</table></div>
     </div>
-    ${res.detail?detailCard(res.detail):''}${res.extra||''}`;
+    ${res.extra||''}`;
 }
 function repHotelPick(i){ REP_STATE.hotel = i<0 ? '' : (window.REP_HOTELNAMES||[])[i]||''; REP_STATE.sort=null; renderReport(); }
 function repSort(key){ const s=REP_STATE.sort; REP_STATE.sort = (s&&s.key===key) ? {key, dir:-s.dir} : {key, dir:1}; renderReport(); }
-function detailCard(detail){
-  const grp={}; detail.forEach(d=>{(grp[d.land]=grp[d.land]||[]).push(d);});
-  const flag=d=>d.udg===0?' title="Ingen leverandøromkostning registreret" style="color:#b45309"':(d.ind<d.udg?' title="Indtægt < udgift (depositum/negativ margin?)" style="color:#b45309"':'');
-  const sec=Object.keys(grp).sort().map(land=>{
-    const ds=grp[land]; const si=ds.reduce((s,d)=>s+d.ind,0), su=ds.reduce((s,d)=>s+d.udg,0);
-    const navn=UHT_LANDNAVN[land]||land;
-    return `<tr class="rep-grp-row"><td colspan="6"><b>${land}</b> · ${navn} <span class="mini muted">(${ds.length} rejser)</span></td></tr>`+
-      ds.map(d=>`<tr${flag(d)}><td>${d.ref}</td><td>${d.branch}</td><td>${d.kunde}</td><td>${fmtDY(d.afrejse)}</td><td class="num">${fmtNum(d.ind)}</td><td class="num">${fmtNum(d.udg)}</td></tr>`).join('')+
-      `<tr class="rep-sub"><td colspan="4" class="num"><b>Subtotal ${land}</b></td><td class="num"><b>${fmtNum(si)}</b></td><td class="num"><b>${fmtNum(su)}</b></td></tr>`;
-  }).join('');
-  return `<div class="card"><h3 style="margin-top:0">Specifikation — rejser bag tallene <span class="r mini">${detail.length} afrejser</span></h3>
-    <div class="rep-meta">Hver linje = én rejse (afrejse i perioden). Beløb i hele kr. Gule linjer bør tjekkes: manglende udgift eller udgift &gt; indtægt.</div>
-    <div style="overflow-x:auto"><table class="rep"><thead><tr><th>Ref.nr.</th><th>Branch</th><th>Kunde</th><th>Afrejse</th><th class="num">Indtægter</th><th class="num">Udgifter</th></tr></thead><tbody>${sec}</tbody></table></div></div>`;
-}
 
 // —— eksportører (genbrugelige) ——
 function repFilename(ext){ const rep=REP_STATE.last.rep; const p=rep.period?`_${REP_STATE.from}_${REP_STATE.to}`:''; return `Maldivia_${rep.id}${p}.${ext}`; }
@@ -16866,18 +16806,6 @@ function exportXLSX(){
   XLSX.writeFile(wb, repFilename('xlsx'));
 }
 function exportPDF(){ window.print(); }
-function exportUHT(){ // DST "UHT Excel Line": Oprindelsesland | Tjenestekode | Indtægter | Udgifter · 1 headerlinje · hele kr.
-  const {res}=REP_STATE.last;
-  const header=['Oprindelsesland','Tjenestekode','Indtægter','Udgifter'];
-  const valid=res.rows.filter(r=>r.land && r.land!=='(mangler)');
-  const skl=res.rows.filter(r=>!r.land || r.land==='(mangler)').reduce((s,r)=>s+(+r.rejser||0),0);
-  const rows=valid.map(r=>[r.land, r.kode||'', Math.round(+r.ind||0), Math.round(+r.udg||0)]);
-  const ws=XLSX.utils.aoa_to_sheet([header,...rows]);
-  ws['!cols']=[{wch:14},{wch:12},{wch:14},{wch:14}];
-  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'UHT');
-  XLSX.writeFile(wb, `UHT_Virk_${REP_STATE.from}_${REP_STATE.to}.xlsx`);
-  if(skl) alert('OBS: '+skl+' rejse(r) uden gyldig landekode blev udeladt af filen. Ret destinationen på rejsen, eller tilføj landet i UHT_LAND-listen.');
-}
 function downloadBlob(blob,name){ const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1500); }
 
 // ═══ REJSEDETALJE ═══
