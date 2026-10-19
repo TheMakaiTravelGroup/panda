@@ -1,0 +1,122 @@
+/* ═══ Panda · kerne v1 — core/core.v1.css ══════════════════════════════
+   Fælles udseende for Pandas NYE sider (R833/R845). index.html bruger den IKKE.
+   Design (overdragelsen 15.10.2026, afsnit 6): viola, men lysere — #f6f4fb baggrund,
+   hvide kort, accent #4c3aaa på flade #ece8fb. Lora til overskrifter, Inter til tekst.
+   Sekundær tekst er skarp, aldrig gennemsigtig (R691/R694). Ens ting har ens størrelse.
+   Alle klasser starter med p- , så en side aldrig rammer index.html's navne. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:wght@400;500;600&display=swap");
+
+:root{
+  --p-bg:#f6f4fb; --p-card:#ffffff; --p-flade:#ece8fb; --p-flade2:#f3f0fc;
+  --p-accent:#4c3aaa; --p-accent2:#6a55d6; --p-accent-ink:#ffffff;
+  --p-ink:#221b45; --p-mut:#5b5480; --p-mut2:#736c96;
+  --p-line:#e2ddf2; --p-hair:#efebf8;
+  --p-ok:#1f7a5c; --p-ok-bg:#e3f4ec; --p-warn:#8a5a00; --p-warn-bg:#fdf1d8; --p-bad:#b3263e; --p-bad-bg:#fbe6ea;
+  --p-f-display:"Lora",Georgia,"Times New Roman",serif;
+  --p-f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --p-r:14px; --p-r-sm:9px; --p-h:36px;
+  --p-foto:url("../img/como-cocoa-island.jpg");
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--p-bg);color:var(--p-ink);font:400 13.5px/1.5 var(--p-f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--p-f-display);font-weight:500;color:var(--p-ink);margin:0}
+a{color:var(--p-accent)}
+:focus-visible{outline:2px solid var(--p-accent);outline-offset:2px}
+
+/* ── Skallen: menu til venstre, siden til højre ── */
+.p-app{display:grid;grid-template-columns:210px minmax(0,1fr);min-height:100vh}
+.p-menu{position:sticky;top:0;height:100vh;align-self:start;display:flex;flex-direction:column;gap:22px;
+  padding:22px 14px;background:var(--p-card);border-right:1px solid var(--p-line);overflow-y:auto}
+.p-menu[hidden]{display:none}
+body.p-ude .p-app{grid-template-columns:minmax(0,1fr)}
+.p-logo b{display:block;font:500 15px/1 var(--p-f-body);letter-spacing:.32em;color:var(--p-ink)}
+.p-logo small{display:block;margin-top:6px;color:var(--p-accent);font-size:10.5px;letter-spacing:.06em}
+.p-menu nav{display:flex;flex-direction:column;gap:2px}
+.p-nav{display:flex;align-items:center;gap:10px;height:var(--p-h);padding:0 12px;border-radius:var(--p-r-sm);
+  color:var(--p-mut);text-decoration:none;font-size:13px}
+.p-nav .ik{width:18px;text-align:center;color:var(--p-mut2)}
+.p-nav:hover{background:var(--p-flade2);color:var(--p-ink)}
+.p-nav.on{background:var(--p-flade);color:var(--p-accent);font-weight:600;box-shadow:inset 3px 0 0 var(--p-accent)}
+.p-nav.on .ik{color:var(--p-accent)}
+.p-nav.ny{margin-top:8px;border:1px dashed var(--p-line)}
+.p-fod{margin-top:auto;color:var(--p-mut);font-size:11.5px;line-height:1.55}
+.p-fod .rolle,.p-fod .ver{color:var(--p-mut2)}
+.p-main{padding:26px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));min-width:0}
+.p-wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+/* ── Sidehoved med billedbånd (rød tråd til dashboard og mellemlanding) ── */
+.p-hd{position:relative;padding:28px 28px 22px;border-radius:16px;overflow:hidden;color:#fff;
+  background:linear-gradient(90deg,rgba(43,31,110,.86) 0%,rgba(60,44,140,.55) 55%,rgba(76,58,170,.25) 100%),var(--p-foto) 50% 62%/cover;
+  display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+.p-hd .p-lab{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:#ece8fb}
+.p-hd h1{margin:6px 0 4px;font:500 clamp(28px,3vw,40px)/1.1 var(--p-f-display);color:#fff;text-wrap:balance}
+.p-hd .p-sub{color:#ece8fb;font-size:12.5px}
+
+/* ── Kort, nøgletal, rækker ── */
+.p-card{background:var(--p-card);border:1px solid var(--p-line);border-radius:var(--p-r);padding:18px 20px;min-width:0;
+  box-shadow:0 1px 2px rgba(34,27,69,.04),0 12px 28px -22px rgba(34,27,69,.25)}
+.p-card h2{font-size:19px;line-height:1.2;margin-bottom:10px}
+.p-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.p-kpi{background:var(--p-card);border:1px solid var(--p-line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:2px}
+.p-kpi .kl{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--p-mut)}
+.p-kpi b{font:300 28px/1.15 var(--p-f-body);font-variant-numeric:tabular-nums;color:var(--p-ink)}
+.p-kpi .ks{font-size:11.5px;color:var(--p-mut)}
+.p-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.p-mut{color:var(--p-mut)}
+
+/* ── Knapper og faner: samme højde på linje (R612) ── */
+.p-btn{display:inline-flex;align-items:center;justify-content:center;height:var(--p-h);padding:0 16px;border-radius:var(--p-r-sm);
+  border:1px solid transparent;background:var(--p-accent);color:var(--p-accent-ink);font:500 13px/1 var(--p-f-body);cursor:pointer}
+.p-btn:hover{background:var(--p-accent2)}
+.p-btn.ghost{background:var(--p-card);color:var(--p-accent);border-color:var(--p-line)}
+.p-btn.ghost:hover{background:var(--p-flade2)}
+.p-link{background:none;border:0;padding:0;color:var(--p-accent);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline}
+.p-pill{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:100px;border:1px solid var(--p-line);
+  background:var(--p-card);color:var(--p-ink);font:500 12.5px/1 var(--p-f-body);cursor:pointer}
+.p-pill:hover{border-color:var(--p-accent2)}
+.p-pill.on{background:var(--p-accent);border-color:var(--p-accent);color:#fff}
+
+/* ── Felter: label over feltet, samme højde som knapperne (R612) ── */
+label{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--p-mut);margin:12px 0 4px}
+input,select,textarea{width:100%;height:var(--p-h);padding:0 10px;border:1px solid var(--p-line);border-radius:var(--p-r-sm);
+  background:var(--p-card);color:var(--p-ink);font:400 13px var(--p-f-body)}
+textarea{height:auto;min-height:80px;padding:8px 10px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p-accent);box-shadow:0 0 0 3px var(--p-flade)}
+
+/* ── Tabeller ── */
+.p-tab{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.p-tab th{text-align:left;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--p-mut);font-weight:600;padding:8px;border-bottom:1px solid var(--p-line)}
+.p-tab td{padding:8px;border-bottom:1px solid var(--p-hair)}
+.p-tab .num{text-align:right}
+.p-tab tbody tr:hover{background:var(--p-flade2)}
+
+/* ── Mærker og beskeder: korte og tydelige ── */
+.p-tag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:100px;font-size:11px;font-weight:600;background:var(--p-flade);color:var(--p-accent)}
+.p-tag.ok{background:var(--p-ok-bg);color:var(--p-ok)} .p-tag.warn{background:var(--p-warn-bg);color:var(--p-warn)} .p-tag.bad{background:var(--p-bad-bg);color:var(--p-bad)}
+.p-msg{min-height:18px;margin-top:10px;font-size:12.5px}
+.p-msg.ok{color:var(--p-ok)} .p-msg.err{color:var(--p-bad)}
+.p-fejl{border-color:var(--p-bad);color:var(--p-bad);background:var(--p-bad-bg);margin-bottom:12px}
+
+/* ── Login og dialoger ── */
+.p-login{max-width:380px;margin:12vh auto 0}
+.p-login-logo{text-align:center;margin-bottom:10px}
+.p-login-logo b{display:block;font:500 21px/1 var(--p-f-display);letter-spacing:.42em;color:var(--p-ink)}
+.p-login-logo small{display:block;margin-top:6px;font-size:8.5px;letter-spacing:3.5px;text-transform:uppercase;color:var(--p-accent);font-weight:700}
+.p-overlay{position:fixed;inset:0;background:rgba(34,27,69,.35);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.p-dialog{width:380px;max-width:100%}
+#p-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--p-ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:12.5px;z-index:10000;box-shadow:0 12px 30px -12px rgba(0,0,0,.4)}
+#p-toast[hidden]{display:none}
+
+/* ── Smal skærm: menuen lægger sig øverst ── */
+@media (max-width:820px){
+  .p-app{grid-template-columns:minmax(0,1fr)}
+  .p-menu{position:static;height:auto;flex-direction:column;gap:12px;border-right:0;border-bottom:1px solid var(--p-line)}
+  .p-menu nav{flex-direction:row;flex-wrap:wrap}
+  .p-nav{height:32px}
+  .p-nav.ny{margin-top:0}
+  .p-fod{margin-top:0}
+  .p-hd{padding:22px 18px 18px}
+}
+@media print{ .p-menu{display:none} .p-app{display:block} .p-card{box-shadow:none} }

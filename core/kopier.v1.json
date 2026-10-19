@@ -1,0 +1,204 @@
+{
+ "kernefil": "core/core.v1.js",
+ "bygget_fra": {
+  "fil": "index.html",
+  "version": "v1.75",
+  "commit": "a924e52",
+  "dato": "15.10.2026",
+  "sha": "7ecc58bbf6a009b6"
+ },
+ "kopi": [
+  {
+   "navn": "SB_URL",
+   "sha": "3928d242f9dc98d6",
+   "tekst": "const SB_URL = 'https://kottwokudnxdobittera.supabase.co';"
+  },
+  {
+   "navn": "SB_KEY",
+   "sha": "82462196fff49ce1",
+   "tekst": "const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';"
+  },
+  {
+   "navn": "db",
+   "sha": "7490cae8feaef5ad",
+   "tekst": "const db = supabase.createClient(SB_URL, SB_KEY);"
+  },
+  {
+   "navn": "$",
+   "sha": "bac725c1e341bf3e",
+   "tekst": "const $ = s => document.querySelector(s);"
+  },
+  {
+   "navn": "session",
+   "sha": "a6589eb4480c62c4",
+   "tekst": "let session = null;"
+  },
+  {
+   "navn": "fmtD",
+   "sha": "e8036ceb0eaa8562",
+   "tekst": "const fmtD = s => s ? new Date(s).toLocaleDateString('da-DK',{day:'numeric',month:'short'}) : '—';"
+  },
+  {
+   "navn": "fmtDY",
+   "sha": "cbcfa01deb2742fb",
+   "tekst": "const fmtDY = s => s ? new Date(s).toLocaleDateString('da-DK',{day:'numeric',month:'short',year:'2-digit'}) : '—';"
+  },
+  {
+   "navn": "today",
+   "sha": "1cf1d0a81a18ec42",
+   "tekst": "const today = () => new Date().toISOString().slice(0,10);"
+  },
+  {
+   "navn": "plusDays",
+   "sha": "2a90c955137c137b",
+   "tekst": "const plusDays = n => new Date(Date.now()+n*86400000).toISOString().slice(0,10);"
+  },
+  {
+   "navn": "kr",
+   "sha": "c49460482b99cadd",
+   "tekst": "const kr = n => Math.round((n||0)/1000).toLocaleString('da-DK') + ' t.kr.';"
+  },
+  {
+   "navn": "pct",
+   "sha": "25b5fb87a1f861ff",
+   "tekst": "const pct = (a,b) => b ? (100*a/b).toFixed(1).replace('.',',') + ' %' : '—';"
+  },
+  {
+   "navn": "MDR",
+   "sha": "4f07fc15a5eb1f43",
+   "tekst": "const MDR = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];"
+  },
+  {
+   "navn": "fmtFX",
+   "sha": "59cdf4d4759d02ea",
+   "tekst": "const fmtFX = (n,cur)=> (n<0?'-':'') + Math.abs(n).toLocaleString('da-DK',{maximumFractionDigits:0}) + (cur?' '+cur:'');"
+  },
+  {
+   "navn": "fmtDkkR",
+   "sha": "885c9a86092798f6",
+   "tekst": "const fmtDkkR = n => (n<0?'-':'') + Math.abs(Math.round(n)).toLocaleString('da-DK') + ' kr';"
+  },
+  {
+   "navn": "hasPerm",
+   "sha": "dcc68629a070beb9",
+   "tekst": "function hasPerm(p){ return !!(window.PERMS && window.PERMS[p]); }"
+  },
+  {
+   "navn": "fetchTrips",
+   "sha": "6079aa5cb2bfbc62",
+   "tekst": "async function fetchTrips(){\n  /* v0.9.3: paginering — Supabase returnerer max 1000 rækker pr. kald, og efter\n     Dolphin-importen af historiske rejser er der langt flere. */\n  /* lead_id SKAL vaere med: dashboardets dubletfilter sammenligner\n     mellemlandingernes lead_id med bookingernes. Manglede den, var vaerdien\n     undefined paa hver eneste rejse, saettet blev tomt, og filteret kunne\n     aldrig fjerne noget. Derfor stod Holt to gange under Solgt — baade som\n     mellemlanding og som den booking, den var blevet til. (Wendie 01.09.2026) */\n  const COLS='id, ref_no, branch, status, stadie, lead_id, customer_id, departure_date, return_date, pax_count, customer_currency, package_sell_total, package_sell_dkk, buy_dkk, comm_dkk, booking_date, owner, balance_due, deposit_amount, cancelled_at, cancel_reason, retained_dkk, loss_dkk, refund_dkk, accepted_price, accepted_currency, created_at, terms_version, customers(first_name,last_name), trip_destinations(destination)';\n  let all=[], from=0;\n  while(true){\n    const { data } = await db.from('trips').select(COLS).not('status','in','(\"voided\")').order('departure_date').range(from, from+999);\n    all = all.concat(data||[]);\n    if(!data || data.length<1000) break;\n    from += 1000;\n  }\n  return all;\n}"
+  },
+  {
+   "navn": "active",
+   "sha": "5d6db04d6e06b905",
+   "tekst": "const active = t => !['canx','voided','tabt'].includes(t.status);"
+  },
+  {
+   "navn": "colObj",
+   "sha": "6362b77264d2a063",
+   "tekst": "function colObj(a){return {key:a[0],label:a[1],type:a[2]};}"
+  },
+  {
+   "navn": "kName",
+   "sha": "11772e3189daa09e",
+   "tekst": "function kName(t){return t.customers?(t.customers.last_name+', '+t.customers.first_name):'—';}"
+  },
+  {
+   "navn": "fmtKr",
+   "sha": "d6631b300e76b6b3",
+   "tekst": "const fmtKr = n => (Math.round((+n||0)*100)/100).toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2});"
+  },
+  {
+   "navn": "fmtPct",
+   "sha": "0fa15ac04d03a5c1",
+   "tekst": "const fmtPct = n => (Math.round((+n||0)*10)/10).toLocaleString('da-DK',{minimumFractionDigits:1,maximumFractionDigits:1})+' %';"
+  },
+  {
+   "navn": "fmtNum",
+   "sha": "08aede34a5bedcc3",
+   "tekst": "const fmtNum = n => (+n||0).toLocaleString('da-DK');"
+  },
+  {
+   "navn": "fmtCell",
+   "sha": "41b488b06287f345",
+   "tekst": "function fmtCell(v,type){ if(v==null||v==='')return ''; if(type==='kr')return fmtKr(v); if(type==='kr0')return fmtNum(Math.round(v)); if(type==='pct')return fmtPct(v); if(type==='num')return fmtNum(v); if(type==='date')return fmtDY(v); return String(v);}"
+  },
+  {
+   "navn": "rightAligned",
+   "sha": "5749f8297fa6e1a8",
+   "tekst": "const rightAligned = type => type==='kr'||type==='kr0'||type==='pct'||type==='num';"
+  },
+  {
+   "navn": "activeRep",
+   "sha": "7eeb79a5a24db572",
+   "tekst": "const activeRep = t => !['canx','voided','tabt'].includes(t.status);"
+  },
+  {
+   "navn": "inRange",
+   "sha": "b55509f67cffed91",
+   "tekst": "const inRange = (d,f,t) => d && d>=f && d<=t;"
+  },
+  {
+   "navn": "downloadBlob",
+   "sha": "3e0584d232a897bf",
+   "tekst": "function downloadBlob(blob,name){ const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1500); }"
+  },
+  {
+   "navn": "escH",
+   "sha": "7ab6529f4cd1c8fd",
+   "tekst": "const escH = s => (s==null?'':String(s)).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));"
+  }
+ ],
+ "tilpasset": [
+  {
+   "navn": "init",
+   "erstattet_af": "pandaInit i core.v1.js",
+   "original": "async function init(){\n  const { data } = await db.auth.getSession();\n  session = data.session;\n  db.auth.onAuthStateChange((e,s)=>{ if(e==='PASSWORD_RECOVERY') window.__recovery=true; const had=!!session; session=s; if(had!==!!s || e==='PASSWORD_RECOVERY') render(); });\n  render();\n}"
+  },
+  {
+   "navn": "render",
+   "erstattet_af": "pandaRender i core.v1.js",
+   "original": "function render(){ session ? showApp() : showLogin(); }"
+  },
+  {
+   "navn": "showLogin",
+   "erstattet_af": "pandaShowLogin i core.v1.js (engelske tekster, R692)",
+   "original": "function showLogin(){\n  $('#sidebar').style.display='none';\n  app.innerHTML = `<div class=\"card\" id=\"login\">\n    <div class=\"center\" style=\"margin-bottom:16px\">\n      <div class=\"pf\" style=\"letter-spacing:9px;font-size:21px;color:var(--forest);font-weight:500\">MALDIVIA</div>\n      <div style=\"font-size:8.5px;letter-spacing:3.5px;color:var(--gold);text-transform:uppercase;margin-top:4px;font-weight:700\">Travel Design · Panda</div></div>\n    <form id=\"loginform\">\n      <label for=\"em\">E-mail</label><input id=\"em\" name=\"email\" type=\"email\" autocomplete=\"username\" required>\n      <label for=\"pw\">Kodeord</label><input id=\"pw\" name=\"password\" type=\"password\" autocomplete=\"current-password\" required minlength=\"6\">\n      <div style=\"margin-top:15px\" class=\"row\">\n        <button class=\"btn\" type=\"submit\">Log ind</button>\n      </div>\n      <div style=\"margin-top:10px\"><button type=\"button\" id=\"forgotbtn\" style=\"padding:0;background:none;border:none;color:var(--gold);font-size:11.5px;cursor:pointer;text-decoration:underline;font-family:inherit\">Glemt kodeord?</button></div>\n    </form>\n    <div class=\"err\" id=\"autherr\"></div>\n    <p class=\"muted\">Kun teamets e-mailadresser får adgang til data.</p></div>`;\n  const msg=(t,ok)=>{const e=$('#autherr');e.className=ok?'err ok':'err';e.textContent=t;};\n  const creds=()=>{const fd=new FormData(document.getElementById('loginform'));return{email:String(fd.get('email')||'').trim().toLowerCase(),password:String(fd.get('password')||'')};};\n  document.getElementById('loginform').addEventListener('submit', async ev=>{\n    ev.preventDefault(); const c=creds();\n    if(!c.email||!c.password) return msg('Udfyld både e-mail og kodeord.');\n    msg('Logger ind…',true);\n    const {error}=await db.auth.signInWithPassword(c);\n    if(error) msg(/invalid/i.test(error.message)?'Forkert e-mail eller kodeord.':/confirm/i.test(error.message)?'E-mail ikke bekræftet — sig til Claude.':error.message);\n  });\n  // Selv-registrering er fjernet (v0.7): nye brugere oprettes af en admin på Brugere-siden,\n  // som også opretter login'et og udleverer et engangskodeord.\n  document.getElementById('forgotbtn').addEventListener('click', async ()=>{\n    const c=creds();\n    if(!c.email) return msg('Skriv din e-mail i feltet ovenfor, tryk så «Glemt kodeord?».');\n    msg('Sender link…',true);\n    const {error}=await db.auth.resetPasswordForEmail(c.email, {redirectTo: location.origin+location.pathname});\n    msg(error?error.message:'Vi har sendt et link til '+c.email+'. Åbn mailen og vælg et nyt kodeord (tjek evt. spam-mappen).',!error);\n  });\n}"
+  },
+  {
+   "navn": "changePassword",
+   "erstattet_af": "pandaChangePassword i core.v1.js (engelske tekster)",
+   "original": "function changePassword(){\n  if(document.getElementById('cpoverlay')) return;\n  const ov=document.createElement('div');\n  ov.id='cpoverlay';\n  ov.style.cssText='position:fixed;inset:0;background:rgba(34,48,31,.35);display:flex;align-items:center;justify-content:center;z-index:9999';\n  ov.innerHTML=`<div class=\"card\" style=\"width:360px;max-width:92vw;margin:0\">\n    <h3 style=\"margin-top:0\">Skift kodeord</h3>\n    <label for=\"cpw1\">Nyt kodeord</label><input id=\"cpw1\" type=\"password\" autocomplete=\"new-password\" minlength=\"6\">\n    <label for=\"cpw2\">Gentag nyt kodeord</label><input id=\"cpw2\" type=\"password\" autocomplete=\"new-password\" minlength=\"6\">\n    <div class=\"err\" id=\"cperr\" style=\"margin-top:8px\"></div>\n    <div class=\"row\" style=\"margin-top:14px\">\n      <button class=\"btn\" id=\"cpsave\" type=\"button\">Gem</button>\n      <button class=\"btn ghost\" id=\"cpcancel\" type=\"button\">Annullér</button>\n    </div>\n    <p class=\"muted\" style=\"margin-bottom:0\">Mindst 6 tegn.</p></div>`;\n  document.body.appendChild(ov);\n  const err=(t,ok)=>{const e=ov.querySelector('#cperr');e.className=ok?'err ok':'err';e.textContent=t;};\n  const close=()=>ov.remove();\n  ov.addEventListener('click', e=>{ if(e.target===ov) close(); });\n  ov.querySelector('#cpcancel').onclick=close;\n  ov.querySelector('#cpw1').focus();\n  ov.querySelector('#cpsave').onclick=async()=>{\n    const p1=ov.querySelector('#cpw1').value, p2=ov.querySelector('#cpw2').value;\n    if(p1.length<6) return err('Kodeordet skal være mindst 6 tegn.');\n    if(p1!==p2) return err('De to kodeord er ikke ens.');\n    err('Gemmer…',true);\n    const {error}=await db.auth.updateUser({password:p1});\n    if(error) return err(error.message);\n    err('Kodeord ændret ✓ — brug det næste gang du logger ind.',true);\n    setTimeout(close,1600);\n  };\n}"
+  },
+  {
+   "navn": "showApp",
+   "erstattet_af": "pandaLoadMe + pandaStart i core.v1.js (samme ME/PERMS-regel)",
+   "original": "async function showApp(){\n  $('#sidebar').style.display='';\n  const email = session.user.email;\n  window.MYEMAIL = email;\n  const [tmr, rr] = await Promise.all([\n    db.from('team_members').select('email, name, initials, role, permission_overrides, active').eq('email', email).maybeSingle(),\n    db.from('roles').select('role_key, label, description, permissions, sort_order').order('sort_order')\n  ]);\n  const tm = tmr.data;\n  window.ROLES = rr.data || [];\n  if(!tm || tm.active===false){\n    window.ME=null; window.PERMS={};\n    document.querySelectorAll('#nav button').forEach(b=>b.style.display='none');\n    $('#who').innerHTML = email + '<br><a href=\"#\" onclick=\"db.auth.signOut();return false\">'+t('g.logout')+'</a>' + langPicker();\n    app.innerHTML = '<div class=\"card\"><h3>Ingen adgang</h3><p class=\"muted\">Din bruger ('+email+') er ikke aktiv i systemet. Kontakt Wendie eller Rasmus.</p></div>';\n    return;\n  }\n  window.ME = tm.initials; window.MYNAME = tm.name.split(' ')[0];\n  const roleDef = window.ROLES.find(r=>r.role_key===tm.role);\n  // Effektive rettigheder = rolle-standarder + individuelle undtagelser (spejler public.my_permissions() i databasen)\n  window.PERMS = Object.assign({economy:false,finance:false,reports:true,leads:true,manage_users:false}, (roleDef&&roleDef.permissions)||{}, tm.permission_overrides||{});\n  applyNavPerms();\n  checkTestdata();\n  $('#who').innerHTML = tm.name + (roleDef?' <span class=\"muted\">· '+roleDef.label+'</span>':'') + '<br><a href=\"#\" onclick=\"changePassword();return false\">'+t('g.changepw')+'</a> · <a href=\"#\" onclick=\"db.auth.signOut();return false\">'+t('g.logout')+'</a>' + langPicker();\n  applyI18n();\n  applyRoute();\n  setupRealtime();\n  if(window.__recovery){ window.__recovery=false; setTimeout(changePassword, 500); }\n}"
+  },
+  {
+   "navn": "applyNavPerms",
+   "erstattet_af": "PANDA_MENU[].perm i menu.v1.js",
+   "original": "function applyNavPerms(){\n  const vis = {hv:hasPerm('leads'), finance:hasPerm('finance'), reports:hasPerm('reports'),\n               settings:hasPerm('manage_users')};\n  document.querySelectorAll('#nav button').forEach(b=>{ if(b.dataset.v in vis) b.style.display = vis[b.dataset.v]?'':'none'; });\n}"
+  },
+  {
+   "navn": "noAccess",
+   "erstattet_af": "pandaNoAccess i core.v1.js",
+   "original": "function noAccess(v){ navTo(v); app.innerHTML = '<div class=\"card\"><h3>'+t('g.noaccess')+'</h3><p class=\"muted\">'+t('g.noaccess_txt')+'</p></div>'; }"
+  },
+  {
+   "navn": "navigation",
+   "erstattet_af": "PANDA_MENU[].href i menu.v1.js (sidernes adresser)",
+   "original": "document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewHenvendelser,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,settings:()=>viewIndstillinger(),new:viewNew,testdata:viewTestdata})[b.dataset.v]();});"
+  },
+  {
+   "navn": "PANDA_ROUTES",
+   "erstattet_af": "PANDA_MENU[].href i menu.v1.js",
+   "original": "const PANDA_ROUTES = {dash:viewDash,leads:viewHenvendelser,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,\n  vendorpay:viewVendorPay,gennemgang:viewGennemgang,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,\n  users:viewUsers,new:viewNew,testdata:viewTestdata}"
+  },
+  {
+   "navn": "D8_SKAL-menu",
+   "erstattet_af": "menuens punkter og ikoner i menu.v1.js",
+   "original": "const D8_SKAL = \"<div class=\\\"m8html\\\"><div class=\\\"m8body\\\">\\n<aside class=\\\"menu skal-menu\\\" id=\\\"sidebar\\\">\\n    <div class=\\\"mrk-logo\\\"><h1>MALDIVIA<\\/h1><small>Travel Design · Panda<\\/small><\\/div>\\n    <nav id=\\\"nav\\\">\\n      <button data-v=\\\"dash\\\" class=\\\"on\\\" title=\\\"Dashboard\\\"><span class=\\\"ik\\\">◧<\\/span><span class=\\\"tx\\\">Dashboard<\\/span><\\/button>\\n      <button data-v=\\\"hv\\\" title=\\\"Enquiries\\\"><span class=\\\"ik\\\">✉<\\/span><span class=\\\"tx\\\">Enquiries<\\/span><\\/button>\\n      <button data-v=\\\"team\\\" title=\\\"Team Maldivia\\\"><span class=\\\"ik\\\">◇<\\/span><span class=\\\"tx\\\">Team Maldivia<\\/span><\\/button>\\n      <button data-v=\\\"sales\\\" title=\\\"Sales\\\"><span class=\\\"ik\\\">✈<\\/span><span class=\\\"tx\\\">Sales<\\/span><\\/button>\\n      <button data-v=\\\"finance\\\" title=\\\"Finance\\\"><span class=\\\"ik\\\">▤<\\/span><span class=\\\"tx\\\">Finance<\\/span><\\/button>\\n      <button data-v=\\\"tasks\\\" title=\\\"Tasks\\\"><span class=\\\"ik\\\">✓<\\/span><span class=\\\"tx\\\">Tasks<\\/span><\\/button>\\n      <button data-v=\\\"marketing\\\" title=\\\"Marketing\\\"><span class=\\\"ik\\\">◈<\\/span><span class=\\\"tx\\\">Marketing<\\/span><\\/button>\\n      <button data-v=\\\"reports\\\" title=\\\"Reports\\\"><span class=\\\"ik\\\">▦<\\/span><span class=\\\"tx\\\">Reports<\\/span><\\/button>\\n      <button data-v=\\\"settings\\\" title=\\\"Settings\\\"><span class=\\\"ik\\\">⚙<\\/span><span class=\\\"tx\\\">Settings<\\/span><\\/button>\\n      <button data-v=\\\"new\\\" class=\\\"ny\\\" title=\\\"New trip\\\"><span class=\\\"ik\\\">＋<\\/span><span class=\\\"tx\\\">New trip<\\/span><\\/button>\\n    <\\/nav>\\n    <div class=\\\"fod\\\" id=\\\"d8fod\\\"><\\/div>\\n  <\\/aside>\\n<div class=\\\"scene\\\">\\n<div class=\\\"app\\\" id=\\\"dapp\\\">\\n  <header class=\\\"dhero\\\">\\n    <div class=\\\"dh-foto\\\" aria-hidden=\\\"true\\\"><\\/div>\\n    <div class=\\\"dh-ind\\\">\\n      <div class=\\\"dh-v\\\">\\n        <div class=\\\"eyebrow\\\" id=\\\"dDato\\\"><\\/div>\\n        <h1 id=\\\"dHils\\\"><\\/h1>\\n        <div class=\\\"dh-sub\\\" id=\\\"dSub\\\"><\\/div>\\n      <\\/div>\\n      <div class=\\\"dh-h\\\">\\n        <div class=\\\"dh-tal\\\" id=\\\"dTal\\\"><\\/div>\\n        <div class=\\\"sogvrap\\\">\\n          <label class=\\\"sog\\\" for=\\\"dSog\\\"><span class=\\\"sog-ik\\\" aria-hidden=\\\"true\\\">⌕<\\/span>\\n            <input id=\\\"dSog\\\" type=\\\"search\\\" placeholder=\\\"Search customer, trip, enquiry, hotel, ref. or phone …\\\" autocomplete=\\\"off\\\" spellcheck=\\\"false\\\">\\n            <kbd>⌘K<\\/kbd><\\/label>\\n          <div class=\\\"dres\\\" id=\\\"dRes\\\" hidden><\\/div>\\n        <\\/div>\\n      <\\/div>\\n    <\\/div>\\n  <\\/header>\\n  <div class=\\\"grid1\\\" id=\\\"dGrid\\\"><\\/div>\\n<\\/div>\\n<\\/div>\\n<div class=\\\"kvit\\\" id=\\\"kvit\\\" role=\\\"status\\\" aria-live=\\\"polite\\\"><\\/div>\\n<\\/div><\\/div>\\n\";"
+  }
+ ]
+}
