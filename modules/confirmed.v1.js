@@ -254,6 +254,8 @@ const STIL = `
 .pcblok .sh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--lys3);margin:0 0 6px}
 .pcblok .sh .tael{letter-spacing:0;text-transform:none;font-size:12px;color:var(--lys3)}
 .pcblok tr[data-m8="pcgaatil"]:hover td{background:rgba(255,255,255,.05)}
+.pcgem{background:rgba(127,224,176,.13)!important;border:1px solid rgba(127,224,176,.42)!important;color:#c9f5df!important;box-shadow:none!important;font-weight:500}
+.pcgem:hover{background:rgba(127,224,176,.22)!important}
 .pcblok .sh2{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:26px 0 8px;padding-top:18px;border-top:1px solid rgba(255,255,255,.10)}
 .pcblok .sh2 h3{margin:0;font:500 17px/1.2 "Lora",Georgia,serif;color:#fff;letter-spacing:.01em;font-variant-numeric:normal}
 .pcblok .sh2 .pcchip{margin-left:auto}
@@ -484,19 +486,19 @@ function tegnBetal(b){
     : x.st === 'overdue' ? '<span class="pcchip rod">overdue</span>' : '<span class="pcchip">open</span>';
   const rows = P.map((x, i) => '<tr><td style="text-align:left"><input class="pcin" data-m8c="pcplan" data-i="' + i + '" data-f="l" value="' + esc(x.l) + '"></td>'
     + '<td style="width:130px"><input class="pcin tal" data-m8c="pcplan" data-i="' + i + '" data-f="b" value="' + esc(nfx(x.b)) + '" inputmode="decimal"></td>'
-    + '<td style="width:58px;color:var(--lys3)">' + (pris ? Math.round(x.b / pris * 100) + ' %' : '') + '</td>'
+    + '<td style="width:64px;color:var(--lys3);white-space:nowrap">' + (pris ? Math.round(x.b / pris * 100) + ' %' : '') + '</td>'
     + '<td style="width:150px"><input class="pcin" type="date" data-m8c="pcplan" data-i="' + i + '" data-f="d" value="' + esc(x.d || '') + '"></td>'
     + '<td>' + chip(x) + '</td><td style="width:26px">' + (P.length > 1 ? '<button class="pcx" title="Remove" data-m8="pcplanfjern" data-i="' + i + '">×</button>' : '') + '</td></tr>').join('');
   const M = modtagne();
   const ret = S.planRet || planErStandard();
-  b.innerHTML = '<div class="sh">Customer payments <span class="tael">' + (planErStandard() ? 'the standard plan — 50 % on the booking day and 50 % two months before departure (R9). Amounts and dates can be changed — save it when it is right.' : 'the payment plan on the trip') + '</span></div>'
+  b.innerHTML = '<div class="sh">Customer payments' + (planErStandard() ? ' <span class="tael">standard plan</span>' : '') + '</div>'
     + '<table class="tab tabmini"><thead><tr><th style="text-align:left">Payment</th><th>Amount (' + esc(v) + ')</th><th></th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>'
     + '<div class="pcsum"><span>Plan ' + nfx(sum) + ' ' + esc(v) + ' · customer price ' + nfx(pris) + ' ' + esc(v) + '</span>'
       + (Math.abs(sum - pris) > 0.5 ? '<span class="pcchip rod">' + (sum > pris ? nfx(sum - pris) + ' too much' : nfx(pris - sum) + ' missing') + '</span>' : '<span class="pcchip ok">matches the price</span>')
-      + '<button class="b mini" data-m8="pcplanny">＋ Split / add a payment</button><button class="b mini" data-m8="pcplannul">50 / 50</button>'
-      + (ret ? '<button class="b mini fyldt" data-m8="pcplangem">Save the payment plan</button>' : '') + '</div>'
+      + '<button class="b mini" data-m8="pcplanny">＋ Split / add a payment</button><button class="b mini" data-m8="pcplannul">50 / 50</button><button class="b mini" data-m8="pcplan100" title="Everything as one payment">100 %</button>'
+      + (ret ? '<button class="b mini pcgem" data-m8="pcplangem">Save the payment plan</button>' : '') + '</div>'
     + (S.planFejl ? '<p class="pcfejl">' + esc(S.planFejl) + '</p>' : '')
-    + '<div class="sh" style="margin-top:16px">Received <span class="tael">' + (M.length ? nfx(modtagetSum()) + ' ' + esc(v) + ' in ' + A.flertal(M.length, 'payment', 'payments') : 'no payments registered yet') + ' — payments are approved in Finance and land here by themselves (R755)</span></div>'
+    + '<div class="sh" style="margin-top:16px">Received <span class="tael">' + (M.length ? nfx(modtagetSum()) + ' ' + esc(v) + ' in ' + A.flertal(M.length, 'payment', 'payments') : 'no payments registered yet') + '</span></div>'
     + (M.length ? '<table class="tab tabmini"><tbody>' + M.map(x => '<tr><td style="text-align:left">' + esc(A.kdA(x.p.payment_date || x.p.settled_at || lok(x.p.created_at))) + '</td><td class="nw">'
         + (x.b != null ? nfx(x.b) + ' ' + esc(v) : nfx(x.p.amount) + ' ' + esc(String(x.p.currency || '').trim())) + '</td><td style="text-align:left">' + esc(x.p.payer_name || '—') + '</td>'
         + '<td style="text-align:left;color:var(--lys3)">' + esc([x.p.method, x.p.reconciled_at ? 'reconciled' : (x.p.status === 'betalt' ? 'received' : x.p.status)].filter(Boolean).join(' · ')) + '</td></tr>').join('') + '</tbody></table>' : '');
@@ -547,8 +549,9 @@ function tegnLev(){
   const flyDkk = L.filter(x => x.fly).reduce((a, x) => a + (x.dkk || 0), 0);
   const fiSum = FI.reduce((a, f) => a + (f.doc_type === 'kreditnota' ? -1 : 1) * (Number(f.total_dkk) || 0), 0);
   ind.innerHTML = '<div class="pcblok"><div class="sh">To pay</div>'
-    + (L.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">Supplier</th><th style="text-align:left">What</th><th>Due</th><th>Amount</th><th style="text-align:left">Status</th></tr></thead><tbody>'
-      + L.map(x => '<tr data-m8="pcgaatil" data-yd="' + esc(x.e.id) + '" data-i="' + x.i + '" title="Open the price line under Services on the trip" style="cursor:pointer"><td style="text-align:left">' + esc(x.lev) + '</td><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '</td><td class="nw">' + (x.forfald ? esc(A.kdA(x.forfald)) : '—') + '</td>'
+    + (L.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">Supplier</th><th style="text-align:left">Ref. / PNR</th><th style="text-align:left">What</th><th>Due</th><th>Amount</th><th style="text-align:left">Status</th></tr></thead><tbody>'
+      + L.map(x => '<tr data-m8="pcgaatil" data-yd="' + esc(x.e.id) + '" data-i="' + x.i + '" title="Open the price line under Services on the trip" style="cursor:pointer"><td style="text-align:left">' + esc(x.lev) + '</td>'
+        + '<td style="text-align:left;font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em;white-space:nowrap">' + (A.linjeRef && A.linjeRef(x.e, x.l) ? esc(A.linjeRef(x.e, x.l)) : '<span style="color:var(--lys3)">—</span>') + '</td><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '</td><td class="nw">' + (x.forfald ? esc(A.kdA(x.forfald)) : '—') + '</td>'
         + '<td class="nw">' + (x.l.pris != null && x.l.pris !== '' ? nfx(x.l.pris) + ' ' + esc(x.l.val || '') : '—') + '</td><td style="text-align:left"><span class="pcchip ' + x.status[0] + '">' + esc(x.status[1]) + '</span></td></tr>').join('')
       + '</tbody></table>' : '<p class="note">No price lines are selected.</p>') + '</div>'
     + '<div class="pcblok"><div class="sh">Flight invoices</div>'
@@ -631,6 +634,11 @@ HANDL.pcplanny = () => { const P = planLaes(), t = A.T(), sum = P.reduce((a, x) 
   else P.push({l: 'Payment ' + (P.length + 1), b: Math.max(0, pris - sum), d: t.departure_date ? plusDage(t.departure_date, -60) : null});
   S.plan = P; S.planRet = true; tegnBetal(); };
 HANDL.pcplanfjern = el => { const P = planLaes(); P.splice(+el.dataset.i, 1); S.plan = P; S.planRet = true; tegnBetal(); };
+/* Wendie 20.10.2026: «en mulighed for at sætte balance til hundrede procent» — hele prisen som én betaling.
+   Datoen er den sidste betalings dato i planen (typisk restbetalingens), ellers i dag. */
+HANDL.pcplan100 = () => { const t = A.T(), pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0, P = planLaes();
+  const d = (P.length && P[P.length - 1].d) || A.iDag();
+  S.plan = [{l: 'Balance', b: pris, d}]; S.planRet = true; S.planFejl = ''; tegnBetal(); };
 HANDL.pcplannul = () => { S.plan = standardPlan(); S.planRet = true; S.planFejl = ''; tegnBetal(); };
 HANDL.pcplangem = () => { const P = planLaes(), t = A.T(), id = t.id, pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0, sum = P.reduce((a, x) => a + x.b, 0);
   if(!P.length) { S.planFejl = 'The plan needs at least one payment.'; return tegnBetal(); }
