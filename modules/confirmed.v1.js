@@ -253,6 +253,10 @@ const STIL = `
 .pcblok{margin:16px 0 4px}
 .pcblok .sh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--lys3);margin:0 0 6px}
 .pcblok .sh .tael{letter-spacing:0;text-transform:none;font-size:12px;color:var(--lys3)}
+.pcblok tr[data-m8="pcgaatil"]:hover td{background:rgba(255,255,255,.05)}
+.pcblok .sh2{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:26px 0 8px;padding-top:18px;border-top:1px solid rgba(255,255,255,.10)}
+.pcblok .sh2 h3{margin:0;font:500 17px/1.2 "Lora",Georgia,serif;color:#fff;letter-spacing:.01em;font-variant-numeric:normal}
+.pcblok .sh2 .pcchip{margin-left:auto}
 .pcblok table{width:100%}
 .pcblok td,.pcblok th{vertical-align:middle}
 .pcblok .nw{white-space:nowrap}
@@ -301,6 +305,28 @@ function sikrKort(){
   const v = R.querySelector('.venstre');
   if(v && !R.getElementById('pcCancel')){ const d = document.createElement('div'); d.className = 'pccancel'; d.id = 'pcCancel'; v.appendChild(d); }
   tegnCancel();
+  toning();
+}
+/* Wendie 20.10.2026: «graderingen fortsætter. Selvom vi får flere kort ind … så skal det stadigvæk spille med graderingen.»
+   Én glidende overgang over ALLE kortene i venstre side — fra dashboardets blå til bordeaux (gradering A, som Sales) —
+   uanset hvor mange kort der er. Sættes som kortets egne farver, så stilarkets 7 faste trin overtrumfes. */
+const TONE = [[70,132,236],[112,104,242],[160,92,236],[196,84,180],[176,52,112],[128,28,66]];
+function toneAf(t){
+  const x = Math.max(0, Math.min(1, t)) * (TONE.length - 1), k = Math.min(TONE.length - 2, Math.floor(x)), f = x - k;
+  return TONE[k].map((c, j) => Math.round(c + (TONE[k + 1][j] - c) * f));
+}
+function toning(){
+  const R = A.ROD(); if(!R) return;
+  const K = [...R.querySelectorAll('.venstre > section.kort, .venstre section.kort')].filter((x, i, a) => a.indexOf(x) === i);
+  const N = K.length; if(N < 2) return;
+  K.forEach((k, i) => {
+    const [r, g, b] = toneAf(i / (N - 1)), c = (a) => 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+    const sig = r + ',' + g + ',' + b; if(k.dataset.tone === sig) return;
+    k.dataset.tone = sig;
+    k.style.setProperty('--toning', 'linear-gradient(112deg,' + c(.36) + ',' + c(.15) + ')');
+    k.style.setProperty('--toningAab', 'linear-gradient(112deg,' + c(.42) + ',' + c(.18) + ')');
+    const n = k.querySelector('.knum'); if(n) n.style.color = 'rgb(' + [r, g, b].map(x => Math.round(x + (255 - x) * .42)).join(',') + ')';
+  });
 }
 
 /* ── kobl: én gang pr. side (KROP-kortene pakkes ind én gang for alle) ── */
@@ -379,7 +405,10 @@ function efterFrist(){
   rk.sort((a, z) => String(a.d || '9999') < String(z.d || '9999') ? -1 : 1);
   const chip = d => { if(!d) return '<span class="pcchip">no date</span>'; const n = A.dageMellem(A.iDag(), d);
     return '<span class="pcchip ' + (n < 0 ? 'rod' : n <= 14 ? 'obs' : '') + '">' + (n < 0 ? A.flertal(-n, 'day', 'days') + ' overdue' : n === 0 ? 'today' : A.flertal(n, 'day', 'days')) + '</span>'; };
-  b.innerHTML = '<div class="sh">Payments due <span class="tael">the customer\'s instalments and supplier payments — paid ones drop off by themselves</span></div>'
+  /* Wendie 20.10.2026: en tydeligere overskrift — og ingen forklarende tekst */
+  const n0 = rk.find(x => x.d), nN = n0 ? A.dageMellem(A.iDag(), n0.d) : null;
+  b.innerHTML = '<div class="sh2"><h3>Payments due</h3>' + (rk.length ? '<span class="pcchip ' + (nN != null && nN < 0 ? 'rod' : nN != null && nN <= 14 ? 'obs' : '') + '">'
+      + rk.length + ' open' + (nN == null ? '' : nN < 0 ? ' · overdue' : nN === 0 ? ' · next today' : ' · next in ' + A.flertal(nN, 'day', 'days')) + '</span>' : '') + '</div>'
     + (rk.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">What</th><th>Amount</th><th>Due</th><th>Due in</th><th style="text-align:left">Note</th></tr></thead><tbody>'
       + rk.map(x => '<tr><td style="text-align:left">' + esc(x.hvad) + '</td><td class="nw">' + esc(x.bel) + '</td><td class="nw">' + (x.d ? esc(A.kdA(x.d)) : '—') + '</td><td>' + chip(x.d) + '</td><td style="text-align:left;color:var(--lys3)">' + esc(x.aft) + '</td></tr>').join('')
       + '</tbody></table>' : '<p class="note">Nothing due — the customer has paid according to the plan, and no supplier payment is open.</p>');
@@ -482,10 +511,13 @@ function efterHist(){
   let b = R.getElementById('pc-arkiv');
   if(!L.length){ if(b) b.remove(); return; }
   if(!b){ b = document.createElement('div'); b.id = 'pc-arkiv'; b.className = 'pcblok'; ind.insertBefore(b, ind.firstChild); }
-  b.innerHTML = '<div class="sh">Archive <span class="tael">price lines that were not selected when the trip was confirmed — they still exist and can be shown under the service</span></div>'
-    + '<table class="tab tabmini"><tbody>' + L.map(x => '<tr><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '<span class="u">' + esc(A.plNavn(x.e, x.l, x.i).replace(/<[^>]+>/g, '')) + '</span></td>'
+  /* Wendie 20.10.2026: «der, hvor der står archive, skal man kunne folde ind og ud» — foldet ind som standard */
+  const aab = !!S.arkivHist;
+  b.innerHTML = '<button type="button" class="sh" data-m8="pcarkivhist" aria-expanded="' + aab + '" style="all:unset;display:flex;gap:10px;align-items:baseline;cursor:pointer;width:100%;font:500 15px/1.3 \'Lora\',Georgia,serif;font-variant-numeric:normal;color:#fff;padding:4px 0">'
+    + '<span style="display:inline-block;transition:transform .2s;transform:rotate(' + (aab ? 90 : 0) + 'deg);color:var(--lys3)">›</span>Archive <span class="tael" style="font:400 12px/1.3 Inter,system-ui,sans-serif;color:var(--lys3)">' + A.flertal(L.length, 'price line', 'price lines') + ' not selected at confirmation</span></button>'
+    + (!aab ? '' : '<table class="tab tabmini"><tbody>' + L.map(x => '<tr><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '<span class="u">' + esc(A.plNavn(x.e, x.l, x.i).replace(/<[^>]+>/g, '')) + '</span></td>'
       + '<td style="text-align:left">' + esc(A.levVis(x.l)) + '</td><td class="nw">' + (x.l.pris != null && x.l.pris !== '' ? nfx(x.l.pris) + ' ' + esc(x.l.val || '') : '—') + '</td>'
-      + '<td style="text-align:left;color:var(--lys3)">' + esc(x.l.kilde ? (A.plKildeEn ? A.plKildeEn(x.l.kilde) : x.l.kilde) : '') + '</td></tr>').join('') + '</tbody></table>';
+      + '<td style="text-align:left;color:var(--lys3)">' + esc(x.l.kilde ? (A.plKildeEn ? A.plKildeEn(x.l.kilde) : x.l.kilde) : '') + '</td></tr>').join('') + '</tbody></table>');
 }
 
 /* ── 07 Supplier payments & invoices (R757, R345) ── */
@@ -514,16 +546,16 @@ function tegnLev(){
   const L = levRaekker(), FI = S.data.fi || [], VP = S.data.vpl || [];
   const flyDkk = L.filter(x => x.fly).reduce((a, x) => a + (x.dkk || 0), 0);
   const fiSum = FI.reduce((a, f) => a + (f.doc_type === 'kreditnota' ? -1 : 1) * (Number(f.total_dkk) || 0), 0);
-  ind.innerHTML = '<div class="pcblok"><div class="sh">To pay <span class="tael">the selected price lines — flights count as paid when the tickets are issued</span></div>'
+  ind.innerHTML = '<div class="pcblok"><div class="sh">To pay</div>'
     + (L.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">Supplier</th><th style="text-align:left">What</th><th>Due</th><th>Amount</th><th style="text-align:left">Status</th></tr></thead><tbody>'
-      + L.map(x => '<tr><td style="text-align:left">' + esc(x.lev) + '</td><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '</td><td class="nw">' + (x.forfald ? esc(A.kdA(x.forfald)) : '—') + '</td>'
+      + L.map(x => '<tr data-m8="pcgaatil" data-yd="' + esc(x.e.id) + '" data-i="' + x.i + '" title="Open the price line under Services on the trip" style="cursor:pointer"><td style="text-align:left">' + esc(x.lev) + '</td><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '</td><td class="nw">' + (x.forfald ? esc(A.kdA(x.forfald)) : '—') + '</td>'
         + '<td class="nw">' + (x.l.pris != null && x.l.pris !== '' ? nfx(x.l.pris) + ' ' + esc(x.l.val || '') : '—') + '</td><td style="text-align:left"><span class="pcchip ' + x.status[0] + '">' + esc(x.status[1]) + '</span></td></tr>').join('')
       + '</tbody></table>' : '<p class="note">No price lines are selected.</p>') + '</div>'
-    + '<div class="pcblok"><div class="sh">Flight invoices <span class="tael">the final invoice, held against the estimate on the price line (R345)</span></div>'
+    + '<div class="pcblok"><div class="sh">Flight invoices</div>'
     + (FI.length ? '<table class="tab tabmini"><tbody>' + FI.map(f => '<tr><td style="text-align:left">' + esc((f.doc_type === 'kreditnota' ? 'Credit note ' : 'Invoice ') + (f.invoice_no || '')) + '<span class="u">' + esc([f.supplier, f.airline, f.pnr].filter(Boolean).join(' · ')) + '</span></td>'
         + '<td class="nw">' + (f.invoice_date ? esc(A.kdA(f.invoice_date)) : '—') + '</td><td class="nw">' + nfx(f.total_dkk) + ' DKK</td></tr>').join('') + '</tbody></table>'
         + (flyDkk ? '<p class="note">Estimate on the price line ' + nfx(flyDkk) + ' DKK · invoiced ' + nfx(fiSum) + ' DKK · <b>' + (fiSum - flyDkk >= 0 ? nfx(fiSum - flyDkk) + ' DKK more' : nfx(flyDkk - fiSum) + ' DKK less') + '</b> than estimated.</p>' : '')
-      : '<p class="note">No flight invoice yet — it comes when the tickets are issued.</p>') + '</div>'
+      : '<p class="note">No flight invoice yet.</p>') + '</div>'
     + (VP.length ? '<div class="pcblok"><div class="sh">Supplier payments registered <span class="tael">from Dolphin\'s vendor payments</span></div><table class="tab tabmini"><tbody>'
         + VP.map(x => '<tr><td style="text-align:left">' + esc(x.product || '—') + '</td><td class="nw">' + (x.vendor_amount != null ? nfx(x.vendor_amount) + ' ' + esc(String(x.currency || '').trim()) : '') + '</td><td class="nw">' + nfx(x.paid_dkk) + ' DKK</td></tr>').join('') + '</tbody></table></div>' : '');
 }
@@ -584,6 +616,8 @@ HANDL.pcstadie = el => {
 const faerdig = async () => { try { await A.ydGem(A.ydFoer()); } catch(_){} };
 HANDL.pcsalg = () => faerdig().then(() => { if(typeof viewSales === 'function') return viewSales(); history.back(); });
 HANDL.pcklassisk = () => { const id = A.T().id; return faerdig().then(() => { if(typeof viewTrip === 'function') return viewTrip(id, {klassisk: true}); }); };
+HANDL.pcgaatil = el => { if(A.aabnLinje) A.aabnLinje(el.dataset.yd, +el.dataset.i); };   /* Wendie 20.10.2026: kort 07 → prislinjen i kort 04 */
+HANDL.pcarkivhist = () => { S.arkivHist = !S.arkivHist; efterHist(); };
 HANDL.pcarkiv = el => { const id = el.dataset.yd; S.arkivVis[id] = !S.arkivVis[id]; A.KROP.yd(true); };
 const planLaes = () => { const R = A.ROD(), P = plan().map(x => Object.assign({}, x));
   (R ? [...R.querySelectorAll('#pc-betal [data-m8c="pcplan"]')] : []).forEach(x => { const i = +x.dataset.i, f = x.dataset.f; if(!P[i]) return;

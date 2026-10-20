@@ -72,7 +72,7 @@ const STIL = `
 .s8rel{position:relative}
 .s8rel.aab{z-index:6}
 .s8pop{position:absolute;top:40px;left:0;z-index:5;min-width:260px;box-sizing:border-box;background:linear-gradient(160deg,#3a2f7a,#2d2463);border:1px solid rgba(201,182,255,.32);border-radius:12px;box-shadow:0 28px 56px -22px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.12);padding:8px}
-.s8pop.hoejre{left:auto;right:0}
+.s8pop.s8hj{left:auto;right:0}
 .s8pop .ov{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a89cd8;padding:6px 10px}
 .s8opt{width:100%;display:flex;justify-content:space-between;gap:12px;align-items:center;height:32px;padding:0 10px;border:0;border-radius:8px;font-size:13px;text-align:left;white-space:nowrap;background:none;color:#fff}
 .s8opt:hover{background:rgba(201,182,255,.16)}
@@ -234,7 +234,7 @@ function tegnTop(){
     + '<button type="button" class="s8ctl' + (aab ? ' on' : '') + '" data-s="pop" data-k="recent" aria-expanded="' + aab + '">'
     + '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9b6ff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l3 2"></path></svg>'
     + '<span>Recent · ' + rec.length + '</span>' + chev(aab) + '</button>'
-    + (aab ? '<div class="s8pop hoejre" role="dialog" aria-label="Recently opened" style="width:350px"><div class="ov">Recently opened</div>'
+    + (aab ? '<div class="s8pop s8hj" role="dialog" aria-label="Recently opened" style="width:350px"><div class="ov">Recently opened</div>'
       + (rec.length ? rec.map(t => '<button type="button" class="s8opt" data-s="aabn" data-id="' + esc(t.id) + '" style="display:grid;grid-template-columns:64px minmax(0,1fr) auto;height:34px">'
           + '<span style="font-family:\'IBM Plex Mono\',ui-monospace,monospace;font-size:12px;color:#c9b6ff">' + esc(t.ref_no || '—') + '</span>'
           + '<span style="overflow:hidden;text-overflow:ellipsis">' + esc(navn(t)) + ' · ' + esc(dest(t)) + '</span><span class="h">' + esc(fds(t.departure_date)) + '</span></button>').join('')
@@ -417,7 +417,7 @@ function klik(ev){
   /* Wendie 20.10.2026: listen skal kunne vendes, så de nyeste står øverst */
   if(s === 'vend')    { if(S.sort !== 'date'){ S.sort = 'date'; S.dir = -1; } else S.dir = -S.dir; S.fold = {}; return tegn(); }
   if(s === 'ny')      { luk(); return (typeof viewNew === 'function') && viewNew(); }
-  if(s === 'klassisk'){ window.__salgKlassisk = true; luk(); return (typeof viewSales === 'function') && viewSales(); }
+
 }
 function forslag(){ const [fra, til] = periode();
   return periodeNavn(fra, til) + efterNavn() + (S.br !== 'all' ? ' · ' + S.br : '') + (S.ag !== 'all' ? ' · ' + S.ag : '') + ' · ' + statusNavn(); }
@@ -512,7 +512,7 @@ function skal(){
     + '<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search</span><input id="s8q" type="search" placeholder="Name or ref. no. — all dates" autocomplete="off" spellcheck="false"></label>'
     + '<div id="s8rec"></div><button type="button" class="s8ny" data-s="ny">＋ New trip</button></div></header>'
     + '<div class="s8bar" id="s8bar"></div><div id="s8krop" style="display:flex;flex-direction:column;gap:14px"></div>'
-    + '<div style="text-align:center;padding:10px 0 4px"><button type="button" class="s8klas" data-s="klassisk">Classic list</button></div>'
+    /* «Classic list» fjernet (Wendie 20.10.2026: «det skal slet ikke være en mulighed … Vi skal ikke tilbage til det gamle design») */
     + '</div></div></div>'
     + '</div></div>';
 }
