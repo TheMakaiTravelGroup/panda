@@ -10,21 +10,27 @@
    Stilarket selv røres ikke. Modulet skalerer skriftstørrelserne efter én regel og gør de
    dæmpede lyse tekstfarver lidt lysere, så de står tydeligere på den lilla bund:
      · de mindste tekster (mærker, overskrifter med versaler, under 10 px) løftes mest — mindst 11 px
-     · brødtekst og tabeller (10–13,5 px) får +2 px
-     · mellemstore (14–18 px) får +1 px
+     · brødtekst og tabeller (10–13,5 px) får +1 px  (niveau 2: +3 px)
+     · mellemstore (14–18 px) får +0,5 px            (niveau 2: +1,5 px)
      · store overskrifter og tal står, som de er
-   Standard er 2 (Wendie 19.10.2026: «Endnu større»). Niveauet kan sættes pr. bruger (localStorage «panda_tekst»: 0 = som før, 1 = større, 2 = endnu større). */
+   Standard er 1 (Wendie 20.10.2026: «teksten bliver alligevel lidt for stor» — 19.10 var det 2, «Endnu større»). Niveauet kan sættes pr. bruger (localStorage «panda_tekst»: 0 = som før, 1 = større, 2 = endnu større). */
 (function(){
   'use strict';
   const VERSION = 'laesbar v1';
-  const NIV = (function(){ try { const v = localStorage.getItem('panda_tekst'); return v == null ? 2 : Math.max(0, Math.min(2, +v || 0)); } catch(_){ return 2; } })();
+  const NIV = (function(){ try { const v = localStorage.getItem('panda_tekst'); return v == null ? 1 : Math.max(0, Math.min(2, +v || 0)); } catch(_){ return 1; } })();
   const rund = n => Math.round(n * 2) / 2;
   function px(n, niv){
     if(!niv) return n;
-    const ekstra = niv === 2 ? 1 : 0;
-    if(n < 10) return rund(Math.max(n * 1.3, 11 + ekstra));
-    if(n <= 13.5) return rund(n + 2 + ekstra);
-    if(n <= 18) return rund(n + 1 + ekstra * 0.5);
+    if(niv === 2){                                   /* «Endnu større» (19.10) */
+      if(n < 10) return rund(Math.max(n * 1.3, 12));
+      if(n <= 13.5) return rund(n + 3);
+      if(n <= 18) return rund(n + 1.5);
+      return n;
+    }
+    /* niveau 1 — standard fra 20.10: brødtekst ca. 14 px, etiketter ca. 11–11,5 px (som strandtema-skitsen) */
+    if(n < 10) return rund(Math.max(n * 1.15, 11));
+    if(n <= 13.5) return rund(n + 1);
+    if(n <= 18) return rund(n + 0.5);
     return n;
   }
   /* lyse, dæmpede tekstfarver (--lys2, --lys3) trækkes mod hvid; mørke (lyse temaer) røres ikke */

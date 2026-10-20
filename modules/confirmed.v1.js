@@ -192,15 +192,16 @@ function kursAlarm(){
 /* ══ BETALINGSPLANEN (R754, R9) ═══════════════════════════════════════════
    Gemmes i trips.payment_plan som [{l, b, d}] i kundens valuta. Uden en gemt plan:
    depositum og restbetaling fra rejsen, ellers standarden 50 % / 50 % to måneder før afrejse
-   (under 60 dage: alt med det samme). */
+   (under 60 dage: alt med det samme). Depositum forfalder samme dag som bestillingen (Wendie 20.10.2026). */
 function bekraeftetDato(){ const sn = S.data && S.data.snap, t = A.T(); return lok((sn && sn.tid) || t.booking_date || t.accepted_at) || A.iDag(); }
 function standardPlan(){
   const t = A.T(), pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0, ud = t.departure_date;
   const bk = bekraeftetDato();
   if(!pris) return [];
-  if(ud && A.dageMellem(bk, ud) <= 60) return [{l: 'Full payment', b: pris, d: plusDage(bk, 3)}];
+  /* Wendie 20.10.2026: «depositum er altid samme dag som bestilling» — datoerne kan rettes i planen */
+  if(ud && A.dageMellem(bk, ud) <= 60) return [{l: 'Full payment', b: pris, d: bk}];
   const dep = Math.floor(pris / 2);
-  return [{l: 'Deposit', b: dep, d: plusDage(bk, 3)}, {l: 'Balance', b: pris - dep, d: ud ? plusDage(ud, -60) : plusDage(bk, 30)}];
+  return [{l: 'Deposit', b: dep, d: bk}, {l: 'Balance', b: pris - dep, d: ud ? plusDage(ud, -60) : plusDage(bk, 30)}];
 }
 function gemtPlan(){
   const t = A.T(), p = t.payment_plan;
@@ -459,7 +460,7 @@ function tegnBetal(b){
     + '<td>' + chip(x) + '</td><td style="width:26px">' + (P.length > 1 ? '<button class="pcx" title="Remove" data-m8="pcplanfjern" data-i="' + i + '">×</button>' : '') + '</td></tr>').join('');
   const M = modtagne();
   const ret = S.planRet || planErStandard();
-  b.innerHTML = '<div class="sh">Customer payments <span class="tael">' + (planErStandard() ? 'the standard plan — 50 % at booking and 50 % two months before departure (R9). Save it, or change it first.' : 'the payment plan on the trip') + '</span></div>'
+  b.innerHTML = '<div class="sh">Customer payments <span class="tael">' + (planErStandard() ? 'the standard plan — 50 % on the booking day and 50 % two months before departure (R9). Amounts and dates can be changed — save it when it is right.' : 'the payment plan on the trip') + '</span></div>'
     + '<table class="tab tabmini"><thead><tr><th style="text-align:left">Payment</th><th>Amount (' + esc(v) + ')</th><th></th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>'
     + '<div class="pcsum"><span>Plan ' + nfx(sum) + ' ' + esc(v) + ' · customer price ' + nfx(pris) + ' ' + esc(v) + '</span>'
       + (Math.abs(sum - pris) > 0.5 ? '<span class="pcchip rod">' + (sum > pris ? nfx(sum - pris) + ' too much' : nfx(pris - sum) + ' missing') + '</span>' : '<span class="pcchip ok">matches the price</span>')
