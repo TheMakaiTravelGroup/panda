@@ -1,0 +1,448 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panda</title>
+<link rel="icon" type="image/png" href="img/panda-favicon.png">
+<link rel="stylesheet" href="core/core.v1.css">
+<!-- ═══ Panda · Knowledge — knowledge.html ═══════════════════════════════
+   Videnbanken (R-numre: se Kravspecifikation, «Videnbank» 19.10.2026).
+   Bygget på kernen (core/ v1) — ændrer IKKE core/ (R835): menupunktet
+   lægges ind i PANDA_MENU lokalt her på siden.
+   Data: kb_entities · kb_insights · kb_comments · kb_sources · kb_roles ·
+   kb_links · kb_followups · destinations · v_kb_trip_history (maldivia-core).
+   Alt indhold er på engelsk. Kun fakta og meninger — ingen salgsråd fra
+   leverandører. Wendie og Rasmus kan tilføje, kommentere og slette
+   (slettede punkter kan gendannes). Databankens dokumenter er arkivet. -->
+<style>
+.kb{--ink:#221b45;--muted:#5b5480;--line:#e2ddf2;--soft:#f3f0fc;--panel:#fff;
+  --lagoon:#4c3aaa;--lagoon-soft:#ece8fb;--gold:#9b2c5b;--gold-soft:#f9edf3;
+  --warn:#8a5a00;--warn-soft:#fdf1d8;--ok:#1f7a5c;--ok-soft:#e3f4ec;--off:#736c96;--off-soft:#efedf4;
+  display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh;font-size:14px}
+.p-main.kb-host{padding:0}
+.kb button,.kb input,.kb select,.kb textarea{font:inherit;color:inherit}
+.kb label{display:block;margin:0;font-size:inherit;letter-spacing:0;text-transform:none;color:inherit}
+.kb input[type=checkbox]{width:auto;height:auto;padding:0;box-shadow:none}
+.kb h1,.kb h2,.kb h3{margin:0}
+.kb .index{position:sticky;top:0;height:100vh;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.kb .index-head{padding:18px 16px 10px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.kb .ktitle{font:500 22px/1.2 var(--p-f-display);color:var(--ink)}
+.kb .search{position:relative}
+.kb .search input{height:36px;border:1px solid var(--line);background:var(--soft);border-radius:9px;padding:0 10px 0 32px}
+.kb .search svg{position:absolute;left:10px;top:10px;width:16px;height:16px;color:var(--muted)}
+.kb .seg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--soft);border-radius:9px;padding:3px}
+.kb .seg button{height:28px;border:0;background:transparent;border-radius:7px;font-size:12px;color:var(--muted);cursor:pointer}
+.kb .seg button.on{background:var(--panel);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.kb .list{overflow:auto;padding:8px;flex:1;min-height:0}
+.kb .sub-label{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--ink);padding:8px 10px 2px;border-top:1px solid var(--line);margin-top:4px}
+.kb .sub-label span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.kb .sub-label a.xref{color:var(--ink);text-decoration:none}
+.kb .group-label{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:12px 8px 4px}
+.kb .item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;width:100%;text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:9px;cursor:pointer}
+.kb .item:hover{background:var(--soft)} .kb .item.on{background:var(--lagoon-soft)}
+.kb .item .n{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kb .item .p{grid-column:1;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kb .item .c{grid-row:1/3;grid-column:2;align-self:center}
+.kb .dotp{display:inline-block;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--gold-soft);color:var(--gold);font:600 11px/20px var(--p-f-body);font-variant-numeric:tabular-nums;text-align:center}
+.kb .inbox{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;margin:8px 8px 4px;border:1px solid var(--gold);background:var(--gold-soft);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left;width:calc(100% - 16px)}
+.kb .inbox b{display:block;font-size:13px} .kb .inbox span{font-size:12px;color:var(--muted)}
+.kb .main{min-width:0}
+.kb .wrap{max-width:1120px;margin:0 auto;padding:24px max(24px,env(safe-area-inset-right,0px)) 60px max(24px,env(safe-area-inset-left,0px))}
+.kb .crumbs{font-size:12px;color:var(--muted);margin-bottom:6px;display:flex;gap:6px;flex-wrap:wrap}
+.kb .crumbs button,.kb .linkbtn{border:0;background:none;padding:0;color:var(--lagoon);cursor:pointer;font:inherit}
+.kb .head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.kb h1{font:500 32px/1.15 var(--p-f-display);color:var(--ink);text-wrap:balance}
+.kb .meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;color:var(--muted);font-size:13px;align-items:center}
+.kb .pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600}
+.kb .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.kb .t-live{background:var(--ok-soft);color:var(--ok)} .kb .t-wait{background:var(--soft);color:var(--muted)} .kb .t-go{background:var(--gold-soft);color:var(--gold)}
+.kb .btn{height:34px;padding:0 14px;border-radius:8px;border:1px solid var(--lagoon);background:var(--lagoon);color:#fff;font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.kb .btn.ghost{background:transparent;color:var(--lagoon)}
+.kb .btn[disabled]{opacity:.6;cursor:wait}
+.kb .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-top:16px}
+.kb .fact{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+.kb .fact .k{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.kb .fact .v{font-weight:600;font-size:13.5px;line-height:1.35;margin-top:3px}
+.kb .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+.kb .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px 10px;min-width:0}
+.kb .card h2{margin:0 0 8px;font:600 11.5px var(--p-f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.kb .card h2 .cnt{font-size:11px;letter-spacing:0;font-variant-numeric:tabular-nums}
+.kb .card.insider{background:var(--gold-soft);border-color:transparent}
+.kb .card.insider h2{color:var(--gold)}
+.kb .card.watch{border-color:var(--warn-soft)}
+.kb .card.watch h2{color:var(--warn)}
+.kb .card.wide{grid-column:1/-1}
+.kb ul.bl{list-style:none;margin:0;padding:0}
+.kb ul.bl li{position:relative;padding:5px 0 5px 16px;font-size:14px;line-height:1.45;border-top:1px solid var(--line);cursor:pointer}
+.kb .card.insider ul.bl li{border-top-color:rgba(155,44,91,.14)}
+.kb ul.bl li:first-child{border-top:0}
+.kb ul.bl li::before{content:"";position:absolute;left:2px;top:13px;width:5px;height:5px;border-radius:50%;background:var(--muted)}
+.kb .card.insider ul.bl li::before{background:var(--gold)}
+.kb .card.watch ul.bl li::before{background:var(--warn)}
+.kb ul.bl li.gone{color:var(--muted);cursor:default}
+.kb ul.bl li.gone .gt{text-decoration:line-through}
+.kb .mk{display:inline-flex;align-items:center;height:17px;padding:0 5px;margin-left:6px;border-radius:4px;font:600 10px var(--p-f-body);letter-spacing:.04em;vertical-align:1px}
+.kb .mk.us{background:var(--ok-soft);color:var(--ok)}
+.kb .mk.ins{background:var(--gold-soft);color:var(--gold)}
+.kb .mk.until{background:var(--warn-soft);color:var(--warn)}
+.kb .more{display:none;margin-top:5px;font-size:12.5px;color:var(--muted);line-height:1.5}
+.kb li.open .more{display:block}
+.kb .more b{color:var(--ink);font-weight:500}
+.kb .cmt{margin:4px 0 2px;padding:4px 8px;border-radius:6px;font-size:12.5px;background:var(--soft);color:var(--ink)}
+.kb .cmt.disagree{background:var(--warn-soft);color:var(--warn)} .kb .cmt.agree{background:var(--ok-soft);color:var(--ok)}
+.kb .acts{display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.kb .mini{height:28px;padding:0 12px;border-radius:7px;border:1px solid var(--line);background:var(--panel);font-size:12px;cursor:pointer;color:var(--ink)}
+.kb .mini.prim{background:var(--lagoon);border-color:var(--lagoon);color:#fff} .kb .mini.danger{border-color:var(--warn);color:var(--warn)}
+.kb .cform{display:grid;gap:6px;margin-top:8px}
+.kb .cform select,.kb .cform input{height:30px;border:1px solid var(--line);border-radius:7px;background:var(--panel);padding:0 8px;font-size:12.5px}
+.kb .crow{display:grid;grid-template-columns:160px minmax(0,1fr);gap:6px}
+.kb a.xref{color:var(--lagoon);text-decoration:underline;text-decoration-color:rgba(76,58,170,.4);text-underline-offset:3px;font-weight:500}
+.kb a.xref:hover{text-decoration-color:var(--lagoon)}
+.kb .deal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.kb .deal h3{margin:0 0 6px;font:600 12px var(--p-f-body);color:var(--muted)}
+.kb .person{font-size:13.5px;padding:4px 0}
+.kb .person>a.xref{font-weight:600;display:block}
+.kb .person>span{display:block;color:var(--muted);font-size:12px}
+.kb .person .also{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.kb .task{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;padding:4px 0;font-size:13.5px;cursor:pointer}
+.kb .task input{margin-top:3px;accent-color:var(--lagoon)}
+.kb .task small{display:block;color:var(--muted);font-size:11.5px}
+.kb .task.done .tt{text-decoration:line-through;color:var(--muted)}
+.kb .linked{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.kb .linked .lk{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);align-self:center;margin-right:4px}
+.kb .linked button{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 10px;font-size:12.5px;cursor:pointer}
+.kb .linked button span{color:var(--muted)}
+.kb .tl{list-style:none;margin:0;padding:0}
+.kb .tl li{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.kb .tl li:first-child{border-top:0}
+.kb .tl .when{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.kb .tl small{display:block;color:var(--muted);font-size:12px}
+.kb .legend{margin-top:14px;display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);align-items:center}
+.kb form.add{display:grid;gap:10px;background:var(--panel);border:1px solid var(--lagoon);border-radius:12px;padding:14px;margin-top:14px}
+.kb form.add .r{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.kb form.add label{display:grid;gap:4px;font-size:11.5px;color:var(--muted)}
+.kb form.add select,.kb form.add input[type=text],.kb form.add textarea{border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:0 9px}
+.kb form.add select,.kb form.add input[type=text]{height:34px}
+.kb form.add textarea{min-height:64px;padding:8px 9px;color:var(--ink);font-size:14px}
+.kb form.add .chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink)}
+.kb .actions{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.kb .actions small{color:var(--muted)}
+.kb .srcs{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.kb .srcs button{border:1px solid var(--line);background:var(--panel);border-radius:999px;height:28px;padding:0 12px;font-size:12px;cursor:pointer}
+.kb .srcs button.on{background:var(--lagoon);border-color:var(--lagoon);color:#fff}
+.kb .rv-ent{margin-top:18px}
+.kb .rv-ent h3{font:500 19px var(--p-f-display);margin:0 0 6px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.kb .rv-ent h3 .linkbtn{font:500 12px var(--p-f-body)}
+.kb .hit{display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
+.kb .hit b{color:var(--lagoon);font-weight:600;font-size:13px}
+.kb mark{background:var(--gold-soft);color:inherit;padding:0 2px;border-radius:3px}
+.kb .empty{color:var(--muted);padding:6px 0;font-size:13px}
+.kb .browse{display:none;align-items:center;gap:8px;height:34px;padding:0 12px;margin-bottom:12px;border:1px solid var(--line);background:var(--panel);border-radius:8px;font-size:13px;font-weight:600;color:var(--lagoon);cursor:pointer}
+.kb .scrim{display:none}
+@media (max-width:980px){.kb .deal{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1100px){
+  .kb{grid-template-columns:minmax(0,1fr)}
+  .kb .index{position:fixed;left:0;top:0;bottom:0;height:auto;width:min(320px,100vw);z-index:60;transform:translateX(-105%);transition:transform .2s ease;box-shadow:20px 0 50px -20px rgba(20,10,50,.35)}
+  body.list-open .kb .index{transform:none}
+  body.list-open .kb .scrim{display:block;position:fixed;inset:0;background:rgba(20,12,45,.25);z-index:55}
+  .kb .browse{display:inline-flex}
+}
+@media (max-width:820px){
+  .kb .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .kb .grid{grid-template-columns:minmax(0,1fr)} .kb .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kb form.add .r{grid-template-columns:minmax(0,1fr)} .kb .crow{grid-template-columns:minmax(0,1fr)}
+  .kb .hit{grid-template-columns:minmax(0,1fr)}
+  .kb h1{font-size:27px}
+}
+@media (prefers-reduced-motion: reduce){.kb .index{transition:none}}
+</style></head><body>
+<script src="lib/supabase-js-2.117.3.min.js"></script>
+<script src="core/menu.v1.js"></script>
+<script src="core/core.v1.js"></script>
+<script>
+/* Menupunktet Knowledge efter Sales — lokalt, så core/ ikke ændres (R835).
+   Når core/ får en ny udgave, flyttes punktet ind i PANDA_MENU dér. */
+(function(){
+  if(!PANDA_MENU.some(m => m.v === 'knowledge')){
+    const i = PANDA_MENU.findIndex(m => m.v === 'sales');
+    PANDA_MENU.splice(i + 1, 0, {v:'knowledge', ik:'❖', tx:'Knowledge', href:'knowledge.html'});
+  }
+})();
+
+const KB_VERSION = 'knowledge 1';
+/* Kun Wendie og Rasmus tilføjer, kommenterer og sletter (Wendie 19.10.2026). Andre læser. */
+const KB_EDITORS = ['WEN','RAS'];
+const SEC = {glance:'What it is', insider:'Insider', exp:'Experience & feel', watch:'Watch out', deal:'Deal & contacts'};
+const SEC_PLACE = {glance:'Key facts', insider:'Insider', exp:'Experience & feel', watch:'Watch out', deal:'Deal & contacts'};
+const TYPE = {hotel:'Hotel', destination:'Destination', partner:'Partner', playbook:'Our rules', person:'Person'};
+const SRC_TYPES = ['Site visit','Email','Meeting','Conversation','Guest feedback','Own knowledge'];
+
+let K = null;                          // alle data
+let E = {}, S = {}, DST = {};          // opslag
+let XREF = [], XRE = null;
+let st = {id:null, view:'entity', type:'all', q:'', adding:false, open:null, del:null, cm:null, src:null, busy:false};
+const esc = escH;
+const canEdit = () => KB_EDITORS.includes(window.ME);
+const fmt = d => { if(!d) return ''; const [y,m,dd] = String(d).slice(0,10).split('-'); return (+dd) + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1] + ' ' + y; };
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const hl = (t,q) => q ? esc(t).replace(new RegExp('(' + reEsc(esc(q)) + ')','ig'), '<mark>$1</mark>') : esc(t);
+const shown = i => !i.deleted;
+const ofE = id => K.insights.filter(i => i.e === id && shown(i));
+const kbq = q => q.then(r => { if(r.error) throw new Error(r.error.message); return r.data || []; });
+
+/* ── Indlæs alt (lille datamængde: et par hundrede rækker) ── */
+async function load(){
+  const [ents, ins, cms, srcs, roles, links, fus, dests, hist] = await Promise.all([
+    kbq(db.from('kb_entities').select('id,type,name,place,destination_code,rep_id,supplier_id,in_portfolio,status,aliases,facts')),
+    kbq(db.from('kb_insights').select('id,entity_id,block,text,kind,who,insider,client_safe,valid_until,source_id,deleted_at,deleted_by,created_at').order('created_at').order('legacy_key')),
+    kbq(db.from('kb_comments').select('id,insight_id,who,stance,text,created_at').order('created_at')),
+    kbq(db.from('kb_sources').select('id,type,title,source_date,people,link,created_at')),
+    kbq(db.from('kb_roles').select('person_id,entity_id,role,kind,is_current,source_id')),
+    kbq(db.from('kb_links').select('a_id,b_id,type')),
+    kbq(db.from('kb_followups').select('id,entity_id,title,owner,state,done_at,done_by,created_at').order('created_at')),
+    kbq(db.from('destinations').select('code,name_en,kind,parent_code')),
+    kbq(db.from('v_kb_trip_history').select('entity_id,trips,last_departure'))
+  ]);
+  DST = Object.fromEntries(dests.map(d => [d.code, d]));
+  const H = Object.fromEntries(hist.map(h => [h.entity_id, h]));
+  const chain = code => { const out = []; let c = code, n = 0; while(c && DST[c] && n++ < 10){ out.push(c); c = DST[c].parent_code; } return out; };
+  const countryOf = code => { const ch = chain(code); const top = ch.length ? DST[ch[ch.length-1]] : null; return top ? top.name_en : ''; };
+  K = {
+    entities: ents.map(e => ({id:e.id, type:e.type, name:e.name, place:e.place||'', dest:e.destination_code, chain:chain(e.destination_code),
+      country: e.type==='hotel' ? (countryOf(e.destination_code) || 'Other') : countryOf(e.destination_code),
+      rep:e.rep_id, supplier:e.supplier_id, portfolio:!!e.in_portfolio, status:e.status, aliases:e.aliases||[],
+      facts:Array.isArray(e.facts) ? e.facts : [], history: e.supplier_id ? (H[e.id] || {trips:0, last_departure:null}) : null})),
+    insights: ins.map(i => ({id:i.id, e:i.entity_id, sec:i.block, t:i.text, kind:i.kind, who:i.who, insider:i.insider, safe:i.client_safe,
+      until:i.valid_until, src:i.source_id, deleted:!!i.deleted_at, deletedAt:i.deleted_at, deletedBy:i.deleted_by, created:i.created_at, comments:[]})),
+    sources: srcs, roles: roles.map(r => ({p:r.person_id, e:r.entity_id, role:r.role, kind:r.kind, now:!!r.is_current, src:r.source_id})),
+    links: links.map(l => ({a:l.a_id, b:l.b_id, type:l.type})),
+    followups: fus.map(f => ({id:f.id, e:f.entity_id, t:f.title, owner:f.owner, state:f.state, done:!!f.done_at, doneBy:f.done_by}))
+  };
+  const byId = Object.fromEntries(K.insights.map(i => [i.id, i]));
+  cms.forEach(c => { const i = byId[c.insight_id]; if(i) i.comments.push({who:c.who, stance:c.stance, text:c.text, date:c.created_at}); });
+  E = Object.fromEntries(K.entities.map(e => [e.id, e]));
+  S = Object.fromEntries(K.sources.map(s => [s.id, s]));
+  XREF = K.entities.flatMap(e => (e.aliases||[]).filter(a => a && a.length > 2).map(a => [a, e.id])).sort((a,b) => b[0].length - a[0].length);
+  XRE = XREF.length ? new RegExp('(^|[^A-Za-z])(' + XREF.map(x => reEsc(esc(x[0]))).join('|') + ')(?![A-Za-z])', 'g') : null;
+}
+
+/* Krydshenvisninger: navne på andre hoteller, steder, partnere og personer bliver links. */
+function link(text, self){
+  const t = esc(text);
+  if(!XRE) return t;
+  return t.replace(XRE, (m, pre, name) => {
+    const hit = XREF.find(x => esc(x[0]) === name);
+    return (!hit || hit[1] === self || !E[hit[1]]) ? m : pre + '<a href="#' + esc(hit[1]) + '" class="xref" data-x="' + esc(hit[1]) + '" title="Open ' + esc(E[hit[1]].name) + '">' + name + '</a>';
+  });
+}
+
+/* ── Venstre liste ── */
+function latestSource(){
+  const used = new Set(K.insights.map(i => i.src));
+  return K.sources.filter(s => used.has(s.id)).sort((a,b) => String(b.source_date).localeCompare(String(a.source_date)) || String(b.created_at).localeCompare(String(a.created_at)))[0];
+}
+function renderList(){
+  const q = st.q.toLowerCase(), ls = latestSource();
+  document.getElementById('inboxN').textContent = ls ? K.insights.filter(i => i.src === ls.id && shown(i)).length : 0;
+  document.getElementById('inboxTxt').textContent = ls ? ' ' + ls.title.split(':')[0] + ' · ' + fmt(ls.source_date) : ' Nothing yet';
+  let ents = K.entities.filter(e => st.type === 'all' || e.type === st.type || (st.type === 'partner' && e.type === 'playbook'));
+  if(q) ents = ents.filter(e => (e.name + ' ' + e.place + ' ' + e.aliases.join(' ')).toLowerCase().includes(q) || ofE(e.id).some(i => i.t.toLowerCase().includes(q)));
+  const H = ents.filter(e => e.type === 'hotel'), D = ents.filter(e => e.type === 'destination');
+  const groups = [['Hotels · in our portfolio', H.filter(e => e.portfolio)], ['Hotels · not in our portfolio', H.filter(e => !e.portfolio)],
+    ['Destinations · in our portfolio', D.filter(e => e.portfolio)], ['Destinations · not in our portfolio', D.filter(e => !e.portfolio)],
+    ['People', ents.filter(e => e.type === 'person')], ['Partners & DMCs', ents.filter(e => e.type === 'partner')], ['Our rules', ents.filter(e => e.type === 'playbook')]];
+  const byName = (x,y) => x.name.localeCompare(y.name);
+  const item = e => { const n = ofE(e.id).filter(i => i.sec === 'insider').length;
+    const sub = e.country ? (e.place.replace(new RegExp(',?\\s*' + reEsc(e.country) + '$'), '') || e.country) : e.place;
+    return '<button class="item' + (st.view === 'entity' && st.id === e.id ? ' on' : '') + '" data-id="' + esc(e.id) + '"><span class="n">' + esc(e.name) + '</span>'
+      + (n ? '<span class="c"><span class="dotp" title="' + n + ' insider points">' + n + '</span></span>' : '') + '<span class="p">' + esc(sub) + '</span></button>'; };
+  /* Hoteller grupperes efter land: Maldiverne først, derefter alfabetisk (Wendie 19.10.2026). */
+  const byCountry = a => [...new Set(a.map(e => e.country))].sort((x,y) => x === 'Maldives' ? -1 : y === 'Maldives' ? 1 : x.localeCompare(y)).map(c => {
+    const d = K.entities.find(x => x.type === 'destination' && x.name === c), its = a.filter(e => e.country === c).sort(byName);
+    return '<div class="sub-label">' + (d ? '<a href="#' + esc(d.id) + '" class="xref" data-x="' + esc(d.id) + '">' + esc(c) + '</a>' : esc(c)) + '<span>' + its.length + '</span></div>' + its.map(item).join(''); }).join('');
+  document.getElementById('list').innerHTML = groups.filter(g => g[1].length).map(([l,a]) => '<div class="group-label">' + l + '</div>' + (a[0].type === 'hotel' ? byCountry(a) : a.slice().sort(byName).map(item).join(''))).join('') || '<div class="empty" style="padding:12px">Nothing found</div>';
+  document.querySelectorAll('#list .item').forEach(b => b.onclick = () => go(b.dataset.id));
+  document.querySelectorAll('#list a.xref').forEach(a => a.onclick = ev => { ev.preventDefault(); go(a.dataset.x); });
+}
+
+/* Adressen er knowledge.html#<id> — så kan man linke direkte og bruge «tilbage». */
+function go(id){ if(!E[id]) return; document.body.classList.remove('list-open'); if(location.hash !== '#' + id) location.hash = id; else show(id); }
+function show(id){ st.view = 'entity'; st.id = id; st.adding = false; st.open = null; st.del = null; st.cm = null; st.q = ''; const q = document.getElementById('q'); if(q) q.value = ''; render(); window.scrollTo(0,0); }
+
+/* ── Et punkt ── */
+function li(i){
+  const s = S[i.src] || {title:'Unknown source'};
+  const marks = (i.kind === 'ours' || i.kind === 'policy' ? '<span class="mk us">US</span>' : '') + (i.insider && i.sec !== 'insider' ? '<span class="mk ins">INSIDER</span>' : '')
+    + (i.until ? '<span class="mk until">UNTIL ' + esc(fmt(i.until).toUpperCase()) + '</span>' : '');
+  const cm = i.comments.map(c => '<div class="cmt ' + esc(c.stance) + '"><b>' + esc(c.who) + ' ' + (c.stance === 'disagree' ? 'disagrees' : c.stance === 'agree' ? 'agrees' : 'notes') + ':</b> ' + link(c.text, i.e) + '</div>').join('');
+  const open = st.open === i.id;
+  let ctl = '';
+  if(open && canEdit()){
+    ctl = st.del === i.id
+      ? '<div class="acts"><span>Delete this point? It can be restored later.</span><button class="mini danger" data-delyes="' + i.id + '">Yes, delete</button><button class="mini" data-delno="1">No</button></div>'
+      : st.cm === i.id
+      ? '<form class="cform" data-cform="' + i.id + '"><div class="crow"><select id="c-st"><option value="disagree">Disagree</option><option value="note" selected>Note</option><option value="agree">Agree</option></select><input type="text" id="c-tx" required placeholder="Your comment (in English)"></div><div class="acts"><button class="mini prim" type="submit">Add comment</button><button class="mini" type="button" data-cmno="1">Cancel</button></div></form>'
+      : '<div class="acts"><button class="mini" data-cm="' + i.id + '">Comment</button><button class="mini" data-del="' + i.id + '">Delete</button></div>';
+  }
+  return '<li class="' + (open ? 'open' : '') + '" data-li="' + i.id + '" title="Click for source' + (canEdit() ? ', comment or delete' : '') + '">' + link(i.t, i.e) + marks + cm
+    + '<div class="more"><b>Source:</b> ' + esc(s.title) + (s.source_date ? ' · ' + fmt(s.source_date) : '') + ' · ' + esc(i.who || '')
+    + (s.link ? ' · <a href="' + esc(s.link) + '" target="_blank" rel="noopener">open ↗</a>' : '') + ctl + '</div></li>';
+}
+function card(sec, items, label){
+  return '<section class="card ' + sec + '"><h2>' + label + '<span class="cnt">' + items.length + '</span></h2>' + (items.length ? '<ul class="bl">' + items.map(li).join('') + '</ul>' : '<div class="empty">Nothing yet</div>') + '</section>';
+}
+
+/* ── Hotel, destination, partner, regler ── */
+const WHEN = r => r.kind === 'visit' ? 'Visited' : (r.now ? 'Now' : 'Before');
+function entityView(){
+  const e = E[st.id], all = ofE(e.id), L = e.type === 'destination' ? SEC_PLACE : SEC, by = k => all.filter(i => i.sec === k);
+  const rep = e.rep && E[e.rep];
+  const kids = K.entities.filter(x => x.id !== e.id && (x.rep === e.id || (e.type === 'destination' && x.type !== 'destination' && x.type !== 'person' && x.chain.includes(e.dest)) || (e.type === 'destination' && x.type === 'destination' && x.chain.slice(1).includes(e.dest))));
+  const people = K.roles.filter(r => r.e === e.id && E[r.p]).sort((a,b) => b.now - a.now);
+  const tasks = K.followups.filter(f => f.e === e.id);
+  let facts = e.facts.length ? e.facts.slice(0,4) : [['Type', TYPE[e.type]], ['Where', (e.place || '–').split(',')[0]], ['Status', e.status ? e.status.split(' ·')[0] : (e.portfolio ? 'In portfolio' : 'Not in portfolio')], ['Sources', String(new Set(all.map(i => i.src)).size)]];
+  if(e.history){
+    const h = e.history, v = h.trips ? h.trips + (h.trips === 1 ? ' trip' : ' trips') + (h.last_departure ? ' · last ' + fmt(h.last_departure) : '') : 'None in Panda yet';
+    facts = facts.slice(0,3).concat([['Our trips', v]]);
+  }
+  const dst = e.dest && E[e.dest] && e.dest !== e.id ? E[e.dest] : null;
+  const L2 = K.links.filter(l => l.a === e.id || l.b === e.id).map(l => [l.type, l.a === e.id ? l.b : l.a]).filter(x => E[x[1]]);
+  return '<div class="crumbs"><span>Knowledge</span><span>/</span><span>' + TYPE[e.type] + '</span>' + (dst ? '<span>/</span><button data-go="' + esc(dst.id) + '">' + esc(dst.name) + '</button>' : '') + '</div>'
+  + '<div class="head"><div><h1>' + esc(e.name) + '</h1><div class="meta">'
+  + (e.type === 'hotel' || e.type === 'destination' ? '<span class="pill ' + (e.portfolio ? 't-live' : 't-wait') + '">' + (e.portfolio ? 'In our portfolio' : 'Not in our portfolio') + '</span>' : '')
+  + (e.status ? '<span class="pill t-go">' + esc(e.status) + '</span>' : '') + (e.place ? '<span>' + esc(e.place) + '</span>' : '')
+  + (rep ? '<span>Rep: <button class="linkbtn" data-go="' + esc(rep.id) + '">' + esc(rep.name) + '</button></span>' : '') + '</div></div>'
+  + (canEdit() ? '<button class="btn" id="addBtn">' + (st.adding ? 'Close' : '+ Add insight') + '</button>' : '') + '</div>'
+  + (st.adding ? addForm(e) : '')
+  + '<div class="facts">' + facts.map(([k,v]) => '<div class="fact"><div class="k">' + esc(k) + '</div><div class="v">' + link(v, e.id) + '</div></div>').join('') + '</div>'
+  + '<div class="grid">' + card('glance', by('glance'), L.glance) + card('insider', by('insider'), L.insider) + card('exp', by('exp'), L.exp) + card('watch', by('watch'), L.watch)
+  + '<section class="card wide"><h2>' + L.deal + '<span class="cnt">' + by('deal').length + '</span></h2><div class="deal">'
+  + '<div><h3>Terms & notes</h3>' + (by('deal').length ? '<ul class="bl">' + by('deal').map(li).join('') + '</ul>' : '<div class="empty">Nothing yet</div>') + '</div>'
+  + '<div><h3>People</h3>' + (people.length ? people.map(r => { const others = K.roles.filter(x => x.p === r.p && x.e !== e.id && E[x.e]);
+      return '<div class="person"><a href="#' + esc(r.p) + '" class="xref" data-x="' + esc(r.p) + '">' + esc(E[r.p].name) + '</a><span>' + (r.now && r.kind !== 'visit' ? '' : WHEN(r) + ' · ') + esc(r.role) + '</span>'
+        + (others.length ? '<span class="also">' + others.map(x => WHEN(x) + ': <a href="#' + esc(x.e) + '" class="xref" data-x="' + esc(x.e) + '">' + esc(E[x.e].name) + '</a> · ' + esc(x.role)).join('<br>') + '</span>' : '') + '</div>'; }).join('') : '<div class="empty">No people yet</div>') + '</div>'
+  + '<div><h3>Follow-ups</h3>' + (tasks.length ? tasks.map(t => '<label class="task' + (t.done ? ' done' : '') + '"><input type="checkbox" data-task="' + t.id + '"' + (t.done ? ' checked' : '') + (canEdit() ? '' : ' disabled') + '><span><span class="tt">' + link(t.t, e.id) + '</span><small>' + esc(t.owner || '') + ' · ' + (t.done ? 'done' + (t.doneBy ? ' by ' + esc(t.doneBy) : '') : t.state === 'waiting' ? 'waiting for them' : 'to do') + '</small></span></label>').join('') : '<div class="empty">Nothing open</div>') + '</div>'
+  + '</div>'
+  + ((L2.length || kids.length) ? '<div class="linked"><span class="lk">Connections</span>' + L2.map(([ty,o]) => '<button data-go="' + esc(o) + '"><span>' + esc(ty) + ':</span> ' + esc(E[o].name) + ' →</button>').join('') + kids.sort((a,b) => a.name.localeCompare(b.name)).map(x => '<button data-go="' + esc(x.id) + '">' + esc(x.name) + ' →</button>').join('') + '</div>' : '')
+  + '</section></div>'
+  + '<div class="legend"><span><span class="mk us" style="margin:0">US</span> our own opinion or experience · unmarked = what the supplier told us</span><span>No sales advice from suppliers is stored: how we recommend is up to Wendie and Rasmus</span><span>Click a point for its source' + (canEdit() ? ', to comment or to delete' : '') + '</span></div>';
+}
+
+/* ── Person: karriere og forbindelser (kun professionelle fakta) ── */
+function personView(){
+  const e = E[st.id], rs = K.roles.filter(r => r.p === e.id && E[r.e]).sort((a,b) => (b.now - a.now) || ((a.kind === 'visit') - (b.kind === 'visit')));
+  const names = (e.aliases||[]).map(a => a.toLowerCase());
+  const said = names.length ? K.insights.filter(i => shown(i) && names.some(n => new RegExp('(^|[^a-z])' + reEsc(n) + '(?![a-z])').test(i.t.toLowerCase()))) : [];
+  const now = rs.find(r => r.now && r.kind === 'work');
+  return '<div class="crumbs"><span>Knowledge</span><span>/</span><span>People</span></div>'
+  + '<div class="head"><div><h1>' + esc(e.name) + '</h1><div class="meta"><span>' + esc(e.place) + '</span></div></div></div>'
+  + '<div class="facts">' + [['Now at', now ? E[now.e].name : '–'], ['Role', now ? now.role : '–'], ['Places linked', String(new Set(rs.map(r => r.e)).size)], ['Mentioned in', said.length + (said.length === 1 ? ' point' : ' points')]].map(([k,v]) => '<div class="fact"><div class="k">' + k + '</div><div class="v">' + esc(v) + '</div></div>').join('') + '</div>'
+  + '<div class="grid"><section class="card"><h2>Career & connections<span class="cnt">' + rs.length + '</span></h2>' + (rs.length ? '<ul class="tl">' + rs.map(r => '<li><span class="when">' + WHEN(r) + '</span><span><a href="#' + esc(r.e) + '" class="xref" data-x="' + esc(r.e) + '">' + esc(E[r.e].name) + '</a><small>' + esc(r.role) + (S[r.src] ? ' · ' + esc(S[r.src].title) : '') + '</small></span></li>').join('') + '</ul>' : '<div class="empty">Nothing yet</div>') + '</section>'
+  + '<section class="card"><h2>Mentioned in<span class="cnt">' + said.length + '</span></h2>' + (said.length ? '<ul class="bl">' + said.map(i => '<li data-li="' + i.id + '" class="' + (st.open === i.id ? 'open' : '') + '"><a href="#' + esc(i.e) + '" class="xref" data-x="' + esc(i.e) + '">' + esc(E[i.e] ? E[i.e].name : i.e) + '</a>: ' + link(i.t, i.e) + '<div class="more"><b>Source:</b> ' + esc((S[i.src]||{}).title || '') + ' · ' + esc(i.who || '') + '</div></li>').join('') + '</ul>' : '<div class="empty">Not mentioned yet</div>') + '</section></div>'
+  + '<div class="legend"><span>Only professional facts are stored about people: role, workplace and career moves.</span></div>';
+}
+
+/* ── Tilføj et punkt (kun Wendie og Rasmus) ── */
+function addForm(e){
+  const L = e.type === 'destination' ? SEC_PLACE : SEC;
+  return '<form class="add" id="addForm">'
+  + '<label>The point — full detail, in English<textarea id="f-t" required maxlength="1200" placeholder="e.g. Villa 12 has the best sunset view and no path runs past it"></textarea></label>'
+  + '<div class="r"><label>Goes under<select id="f-sec">' + Object.entries(L).map(([k,v]) => '<option value="' + k + '"' + (k === 'insider' ? ' selected' : '') + '>' + v + '</option>').join('') + '</select></label>'
+  + '<label>Learned from<select id="f-src">' + SRC_TYPES.map(t => '<option>' + t + '</option>').join('') + '</select></label>'
+  + '<label>Who said it<input type="text" id="f-who" value="' + esc(window.MYNAME || '') + '" maxlength="80"></label></div>'
+  + '<label>Source detail (optional)<input type="text" id="f-srct" maxlength="160" placeholder="e.g. Site visit March 2026, or mail from Aysel 12 Oct"></label>'
+  + '<label class="chk"><input type="checkbox" id="f-us" checked> Our own experience or opinion (not just what the supplier says)</label>'
+  + '<div class="actions"><small>Goes in straight away. Written in English.</small><span style="display:flex;gap:8px"><button type="button" class="btn ghost" id="cancelAdd">Cancel</button><button class="btn" type="submit" id="saveAdd">Save</button></span></div></form>';
+}
+
+/* ── Kilder: alt fra ét møde, én mail osv. + slettede punkter ── */
+function reviewView(){
+  const used = [...new Set(K.insights.map(i => i.src))].map(id => S[id]).filter(Boolean).sort((a,b) => String(b.source_date).localeCompare(String(a.source_date)));
+  const s = S[st.src] || used[0];
+  const arr = s ? K.insights.filter(i => i.src === s.id && shown(i)) : [], ents = [...new Set(arr.map(i => i.e))];
+  const gone = K.insights.filter(i => i.deleted).sort((a,b) => String(b.deletedAt).localeCompare(String(a.deletedAt)));
+  return '<div class="crumbs"><span>Knowledge</span><span>/</span><span>Sources</span></div>'
+  + (s ? '<div class="head"><div><h1>' + esc(s.title) + '</h1><div class="meta"><span>' + fmt(s.source_date) + (s.people ? ' · ' + esc(s.people) : '') + '</span><span>' + arr.length + ' points</span>' + (s.link ? '<a class="linkbtn" href="' + esc(s.link) + '" target="_blank" rel="noopener">Recording notes ↗</a>' : '') + '</div></div></div>' : '<h1>No sources yet</h1>')
+  + (used.length > 1 ? '<div class="srcs">' + used.map(x => '<button data-src="' + esc(x.id) + '" class="' + (s && x.id === s.id ? 'on' : '') + '">' + esc(x.title.split(':')[0]) + ' · ' + fmt(x.source_date) + '</button>').join('') + '</div>' : '')
+  + ents.map(id => '<div class="rv-ent"><h3>' + esc(E[id] ? E[id].name : id) + '<button class="linkbtn" data-go="' + esc(id) + '">Open →</button></h3><section class="card"><ul class="bl">' + arr.filter(i => i.e === id).map(li).join('') + '</ul></section></div>').join('')
+  + (gone.length ? '<div class="rv-ent"><h3>Deleted (' + gone.length + ')</h3><section class="card"><ul class="bl">' + gone.map(i => '<li class="gone"><span class="gt">' + esc(E[i.e] ? E[i.e].name : i.e) + ': ' + esc(i.t) + '</span> <small>· deleted ' + fmt(i.deletedAt) + (i.deletedBy ? ' by ' + esc(i.deletedBy) : '') + '</small> ' + (canEdit() ? '<button class="mini" data-undo="' + i.id + '">Restore</button>' : '') + '</li>').join('') + '</ul></section></div>' : '');
+}
+
+function searchView(){
+  const q = st.q.toLowerCase();
+  const hits = K.insights.filter(i => shown(i) && (i.t.toLowerCase().includes(q) || i.comments.some(c => c.text.toLowerCase().includes(q))));
+  return '<div class="crumbs"><span>Knowledge</span><span>/</span><span>Search</span></div><h1>' + hits.length + ' point' + (hits.length === 1 ? '' : 's') + ' about “' + esc(st.q) + '”</h1>'
+  + '<div style="margin-top:14px">' + (hits.map(i => '<div class="hit" data-go="' + esc(i.e) + '"><b>' + esc(E[i.e] ? E[i.e].name : i.e) + '<br><span style="color:var(--muted);font-weight:400;font-size:12px">' + SEC[i.sec] + '</span></b><span>' + hl(i.t, st.q) + '</span></div>').join('') || '<div class="empty">Nothing yet.</div>') + '</div>';
+}
+
+/* ── Skriv til databasen, og tegn siden igen ── */
+async function save(fn, okMsg){
+  if(st.busy) return; st.busy = true;
+  try { await fn(); await load(); render(); Panda.toast(okMsg); }
+  catch(err){ Panda.toast('Not saved: ' + (err.message || err), 5000); console.error(err); }
+  finally { st.busy = false; }
+}
+const who = () => window.MYNAME || window.ME || '';
+
+function render(){
+  renderList();
+  const v = document.getElementById('view');
+  if(!E[st.id] && st.view === 'entity') st.id = (K.entities.find(e => e.type === 'hotel' && e.portfolio) || K.entities[0] || {}).id;
+  if(!st.id){ v.innerHTML = '<div class="empty">The knowledge bank is empty.</div>'; return; }
+  v.innerHTML = st.q.length > 1 ? searchView() : st.view === 'review' ? reviewView() : (E[st.id].type === 'person' ? personView() : entityView());
+  v.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  v.querySelectorAll('[data-src]').forEach(b => b.onclick = () => { st.src = b.dataset.src; render(); });
+  v.querySelectorAll('[data-li]').forEach(l => l.onclick = () => { st.open = st.open === l.dataset.li ? null : l.dataset.li; st.del = null; st.cm = null; render(); });
+  v.querySelectorAll('a.xref').forEach(a => a.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); go(a.dataset.x); });
+  v.querySelectorAll('.more a[target]').forEach(a => a.onclick = ev => ev.stopPropagation());
+  const stop = (el, fn) => el.onclick = ev => { ev.stopPropagation(); ev.preventDefault(); fn(); };
+  v.querySelectorAll('[data-task]').forEach(c => { c.onclick = ev => ev.stopPropagation(); c.onchange = () => {
+    const done = c.checked; save(() => kbq(db.from('kb_followups').update(done ? {done_at:new Date().toISOString(), done_by:who()} : {done_at:null, done_by:null}).eq('id', c.dataset.task).select('id')), done ? 'Follow-up done' : 'Follow-up reopened'); }; });
+  v.querySelectorAll('[data-del]').forEach(b => stop(b, () => { st.del = b.dataset.del; st.cm = null; render(); }));
+  v.querySelectorAll('[data-delno]').forEach(b => stop(b, () => { st.del = null; render(); }));
+  v.querySelectorAll('[data-delyes]').forEach(b => stop(b, () => { const id = b.dataset.delyes; st.del = null; st.open = null;
+    save(() => kbq(db.from('kb_insights').update({deleted_at:new Date().toISOString(), deleted_by:who()}).eq('id', id).select('id')), 'Point deleted · restore it under Latest added'); }));
+  v.querySelectorAll('[data-undo]').forEach(b => stop(b, () => save(() => kbq(db.from('kb_insights').update({deleted_at:null, deleted_by:null}).eq('id', b.dataset.undo).select('id')), 'Point restored')));
+  v.querySelectorAll('[data-cm]').forEach(b => stop(b, () => { st.cm = b.dataset.cm; st.del = null; render(); const x = document.getElementById('c-tx'); if(x) x.focus(); }));
+  v.querySelectorAll('[data-cmno]').forEach(b => stop(b, () => { st.cm = null; render(); }));
+  v.querySelectorAll('.cform').forEach(f => { f.onclick = ev => ev.stopPropagation(); f.onsubmit = ev => { ev.preventDefault();
+    const tx = document.getElementById('c-tx').value.trim(), stance = document.getElementById('c-st').value; if(!tx) return;
+    const id = f.dataset.cform; st.cm = null;
+    save(() => kbq(db.from('kb_comments').insert({insight_id:id, who:who(), stance, text:tx}).select('id')), 'Comment added'); }; });
+  const ab = document.getElementById('addBtn'); if(ab) ab.onclick = () => { st.adding = !st.adding; render(); if(st.adding) document.getElementById('f-t').focus(); };
+  const ca = document.getElementById('cancelAdd'); if(ca) ca.onclick = () => { st.adding = false; render(); };
+  const f = document.getElementById('addForm'); if(f) f.onsubmit = ev => { ev.preventDefault();
+    const t = document.getElementById('f-t').value.trim(); if(!t) return;
+    const sec = document.getElementById('f-sec').value, typ = document.getElementById('f-src').value, ours = document.getElementById('f-us').checked;
+    const said = document.getElementById('f-who').value.trim() || who(), detail = document.getElementById('f-srct').value.trim();
+    const d = today(), sid = typ.toLowerCase().replace(/[^a-z]+/g,'-') + '-' + (window.ME || 'x').toLowerCase() + '-' + Date.now();
+    const entity = st.id;
+    document.getElementById('saveAdd').disabled = true;
+    save(async () => {
+      await kbq(db.from('kb_sources').insert({id:sid, type:typ, title:detail || (typ + ' · ' + who()), source_date:d, people:who()}).select('id'));
+      await kbq(db.from('kb_insights').insert({entity_id:entity, block:sec, text:t, kind:ours ? 'ours' : 'claim', who:said, insider:sec === 'insider', client_safe:false, source_id:sid}).select('id'));
+      st.adding = false;
+    }, 'Saved'); };
+}
+
+/* ── Siden ── */
+Panda.start({ key:'knowledge', version:KB_VERSION, render: async (app) => {
+  app.classList.add('kb-host');
+  app.innerHTML = '<div class="kb">'
+    + '<aside class="index"><div class="index-head"><div class="ktitle">Knowledge</div>'
+    + '<div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" type="search" placeholder="Search everything we know…" autocomplete="off" aria-label="Search"></div>'
+    + '<div class="seg" id="seg"><button data-f="all" class="on">All</button><button data-f="hotel">Hotels</button><button data-f="destination">Places</button><button data-f="person">People</button><button data-f="partner">Partners</button></div></div>'
+    + '<button class="inbox" id="inboxBtn"><span><b>Latest added</b><span id="inboxTxt"></span></span><span class="dotp" id="inboxN"></span></button>'
+    + '<div class="list" id="list"></div></aside>'
+    + '<div class="scrim" id="scrim"></div>'
+    + '<div class="main"><div class="wrap"><button class="browse" id="browse">☰ All hotels, places & people</button><div id="view"><div class="empty">Loading…</div></div></div></div></div>';
+  await load();
+  document.getElementById('q').addEventListener('input', e => { st.q = e.target.value.trim(); render(); });
+  document.querySelectorAll('#seg button').forEach(b => b.onclick = () => { document.querySelectorAll('#seg button').forEach(x => x.classList.toggle('on', x === b)); st.type = b.dataset.f; renderList(); });
+  document.getElementById('inboxBtn').onclick = () => { document.body.classList.remove('list-open'); st.view = 'review'; st.src = null; st.q = ''; document.getElementById('q').value = ''; render(); window.scrollTo(0,0); };
+  document.getElementById('browse').onclick = () => document.body.classList.add('list-open');
+  document.getElementById('scrim').onclick = () => document.body.classList.remove('list-open');
+  window.onhashchange = () => { const id = decodeURIComponent(location.hash.slice(1)); if(E[id]) show(id); };
+  const start = decodeURIComponent(location.hash.slice(1));
+  st.id = E[start] ? start : (K.entities.find(e => e.id === 'mango') || K.entities.find(e => e.type === 'hotel' && e.portfolio) || K.entities[0] || {}).id;
+  render();
+}});
+</script></body></html>
