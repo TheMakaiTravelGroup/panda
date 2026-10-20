@@ -237,7 +237,7 @@ function kort01(){
   const navn = x => strip(a.ydNavnK(x.e)).split(' — ')[0];
   const nu = raek(d0);
   const chip = !kendte.length ? ['dim', 'no terms entered'] : ukendte.length ? ['obs', ukendte.length + ' without terms'] : nu.pay ? ['obs', 'we pay ' + nf(nu.pay) + ' DKK today'] : ['ok', 'free today'];
-  let h = a.frSekHd('If the trip is cancelled', chip);
+  let h = '';
   if(kendte.length){
     h += '<table class="tab tabmini" id="vkTab"><thead><tr><th style="text-align:left">Cancelled</th><th>We pay</th><th>We get back</th><th>When</th></tr></thead><tbody>'
       + [d0].concat(datoer).map((d, k) => { const r = k ? raek(d) : nu, om = a.frDage(d);
@@ -247,7 +247,8 @@ function kort01(){
       + '</tbody></table>';
   }
   if(ukendte.length) h += '<p class="note" style="margin-top:8px">Not included — no terms on the price line: ' + ukendte.map(x => esc(navn(x))).join(' · ') + '.</p>';
-  return h;
+  /* samme afsnit som resten af kortene (Wendie 20.10.2026) */
+  return a.boks ? a.boks('vk', 'If the trip is cancelled', a.boksChip(chip), h) : a.frSekHd('If the trip is cancelled', chip) + h;
 }
 
 function init(){ kroge(); }

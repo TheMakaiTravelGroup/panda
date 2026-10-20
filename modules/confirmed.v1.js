@@ -261,7 +261,7 @@ window.PandaConfirmed = {version: VERSION, aktiv, skalAabne, _S: S,
 
 /* ══════════════════════════════════ TEGNING ══════════════════════════════════ */
 const STIL = `
-.pcblok{margin:16px 0 4px}
+.pcblok{margin:0}
 .pcblok .sh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--lys3);margin:0 0 6px}
 .pcblok .sh .tael{letter-spacing:0;text-transform:none;font-size:12px;color:var(--lys3)}
 .pcblok tr[data-m8="pcgaatil"]:hover td{background:rgba(255,255,255,.05)}
@@ -422,11 +422,12 @@ function efterFrist(){
     return '<span class="pcchip ' + (n < 0 ? 'rod' : n <= 14 ? 'obs' : '') + '">' + (n < 0 ? A.flertal(-n, 'day', 'days') + ' overdue' : n === 0 ? 'today' : A.flertal(n, 'day', 'days')) + '</span>'; };
   /* Wendie 20.10.2026: en tydeligere overskrift — og ingen forklarende tekst */
   const n0 = rk.find(x => x.d), nN = n0 ? A.dageMellem(A.iDag(), n0.d) : null;
-  b.innerHTML = '<div class="frsek"><h3>Payments due</h3>' + (rk.length ? '<span class="pcchip ' + (nN != null && nN < 0 ? 'rod' : nN != null && nN <= 14 ? 'obs' : '') + '">'
-      + rk.length + ' open' + (nN == null ? '' : nN < 0 ? ' · overdue' : nN === 0 ? ' · next today' : ' · next in ' + A.flertal(nN, 'day', 'days')) + '</span>' : '') + '</div>'
-    + (rk.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">What</th><th>Amount</th><th>Due</th><th>Due in</th><th style="text-align:left">Note</th></tr></thead><tbody>'
+  const payChip = (rk.length ? '<span class="pcchip ' + (nN != null && nN < 0 ? 'rod' : nN != null && nN <= 14 ? 'obs' : '') + '">'
+      + rk.length + ' open' + (nN == null ? '' : nN < 0 ? ' · overdue' : nN === 0 ? ' · next today' : ' · next in ' + A.flertal(nN, 'day', 'days')) + '</span>' : '');
+  /* samme afsnit som resten af kortene (Wendie 20.10.2026) */
+  b.innerHTML = A.boks('pay', 'Payments due', payChip, (rk.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">What</th><th>Amount</th><th>Due</th><th>Due in</th><th style="text-align:left">Note</th></tr></thead><tbody>'
       + rk.map(x => '<tr><td style="text-align:left">' + esc(x.hvad) + '</td><td class="nw">' + esc(x.bel) + '</td><td class="nw">' + (x.d ? esc(A.kdA(x.d)) : '—') + '</td><td>' + chip(x.d) + '</td><td style="text-align:left;color:var(--lys3)">' + esc(x.aft) + '</td></tr>').join('')
-      + '</tbody></table>' : '<p class="note">Nothing due — the customer has paid according to the plan, and no supplier payment is open.</p>');
+      + '</tbody></table>' : '<p class="note">Nothing due.</p>'));
 }
 
 /* ── 04 Services: arkiv og rød markering (R750/R753) ── */
@@ -505,17 +506,16 @@ function tegnBetal(b){
     + '<td>' + chip(x) + '</td><td style="width:26px">' + (i > 0 && i < P.length - 1 ? '<button class="pcx" title="Remove the payment — the amount goes back to the one before" data-m8="pcplanfjern" data-i="' + i + '">×</button>' : '') + '</td></tr>').join('');
   const M = modtagne();
   const ret = S.planRet || planErStandard();
-  b.innerHTML = '<div class="sh">Customer payments' + (planErStandard() ? ' <span class="tael">standard plan</span>' : '') + '</div>'
-    + '<table class="tab tabmini"><thead><tr><th style="text-align:left">Payment</th><th>Amount (' + esc(v) + ')</th><th></th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>'
+  b.innerHTML = A.boks('kpl', 'Customer payments', planErStandard() ? '<span class="uas">standard plan</span>' : '', '<table class="tab tabmini"><thead><tr><th style="text-align:left">Payment</th><th>Amount (' + esc(v) + ')</th><th></th><th>Due</th><th>Status</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>'
     + '<div class="pcsum"><span>Plan ' + nfx(sum) + ' ' + esc(v) + ' · customer price ' + nfx(pris) + ' ' + esc(v) + '</span>'
       + (Math.abs(sum - pris) > 0.5 ? '<span class="pcchip rod">' + (sum > pris ? nfx(sum - pris) + ' too much' : nfx(pris - sum) + ' missing') + '</span>' : '<span class="pcchip ok">matches the price</span>')
       + '<button class="b mini" data-m8="pcplanny">＋ Split / add a payment</button><button class="b mini" data-m8="pcplannul">50 / 50</button><button class="b mini" data-m8="pcplan100" title="Everything as one payment">100 %</button>'
       + (ret ? '<button class="b mini pcgem" data-m8="pcplangem">Save the payment plan</button>' : '') + '</div>'
-    + (S.planFejl ? '<p class="pcfejl">' + esc(S.planFejl) + '</p>' : '')
-    + '<div class="sh" style="margin-top:16px">Received <span class="tael">' + (M.length ? nfx(modtagetSum()) + ' ' + esc(v) + ' in ' + A.flertal(M.length, 'payment', 'payments') : 'no payments registered yet') + '</span></div>'
-    + (M.length ? '<table class="tab tabmini"><tbody>' + M.map(x => '<tr><td style="text-align:left">' + esc(A.kdA(x.p.payment_date || x.p.settled_at || lok(x.p.created_at))) + '</td><td class="nw">'
+    + (S.planFejl ? '<p class="pcfejl">' + esc(S.planFejl) + '</p>' : ''))
+    + A.boks('kmod', 'Received', '<span class="uas">' + (M.length ? nfx(modtagetSum()) + ' ' + esc(v) + ' in ' + A.flertal(M.length, 'payment', 'payments') : 'no payments registered yet') + '</span>',
+      (M.length ? '<table class="tab tabmini"><tbody>' + M.map(x => '<tr><td style="text-align:left">' + esc(A.kdA(x.p.payment_date || x.p.settled_at || lok(x.p.created_at))) + '</td><td class="nw">'
         + (x.b != null ? nfx(x.b) + ' ' + esc(v) : nfx(x.p.amount) + ' ' + esc(String(x.p.currency || '').trim())) + '</td><td style="text-align:left">' + esc(x.p.payer_name || '—') + '</td>'
-        + '<td style="text-align:left;color:var(--lys3)">' + esc([x.p.method, x.p.reconciled_at ? 'reconciled' : (x.p.status === 'betalt' ? 'received' : x.p.status)].filter(Boolean).join(' · ')) + '</td></tr>').join('') + '</tbody></table>' : '');
+        + '<td style="text-align:left;color:var(--lys3)">' + esc([x.p.method, x.p.reconciled_at ? 'reconciled' : (x.p.status === 'betalt' ? 'received' : x.p.status)].filter(Boolean).join(' · ')) + '</td></tr>').join('') + '</tbody></table>' : '<p class="note">No payments yet.</p>'), M.length > 0);
 }
 
 /* ── History: arkivet (R753) ── */
@@ -529,11 +529,9 @@ function efterHist(){
   if(!b){ b = document.createElement('div'); b.id = 'pc-arkiv'; b.className = 'pcblok'; ind.insertBefore(b, ind.firstChild); }
   /* Wendie 20.10.2026: «der, hvor der står archive, skal man kunne folde ind og ud» — foldet ind som standard */
   const aab = !!S.arkivHist;
-  b.innerHTML = '<button type="button" class="sh" data-m8="pcarkivhist" aria-expanded="' + aab + '" style="all:unset;display:flex;gap:10px;align-items:baseline;cursor:pointer;width:100%;font:500 15px/1.3 \'Lora\',Georgia,serif;font-variant-numeric:normal;color:#fff;padding:4px 0">'
-    + '<span style="display:inline-block;transition:transform .2s;transform:rotate(' + (aab ? 90 : 0) + 'deg);color:var(--lys3)">›</span>Archive <span class="tael" style="font:400 12px/1.3 Inter,system-ui,sans-serif;color:var(--lys3)">' + A.flertal(L.length, 'price line', 'price lines') + ' not selected at confirmation</span></button>'
-    + (!aab ? '' : '<table class="tab tabmini"><tbody>' + L.map(x => '<tr><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '<span class="u">' + esc(A.plNavn(x.e, x.l, x.i).replace(/<[^>]+>/g, '')) + '</span></td>'
+  b.innerHTML = A.boks('arkiv', 'Archive', '<span class="uas">' + A.flertal(L.length, 'price line', 'price lines') + ' not selected at confirmation</span>', '<table class="tab tabmini"><tbody>' + L.map(x => '<tr><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '<span class="u">' + esc(A.plNavn(x.e, x.l, x.i).replace(/<[^>]+>/g, '')) + '</span></td>'
       + '<td style="text-align:left">' + esc(A.levVis(x.l)) + '</td><td class="nw">' + (x.l.pris != null && x.l.pris !== '' ? nfx(x.l.pris) + ' ' + esc(x.l.val || '') : '—') + '</td>'
-      + '<td style="text-align:left;color:var(--lys3)">' + esc(x.l.kilde ? (A.plKildeEn ? A.plKildeEn(x.l.kilde) : x.l.kilde) : '') + '</td></tr>').join('') + '</tbody></table>');
+      + '<td style="text-align:left;color:var(--lys3)">' + esc(x.l.kilde ? (A.plKildeEn ? A.plKildeEn(x.l.kilde) : x.l.kilde) : '') + '</td></tr>').join('') + '</tbody></table>', false);
 }
 
 /* ── 07 Supplier payments & invoices (R757, R345) ── */
@@ -562,19 +560,17 @@ function tegnLev(){
   const L = levRaekker(), FI = S.data.fi || [], VP = S.data.vpl || [];
   const flyDkk = L.filter(x => x.fly).reduce((a, x) => a + (x.dkk || 0), 0);
   const fiSum = FI.reduce((a, f) => a + (f.doc_type === 'kreditnota' ? -1 : 1) * (Number(f.total_dkk) || 0), 0);
-  ind.innerHTML = '<div class="pcblok"><div class="sh">To pay</div>'
-    + (L.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">Supplier</th><th style="text-align:left">Ref. / PNR</th><th style="text-align:left">What</th><th>Due</th><th>Amount</th><th style="text-align:left">Status</th></tr></thead><tbody>'
+  ind.innerHTML = A.boks('lbet', 'To pay', '', (L.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">Supplier</th><th style="text-align:left">Ref. / PNR</th><th style="text-align:left">What</th><th>Due</th><th>Amount</th><th style="text-align:left">Status</th></tr></thead><tbody>'
       + L.map(x => '<tr data-m8="pcgaatil" data-yd="' + esc(x.e.id) + '" data-i="' + x.i + '" title="Open the price line under Services on the trip" style="cursor:pointer"><td style="text-align:left">' + esc(x.lev) + '</td>'
         + '<td style="text-align:left;font-family:ui-monospace,Menlo,monospace;letter-spacing:.04em;white-space:nowrap">' + (A.linjeRef && A.linjeRef(x.e, x.l) ? esc(A.linjeRef(x.e, x.l)) : '<span style="color:var(--lys3)">—</span>') + '</td><td style="text-align:left">' + esc(A.ydNavnK(x.e)) + '</td><td class="nw">' + (x.forfald ? esc(A.kdA(x.forfald)) : '—') + '</td>'
         + '<td class="nw">' + (x.l.pris != null && x.l.pris !== '' ? nfx(x.l.pris) + ' ' + esc(x.l.val || '') : '—') + '</td><td style="text-align:left"><span class="pcchip ' + x.status[0] + '">' + esc(x.status[1]) + '</span></td></tr>').join('')
-      + '</tbody></table>' : '<p class="note">No price lines are selected.</p>') + '</div>'
-    + '<div class="pcblok"><div class="sh">Flight invoices</div>'
-    + (FI.length ? '<table class="tab tabmini"><tbody>' + FI.map(f => '<tr><td style="text-align:left">' + esc((f.doc_type === 'kreditnota' ? 'Credit note ' : 'Invoice ') + (f.invoice_no || '')) + '<span class="u">' + esc([f.supplier, f.airline, f.pnr].filter(Boolean).join(' · ')) + '</span></td>'
+      + '</tbody></table>' : '<p class="note">No price lines are selected.</p>'))
+    + A.boks('lfak', 'Flight invoices', FI.length ? '<span class="uas">' + A.flertal(FI.length, 'invoice', 'invoices') + '</span>' : '', (FI.length ? '<table class="tab tabmini"><tbody>' + FI.map(f => '<tr><td style="text-align:left">' + esc((f.doc_type === 'kreditnota' ? 'Credit note ' : 'Invoice ') + (f.invoice_no || '')) + '<span class="u">' + esc([f.supplier, f.airline, f.pnr].filter(Boolean).join(' · ')) + '</span></td>'
         + '<td class="nw">' + (f.invoice_date ? esc(A.kdA(f.invoice_date)) : '—') + '</td><td class="nw">' + nfx(f.total_dkk) + ' DKK</td></tr>').join('') + '</tbody></table>'
         + (flyDkk ? '<p class="note">Estimate on the price line ' + nfx(flyDkk) + ' DKK · invoiced ' + nfx(fiSum) + ' DKK · <b>' + (fiSum - flyDkk >= 0 ? nfx(fiSum - flyDkk) + ' DKK more' : nfx(flyDkk - fiSum) + ' DKK less') + '</b> than estimated.</p>' : '')
-      : '<p class="note">No flight invoice yet.</p>') + '</div>'
-    + (VP.length ? '<div class="pcblok"><div class="sh">Supplier payments registered <span class="tael">from Dolphin\'s vendor payments</span></div><table class="tab tabmini"><tbody>'
-        + VP.map(x => '<tr><td style="text-align:left">' + esc(x.product || '—') + '</td><td class="nw">' + (x.vendor_amount != null ? nfx(x.vendor_amount) + ' ' + esc(String(x.currency || '').trim()) : '') + '</td><td class="nw">' + nfx(x.paid_dkk) + ' DKK</td></tr>').join('') + '</tbody></table></div>' : '');
+      : '<p class="note">No flight invoice yet.</p>'))
+    + (VP.length ? A.boks('lvp', 'Supplier payments registered', '<span class="uas">from Dolphin</span>', '<table class="tab tabmini"><tbody>'
+        + VP.map(x => '<tr><td style="text-align:left">' + esc(x.product || '—') + '</td><td class="nw">' + (x.vendor_amount != null ? nfx(x.vendor_amount) + ' ' + esc(String(x.currency || '').trim()) : '') + '</td><td class="nw">' + nfx(x.paid_dkk) + ' DKK</td></tr>').join('') + '</tbody></table>') : '');
 }
 
 /* ── 08 Documents (R756) ── */
