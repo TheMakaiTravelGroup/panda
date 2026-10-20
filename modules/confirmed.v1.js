@@ -211,7 +211,18 @@ function gemtPlan(){
   if(t.balance_due && pris){ const s0 = standardPlan(); if(s0.length === 2){ s0[1].d = t.balance_due; return s0; } }
   return null;
 }
-const plan = () => S.plan || gemtPlan() || standardPlan();
+/* Wendie 20.10.2026: depositum og restbetaling er der altid — restbetalingen er altid resten af prisen.
+   «Hvis jeg sætter nul i deposit, så er det jo automatisk 100 procent i balance.» Delbetalinger ligger imellem. */
+const kundePris = () => { const t = A.T(); return Number(t.accepted_price) || Number(t.package_sell_total) || 0; };
+const r2 = n => Math.round(n * 100) / 100;
+function planNorm(P0){
+  const P = (P0 || []).map(x => Object.assign({}, x)); if(!P.length) return P;
+  if(P.length === 1){ const x = P[0]; P.unshift({l: 'Deposit', b: 0, d: x.d && bekraeftetDato() > x.d ? x.d : bekraeftetDato()}); if(!x.l || /full/i.test(x.l)) x.l = 'Balance'; }
+  const pris = kundePris(), sidst = P[P.length - 1];
+  if(pris) sidst.b = r2(pris - P.slice(0, -1).reduce((a, x) => a + (Number(x.b) || 0), 0));
+  return P;
+}
+const plan = () => planNorm(S.plan || gemtPlan() || standardPlan());
 const planErStandard = () => !S.plan && !gemtPlan();
 /* modtaget i kundens valuta */
 function modtagne(){
@@ -397,7 +408,9 @@ function bund(api, p){
 /* ── 01 Options & deadlines: kundens rater og leverandørernes forfald (R757) ── */
 function efterFrist(){
   const R = A.ROD(), ind = R && R.getElementById('i-frist'); if(!ind) return;
-  let b = R.getElementById('pc-frist'); if(!b){ b = document.createElement('div'); b.id = 'pc-frist'; b.className = 'pcblok'; ind.appendChild(b); }
+  /* Wendie 20.10.2026: «payment due bør være øverst på options og deadlines» */
+  let b = R.getElementById('pc-frist'); if(!b){ b = document.createElement('div'); b.id = 'pc-frist'; b.className = 'pcblok'; }
+  if(ind.firstChild !== b) ind.insertBefore(b, ind.firstChild);
   if(!S.data){ b.innerHTML = '<p class="note">Fetching the payments …</p>'; return; }
   const rk = [];
   planStatus().forEach(x => { if(x.st === 'paid') return;
@@ -409,7 +422,7 @@ function efterFrist(){
     return '<span class="pcchip ' + (n < 0 ? 'rod' : n <= 14 ? 'obs' : '') + '">' + (n < 0 ? A.flertal(-n, 'day', 'days') + ' overdue' : n === 0 ? 'today' : A.flertal(n, 'day', 'days')) + '</span>'; };
   /* Wendie 20.10.2026: en tydeligere overskrift — og ingen forklarende tekst */
   const n0 = rk.find(x => x.d), nN = n0 ? A.dageMellem(A.iDag(), n0.d) : null;
-  b.innerHTML = '<div class="sh2"><h3>Payments due</h3>' + (rk.length ? '<span class="pcchip ' + (nN != null && nN < 0 ? 'rod' : nN != null && nN <= 14 ? 'obs' : '') + '">'
+  b.innerHTML = '<div class="frsek"><h3>Payments due</h3>' + (rk.length ? '<span class="pcchip ' + (nN != null && nN < 0 ? 'rod' : nN != null && nN <= 14 ? 'obs' : '') + '">'
       + rk.length + ' open' + (nN == null ? '' : nN < 0 ? ' · overdue' : nN === 0 ? ' · next today' : ' · next in ' + A.flertal(nN, 'day', 'days')) + '</span>' : '') + '</div>'
     + (rk.length ? '<table class="tab tabmini"><thead><tr><th style="text-align:left">What</th><th>Amount</th><th>Due</th><th>Due in</th><th style="text-align:left">Note</th></tr></thead><tbody>'
       + rk.map(x => '<tr><td style="text-align:left">' + esc(x.hvad) + '</td><td class="nw">' + esc(x.bel) + '</td><td class="nw">' + (x.d ? esc(A.kdA(x.d)) : '—') + '</td><td>' + chip(x.d) + '</td><td style="text-align:left;color:var(--lys3)">' + esc(x.aft) + '</td></tr>').join('')
@@ -482,13 +495,14 @@ function tegnBetal(b){
   b = b || (A.ROD() && A.ROD().getElementById('pc-betal')); if(!b) return;
   if(!S.data){ b.innerHTML = '<p class="note">Fetching the payments …</p>'; return; }
   const t = A.T(), v = kv(), P = planStatus(), pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0, sum = P.reduce((a, x) => a + (Number(x.b) || 0), 0);
-  const chip = x => x.st === 'paid' ? '<span class="pcchip ok">paid</span>' : x.st === 'part' ? '<span class="pcchip obs">' + nfx(x.betalt) + ' paid</span>'
+  const chip = x => !(x.b > 0) ? '<span style="color:var(--lys3)">—</span>' : x.st === 'paid' ? '<span class="pcchip ok">paid</span>' : x.st === 'part' ? '<span class="pcchip obs">' + nfx(x.betalt) + ' paid</span>'
     : x.st === 'overdue' ? '<span class="pcchip rod">overdue</span>' : '<span class="pcchip">open</span>';
   const rows = P.map((x, i) => '<tr><td style="text-align:left"><input class="pcin" data-m8c="pcplan" data-i="' + i + '" data-f="l" value="' + esc(x.l) + '"></td>'
-    + '<td style="width:130px"><input class="pcin tal" data-m8c="pcplan" data-i="' + i + '" data-f="b" value="' + esc(nfx(x.b)) + '" inputmode="decimal"></td>'
+    + '<td style="width:130px"><input class="pcin tal" data-m8c="pcplan" data-i="' + i + '" data-f="b" value="' + esc(nfx(x.b)) + '" inputmode="decimal"'
+      + (i === P.length - 1 ? ' readonly tabindex="-1" title="The balance is always the rest of the price" style="opacity:.8;cursor:default"' : ' title="Amount — or write a percentage, e.g. 20 %"') + '></td>'
     + '<td style="width:64px;color:var(--lys3);white-space:nowrap">' + (pris ? Math.round(x.b / pris * 100) + ' %' : '') + '</td>'
     + '<td style="width:150px"><input class="pcin" type="date" data-m8c="pcplan" data-i="' + i + '" data-f="d" value="' + esc(x.d || '') + '"></td>'
-    + '<td>' + chip(x) + '</td><td style="width:26px">' + (P.length > 1 ? '<button class="pcx" title="Remove" data-m8="pcplanfjern" data-i="' + i + '">×</button>' : '') + '</td></tr>').join('');
+    + '<td>' + chip(x) + '</td><td style="width:26px">' + (i > 0 && i < P.length - 1 ? '<button class="pcx" title="Remove the payment — the amount goes back to the one before" data-m8="pcplanfjern" data-i="' + i + '">×</button>' : '') + '</td></tr>').join('');
   const M = modtagne();
   const ret = S.planRet || planErStandard();
   b.innerHTML = '<div class="sh">Customer payments' + (planErStandard() ? ' <span class="tael">standard plan</span>' : '') + '</div>'
@@ -624,23 +638,42 @@ HANDL.pcarkivhist = () => { S.arkivHist = !S.arkivHist; efterHist(); };
 HANDL.pcarkiv = el => { const id = el.dataset.yd; S.arkivVis[id] = !S.arkivVis[id]; A.KROP.yd(true); };
 const planLaes = () => { const R = A.ROD(), P = plan().map(x => Object.assign({}, x));
   (R ? [...R.querySelectorAll('#pc-betal [data-m8c="pcplan"]')] : []).forEach(x => { const i = +x.dataset.i, f = x.dataset.f; if(!P[i]) return;
-    if(f === 'b'){ const n = Number(String(x.value).replace(/\s|\./g, '').replace(',', '.')); if(isFinite(n)) P[i].b = Math.round(n * 100) / 100; }
+    if(f === 'b'){ const v = String(x.value), pct = /%\s*$/.test(v), n = Number(v.replace(/%/g, '').replace(/\s|\./g, '').replace(',', '.'));
+      if(isFinite(n)) P[i].b = r2(pct ? kundePris() * n / 100 : n); }
     else if(f === 'd') P[i].d = x.value || null; else P[i].l = x.value; });
   return P; };
-HANDLC.pcplan = () => { S.plan = planLaes(); S.planRet = true; S.planFejl = ''; tegnBetal(); };
-HANDL.pcplanny = () => { const P = planLaes(), t = A.T(), sum = P.reduce((a, x) => a + x.b, 0), pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0;
-  const sidst = P[P.length - 1];
-  if(sidst && sum > pris - 0.5 && sidst.b > 1){ const halv = Math.floor(sidst.b / 2); sidst.b -= halv; P.push({l: 'Payment ' + (P.length + 1), b: halv, d: sidst.d}); }
-  else P.push({l: 'Payment ' + (P.length + 1), b: Math.max(0, pris - sum), d: t.departure_date ? plusDage(t.departure_date, -60) : null});
-  S.plan = P; S.planRet = true; tegnBetal(); };
-HANDL.pcplanfjern = el => { const P = planLaes(); P.splice(+el.dataset.i, 1); S.plan = P; S.planRet = true; tegnBetal(); };
+/* Wendie 20.10.2026: ændres et beløb, tager den næste delbetaling forskellen, så restbetalingen står; ændres den
+   sidste delbetaling før restbetalingen, går forskellen til restbetalingen (som altid er resten). */
+HANDLC.pcplan = el => { const gl = plan(), P = planLaes(), i = el ? +el.dataset.i : -1, f = el && el.dataset.f;
+  if(f === 'b' && i >= 0 && i < P.length - 1){
+    if(P[i].b < 0) P[i].b = 0;
+    const diff = P[i].b - (Number(gl[i] && gl[i].b) || 0);
+    if(i + 1 < P.length - 1){ P[i + 1].b = r2(P[i + 1].b - diff); if(P[i + 1].b < 0) P[i + 1].b = 0; }
+  }
+  S.plan = planNorm(P); S.planRet = true; S.planFejl = '';
+  const bal = S.plan[S.plan.length - 1]; if(bal && bal.b < 0) S.planFejl = 'The payments are more than the customer price — the balance cannot be negative.';
+  tegnBetal(); };
+/* en ny delbetaling lægges før restbetalingen og tager halvdelen af betalingen før (i udgangspunktet depositummet):
+   50/50 → 25 · 25 · 50. Datoen ligger midt imellem. */
+HANDL.pcplanny = () => { const P = planNorm(planLaes()); if(P.length < 2) return;
+  const k = P.length - 2, før = P[k], bal = P[P.length - 1], halv = r2(Math.floor((Number(før.b) || 0) / 2));
+  før.b = r2(før.b - halv);
+  let d = null; if(før.d && bal.d){ const a = new Date(før.d + 'T12:00:00'), b = new Date(bal.d + 'T12:00:00'); d = new Date((a.getTime() + b.getTime()) / 2).toISOString().slice(0, 10); }
+  P.splice(P.length - 1, 0, {l: 'Payment ' + P.length, b: halv, d: d || før.d || bal.d});
+  S.plan = planNorm(P); S.planRet = true; S.planFejl = ''; tegnBetal(); };
+/* kun delbetalinger kan fjernes — beløbet går tilbage til betalingen før */
+HANDL.pcplanfjern = el => { const P = planLaes(), i = +el.dataset.i; if(!(i > 0 && i < P.length - 1)) return;
+  P[i - 1].b = r2((Number(P[i - 1].b) || 0) + (Number(P[i].b) || 0)); P.splice(i, 1); S.plan = planNorm(P); S.planRet = true; tegnBetal(); };
 /* Wendie 20.10.2026: «en mulighed for at sætte balance til hundrede procent» — hele prisen som én betaling.
    Datoen er den sidste betalings dato i planen (typisk restbetalingens), ellers i dag. */
 HANDL.pcplan100 = () => { const t = A.T(), pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0, P = planLaes();
   const d = (P.length && P[P.length - 1].d) || A.iDag();
-  S.plan = [{l: 'Balance', b: pris, d}]; S.planRet = true; S.planFejl = ''; tegnBetal(); };
+  S.plan = planNorm([{l: 'Deposit', b: 0, d: (P[0] && P[0].d) || A.iDag()}, {l: 'Balance', b: pris, d}]); S.planRet = true; S.planFejl = ''; tegnBetal(); };
 HANDL.pcplannul = () => { S.plan = standardPlan(); S.planRet = true; S.planFejl = ''; tegnBetal(); };
-HANDL.pcplangem = () => { const P = planLaes(), t = A.T(), id = t.id, pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0, sum = P.reduce((a, x) => a + x.b, 0);
+HANDL.pcplangem = () => { const P0 = planNorm(planLaes()), t = A.T(), id = t.id, pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0;
+  /* betalinger på 0 gemmes ikke (fx depositum 0 ved 100 %) — de står der igen på skærmen, så de kan bruges */
+  const P = P0.filter((x, k) => x.b > 0 || k === P0.length - 1), sum = P.reduce((a, x) => a + x.b, 0);
+  if(P0.some(x => x.b < 0)){ S.planFejl = 'The payments are more than the customer price — the balance cannot be negative.'; return tegnBetal(); }
   if(!P.length) { S.planFejl = 'The plan needs at least one payment.'; return tegnBetal(); }
   if(Math.abs(sum - pris) > 0.5){ S.planFejl = 'The plan is ' + nfx(sum) + ' ' + kv() + ', but the customer price is ' + nfx(pris) + ' ' + kv() + ' — make them match before saving.'; return tegnBetal(); }
   if(P.some(x => !x.d)){ S.planFejl = 'Every payment needs a due date.'; return tegnBetal(); }
