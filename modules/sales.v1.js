@@ -305,7 +305,7 @@ function tegn(){
   if(grupperet){ const idx = {};
     rows.forEach(t => { const k = (felt(t) || '').slice(0, 7) || 'none'; if(!(k in idx)){ idx[k] = gl.length; gl.push({ key: k, list: [] }); } gl[idx[k]].list.push(t); }); }
   else gl.push({ key: 'all', list: rows });
-  const vist = gl.slice(0, S.mlimit);
+  const vist = gl;   /* Wendie 20.10.2026: alle måneder vises — ingen «Show more»-knap */
   NKORT = 2 + vist.length;
 
   const sumD = rows.reduce((s, t) => s + (+t.package_sell_dkk || 0), 0), sumP = rows.reduce((s, t) => s + (+t.pax_count || 0), 0);
@@ -340,7 +340,8 @@ function tegn(){
     + '</section>';
 
   b += '<div class="s8lh"><div class="s8eb">' + (grupperet ? 'By month · ' + nf(gl.length) + (gl.length === 1 ? ' month' : ' months') : 'One list · ' + nf(rows.length) + ' trips') + '</div>'
-    + '<div class="r"><button type="button" class="s8lnk" data-s="alle" data-k="1">Open all</button><button type="button" class="s8lnk" data-s="alle" data-k="0">Close all</button>'
+    + '<div class="r"><button type="button" class="s8lnk" data-s="vend" aria-label="Reverse the order">' + (S.sort === 'date' && S.dir < 0 ? 'Newest first' : S.sort === 'date' ? 'Oldest first' : 'Sorted by column') + ' ⇅</button>'
+    + '<button type="button" class="s8lnk" data-s="alle" data-k="1">Open all</button><button type="button" class="s8lnk" data-s="alle" data-k="0">Close all</button>'
     + '<button type="button" class="s8lnk" data-s="grp">' + (grupperet ? 'One list' : 'By month') + '</button></div></div>';
 
   const hoved = '<div class="s8row th">' + [['ref', 'Ref.'], ['name', 'Customer'], ['dest', 'Destination'], ['date', ({ dep: 'Travel dates', ret: 'Dates · by return', bk: 'Dates · by booking' })[S.by]],
@@ -363,12 +364,10 @@ function tegn(){
     return '<section class="s8kort" aria-label="' + esc(navnG) + '" style="' + kortStil(i + 2, aab) + '">'
       + '<button type="button" class="s8kh" data-s="fold" data-k="' + esc(g.key) + '" data-v="' + (aab ? 0 : 1) + '" aria-expanded="' + aab + '"><span class="t">' + esc(navnG) + '</span>'
       + '<span class="s">' + g.list.length + (g.list.length === 1 ? ' trip' : ' trips') + ' · ' + nf(pax) + ' guests · ' + nf(dkk) + ' DKK</span>' + mk.slice(0, 2).join('') + chev(aab) + '</button>'
-      + (aab ? '<div class="s8tab"><div>' + hoved + g.list.slice(0, g.key === 'all' ? S.mlimit * 50 : 1000).map(raekke).join('') + '</div></div>' : '')
+      + (aab ? '<div class="s8tab"><div>' + hoved + g.list.map(raekke).join('') + '</div></div>' : '')
       + '</section>';
   }).join('');
   if(!rows.length) b += '<p class="s8tomt">' + (S.st === 'upcoming' && til && til < T ? 'No upcoming trips in a period that has passed — choose All or Completed.' : 'No trips match.') + '</p>';
-  const mere = grupperet ? gl.length - S.mlimit : (rows.length > S.mlimit * 50 ? 1 : 0);
-  if(mere > 0) b += '<button type="button" class="s8more" data-s="mere">' + (grupperet ? 'Show ' + Math.min(6, mere) + ' more months · ' + mere + ' left' : 'Show more') + '</button>';
   $('s8krop').innerHTML = b;
 }
 
@@ -415,7 +414,8 @@ function klik(ev){
   if(s === 'grp')     { S.group = !(S.group && S.sort === 'date'); S.sort = 'date'; S.dir = 1; S.fold = {}; return tegn(); }
   if(s === 'fold')    { S.fold = Object.assign({}, S.fold, { [k]: el.dataset.v === '1' }); return tegn(); }
   if(s === 'sort')    { S.dir = S.sort === k ? -S.dir : 1; S.sort = k; S.fold = {}; return tegn(); }
-  if(s === 'mere')    { S.mlimit += 6; return tegn(); }
+  /* Wendie 20.10.2026: listen skal kunne vendes, så de nyeste står øverst */
+  if(s === 'vend')    { if(S.sort !== 'date'){ S.sort = 'date'; S.dir = -1; } else S.dir = -S.dir; S.fold = {}; return tegn(); }
   if(s === 'ny')      { luk(); return (typeof viewNew === 'function') && viewNew(); }
   if(s === 'klassisk'){ window.__salgKlassisk = true; luk(); return (typeof viewSales === 'function') && viewSales(); }
 }
