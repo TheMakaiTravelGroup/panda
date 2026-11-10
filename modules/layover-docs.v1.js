@@ -81,7 +81,7 @@
     if(f.pnr && gl.pnr !== f.pnr){ R.saetLinjeSeg(id, i, 'pnr', f.pnr); ret.push(['PNR', gl.pnr || '—', f.pnr]); }
     /* flyselskabet skrives med navn som i listen (fakturaen har kun koden, fx LH) — ukendt kode røres ikke */
     var SELSKAB = {QR:'Qatar Airways', EY:'Etihad Airways', EK:'Emirates', TK:'Turkish Airlines', LH:'Lufthansa', KL:'KLM', BA:'British Airways', SK:'SAS', SQ:'Singapore Airlines', WY:'Oman Air'};
-    var sNavn = f.selskab && SELSKAB[f.selskab];
+    var sNavn = f.selskab && ((window.PandaEN && PandaEN.kendt(f.selskab)) ? PandaEN.airline(f.selskab) : SELSKAB[f.selskab]);   /* R1033: alle IATA-koder */
     if(sNavn && !String(raa.selskab || '').trim() && R.saetLinjeF){ R.saetLinjeF(id, i, 'selskab', sNavn); ret.push(['Airline', '—', sNavn]); }
     /* udstedt — fakturaen kommer først, når billetterne er udstedt */
     if(!(h.udstedt === true || h.udstedt === 'true')){ R.saetLinjeHold(id, i, 'udstedt', true); ret.push(['Status', 'not issued', 'issued']); }
