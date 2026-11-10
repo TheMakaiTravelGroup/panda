@@ -79,7 +79,10 @@
     if(f.val && l.val !== f.val){ R.saetLinjeVal(id, i, f.val); ret.push(['Currency', gl.val || '—', f.val]); }
     if(f.ordre && String(l.ref || '').trim() !== f.ordre){ R.saetLinjeRef(id, i, f.ordre); ret.push(['Supplier reference', gl.ref || '—', f.ordre + ' (order)']); }
     if(f.pnr && gl.pnr !== f.pnr){ R.saetLinjeSeg(id, i, 'pnr', f.pnr); ret.push(['PNR', gl.pnr || '—', f.pnr]); }
-    if(f.selskab && !String(raa.selskab || '').trim() && R.saetLinjeF){ R.saetLinjeF(id, i, 'selskab', f.selskab); ret.push(['Airline', '—', f.selskab]); }
+    /* flyselskabet skrives med navn som i listen (fakturaen har kun koden, fx LH) — ukendt kode røres ikke */
+    var SELSKAB = {QR:'Qatar Airways', EY:'Etihad Airways', EK:'Emirates', TK:'Turkish Airlines', LH:'Lufthansa', KL:'KLM', BA:'British Airways', SK:'SAS', SQ:'Singapore Airlines', WY:'Oman Air'};
+    var sNavn = f.selskab && SELSKAB[f.selskab];
+    if(sNavn && !String(raa.selskab || '').trim() && R.saetLinjeF){ R.saetLinjeF(id, i, 'selskab', sNavn); ret.push(['Airline', '—', sNavn]); }
     /* udstedt — fakturaen kommer først, når billetterne er udstedt */
     if(!(h.udstedt === true || h.udstedt === 'true')){ R.saetLinjeHold(id, i, 'udstedt', true); ret.push(['Status', 'not issued', 'issued']); }
     if(f.dato && h.udstedt_dato !== f.dato){ R.saetLinjeHold(id, i, 'udstedt_dato', f.dato); ret.push(['Issued on', h.udstedt_dato ? A.kd(h.udstedt_dato) : '—', A.kd(f.dato)]); }
@@ -128,7 +131,7 @@
     var rest = [], fakt = 0;
     for(var k = 0; k < F.length; k++){ var t = await tekstAf(A, F[k]); if(t && erFaktura(t)) fakt++; else rest.push(F[k]); }
     if(fakt){
-      A.kvitter('advar', (fakt === 1 ? 'That is an invoice' : fakt + ' of the files are invoices') + ' — drop it on the price line it belongs to, in the field «Drop the Farewise invoice for this price line here»');
+      A.kvitter('advar', (fakt === 1 ? 'That is an invoice' : fakt + ' of the files are invoices') + ' — drop it on the price line it belongs to, with «Upload invoice» on that price line');
       try { A.aabnLinje(m.id, m.i); } catch(_){}
     }
     if(rest.length){ if(rest.length > 1) A.kvitter('advar', 'Only the first file is read as the flight plan: ' + (rest[0].name || ''));
@@ -139,11 +142,11 @@
   async function linjeFiler(A, id, i, F){
     F = [].slice.call(F || []); if(!F.length) return;
     var pdf = F.filter(erPdf);
-    if(!pdf.length) return A.kvitter('advar', 'Only the invoice (PDF) goes here — the itinerary and screenshots go in «Drag the itinerary or ticket in here»');
+    if(!pdf.length) return A.kvitter('advar', 'Only the invoice (PDF) goes here — the itinerary and screenshots go in «Upload itinerary»');
     if(pdf.length > 1) return A.kvitter('advar', 'Drop one invoice at a time');
     var t = await tekstAf(A, pdf[0]);
     if(!t) return A.kvitter('fejl', 'The PDF could not be read');
-    if(!erFaktura(t)) return A.kvitter('advar', 'That is not a Farewise invoice — the itinerary goes in «Drag the itinerary or ticket in here» at the top');
+    if(!erFaktura(t)) return A.kvitter('advar', 'That is not a Farewise invoice — the itinerary goes in «Upload itinerary» at the top');
     var f = laesFaktura(t);
     if(f.total == null) return A.kvitter('fejl', 'The invoice was found, but its total could not be read — nothing has been changed');
     return behandlFaktura(A, {id: id, i: i}, pdf[0], f);
@@ -166,7 +169,7 @@
     bind(A);
     var b = boks(e.id, i);
     return '<style>' + STIL + '</style><label class="ld-zone" tabindex="0" ' + attrs + '><input type="file" accept="application/pdf" hidden data-m8c="ldfil" ' + attrs + '>'
-      + '<span class="ld-ik">⇣</span><span>Drop the Farewise invoice for this price line here</span><small>the price and the ticket details are corrected from it</small></label>' + b;
+      + '<span class="ld-ik">⇣</span><span>Upload invoice</span></label>' + b;   /* Wendie 10.11.2026: lige under overskriften, tydeligere, kun «Upload invoice» */
   }
 
   function boks(id, i){
@@ -181,8 +184,8 @@
       + '<p class="ld-p">Read from ' + e(SVAR.fil || 'the invoice') + (f.rute ? ' · ' + e(f.rute) : '') + (f.deltagere.length ? ' · ' + e(f.deltagere.join(', ')) : '') + '</p></div>';
   }
 
-  var STIL = '.ld-zone{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:8px 0 10px;padding:9px 12px;border:1px dashed rgba(60,45,130,.28);border-radius:10px;color:#4A4570;font:500 13px/1.4 Inter,system-ui,sans-serif;cursor:pointer}'
-    + '.ld-zone small{color:#8A86A6;font-size:12px;font-weight:400}.ld-zone.over,.ld-zone:hover{background:rgba(185,168,255,.16);border-color:#9C88F0}.ld-ik{color:#7B66E0}'
+  var STIL = '.ld-zone{display:inline-flex;align-items:center;gap:8px;margin:10px 0 12px;padding:8px 16px;border-radius:9px;background:#231F45;color:#fff;font:600 13px/1.2 Inter,system-ui,sans-serif;cursor:pointer;border:1.5px dashed transparent;transition:background .15s}'
+    + '.ld-zone:hover{background:#3A3470}.ld-zone.over{background:#fff;color:#231F45;border-color:#7B66E0}.ld-ik{font-size:15px;color:#CFC4FF}.ld-zone.over .ld-ik{color:#7B66E0}'
     + '.ld-boks{margin:0 0 12px;padding:12px 14px;border-radius:12px;background:#F1EEFB;border:1px solid rgba(60,45,130,.12);color:#1C1934;font:13px/1.45 Inter,system-ui,sans-serif}'
     + '.ld-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}.ld-hd b{font-weight:600}'
     + '.ld-x{border:0;background:none;font-size:18px;line-height:1;cursor:pointer;color:#6B6690}'
@@ -199,7 +202,7 @@
   if(!kobl()){ var n = 0, t = setInterval(function(){ if(kobl() || ++n > 120) clearInterval(t); }, 250); }
 
   window.LayoverDocs = {
-    knap: '⌘V Drag the itinerary or ticket in here',
+    knap: 'Upload itinerary',   /* Wendie 10.11.2026: «her skal der kun stå "Upload itinerary"» — træk, ⌘V og klik virker stadig */
     klip: klip, zone: zone,
     _laes: laesFaktura, _erFaktura: erFaktura   /* til test: læser uden at gemme */
   };
