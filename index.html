@@ -7993,8 +7993,9 @@ body.hvviola .sogres .sogik{background:rgba(255,255,255,.08)!important}
 <script src="modules/dashboard.v1.js?v=1.87"></script>
 <script src="modules/enquiries.v1.js?v=1.88"></script>   <!-- R996: henvendelserne i dashboardets design. Mangler filen, eller går noget galt, står den hidtidige side som før. -->   <!-- R910–R941: det nye dashboard. Mangler filen, eller går noget galt, står det hidtidige dashboard (DNY) som før. -->
 <script src="modules/sales.v1.js?v=1.84"></script>   <!-- R868: Sales-siden i viola-designet. Mangler filen, står den klassiske Sales-side som før. -->   <!-- R857: den bekræftede rejseside lagt oven på mellemlandingen. Mangler filen, åbner bekræftede rejser den klassiske side. -->   <!-- R855: større og tydeligere tekst på viola-siden. Mangler filen, står siden som før. -->
+<script src="modules/english.v1.js?v=1.93"></script>   <!-- R1033: flyselskabernes IATA-koder → navn, og norske/danske ord → engelsk. Mangler filen, bruges index' egne lister. -->
 <script src="modules/layover-style.v1.js?v=1.92"></script>   <!-- R1020: mellemlandingens udseende ligger i sit eget modul. Mangler filen, bruges den indbyggede kopi (M8_DUSK). -->
-<script src="modules/layover-docs.v1.js?v=1.92"></script>   <!-- R1021: Farewise-fakturaen lægges på en bestemt flyprislinje. Mangler filen, er alt som før. -->
+<script src="modules/layover-docs.v1.js?v=1.93"></script>   <!-- R1021: Farewise-fakturaen lægges på en bestemt flyprislinje. Mangler filen, er alt som før. -->
 <script src="modules/layover-status.v1.js?v=1.92"></script>   <!-- R1030: leverandørstatus under Options & deadlines. Mangler filen, er kortet som før. -->
 <script id="m8-mellemlanding">
 /* Fælles for den nye mellemlanding og det nye dashboard: prototypens stilark (med billedet) ligger her ÉN gang */
@@ -11114,6 +11115,8 @@ function flyFelter(e, l, i){
   const R = RSx(), A = pkA(e.id, i), x = flyPax(l), K = pkNoegle(e.id, i);
   const kab = R.KABINER || ['Economy','Premium Economy','Business','First'];
   const sel = (R.SELSKABER || []).slice(), valgtSel = R.linjeSelskab ? (R.linjeSelskab(e, l) || '') : ((l.raa || {}).selskab || '');
+  /* R1033: et kendt selskab uden for de ti faste står i listen (ikke «Other…») */
+  if(valgtSel && !sel.includes(valgtSel) && window.PandaEN && PandaEN.kendt(valgtSel)) sel.push(valgtSel);
   return '<div class="g gpl">'
       + pkF('Adults', '<input type="number" value="' + esc(String(x.voksne)) + '" placeholder="—" data-m8c="flyvoksne" ' + A + '>')
       + pkF('Children', pkSel(['0','1','2','3','4','5','6'], String(x.boern.length), 'data-m8c="flyboern" ' + A))
@@ -13350,7 +13353,7 @@ function rpTrSub(sub){
     if(RP_HVEM[t]) return RP_HVEM[t];
     const a = /^alle (\d+)$/.exec(t); if(a) return 'all ' + a[1];
     const r = /^(\d+) rejsende$/.exec(t); if(r) return r[1] + ' travellers';
-    return rpMaade(t); }).filter(Boolean).join(' · ');
+    return window.PandaEN ? PandaEN.tekst(rpMaade(t)) : rpMaade(t); }).filter(Boolean).join(' · ');   /* R1033: alt på engelsk */
 }
 const rpTrTitel = t => String(t || '').replace(/\bresortet\b/g, 'the resort').split(/\s*(→|↔)\s*/).map(x => /^(→|↔)$/.test(x) ? ' ' + x + ' ' : (byEn(x) || x)).join('');
 
@@ -13593,7 +13596,7 @@ function rpYdBlok(x){
   if(x.tr){
     /* den gamle motors transferrække (tillæg på hotellet) — detaljerne på engelsk, uden pris */
     const D = {'Afgang':'Departure','Ankomst':'Arrival','Overfart':'Crossing','Fra tilbuddet':'From the offer'};
-    const kv = (x.tr.detalje || []).filter(([k]) => D[k]).map(([k, v]) => rpKv(D[k], esc(String(v).replace(/^ca\. /, 'approx. ').replace(/ikke sat/, 'not set').replace(/ fra resortet/, ' from the resort').replace(/ fra Velana lufthavn/, ' from Velana airport').replace(/ i Velana lufthavn/, ' at Velana airport').replace(/ på /, ' at ').replace(/ min\.$/, ' min')))).join('');
+    const kv = (x.tr.detalje || []).filter(([k]) => D[k]).map(([k, v]) => rpKv(D[k], esc((window.PandaEN ? PandaEN.tekst : String)(String(v)).replace(/^ca\. /, 'approx. ').replace(/ikke sat/, 'not set').replace(/ fra resortet/, ' from the resort').replace(/ fra Velana lufthavn/, ' from Velana airport').replace(/ i Velana lufthavn/, ' at Velana airport').replace(/ på /, ' at ').replace(/ min\.$/, ' min')))).join('');
     return '<div class="fb rp-blok"><div class="fb-top"><span>Transfer</span>' + (x.lev ? '<span>' + esc(x.lev) + '</span>' : '') + '</div>' + kv
       + '<p class="fb-note">An add-on on the hotel price line under Services on the trip.</p></div>';
   }
@@ -14927,7 +14930,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.92';
+const APP_VERSION = 'v1.93';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
@@ -26365,10 +26368,10 @@ function flyLaesSkaerm(tekst){
    med mellemlanding og overnatning i luften. */
 const FLY_MDR = {januar:1,februar:2,marts:3,april:4,maj:5,juni:6,juli:7,
   august:8,september:9,oktober:10,november:11,december:12};
-const FLY_KODE = {SK:'SAS',BA:'British Airways',QR:'Qatar Airways',EK:'Emirates',
+const FLY_KODE = Object.assign({SK:'SAS',BA:'British Airways',QR:'Qatar Airways',EK:'Emirates',
   TK:'Turkish Airlines',LH:'Lufthansa',KL:'KLM',AF:'Air France',AY:'Finnair',
   DY:'Norwegian',EY:'Etihad',SQ:'Singapore Airlines',WY:'Oman Air',UL:'SriLankan',
-  LX:'Swiss',OS:'Austrian',QF:'Qantas',CX:'Cathay Pacific',ET:'Ethiopian'};
+  LX:'Swiss',OS:'Austrian',QF:'Qantas',CX:'Cathay Pacific',ET:'Ethiopian'}, window.PandaEN ? PandaEN.KODER : {});   /* R1033: alle IATA-koder fra modules/english.v1.js */
 const FLY_UGE = 'mandag|tirsdag|onsdag|torsdag|fredag|lørdag|søndag';
 let _pdfKlar = null;
 function pdfBibliotek(){
@@ -27296,6 +27299,7 @@ const FLYKODE = {EY:'Etihad Airways', EK:'Emirates', BA:'British Airways', SK:'S
   KL:'KLM', AF:'Air France', LH:'Lufthansa', DY:'Norwegian', D8:'Norwegian',
   Q2:'Maldivian', UL:'SriLankan', WY:'Oman Air', SV:'Saudia', MK:'Air Mauritius',
   HM:'Air Seychelles', ET:'Ethiopian', WB:'RwandAir', IB:'Iberia', AT:'Royal Air Maroc'};
+if(window.PandaEN) Object.assign(FLYKODE, PandaEN.KODER);   /* R1033 */
 const selskabAf = nr => FLYKODE[String(nr||'').toUpperCase().slice(0,2)] || null;
 
 /* ══ SKRIV I MODELLEN — TEGN IKKE ══
@@ -29800,7 +29804,9 @@ function linjeSelskab(e, l){
   const R = (l && l.raa) || {};
   const s0 = ((l && l.segmenter) || [])[0] || {};
   const kode = String(s0.kode || String(s0.nr || '').slice(0,2)).toUpperCase();
-  return R.selskab || IATA_SELSKAB[kode] || (e && e.raa && e.raa.selskab) || '';
+  const v = R.selskab || IATA_SELSKAB[kode] || (e && e.raa && e.raa.selskab) || '';
+  /* R1033 Wendie 10.11.2026: «koden var jo LH som altid er Lufthansa» — en kode i feltet vises som selskabets navn */
+  return window.PandaEN ? PandaEN.airline(v) : v;
 }
 /* «10.–17. okt. 2026» — samme form som rejseplanen bruger. */
 function spanKort(a, b){
@@ -30296,9 +30302,9 @@ function mpGruppe(navn){
   return null;
 }
 /* Farewise skriver selskabet som en tobogstavskode i rutenummeret. */
-const IATA_SELSKAB = { QR:'Qatar Airways', EY:'Etihad Airways', EK:'Emirates',
+const IATA_SELSKAB = Object.assign({ QR:'Qatar Airways', EY:'Etihad Airways', EK:'Emirates',
   TK:'Turkish Airlines', LH:'Lufthansa', KL:'KLM', BA:'British Airways',
-  SK:'SAS', SQ:'Singapore Airlines', WY:'Oman Air' };
+  SK:'SAS', SQ:'Singapore Airlines', WY:'Oman Air' }, window.PandaEN ? PandaEN.KODER : {});   /* R1033 */
 
 /* ══ KONTRAKTERNE SKAL OGSAA SOEGES ════════════════════════════════
    Wendie 01.09.2026: «det vigtigste er bare, at den ogsaa soeger blandt
