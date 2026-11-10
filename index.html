@@ -7994,7 +7994,7 @@ body.hvviola .sogres .sogik{background:rgba(255,255,255,.08)!important}
 <script src="modules/enquiries.v1.js?v=1.88"></script>   <!-- R996: henvendelserne i dashboardets design. Mangler filen, eller går noget galt, står den hidtidige side som før. -->   <!-- R910–R941: det nye dashboard. Mangler filen, eller går noget galt, står det hidtidige dashboard (DNY) som før. -->
 <script src="modules/sales.v1.js?v=1.84"></script>   <!-- R868: Sales-siden i viola-designet. Mangler filen, står den klassiske Sales-side som før. -->   <!-- R857: den bekræftede rejseside lagt oven på mellemlandingen. Mangler filen, åbner bekræftede rejser den klassiske side. -->   <!-- R855: større og tydeligere tekst på viola-siden. Mangler filen, står siden som før. -->
 <script src="modules/english.v1.js?v=1.93"></script>   <!-- R1033: flyselskabernes IATA-koder → navn, og norske/danske ord → engelsk. Mangler filen, bruges index' egne lister. -->
-<script src="modules/layover-style.v1.js?v=1.92"></script>   <!-- R1020: mellemlandingens udseende ligger i sit eget modul. Mangler filen, bruges den indbyggede kopi (M8_DUSK). -->
+<script src="modules/layover-style.v1.js?v=1.94"></script>   <!-- R1020: mellemlandingens udseende ligger i sit eget modul. Mangler filen, bruges den indbyggede kopi (M8_DUSK). -->
 <script src="modules/layover-docs.v1.js?v=1.93"></script>   <!-- R1021: Farewise-fakturaen lægges på en bestemt flyprislinje. Mangler filen, er alt som før. -->
 <script src="modules/layover-status.v1.js?v=1.92"></script>   <!-- R1030: leverandørstatus under Options & deadlines. Mangler filen, er kortet som før. -->
 <script id="m8-mellemlanding">
@@ -13597,7 +13597,8 @@ function rpYdBlok(x){
     /* den gamle motors transferrække (tillæg på hotellet) — detaljerne på engelsk, uden pris */
     const D = {'Afgang':'Departure','Ankomst':'Arrival','Overfart':'Crossing','Fra tilbuddet':'From the offer'};
     const kv = (x.tr.detalje || []).filter(([k]) => D[k]).map(([k, v]) => rpKv(D[k], esc((window.PandaEN ? PandaEN.tekst : String)(String(v)).replace(/^ca\. /, 'approx. ').replace(/ikke sat/, 'not set').replace(/ fra resortet/, ' from the resort').replace(/ fra Velana lufthavn/, ' from Velana airport').replace(/ i Velana lufthavn/, ' at Velana airport').replace(/ på /, ' at ').replace(/ min\.$/, ' min')))).join('');
-    return '<div class="fb rp-blok"><div class="fb-top"><span>Transfer</span>' + (x.lev ? '<span>' + esc(x.lev) + '</span>' : '') + '</div>' + kv
+    /* v1.94 · Wendie 10.11.2026: «Transfer» i en boks er overflødigt — linjen siger det allerede; kun leverandøren står */
+    return '<div class="fb rp-blok">' + (x.lev ? '<div class="fb-top"><span>' + esc(x.lev) + '</span></div>' : '') + kv
       + '<p class="fb-note">An add-on on the hotel price line under Services on the trip.</p></div>';
   }
   const L = x.L || [], l = (L[0] || {}).l || {}, Rr = l.raa || {}, h = l.hold || {}, a = x.art;
@@ -13960,7 +13961,9 @@ KROP.pris = function(tving){
     + '<div class="f"><div class="k">Customer pays</div><input id="f-kpris" data-ind="pr-kpris" inputmode="numeric" autocomplete="off" value="' + esc(pf ? pf.value : (p.pris ? nf(p.pris) : '')) + '"></div>'
     + '<div class="f"><div class="k">In which currency</div><select id="f-kval" data-m8c="prkval">' + prValutaer().map(v => '<option' + (v === kv ? ' selected' : '') + '>' + esc(v) + '</option>').join('') + '</select></div>'
     /* v1.92 · Wendie 10.11.2026: «lettere at justere marginen uden at skrive» — − / + flytter 0,5 %-point (til nærmeste halve), ↑/↓ i feltet gør det samme */
-    + '<div class="f"><div class="k">Margin %</div><div class="dg-st"><button type="button" class="b dg-tr" data-m8="prdgned" title="0,5 % lower">−</button><input id="f-dg" data-ind="pr-dg" inputmode="decimal" autocomplete="off" value="' + (p.pris && !p.ufuld ? nf2(p.dg) : '') + '"><button type="button" class="b dg-tr" data-m8="prdgop" title="0,5 % higher">+</button></div></div></div>'
+    /* v1.94 · Wendie 10.11.2026: «kan vi ikke lave en bar man kan trække i istedet?» — skyderen flytter marginen i trin på 0,5 %; feltet og ↑/↓ virker stadig */
+    + '<div class="f"><div class="k">Margin %</div><input id="f-dg" data-ind="pr-dg" inputmode="decimal" autocomplete="off" value="' + (p.pris && !p.ufuld ? nf2(p.dg) : '') + '">'
+    + '<input type="range" id="f-dgbar" class="dg-bar" min="0" max="40" step="0.5" value="' + (p.pris && !p.ufuld ? Math.max(0, Math.min(40, Math.round(p.dg * 2) / 2)) : (mg || 20)) + '"' + (p.pris && !p.ufuld ? '' : ' disabled') + ' title="Drag to change the margin"></div></div>'
     + '<div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap"><button class="b" data-m8="prmaal">Calculate the price from the target · ' + nf1(mg) + ' %</button>'
     + '<button class="b mini" data-m8="prfortryd">Back to the accepted price</button></div>'
     + '<div id="prisAdvar">' + prAdvar() + '</div>')
@@ -13982,6 +13985,14 @@ function prKobl(ind){
   const kp = ind.querySelector('#f-kpris'), dg = ind.querySelector('#f-dg'), sk = ind.querySelector('#f-salgk');
   if(kp) kp.addEventListener('input', () => { if(typeof fmtBelob === 'function') fmtBelob(kp); const pf = prFelt(); if(pf){ pf.value = kp.value; mlFraPris(); } prOm(); });
   if(dg) dg.addEventListener('input', () => { prFraDg(dg.value); prOm(); });
+  /* v1.94: skyderen — mens man trækker, opdateres prisfeltet og toppen; når man slipper, tegnes Pricing forfra */
+  const bar = ind.querySelector('#f-dgbar');
+  if(bar){
+    bar.addEventListener('input', () => { const g = Number(bar.value); prFraDg(String(g).replace('.', ','));
+      if(dg) dg.value = nf2(g); const pf = prFelt(); if(kp && pf) kp.value = pf.value;
+      try { tegnCover(); tegnKortHoveder(); } catch(_){} });
+    bar.addEventListener('change', () => { const g = Number(bar.value); prOm(); kvitter('gemt', 'Margin ' + nf2(g) + ' % — the price is not saved yet'); });
+  }
   if(dg) dg.addEventListener('keydown', ev => { if(ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown') return;
     ev.preventDefault(); const g = prDgNaeste(prDgTal(dg.value), ev.key === 'ArrowUp' ? 1 : -1); if(g == null) return;
     dg.value = nf2(g); prFraDg(dg.value); prOm(); });
@@ -14930,7 +14941,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.93';
+const APP_VERSION = 'v1.94';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
