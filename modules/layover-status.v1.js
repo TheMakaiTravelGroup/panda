@@ -77,7 +77,8 @@
     var chip = afv ? ['mangler', afv === 1 ? '1 needs attention' : afv + ' need attention'] : ['ok', 'all in order'];
     return '<style>' + STIL + '</style>' + A.boks('ls', 'Supplier status', A.boksChip(chip),
       '<table class="tab tabmini ls-tab"><thead><tr><th style="text-align:left">Service</th><th>Deadline</th><th>Issued / confirmed</th><th>Pay supplier by</th><th>Paid</th><th>Bank</th></tr></thead><tbody>'
-      + rows.join('') + '</tbody></table><p class="note" style="margin:8px 0 0">Read from the price lines and Finance — edit the deadlines and the status on the price line under Services on the trip.</p>');
+      + rows.join('') + '</tbody></table><p class="note" style="margin:8px 0 0">Read from the price lines and Finance — edit the deadlines and the status on the price line under Services on the trip.</p>'
+      + (window.LayoverFarewise ? LayoverFarewise.ukoblede() : ''));   /* R1016: Farewise-bookinger uden rejse i Panda */
   }
 
   var STIL = '.ls-tab th,.ls-tab td{text-align:left!important;vertical-align:top}.ls-tab td.ls-n{white-space:nowrap}.ls-tab td.ls-n .art{margin-right:7px}.ls-tab .u1{color:#6B6690!important}'

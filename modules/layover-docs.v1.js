@@ -169,7 +169,8 @@
     bind(A);
     var b = boks(e.id, i);
     return '<style>' + STIL + '</style><label class="ld-zone" tabindex="0" ' + attrs + '><input type="file" accept="application/pdf" hidden data-m8c="ldfil" ' + attrs + '>'
-      + '<span class="ld-ik">⇣</span><span>Upload invoice</span></label>' + b;   /* Wendie 10.11.2026: lige under overskriften, tydeligere, kun «Upload invoice» */
+      + '<span class="ld-ik">⇣</span><span>Upload invoice</span></label>' + b
+      + (window.LayoverFarewise ? LayoverFarewise.linje(e, l, i, attrs) : '');   /* R1016: hvad Farewise sagde om prislinjens PNR */   /* Wendie 10.11.2026: lige under overskriften, tydeligere, kun «Upload invoice» */
   }
 
   function boks(id, i){
