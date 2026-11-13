@@ -7995,7 +7995,8 @@ body.hvviola .sogres .sogik{background:rgba(255,255,255,.08)!important}
 <script src="modules/sales.v1.js?v=1.84"></script>   <!-- R868: Sales-siden i viola-designet. Mangler filen, står den klassiske Sales-side som før. -->   <!-- R857: den bekræftede rejseside lagt oven på mellemlandingen. Mangler filen, åbner bekræftede rejser den klassiske side. -->   <!-- R855: større og tydeligere tekst på viola-siden. Mangler filen, står siden som før. -->
 <script src="modules/english.v1.js?v=1.93"></script>   <!-- R1033: flyselskabernes IATA-koder → navn, og norske/danske ord → engelsk. Mangler filen, bruges index' egne lister. -->
 <script src="modules/layover-style.v1.js?v=1.95"></script>   <!-- R1020: mellemlandingens udseende ligger i sit eget modul. Mangler filen, bruges den indbyggede kopi (M8_DUSK). -->
-<script src="modules/layover-farewise.v1.js?v=1.96"></script>   <!-- R1016: Farewise-status og «Fetch from Farewise» på flyprislinjen. Mangler filen, er alt som før. -->
+<script src="modules/layover-farewise.v1.js?v=1.96"></script>
+<script src="modules/layover-tilbud.v1.js?v=1.97"></script>   <!-- R1042: «Fetch the prices from the offer» viser hvad kunden bookede (Formspree). Mangler filen, er alt som før. -->   <!-- R1016: Farewise-status og «Fetch from Farewise» på flyprislinjen. Mangler filen, er alt som før. -->
 <script src="modules/layover-docs.v1.js?v=1.96"></script>   <!-- R1021: Farewise-fakturaen lægges på en bestemt flyprislinje. Mangler filen, er alt som før. -->
 <script src="modules/layover-status.v1.js?v=1.96"></script>   <!-- R1030: leverandørstatus under Options & deadlines. Mangler filen, er kortet som før. -->
 <script id="m8-mellemlanding">
@@ -12457,6 +12458,7 @@ function tbData(){
   hoteller.forEach(h => { h.alternativ = alt.has(h.k); });
   /* er flere alternativer «fundet» (fx samme hotel to gange), vælges ingen af dem — kun mennesket ved, hvad der blev solgt */
   hoteller.forEach(a => { if(a.alternativ && a.fandtes && hoteller.some(b => b !== a && b.fandtes && b.fra && a.fra && a.fra < b.til && b.fra < a.til)) a.flereFundet = true; });
+  if(window.LayoverTilbud) try { LayoverTilbud.forvalg(hoteller, fly, TB, tbCtx()); } catch(e){ console.error('LayoverTilbud', e); }   /* R1042: det kunden bookede (Formspree) vælges */
   const kan = x => (x.bel != null || (x.udenPris && !x.fandtes)) && !x.udenVal;
   linjer.forEach(x => { if(TB.valg[x.k] != null) return;
     if(!kan(x) || x.dublet) TB.valg[x.k] = false;
@@ -12502,6 +12504,8 @@ function tbDkk(bel, val){ const R = RSx(), k = val && val !== 'DKK' && R.mlEffKu
 const tbDato = ts => { const d = ts ? new Date(ts) : null; return d && !isNaN(d) ? kdA(d.toISOString().slice(0, 10)) : ''; };
 
 /* transferens ender: forslaget (lufthavnen den dag, ellers hotellet før/efter) — rettes bagefter nede i ydelsen (Wendie 03.10.2026: «Det skal bare være nede i selve services») */
+/* R1042: hjælperne layover-tilbud.v1.js må bruge (tb-funktionerne ligger her i mellemlandingens scope) */
+function tbCtx(){ return {TB, tbBliver, tbKan, tbDkk, esc, nf, kd, pkSel, plKildeEn, ART_NAVN, tbTegn}; }
 function tbHtml(){
   if(TB.res) return tbKvitHtml();
   if(!TB.aaben) return '';
@@ -12515,6 +12519,9 @@ function tbHtml(){
   if(D.linjer.some(x => x.art === 'fly' && x.bel != null && !x.sup)) adv.push('The offer does not say WHERE the flight was bought. Choose the supplier on the price line.');
   if(D.udenVal.length) adv.push('The offer does not give the currency for ' + D.udenVal.join(', ') + ' — check it in the editor. It is not added until the currency is there.');
   if(window.PandaOffer) try { adv.push(...PandaOffer.advarsler(D, TB.trip, RSx())); } catch(_){}   /* R847 */
+  if(window.LayoverTilbud) try {   /* R1042 (Wendie 13.11.2026): hvad kunden bookede øverst, beslutninger for sig, fravalgte foldet sammen */
+    const h = LayoverTilbud.html(Object.assign(tbCtx(), {D, adv, raa: D.raa.map(x => (x.art === 'fly' ? 'The flight price could not be read: «' : x.art === 'transfer' ? 'The transfer price could not be read: «' : 'The hotel price could not be read: «') + x.raa + '» (' + x.navn + ') — check it in the editor.')}));
+    if(h) return h; } catch(e){ console.error('LayoverTilbud', e); }
   const raa = D.raa.map(x => '<p class="advar">' + (x.art === 'fly' ? 'The flight price could not be read: «' : x.art === 'transfer' ? 'The transfer price could not be read: «' : 'The hotel price could not be read: «') + esc(x.raa) + '» (' + esc(x.navn) + ') — check it in the editor.</p>').join('');
   const rk = D.linjer.map(x => { const bl = tbBliver(x), kan = tbKan(x), dk = kan ? tbDkk(x.bel, x.val) : '';
     const vm = x.hotel && x.villas.length > 1 ? '<div class="tb-rute tb-ett">' + pkSel([['en', 'All villas on one price line'], ['hver', 'One price line per villa']], TB.vmode[x.k] || 'en', 'class="tb-sted" data-m8c="tbvmode" data-k="' + esc(x.k) + '"' + dis) + '</div>' : '';
@@ -14943,7 +14950,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.96';
+const APP_VERSION = 'v1.97';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
