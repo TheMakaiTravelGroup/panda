@@ -193,7 +193,7 @@ function kursAlarm(){
    Gemmes i trips.payment_plan som [{l, b, d}] i kundens valuta. Uden en gemt plan:
    depositum og restbetaling fra rejsen, ellers standarden 50 % / 50 % to måneder før afrejse
    (under 60 dage: alt med det samme). Depositum forfalder samme dag som bestillingen (Wendie 20.10.2026). */
-function bekraeftetDato(){ const sn = S.data && S.data.snap, t = A.T(); return lok((sn && sn.tid) || t.booking_date || t.accepted_at) || A.iDag(); }
+function bekraeftetDato(){ const sn = S.data && S.data.snap, t = A.T(); return t.booking_date || lok((sn && sn.tid) || t.accepted_at) || A.iDag(); }   /* booking_date vinder (Wendie 13.11.2026) */
 function standardPlan(){
   const t = A.T(), pris = Number(t.accepted_price) || Number(t.package_sell_total) || 0, ud = t.departure_date;
   const bk = bekraeftetDato();
@@ -372,7 +372,7 @@ function efterTegn(api){ A = api; if(!aktiv(A.T())) return; sikrKort(); sikrData
 function top(api){
   A = api; const R = A.ROD(), t = A.T(); if(!R) return;
   sikrKort();
-  const e = R.querySelector('.eyebrow'); if(e) e.textContent = 'Confirmed · the trip is sold';
+  const e = R.querySelector('.eyebrow'); if(e) e.textContent = 'Confirmed' + (A.T().ref_no ? ' · ' + A.T().ref_no : '');   /* Wendie 13.11.2026: ref.nr. i stedet for «the trip is sold» */
   const st = stadie(), nu = RAIL.findIndex(x => x[1] === st.i);
   const rl = R.getElementById('rail');
   if(rl) rl.innerHTML = RAIL.map((s, i) => '<button class="rtrin' + (i < nu ? ' gjort' : '') + (i === nu ? ' nu' : '') + '" data-m8="pcstadie" data-i="' + i + '"'
@@ -392,7 +392,7 @@ function top(api){
 function bund(api, p){
   A = api; const R = A.ROD(), t = A.T(); if(!R) return;
   const st = R.getElementById('bStat'), kn = R.querySelector('.bknap');
-  const sn = S.data && S.data.snap, dato = (sn && sn.tid) || t.pricing_rates_at || t.accepted_at;
+  const sn = S.data && S.data.snap, dato = t.booking_date || (sn && sn.tid) || t.pricing_rates_at || t.accepted_at;   /* booking_date vinder (Wendie 13.11.2026) */
   const lr = R0();
   if(st){ st.className = 'bstat ok';
     st.innerHTML = '<b>Confirmed</b>' + (dato ? ' ' + esc(A.kdA(lok(dato))) : '') + ' · ' + esc(t.ref_no || '—') + ' · '
