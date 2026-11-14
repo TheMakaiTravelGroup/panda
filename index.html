@@ -10132,6 +10132,7 @@ function plStatus(l, e){
   return (st ? '<span class="pstat">' + esc(st) + '</span>' : '') + (vis ? '<span class="pstat">' + esc(vis) + '</span>' : '');
 }
 function plNavn(e, l, i){
+  if(l.dolphin) return 'From Dolphin';
   if(l.slag === 'grundlag') return fraTilbud(l) || !String(l.kilde || '').trim() ? 'Baseline' : 'First price';
   return 'Price ' + (i + 1);
 }
@@ -10149,6 +10150,7 @@ function plHtml(e, l, i){
   const nb = (RSx().billeder ? RSx().billeder(l) : (l.billeder || [])).length;
   let dif = '';
   if(plTomGrund(l)) dif = '<span class="diff nul">empty — no price yet</span>';
+  else if(l.dolphin) dif = '<span class="diff nul">the purchase registered in Dolphin</span>';
   else if(l.slag === 'grundlag') dif = '<span class="diff nul">' + (fraTilbud(l) || !String(l.kilde || '').trim() ? 'the one the offer was built on' : 'the first price — everything else is measured against it') + '</span>';
   else if(p == null || gp == null) dif = '';
   else { const d = p - gp; dif = Math.abs(d) < 0.5 ? '<span class="diff nul">same as the baseline</span>'
@@ -10632,6 +10634,8 @@ function plKrop(e, l, i){
   const sidst = sidstRettet(l);
   const fod = '<div class="plfod">' + (plTomGrund(l) && (ydSt(id).linjer || []).length > 1
       ? '<button class="b mini lille" data-m8="plsletgrund" ' + A + '>Remove the empty baseline</button><span class="note" style="margin:0">The next price line becomes the baseline and is selected.</span>'
+      : l.dolphin
+      ? '<span class="note" style="margin:0">From Dolphin — shown here, not saved. Add a price line to work with the price in Panda.</span>'
       : l.slag === 'grundlag'
       ? '<span class="note" style="margin:0">' + (fraTilbud(l) || !kilde ? 'The baseline cannot be removed — it is the price the offer was built on.' : 'The first price cannot be removed — everything else on the service is measured against it.') + '</span>'
       : '<button class="b mini lille" data-m8="plslet" ' + A + '>Remove the price line</button>')
@@ -14950,7 +14954,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.97';
+const APP_VERSION = 'v1.98';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
@@ -17564,15 +17568,10 @@ async function viewTrip(id, opt){
     /* R857 (Wendie 19.10.2026): en bekræftet rejse, der er bygget i Panda (har prislinjer), åbner i
        den SAMME side som mellemlandingen (R753). Rejser fra Dolphin uden prislinjer og «Classic page»
        ({klassisk:true}) åbner den klassiske side som før. Mangler modulet, er alt som før v1.79. */
+    /* R1044 (Wendie 14.11.2026): ALLE solgte rejser åbner i det nye design — også dem fra Dolphin uden prislinjer.
+       Priserne vises med det, der ligger i Panda (ydelsernes indkøb og rejsens salgspris). «Classic page» virker som før. */
     if(mm.data && !(opt && opt.klassisk) && typeof NY_MELLEMLANDING !== 'undefined' && NY_MELLEMLANDING
-       && window.PandaConfirmed && PandaConfirmed.skalAabne(mm.data.status)){
-      const er = await db.from('trip_elements').select('id').eq('trip_id', id);
-      const ids = ((er && er.data) || []).map(x => x.id);
-      if(ids.length){
-        const pr = await db.from('element_prices').select('id').in('element_id', ids).limit(1);
-        if(pr && !pr.error && (pr.data || []).length) return viewMel(id);
-      }
-    }
+       && window.PandaConfirmed && PandaConfirmed.skalAabne(mm.data.status)) return viewMel(id);
   }
   const fail=(hvor,e)=>{app.innerHTML=`<div class="card"><b style="color:var(--bad)">Fejl (${hvor}):</b> ${e.message}<br><br><button class="btn ghost" onclick="viewSales()">← Til Salg</button></div>`;};
   const [r1,r2,r3,r4,r5,r6,r7,r8,r9,r10] = await Promise.all([
@@ -31090,7 +31089,8 @@ function linjeFra(p){
        OVERLEVE en genindlaesning — ellers staar der noget andet i
        morgen, end der stod i dag. */
     rejsende: Array.isArray(p.rejsende) ? p.rejsende : [],
-    ref: p.reference || null, vilkaar: p.vilkaar || null, aaben:false };   /* R873: vilkår pr. prislinje */
+    ref: p.reference || null, vilkaar: p.vilkaar || null, aaben:false,   /* R873: vilkår pr. prislinje */
+    dolphin: !!p._dolphin };   /* R1044: indkøbet fra Dolphin — vises, gemmes aldrig */
 }
 function linjeTil(l, elId, i){
   return { id: l._id || undefined, element_id: elId, slag: l.slag || 'manuel',
@@ -31387,6 +31387,7 @@ function planAfElement(e, i){
 }
 async function sikrPlan(data){
   if(data.plan.length || !data.els.length) return;
+  if(!(data.priser || []).length && data.tur && data.tur.status !== 'mellemlanding') return;   /* R1044: Dolphin-rejse — åbning skriver intet */
   const nye = data.els.map(planAfElement);
   const r = await db.from('trip_plan_items').insert(nye).select('*');
   if(r.error){ console.error(r.error); return; }
@@ -31451,7 +31452,13 @@ async function start(data){
        basen — en rejse fra foer prisstigen — laves det af tilbuddets egne
        tal, saa siden aldrig staar tom. */
     if(!mine.some(p=>p.slag==='grundlag')){
-      mine.unshift({ id:null, slag:'grundlag', supplier_name:(e.details&&e.details.lev)||'—',
+      /* R1044: en ydelse fra Dolphin (ingen prislinjer, intet tilbud, men et indkøb) viser sit indkøb — kun til visning */
+      const dd = e.details || {}, dolphin = !mine.length && e.tilbud_buy_amount == null && e.buy_amount != null && TUR.status !== 'mellemlanding';
+      mine.unshift(dolphin ? { id:null, _dolphin:true, slag:'grundlag', supplier_name: dd.financial_vendor || dd.lev || '—',
+        amount:Number(e.buy_amount)||0, currency:(e.buy_currency||KUNDEVAL),
+        kilde:'Dolphin', hvad:[dd.room, dd.board, dd.produkt, dd.nights ? dd.nights + ' nights' : ''].filter(Boolean).join(' · '),
+        daekker: dd.pax ? dd.pax + ' pax' : '—', naar_tekst:'from Dolphin' }
+      : { id:null, slag:'grundlag', supplier_name:(e.details&&e.details.lev)||'—',
         amount:Number(e.tilbud_buy_amount)||0,
         currency:e.tilbud_buy_currency||e.buy_currency||KUNDEVAL,
         kilde:'', hvad:(e.details&&e.details.sub)||'', daekker:'—',
@@ -31527,7 +31534,7 @@ async function gemTilBasen(){
       const s = st[e.id];
       if(!s) continue;
       if(String(e.id).startsWith('x')) continue;   /* INDGREB 5a: endnu ikke i basen — gemNytElement skriver den */
-      const raekker = s.linjer.map((l,i)=>linjeTil(l, e.id, i));
+      const raekker = s.linjer.map((l,i)=>l.dolphin ? null : linjeTil(l, e.id, i)).filter(Boolean);   /* R1044: Dolphin-linjen gemmes ikke */
       const gamle = raekker.filter(r=>r.id && GEMT['ep:' + r.id] !== JSON.stringify(r));   /* kun de ændrede */
       const nye   = raekker.filter(r=>!r.id);
       if(gamle.length){
@@ -31540,7 +31547,7 @@ async function gemTilBasen(){
           .insert(nye.map(({id, ...x})=>x)).select('id,sort').order('sort');
         if(r.error) throw new Error(r.error.message);
         let k = 0;
-        s.linjer.forEach(l=>{ if(!l._id && r.data[k]) l._id = r.data[k++].id; });
+        s.linjer.forEach(l=>{ if(!l._id && !l.dolphin && r.data[k]) l._id = r.data[k++].id; });   /* R1044: Dolphin-linjen får aldrig et id */
         s.linjer.forEach((l, i) => { if(l._id && !GEMT['ep:' + l._id]) GEMT['ep:' + l._id] = JSON.stringify(linjeTil(l, e.id, i)); });
       }
       /* Linjer, der er slettet paa skaermen, skal ogsaa vaek i basen.
@@ -32144,6 +32151,9 @@ async function viewMel(id){
   let d;
   try { d = await RS.aabn(id, document.getElementById('rsside')); }
   catch(e){ return fejl('rejsesiden', e); }
+  /* R1044: rejser fra Dolphin har ingen accepteret pris — salgsprisen fra Dolphin vises (gemmes ikke) */
+  if(d && d.tur && d.tur.status !== 'mellemlanding' && d.tur.accepted_price == null && d.tur.package_sell_total != null){
+    d.tur.accepted_price = Number(d.tur.package_sell_total); d.tur.accepted_currency = d.tur.customer_currency; d.tur._prisFraDolphin = true; }
   /* R857/R753: en bekræftet rejse regnes med de kurser, der blev låst ved bekræftelsen — dagens bruges kun til kursalarmen */
   if(d && d.tur && d.tur.status !== 'mellemlanding' && d.tur.pricing_rates && typeof d.tur.pricing_rates === 'object'){
     d.kurserIDag = d.kurser;
@@ -33725,7 +33735,7 @@ function mlHarValgtPris(e){
   const harBeloeb = l => l.pris != null && l.pris !== '' && isFinite(Number(l.pris))
     && (l.subs||[]).every(x => x.p == null || x.p === '' || isFinite(Number(x.p)));
   if(!valgte.every(harBeloeb)) return false;
-  if(valgte.some(l => l._id)) return true;
+  if(valgte.some(l => l._id || l.dolphin)) return true;   /* R1044: 0 fra Dolphin er registreret i Dolphin — det er et svar */
   return valgte.some(l => Number(l.pris) > 0);
 }
 /* ══ DE FIRE HÅNDTAG UNDER TABELLEN ══════════════════════════════════
