@@ -1,4 +1,4 @@
-/* modules/layover-farewise.v1.js — R1016 (Wendie 12.11.2026) + R1041 flyændringer til godkendelse (13.11.2026)
+/* modules/layover-farewise.v1.js — R1016 (Wendie 12.11.2026) + R1041 flyændringer til godkendelse (13.11.2026) + R1050 rejser fundet på navn og dato (19.11.2026)
    Viser på hver flyprislinje, hvad Farewise sagde ved sidste hentning (natkørslen kl. 03:17 eller knappen):
    udstedt eller ej, udstedelsesfristen, hvad der blev udfyldt automatisk, og AFVIGELSER (Farewise siger noget andet
    end prislinjen — et menneske tager stilling). Knappen «Fetch from Farewise» henter med det samme for prislinjens PNR.
@@ -36,8 +36,12 @@
     hent(A);
     var esc = A.esc, pnr = String(A.linjeRef ? A.linjeRef(e, l) || '' : '').trim().toUpperCase();
     var id = l && l._id;
+    var tripId = (A.T() || {}).id;
     var r = (RK || []).find(function(x){ return id && (x.price_ids || []).indexOf(id) > -1; })
-      || (pnr && (RK || []).find(function(x){ return x.pnr === pnr; }));
+      || (pnr && (RK || []).find(function(x){ return x.pnr === pnr; }))
+      /* R1050: rejsen er fundet på navn og dato (ingen PNR på prislinjen) — vis bookingen på rejsens fly */
+      || (tripId && (RK || []).find(function(x){ return x.match_status === 'rejse' && (x.trip_ids || []).indexOf(tripId) > -1; }));
+    if(r && !pnr && r.match_status === 'rejse') pnr = r.pnr;
     var knap = pnr ? '<button class="b mini fw-knap" data-m8="fwhent" data-pnr="' + esc(pnr) + '"' + (I_GANG[pnr] ? ' disabled' : '') + '>' + (I_GANG[pnr] ? 'Fetching…' : '↻ Fetch from Farewise') + '</button>' : '';
     if(!r){
       if(!pnr) return '';
@@ -48,7 +52,7 @@
     else if(r.issued) tags.push('<span class="fw-t ok">Issued</span>');
     else tags.push('<span class="fw-t obs">Not issued</span>');
     if(r.ok && !r.issued && r.ticketing_deadline) tags.push('<span class="fw-t' + (new Date(r.ticketing_deadline) < new Date() ? ' galt' : '') + '">Ticketing deadline ' + esc(dagTxt(r.ticketing_deadline)) + '</span>');
-    var afv = (r.afvigelser || []).filter(function(a){ return !a.price_id || a.price_id === id; });
+    var afv = (r.afvigelser || []).filter(function(a){ return (!a.price_id || a.price_id === id) && !/^Found on /.test(a.t || ''); });
     var anv = (r.anvendt || []).filter(function(a){ return !a.price_id || a.price_id === id; });
     var fc = FC.filter(function(c){ return c.price_id === id; });
     var godk = fc.filter(function(c){ return c.niveau === 'godkend' && c.status === 'aaben'; });
@@ -62,6 +66,7 @@
     return '<div class="fw-boks' + (afv.length || !r.ok || godk.length ? ' fw-obs' : '') + '"><div class="fw-hd"><span><b>Farewise</b> · ' + esc(r.pnr) + ' · checked ' + esc(tid(r.hentet_at)) + '</span>' + knap + '</div>'
       + '<div class="fw-tags">' + tags.join('') + '</div>'
       + (!r.ok ? '<p class="fw-p">' + esc(String(r.fejl || '').replace(/^FareWise \d+: \d+\|Application\|/, '')) + ' — the booking may be an NDC booking that Farewise looks up differently. Rasmus is fixing it.</p>' : '')
+      + (r.match_status === 'rejse' ? '<p class="fw-p">Found on this trip by the customer\'s name and departure date. Write the PNR ' + esc(r.pnr) + ' on the flight price line, so Panda can fill in tickets and follow changes.</p>' : '')
       + (anv.length ? '<p class="fw-p">Filled in from Farewise: ' + anv.map(function(a){ return esc(a.t); }).join(' · ') + '</p>' : '')
       + aendHtml
       + (afv.length ? '<ul class="fw-afv">' + afv.map(function(a){ return '<li>' + esc(a.t) + '</li>'; }).join('') + '</ul><p class="fw-p">Farewise says something different — check it and correct the price line by hand. Nothing has been changed.</p>' : '')
@@ -71,14 +76,14 @@
   /* under «Supplier status»: bookinger hos Farewise uden rejse i Panda */
   function ukoblede(){
     var A = api(); if(!A) return ''; hent(A);
-    var L = (RK || []).filter(function(x){ return x.match_status === 'ingen' || x.match_status === 'flere'; });
+    var L = (RK || []).filter(function(x){ return x.match_status === 'ingen' || x.match_status === 'flere'; });   /* 'rejse' = fundet på navn og dato; 'ikke_i_editor' = ikke længere i editorens liste */
     if(!L.length) return '';
     var esc = A.esc;
     return '<div class="fw-uk"><b>Farewise bookings not linked to a trip in Panda</b>'
       + '<ul>' + L.map(function(x){ var b = x.booking || {};
         return '<li><b>' + esc(x.pnr) + '</b> · ' + esc(b.customer_name || '—') + (b.travel_date_out ? ' · departs ' + esc(b.travel_date_out) : '')
           + (x.issued === false ? ' · <span class="fw-r">not issued' + (x.ticketing_deadline ? ', deadline ' + esc(dagTxt(x.ticketing_deadline)) : '') + '</span>' : x.issued ? ' · issued' : '')
-          + (x.match_status === 'flere' ? ' · <span class="fw-r">the PNR is on several trips</span>' : '') + '</li>'; }).join('')
+          + (x.match_status === 'flere' ? ' · <span class="fw-r">' + ((x.booking || {}).panda_rejse ? 'fits ' + esc(((x.booking.panda_rejse.trips) || []).map(function(t){ return t.ref_no; }).join(', ')) : 'the PNR is on several trips') + '</span>' : '') + '</li>'; }).join('')
       + '</ul><p class="fw-p">Write the PNR on the flight price line of the right trip — then Panda links it at the next fetch.</p></div>';
   }
 

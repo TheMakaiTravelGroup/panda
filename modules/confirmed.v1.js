@@ -397,7 +397,9 @@ function bund(api, p){
   if(st){ st.className = 'bstat ok';
     st.innerHTML = '<b>Confirmed</b>' + (dato ? ' ' + esc(A.kdA(lok(dato))) : '') + ' · ' + esc(t.ref_no || '—') + ' · '
       + (lr ? 'rates locked' + (lr.dato ? ' (' + esc(A.kd(lr.dato)) + ')' : '') : '<span style="color:#e8c98a">rates not locked</span>')
-      + (S.fejl ? '<span class="gt" style="color:#ff8a9e">Part of the page could not be fetched: ' + esc(S.fejl) + '</span>' : ''); }
+      + (S.fejl ? '<span class="gt" style="color:#ff8a9e">Part of the page could not be fetched: ' + esc(S.fejl) + '</span>' : '')
+      /* R1009: «Fam trip» — rejsen tæller ikke med i salg og indtjening på dashboardet */
+      + '<label class="pcfam" style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;color:var(--lys2,#cfc9ea);font-size:12.5px"><input type="checkbox" data-m8c="pcfam"' + (t.fam_trip ? ' checked' : '') + ' style="width:15px;height:15px;accent-color:#9b86ff"> Fam trip <span style="opacity:.6">— not counted in sales and earnings</span></label>'; }
   if(kn){
     kn.querySelectorAll('#bTilbage, #bBekraeft').forEach(b => { b.hidden = true; b.style.display = 'none'; });
     if(!kn.querySelector('#pcKnap')) kn.insertAdjacentHTML('beforeend', '<span class="pcknap" id="pcKnap"><button class="b fyldt" data-m8="pcsalg">← Sales</button>'
@@ -627,6 +629,12 @@ HANDL.pcstadie = el => {
 };
 /* før man går fra siden, gemmes det, der er i gang — ellers kunne en gemning ramme en side, der er væk */
 const faerdig = async () => { try { await A.ydGem(A.ydFoer()); } catch(_){} };
+HANDLC.pcfam = el => { const t = A.T(), ny = !!el.checked;
+  return A.iKoe(async () => {
+    const r = await db_().from('trips').update({fam_trip: ny}).eq('id', t.id);
+    if(r && r.error){ el.checked = !ny; return A.kvitter('fejl', 'Fam trip could not be saved: ' + r.error.message); }
+    t.fam_trip = ny; A.kvitter('gemt', ny ? 'Marked as fam trip — it is not counted in sales and earnings' : 'No longer a fam trip');
+  }); };
 HANDL.pcsalg = () => faerdig().then(() => { if(typeof viewSales === 'function') return viewSales(); history.back(); });
 HANDL.pcklassisk = () => { const id = A.T().id; return faerdig().then(() => { if(typeof viewTrip === 'function') return viewTrip(id, {klassisk: true}); }); };
 HANDL.pcgaatil = el => { if(A.aabnLinje) A.aabnLinje(el.dataset.yd, +el.dataset.i); };   /* Wendie 20.10.2026: kort 07 → prislinjen i kort 04 */
