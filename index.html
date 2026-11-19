@@ -14955,7 +14955,7 @@ const SB_URL = 'https://kottwokudnxdobittera.supabase.co';
 const SB_KEY = 'sb_publishable_MOojN3I5klYYmhgWq2NWGw_ZHV78zGO';
 const db = supabase.createClient(SB_URL, SB_KEY);
 // Panda-version — vises i konsollen og i sidefoden. Ret ved hver udgivelse.
-const APP_VERSION = 'v1.99';
+const APP_VERSION = 'v1.99.1';
 /* ══ NY_MELLEMLANDING — den nye mellemlanding i viola-designet (R699/R701) ══ */
 /* ══ NY_DASH — det nye dashboard i viola-designet (R729). Det gamle tegnes stadig nedenunder og henter tallene. ══ */
 /* ══ NY_HV — henvendelserne i viola (R731): samme side, nyt udseende ══ */
@@ -15507,7 +15507,7 @@ async function checkTestdata(){
 }
 
 function noAccess(v){ navTo(v); app.innerHTML = '<div class="card"><h3>'+t('g.noaccess')+'</h3><p class="muted">'+t('g.noaccess_txt')+'</p></div>'; }
-document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{if(b.dataset.v==='knowledge'){location.href='knowledge.html';return;}/* videnbanken er sin egen side på kernen */window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewHenvendelser,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,settings:()=>viewIndstillinger(),new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{if(b.dataset.v==='knowledge'){location.href='knowledge.html';return;}/* videnbanken er sin egen side på kernen */window._leadToConvert=null;navTo(b.dataset.v);({dash:viewDash,leads:viewHenvendelser,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewResultat,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,users:viewUsers,settings:()=>viewIndstillinger(),new:viewNew,testdata:viewTestdata})[b.dataset.v]();});
 function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   // henvendelses-boardene er brede (10 trin) — slip main fri fra 1280px-loftet.
   // Baade den gamle side ('leads') og den nye ('hv') skal have hele skaermen.
@@ -15525,7 +15525,7 @@ function navTo(v,route){window.__view=v;document.querySelectorAll('#nav button')
    Derfor ignorerer applyRoute() enhver hash der indeholder = eller &, og
    supabase-js har under alle omstændigheder allerede tømt den, når showApp()
    kaldes. */
-const PANDA_ROUTES = {dash:viewDash,leads:viewHenvendelser,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewFinance,
+const PANDA_ROUTES = {dash:viewDash,leads:viewHenvendelser,hv:viewHenvendelser,team:viewTeam,sales:viewSales,finance:viewResultat,finansoversigt:viewFinance,   /* Wendie 19.11.2026: Økonomi åbner den nye side; den gamle oversigt har sin egen rute */
   vendorpay:viewVendorPay,gennemgang:viewGennemgang,resultat:viewResultat,tasks:viewTasks,marketing:viewMarketing,reports:viewReports,
   users:viewUsers,new:viewNew,testdata:viewTestdata};
 function setRoute(h){
@@ -16353,7 +16353,7 @@ async function viewTasks(){
 // ═══ ØKONOMI ═══
 async function viewFinance(){
   if(!hasPerm('finance')) return noAccess('finance');
-  navTo('finance');
+  navTo('finance','finansoversigt');
   app.innerHTML = '<div class="pagehead"><h2>Økonomi</h2></div><div class="card">Henter…</div>';
   const [trips, tasks] = await Promise.all([
     fetchTrips(),
