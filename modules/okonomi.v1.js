@@ -22,7 +22,7 @@
    driftsudgifterne med det samme, men ikke en rejses omkostning — den genberegnes ved næste kørsel. */
 window.PandaOkonomi = (function(){
 'use strict';
-const VERSION = 'okonomi v1';
+const VERSION = 'okonomi v1.1';
 const AAR = 2026;
 let VAERT = null, ROD = null, INDRE = null, OBS = null, LAESER = false, APP = null, GEMT_S = null, D = null;
 
@@ -256,6 +256,7 @@ button.ka[aria-expanded=true]{background:#f6f4fc;border-radius:12px;border-top-c
 .gl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .gl button{all:unset;cursor:pointer;font:500 11px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:#cfcfe0;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 12px}
 .gl button:hover{background:rgba(255,255,255,.08)}
+.fk{font-size:12px;line-height:1.4;color:var(--ink3);margin-top:4px;max-width:520px}
 .live.fejl i{background:#ff6b81}.live.ok i{background:#5fd39a}
 `;
 const HTML = `<div class="okrod"><aside class="side" hidden><nav class="nav" id="nav"></nav></aside><div class="main"><div class="aur"></div><div class="wrap"><div class="top"><div class="eyebrow" id="dato"></div><span class="gl"><button data-gl="viewFinance">Kundebetalinger</button><button data-gl="viewVendorPay">Vendor payments</button><button data-gl="viewGennemgang">Gennemgang</button><span class="live ok" id="okstat"><i></i><span id="okstatt">Rettelser gemmes</span></span></span></div><div class="tabs" id="tabs" role="tablist"></div><div id="side"><div class="hero"><div class="eyebrow">Økonomi</div><h1>Henter tallene …</h1></div></div></div></div><div id="toast" role="status"></div></div>`;
@@ -280,7 +281,7 @@ function byg(b, r, bu, a, g, ref, tr){
   if(mangler.length) throw new Error('Referencedata mangler i vk_reference: ' + mangler.join(', '));
   return {
     bank: b.map(l => ({ id: l.id, i: l.linje_nr, k: l.konto_kode, d: l.dato, t: l.tekst, b: tal(l.beloeb), v: l.valuta, dkk: tal(l.beloeb_dkk),
-        s: l.dkk_kilde === 'fast kurs (skøn)' ? 1 : 0, kat: l.kategori, gl: l.gl_konto, p: l.person, r: (l.rejser && l.rejser.length) ? l.rejser : null,
+        s: l.dkk_kilde === 'fast kurs (skøn)' ? 1 : 0, ks: l.dkk_kilde || '', kat: l.kategori, gl: l.gl_konto, p: l.person, r: (l.rejser && l.rejser.length) ? l.rejser : null,
         bl: l.bilag_fil ? stamme(l.bilag_fil) : l.econ_bilag ? (l.econ_match === 'ca' ? '≈ ' : '') + 'e-conomic ' + l.econ_bilag : null,
         fil: l.bilag_fil || null, eb: l.econ_bilag || null, ret: !!l.rettet_at }))
       .sort((x, y) => x.i - y.i),
@@ -291,6 +292,7 @@ function byg(b, r, bu, a, g, ref, tr){
     afk: a.map(x => ({ id: x.id, status: x.status, svar: x.svar, rejser: x.rejser, dolphin_dkk: tal(x.dolphin_dkk), bank_dkk: tal(x.bank_dkk), type: x.type, noegle: x.noegle, note: x.note })),
     gl: g, vp: P('vendor_payments_due'), solgt: solgt, econ: sb.econ || {}, saldo: sb.saldo || [], budget: P('driftsbudget'), kontonavn: P('kontonavne'),
     epost: ep.poster || [], epostTil: ep.til || '', bilagFra: ub.fra || AAR + '-07-01', bilagUbrugte: ub.filer || [], bilagFiler: ub.antal_filer || 0,
+    nb: (P('nb_kurser') || {}).kurser || {}, primo: (P('nb_kurser') || {}).primo || {},
     kilder: (ref || []).map(x => ({ noegle: x.noegle, kilde: x.kilde, hentet: x.hentet_at }))
   };
 }
@@ -360,6 +362,43 @@ var SEK = [
   { id:'fin',  navn:'Renter og valutakurs', sumnavn:'Renter og valutakurs i alt', fra:4300, til:4499, indt:1, farve:'#12805c' }
 ];
 /* hvilken konto i resultatopgørelsen en banklinje tæller på (null = ikke i resultatet) */
+/* ═══ KURS: gevinst/tab på valutakontiene — R1063. Kontoudtogets valutabeløb × Nationalbankens kurs.
+   gevinst = ultimosaldo × kurs på slutdagen − primosaldo × kurs 31.12 − Σ (hver bevægelse × kursen den dag) ═══ */
+var VKONTI = [['DB-NOK','NOK','Danske Bank NOK'],['DB-USD','USD','Danske Bank USD'],['REV-NOK','NOK','Revolut NOK'],['REV-USD','USD','Revolut USD'],['REV-EUR','EUR','Revolut EUR'],['REV-GBP','GBP','Revolut GBP']];
+var NBK = {};
+function nbKurs(v, d){ if(v === 'DKK') return 1; var K = D.nb && D.nb[v]; if(!K) return null; var ks = NBK[v] || (NBK[v] = Object.keys(K).sort()), lo = 0, hi = ks.length - 1, r = null;
+  while(lo <= hi){ var m = (lo + hi) >> 1; if(ks[m] <= d){ r = ks[m]; lo = m + 1; } else hi = m - 1; } return r ? K[r] : null; }
+function nbSidste(){ var ks = NBK.NOK || (D.nb && D.nb.NOK ? (NBK.NOK = Object.keys(D.nb.NOK).sort()) : []); return ks.length ? ks[ks.length - 1] : ''; }
+var KOPG = {};
+function kursOpg(slut){
+  slut = slut || nbSidste(); if(KOPG[slut]) return KOPG[slut];
+  var tot = 0, r = VKONTI.map(function(a){ var p = +(D.primo[a[0]] || 0), bev = 0, bd = 0, n = 0, k0 = nbKurs(a[1], '2025-12-31'), k1 = nbKurs(a[1], slut);
+    D.bank.forEach(function(l){ if(l.k !== a[0] || l.d > slut) return; bev += l.b; bd += l.b * nbKurs(a[1], l.d); n++; });
+    var ult = p + bev, g = ult * k1 - p * k0 - bd; tot += g;
+    return { k: a[0], v: a[1], navn: a[2], primo: p, bev: bev, ult: ult, k0: k0, k1: k1, n: n, g: g }; });
+  return (KOPG[slut] = { slut: slut, r: r, tot: tot });
+}
+function harKurs(){ return !!(D.nb && D.nb.NOK && D.primo && D.primo['DB-NOK'] != null); }
+/* ═══ FORKLARING pr. banklinje: hvorfor linjen er bogført, som den er ═══ */
+function forklar(l){
+  var g = kontoAf(l), t, rj = l.r ? ' ' + l.r.join(', ') : '';
+  if(l.kat === 'intern') t = 'Overførsel mellem egne konti eller veksling — tæller ikke i resultatet';
+  else if(l.kat === 'kunde') t = (l.b < 0 ? 'Tilbagebetaling til kunde' : 'Indbetaling fra kunde') + rj + ' — omsætningen tælles i rejsens afrejsemåned, ikke på betalingsdagen';
+  else if(l.kat === 'leverandoer') t = (l.b > 0 ? 'Penge retur fra leverandør' : 'Betaling til leverandør') + rj + ' — omkostningen tælles i rejsens afrejsemåned';
+  else if(l.kat === 'refusion') t = 'Refusion til kunde' + rj + ' — trækkes fra på rejsen';
+  else if(l.kat === 'loen') t = 'Løn — konto ' + g + ' ' + knavn(g) + ', tælles i betalingsmåneden';
+  else if(l.kat === 'drift') t = g ? 'Driftsudgift — konto ' + g + ' ' + knavn(g) + ', tælles i betalingsmåneden med det beløb, banken har trukket' : 'Balancepost (konto ' + (l.gl || 'mangler') + ') — tæller ikke i resultatet';
+  else if(l.kat === 'udbytte') t = 'Udbytte til ejer — tæller ikke i resultatet';
+  else if(l.kat === 'laan') t = 'Lån/afdrag — tæller ikke i resultatet';
+  else if(l.kat === 'skat') t = 'Skat/moms — balancepost, tæller ikke i resultatet';
+  else if(l.kat === 'mellemregning') t = 'Mellemregning med ejer — tæller ikke i resultatet';
+  else t = 'Ikke afklaret endnu';
+  if(l.v !== 'DKK'){ var k = nbKurs(l.v, l.d); t += ' · ' + l.v + ' omregnet ' + (l.s ? 'med fast kurs (skøn)' : l.ks === 'Q3-kassekladde' ? 'som i kassekladden' : 'til DKK') + (k ? '; Nationalbanken ' + fd(l.d) + ': ' + (k * 100).toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''); }
+  if(/\?/.test(l.gl || '')) t += ' · kontoen er et gæt';
+  if(l.p) t += ' · ' + (PERS[l.p] || l.p);
+  if(l.ret) t += ' · rettet i hånden';
+  return t;
+}
 function kontoAf(l){
   var g = String(l.gl || '').replace('?','').trim();
   if(l.kat === 'loen'){ if(g === '6921') return '2223'; if(g.indexOf('2222') === 0) return '2222'; if(/^\d{4}$/.test(g) && +g < 5000) return g; return '2210'; }
@@ -406,6 +445,7 @@ function model(Y){
   }
   function su(id, lag, fra, til){ var t = 0; for(var i = fra; i < til; i++) t += lag === 'A' ? v(id,'F',i) + v(id,'B',i) + v(id,'K',i) : v(id, lag, i); return t; }
   var kurs = {}; D.bud.forEach(function(b){ if(b.gruppe === 'Kurs') kurs[b.maaned] = +b.beloeb_dkk; });
+  if(harKurs()){ kurs[6] = kursOpg('2026-06-30').tot; kurs[9] = kursOpg('2026-09-30').tot; kurs[11] = kursOpg().tot; }
   return (MODEL[Y] = { Y: Y, R: R, LM: Y === 2026 ? LM : -1, sidste: sidste, konti: konti, v: v, sum: su, usik: usik, antal: antal, skoenIDir: skoenIDir, kurs: kurs, kursNu: Y === 2026 ? (kurs[11] || 0) : 0 });
 }
 /* e-conomic (saldobalance 01.01–30.09.26): naturligt fortegn — indtægt +, omkostning + */
@@ -520,7 +560,7 @@ function monOpt(v){ return '<option value="alle">Alle måneder</option>' + MON.m
 function aarListe(){ var a = {}; a[AAR] = 1; D.solgt.concat(D.vp).forEach(function(r){ a[+r.afrejse.slice(0,4)] = 1; }); return Object.keys(a).map(Number).sort(); }
 
 /* ═══ SIDER ═══ */
-var SIDER = [['overblik','Overblik'],['budget','Budget & resultat'],['saldo','Saldobalance'],['leverandoer','Leverandørbetalinger'],['bank','Bank & afstemning'],['likviditet','Likviditet'],['ejere','Interne balancer'],['afklaring','Afklaring'],['mere','Flere sider']];
+var SIDER = [['overblik','Overblik'],['budget','Budget & resultat'],['saldo','Saldobalance'],['leverandoer','Leverandørbetalinger'],['bank','Bank & afstemning'],['kurs','Valutakurs'],['likviditet','Likviditet'],['ejere','Interne balancer'],['afklaring','Afklaring'],['mere','Flere sider']];
 var IKON = { Dashboard:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
   Enquiries:'<path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v6H3v-6z"/>', 'Team Maldivia':'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.700 6 6"/><circle cx="17.500" cy="9" r="2.400"/><path d="M16.500 14.200c2.700.300 4.500 2.500 4.500 5.300"/>',
   Sales:'<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>', Knowledge:'<path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/>',
@@ -866,7 +906,7 @@ function sBank(){
   + '<datalist id="gll">' + D.gl.map(function(g){ return '<option value="' + g.konto + '">' + esc(g.navn) + '</option>'; }).join('') + '</datalist>'
   + '<div class="sc"><table><tr><th>Dato</th><th class="l">Tekst</th><th>Beløb</th><th>DKK</th><th class="l">Kategori</th><th class="l">Konto i e-conomic</th><th class="l">Person</th><th class="l">Tæller som</th><th class="l">Bilag</th><th class="l"></th></tr>'
   + vis.map(function(l){ var g = kontoAf(l);
-      return '<tr><td>' + fd(l.d) + '<br><span class="mono dim">' + l.k + '</span></td><td class="wrapc">' + esc(l.t) + (l.r ? '<br>' + l.r.map(function(x){ return '<span class="pill v">' + x + '</span>'; }).join(' ') : '') + '</td>'
+      return '<tr><td>' + fd(l.d) + '<br><span class="mono dim">' + l.k + '</span></td><td class="wrapc">' + esc(l.t) + (l.r ? '<br>' + l.r.map(function(x){ return '<span class="pill v">' + x + '</span>'; }).join(' ') : '') + '<div class="fk">' + esc(forklar(l)) + '</div></td>'
       + '<td class="' + (l.b < 0 ? 'neg' : '') + '">' + nf2(l.b) + (l.v !== 'DKK' ? ' <span class="dim">' + l.v + '</span>' : '') + '</td><td class="' + (l.s ? 'est' : '') + '">' + nf2(l.dkk) + '</td>'
       + '<td class="l"><select class="f s' + (l.ret ? ' ch2' : '') + '" data-bf="kat" data-i="' + l.i + '" aria-label="Kategori">' + opt(Object.keys(KAT), l.kat, function(k){ return KAT[k]; }) + '</select></td>'
       + '<td class="l"><input class="f s' + (/\?/.test(l.gl || '') ? ' ch2' : '') + '" data-bf="gl" data-i="' + l.i + '" list="gll" value="' + esc(l.gl || '') + '" style="width:74px" aria-label="Konto"> <span class="dim" style="font-size:12px">' + esc(glNavn(l.gl)) + '</span></td>'
@@ -877,6 +917,33 @@ function sBank(){
   + '</div>';
 }
 
+function sKurs(){
+  if(!harKurs()) return hero('Valutakurs', 'Kurserne er ikke indlæst.', '');
+  var K = kursOpg(), pc = function(k){ return (k * 100).toLocaleString('da-DK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var nok0 = nbKurs('NOK','2025-12-31'), nok1 = nbKurs('NOK', K.slut), usd0 = nbKurs('USD','2025-12-31'), usd1 = nbKurs('USD', K.slut);
+  var pkt = ['2026-01-31','2026-02-28','2026-03-31','2026-04-30','2026-05-31','2026-06-30','2026-07-31','2026-08-31','2026-09-30','2026-10-31'].filter(function(d){ return d < K.slut; }).concat([K.slut]);
+  var ek = {}; D.epost.forEach(function(e){ if(+e.k >= 4470 && +e.k <= 4489) ek[e.k] = (ek[e.k] || 0) + e.b; });
+  var eTot = sum(Object.keys(ek), function(k){ return ek[k]; }), eFolder = sum(D.epost.filter(function(e){ return +e.k >= 4470 && +e.k <= 4489 && /Folder|Kundeindbetaling/i.test(e.t); }), function(e){ return e.b; });
+  var fort = function(n){ return (n >= 0 ? '+' : '−') + nf(Math.abs(n)); };
+  var rk = function(r){ return '<div class="sc"><table>' + r.map(function(x, i){ return '<tr><td class="l">' + (i === r.length - 1 && x[0].charAt(0) === '=' ? '<b>' + x[0] + '</b>' : x[0]) + '</td><td><b>' + x[1] + '</b></td></tr>'; }).join('') + '</table></div>'; };
+  return hero('Valutakurs · 1. jan – ' + fd(K.slut), fort(K.tot) + ' kr. i kurs' + (K.tot >= 0 ? 'gevinst' : 'tab') + '.',
+      calc([['Norske kroner · kurs 31. dec → ' + fd(K.slut), pc(nok0) + ' → ' + pc(nok1)], ['Dollar · kurs 31. dec → ' + fd(K.slut), pc(usd0) + ' → ' + pc(usd1)], ['Stod på NOK-kontoen 1. januar', nf(D.primo['DB-NOK']) + ' NOK'], ['= Gevinst på alle valutakonti', fort(K.tot), 'st']]))
+  + '<div class="grid">'
+  + '<div class="card pad0"><div class="ch"><span class="t">Konto for konto</span><span class="s">Saldo i valuta fra kontoudtoget · Nationalbankens kurs</span></div><div class="sc"><table><tr><th class="l">Konto</th><th>Saldo 1. jan</th><th>Kurs</th><th>Bevægelser</th><th>Saldo ' + fd(K.slut) + '</th><th>Kurs</th><th>Gevinst/tab i kr.</th></tr>'
+  + K.r.map(function(a){ return '<tr><td class="l"><b>' + a.navn + '</b><br><span class="dim mono">' + a.n + ' linjer</span></td><td>' + nf2(a.primo) + ' <span class="dim">' + a.v + '</span></td><td>' + pc(a.k0) + '</td><td class="' + (a.bev < 0 ? 'neg' : '') + '">' + nf2(a.bev) + '</td><td>' + nf2(a.ult) + ' <span class="dim">' + a.v + '</span></td><td>' + pc(a.k1) + '</td><td class="' + (a.g < 0 ? 'neg' : '') + '"><b>' + fort(a.g) + '</b></td></tr>'; }).join('')
+  + '<tr style="background:var(--soft)"><td class="l"><b>I alt</b></td><td></td><td></td><td></td><td></td><td></td><td><b>' + fort(K.tot) + '</b></td></tr></table></div></div>'
+  + '<div class="grid g2">'
+  + '<div class="card pad0"><div class="ch"><span class="t">Udviklingen</span><span class="s">Gevinst fra 1. januar til datoen</span></div><div class="sc"><table><tr><th class="l">Til og med</th><th>NOK-kurs</th><th>USD-kurs</th><th>Saldo NOK-kontoen</th><th>Gevinst i alt</th></tr>'
+  + pkt.map(function(d){ var o = kursOpg(d); return '<tr><td class="l">' + fd(d) + '</td><td>' + pc(nbKurs('NOK', d)) + '</td><td>' + pc(nbKurs('USD', d)) + '</td><td>' + nf(o.r[0].ult) + '</td><td class="' + (o.tot < 0 ? 'neg' : '') + '"><b>' + fort(o.tot) + '</b></td></tr>'; }).join('') + '</table></div></div>'
+  + '<div class="card"><div class="ch"><span class="t">Sådan regner vi</span></div>'
+  + rk([['Saldo ' + fd(K.slut) + ' × kursen den dag', 'det pengene er værd nu'], ['− Saldo 1. januar × kursen 31. december', 'det de var værd ved årets start'], ['− Hver ind- og udbetaling × kursen på dagen', 'det der er gået ind og ud'], ['= Kursgevinst eller -tab', 'resten']])
+  + '<p class="note">Valutabeløbene er kontoudtogets egne. Kurserne er Nationalbankens (DKK pr. 100). Vekslinger og overførsler mellem egne konti er med som bevægelser på begge konti. DKK-kontiene og Mastercard har ingen kurs.</p></div>'
+  + '</div>'
+  + '<div class="card"><div class="ch"><span class="t">Hvorfor e-conomic viser et tab</span><span class="s">Bogført til ' + fd(D.epostTil) + '</span></div>'
+  + rk([['Kurskonti 4475–4485 i e-conomic', nf(eTot) + ' i tab'], ['heraf ført pr. rejse eller kundebetaling', nf(eFolder)], ['Vores gevinst for samme periode', fort(kursOpg(D.epostTil).tot)]])
+  + '<p class="note">De to tal måler ikke det samme. E-conomic har bogført forskellen mellem den kurs, en rejse er faktureret eller indkøbt til, og kursen på betalingsdagen — rejse for rejse. Saldoen på valutakontiene er ikke reguleret til dagens kurs; det sker normalt først ved årsafslutningen. Vores tal er netop den regulering: hvad pengene på kontiene er blevet mere værd, fordi kronen er faldet over for NOK og USD. E-conomics valutasaldi pr. 1. januar er desuden ikke lig kontoudtogene (se Afklaring).</p></div>'
+  + '</div>';
+}
 function sLikv(){
   var ind = MON.map(function(){ return 0; }), lev = ind.slice(), dr = ind.slice(), ln = ind.slice(), an = ind.slice();
   D.bank.forEach(function(l){ var i = +l.d.slice(5,7)-1; if(l.kat === 'kunde') ind[i] += l.dkk; else if(l.kat === 'leverandoer') lev[i] += l.dkk; else if(l.kat === 'drift') dr[i] += l.dkk; else if(l.kat === 'loen') ln[i] += l.dkk; else if(l.kat !== 'intern') an[i] += l.dkk; });
@@ -945,7 +1012,7 @@ function sMere(){
   + '<div class="grid g2">' + p.map(function(x){ return '<div class="card ph" style="color:var(--ink)"><div class="ch"><span class="t">' + x[0] + '</span><span class="pill v">' + x[2] + '</span></div><p style="margin:0;color:var(--ink2)">' + x[1] + '</p></div>'; }).join('') + '</div>';
 }
 
-var TEGN = { overblik: sOverblik, budget: sBudget, saldo: sSaldo, leverandoer: sLev, bank: sBank, likviditet: sLikv, ejere: sEjere, afklaring: sAfk, mere: sMere };
+var TEGN = { overblik: sOverblik, budget: sBudget, saldo: sSaldo, leverandoer: sLev, bank: sBank, kurs: sKurs, likviditet: sLikv, ejere: sEjere, afklaring: sAfk, mere: sMere };
 function tegn(behold){ var sk = API.sk(), y = sk ? sk.scrollTop : 0; API.S = S; menu(); $('side').innerHTML = TEGN[S.p](); if(sk) sk.scrollTop = behold ? y : sk.scrollTop; }
 function go(p){ if(!TEGN[p]) p = 'overblik'; S.p = p; tegn(); var sk0 = API.sk(); if(sk0) sk0.scrollTop = 0; var t = INDRE.querySelector('#tabs .on'); if(t && t.scrollIntoView) t.scrollIntoView({ block: 'nearest', inline: 'center' }); }
 
